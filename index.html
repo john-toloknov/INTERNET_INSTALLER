@@ -1757,6 +1757,8 @@ button, input, textarea, select { font:inherit; }
     border-left:4px solid var(--beeline-yellow); }
 .act-debts-hero strong { display:block; color:var(--beeline-yellow); font-size:31px; line-height:1.1; }
 .act-debts-hero small { display:block; color:#bbb; margin-top:5px; font-size:13px; }
+.act-debts-breakdown { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px 14px; margin-top:12px; color:#ddd; font-size:13px; }
+.act-debts-breakdown span { white-space:nowrap; }
 .act-debts-icon { font-size:31px; }
 .act-debts-toolbar { display:flex; align-items:center; gap:10px; justify-content:space-between; }
 .act-debts-toolbar > span { min-width:0; overflow-wrap:anywhere; color:#bbb; font-size:12px; }
@@ -2675,7 +2677,7 @@ button, input, textarea, select { font:inherit; }
         <h2>📑 Долги по актам</h2>
         <div class="card">
             <div class="act-debts-hero">
-                <div><strong id="actDebtsCount">—</strong><small id="actDebtsSubtitle">Загружаем акты...</small></div>
+                <div><strong id="actDebtsCount">—</strong><small id="actDebtsSubtitle">Загружаем акты...</small><div id="actDebtsBreakdown" class="act-debts-breakdown" aria-live="polite"></div></div>
                 <span class="act-debts-icon" aria-hidden="true">📋</span>
             </div>
             <div class="act-debts-toolbar"><span id="actDebtsUser"></span>
@@ -2691,7 +2693,7 @@ button, input, textarea, select { font:inherit; }
         <h2>🔌 Оборудование и кабель</h2>
         <div class="card">
             <div class="act-debts-hero">
-                <div><strong id="myEquipmentCount">—</strong><small id="myEquipmentSubtitle">Загружаем остатки...</small></div>
+                <div><strong id="myEquipmentCount">—</strong><small id="myEquipmentSubtitle">Загружаем остатки...</small><div id="myEquipmentBreakdown" class="act-debts-breakdown" aria-live="polite"></div></div>
                 <span class="act-debts-icon" aria-hidden="true">📦</span>
             </div>
             <div class="act-debts-toolbar"><span id="myEquipmentUser"></span>
@@ -5028,6 +5030,7 @@ async function handleSearchAccess() {
     }
 
     function selectCableOption(fullValue, shortName, length) {
+        currentCableMeters = Number(length);
         // 1. Устанавливаем полное значение в скрытый инпут
         const hiddenInput = document.getElementById('cable-name');
         if (hiddenInput) {
@@ -5577,6 +5580,15 @@ function showFormStep() {
     function resetAllApp() {
         scannedBatch = [];
         lastScannedCode = "";
+        lastScanTime = 0;
+        const submitBtn = document.getElementById('submit-btn');
+        const loader = document.getElementById('loader-text');
+        if (submitBtn) submitBtn.style.display = 'flex';
+        if (loader) loader.style.display = 'none';
+        const manualInput = document.getElementById('manual-serial-input');
+        if (manualInput) manualInput.value = '';
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) fileInput.value = '';
         updateBatchUI();
         const lastBox = document.getElementById('last-scanned-box');
         if (lastBox) lastBox.style.display = 'none';
@@ -6484,7 +6496,7 @@ document.addEventListener('blur', (e) => {
         const groups = new Map();
         for (const item of items) {
             const groupName = /^(Включение|Переезд|Демонтаж) (FTTB|GPON)$/.test(item.type)
-                ? item.type.split(' ')[0] + ' FTTB/GPON' : 'Роутеры/Приставки';
+                ? item.type.split(' ')[0] + ' FTTB/GPON' : 'Сервис FTTB/GPON';
             if (!groups.has(groupName)) groups.set(groupName, []);
             groups.get(groupName).push(item);
         }
@@ -6496,7 +6508,7 @@ document.addEventListener('blur', (e) => {
             for (const entry of entries) {
                 const card = actDebtsNode('details', 'act-debts-entry');
                 const summary = actDebtsNode('summary');
-                summary.appendChild(actDebtsNode('span', 'act-debts-address', '📍 ' + (entry.address || 'Адрес не указан') + (entries.length > 1 && type.endsWith('FTTB/GPON') ? ' · ' + entry.type : (type === 'Роутеры/Приставки' ? ' · ' + entry.type : ''))));
+                summary.appendChild(actDebtsNode('span', 'act-debts-address', '📍 ' + (entry.address || 'Адрес не указан') + (entries.length > 1 && type.endsWith('FTTB/GPON') ? ' · ' + entry.type : (type === 'Сервис FTTB/GPON' ? ' · ' + entry.type : ''))));
                 const meta = actDebtsNode('span', 'act-debts-meta');
                 meta.appendChild(actDebtsNode('time', 'act-debts-date', '📅 ' + (formatActDebtDate(entry.date) || 'Дата не указана')));
                 meta.appendChild(actDebtsNode('span', 'act-debts-status', '● Акт не сдан'));
@@ -6537,6 +6549,7 @@ document.addEventListener('blur', (e) => {
         const url = CITIES_CONFIG[city]?.reportsScriptUrl;
         document.getElementById('actDebtsCount').textContent = '—';
         document.getElementById('actDebtsSubtitle').textContent = 'Ищем ваши акты';
+        document.getElementById('actDebtsBreakdown').replaceChildren();
         document.getElementById('actDebtsUser').textContent = name && city ? name + ' · ' + city : '';
         actDebtsState('⏳', 'Загружаем данные из таблицы города...');
         try {
@@ -6547,6 +6560,13 @@ document.addEventListener('blur', (e) => {
                 throw new Error(response?.message || 'Не удалось прочитать данные актов.');
             document.getElementById('actDebtsCount').textContent = response.items.length;
             document.getElementById('actDebtsSubtitle').textContent = response.items.length ? 'Актов ожидают сдачи' : 'Все акты сданы';
+            const counts = { 'Включение': 0, 'Переезд': 0, 'Сервис': 0, 'Демонтаж': 0 };
+            for (const item of response.items) {
+                const kind = /^(Включение|Переезд|Демонтаж) (FTTB|GPON)$/.exec(item.type)?.[1] || 'Сервис';
+                counts[kind]++;
+            }
+            const breakdown = document.getElementById('actDebtsBreakdown');
+            for (const [kind, count] of Object.entries(counts)) breakdown.appendChild(actDebtsNode('span', '', kind + ': ' + count));
             if (response.items.length) renderActDebts(response.items);
             else actDebtsState('✨', 'Долгов по актам нет. Отличная работа!');
         } catch (error) {
@@ -6639,6 +6659,7 @@ document.addEventListener('blur', (e) => {
         const url = CITIES_CONFIG[city]?.reportsScriptUrl;
         document.getElementById('myEquipmentCount').textContent = '—';
         document.getElementById('myEquipmentSubtitle').textContent = 'Ищем ваши остатки';
+        document.getElementById('myEquipmentBreakdown').replaceChildren();
         document.getElementById('myEquipmentUser').textContent = name && city ? name + ' · ' + city : '';
         myEquipmentState('⏳', 'Загружаем данные из таблицы города...');
         try {
@@ -6649,6 +6670,18 @@ document.addEventListener('blur', (e) => {
                 throw new Error(response?.message || 'Не удалось прочитать остатки оборудования.');
             document.getElementById('myEquipmentCount').textContent = response.items.length;
             document.getElementById('myEquipmentSubtitle').textContent = response.items.length ? 'Позиций в наличии' : 'Остатков нет';
+            const counts = { 'Кабель': 0, 'Роутеры': 0, 'Приставки': 0 };
+            let cableMeters = 0;
+            for (const item of response.items) {
+                if (!Object.hasOwn(counts, item.type)) continue;
+                counts[item.type]++;
+                if (item.type === 'Кабель') cableMeters += Number(String(item.meters ?? 0).replace(',', '.')) || 0;
+            }
+            const breakdown = document.getElementById('myEquipmentBreakdown');
+            breakdown.appendChild(actDebtsNode('span', '', 'Кабель: ' + counts['Кабель']));
+            breakdown.appendChild(actDebtsNode('span', '', 'Метраж: ' + new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(cableMeters) + ' м'));
+            breakdown.appendChild(actDebtsNode('span', '', 'Роутеры: ' + counts['Роутеры']));
+            breakdown.appendChild(actDebtsNode('span', '', 'Приставки: ' + counts['Приставки']));
             if (response.items.length) renderMyEquipment(response.items);
             else myEquipmentState('📦', 'Оборудование и кабель в наличии не найдены.');
         } catch (error) {
@@ -7246,6 +7279,8 @@ const allowedScrollScreens = [
     'screen-admin',          // Админ панель (замените на ваш реальный ID экрана)
     'screen-check-return',   // Проверить возврат
     'screen-access-search',  // Поиск доступа (замените на ваш реальный ID)
+    'screen-act-debts',
+    'screen-my-equipment',
     // --- Место для будущих экранов (предиктив) ---
     // 'screen-future-1',
     // 'screen-future-2'
