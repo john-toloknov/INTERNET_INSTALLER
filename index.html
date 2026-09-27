@@ -256,6 +256,30 @@
             border: 1px solid rgba(255, 77, 77, 0.3);
         }
 
+
+        /* Планы ППР */
+        html:has(#screen-ppr-plans.active) { scrollbar-width: none; }
+        html:has(#screen-ppr-plans.active)::-webkit-scrollbar, body:has(#screen-ppr-plans.active)::-webkit-scrollbar { display: none; }
+        .ppr-plan-list { display: grid; gap: 8px; padding: 3px; overflow: visible; }
+        .ppr-plan-item { width: 100%; text-align: left; padding: 14px; border: 1px solid var(--card-border); border-radius: 10px; color: var(--text-main); background: var(--card-bg); cursor: pointer; font-weight: 600; }
+        .ppr-plan-item:hover, .ppr-plan-item:focus-visible { border-color: var(--beeline-yellow); color: var(--beeline-yellow); }
+        .ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: rgba(0,0,0,.86); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
+        .ppr-plan-dialog { width: min(100%, 520px); max-height: 92vh; overflow-y: auto; scrollbar-width: none; background: var(--card-bg); border: 1px solid var(--beeline-yellow); border-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .ppr-plan-dialog::-webkit-scrollbar { display: none; }
+        .ppr-plan-dialog h3 { text-align: center; color: var(--beeline-yellow); margin-top: 0; }
+        .ppr-plan-dialog label { display: block; margin: 13px 0 5px; }
+        .ppr-plan-dialog input, .ppr-plan-dialog textarea { width: 100%; box-sizing: border-box; background: var(--beeline-dark); color: var(--text-main); border: 1px solid var(--card-border); border-radius: 9px; padding: 11px; font: inherit; }
+        .ppr-plan-dialog input[type="date"] { color-scheme: dark; cursor: pointer; }
+        .ppr-plan-dialog input:disabled, .ppr-plan-dialog textarea:disabled, .ppr-plan-dialog .dropdown-select-btn:disabled { opacity: .72; cursor: default; }
+        .ppr-plan-dialog .ppr-staff-dropdown .dropdown-list { background: #1c1c1c; border: 1px solid var(--card-border); border-radius: 12px; max-height: 300px; overflow-y: auto; z-index: 100; }
+        .ppr-plan-dialog .ppr-staff-dropdown.open .dropdown-list { max-height: 300px; }
+        .ppr-plan-dialog .ppr-staff-dropdown .dropdown-select-btn { background: #0a0a0a; color: #fff; }
+        .ppr-plan-dialog .ppr-staff-dropdown .dropdown-item { padding: 12px; color: #fff; }
+        .ppr-plan-dialog .ppr-staff-dropdown .dropdown-item:hover { color: var(--beeline-yellow); }
+        .ppr-plan-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .ppr-plan-actions { display: flex; gap: 9px; margin-top: 18px; flex-wrap: wrap; }
+        .ppr-plan-actions .btn { flex: 1; margin: 0; min-width: 120px; }
+
         .app-screen { display: none; }
         .app-screen.active { display: block; }
 
@@ -2031,6 +2055,53 @@ button, input, textarea, select { font:inherit; }
         </div>
     </div>
 
+    <!-- Планы по ППР: доступные адреса текущего города -->
+    <div id="screen-ppr-plans" class="app-screen uniform-screen">
+        <h2>Планы по ППР</h2>
+        <div class="card">
+            <label for="pprPlansSearch">Поиск по адресу</label>
+            <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
+            <p id="pprPlansHint">Загрузка адресов…</p>
+            <div id="pprPlansList" class="ppr-plan-list"></div>
+            <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button>
+            </div>
+        </div>
+    </div>
+    <div id="pprPlanOverlay" class="ppr-plan-overlay" role="dialog" aria-modal="true" aria-labelledby="pprPlanTitle">
+        <div class="ppr-plan-dialog">
+            <h3 id="pprPlanTitle">План ППР</h3>
+            <div id="pprPlanMeta"></div>
+            <label for="pprPlanBrigade">Бригада взяла в работу</label>
+            <div class="custom-dropdown ppr-staff-dropdown">
+                <button type="button" class="dropdown-select-btn" id="pprPlanBrigadeBtn" onclick="toggleDropdown(event, 'pprPlanBrigadeList')"><span id="pprPlanBrigadeSelected">Выберите бригадира</span><span>▼</span></button>
+                <input type="hidden" id="pprPlanBrigade" value="">
+                <div class="dropdown-list" id="pprPlanBrigadeList"><div style="padding:8px;border-bottom:1px solid var(--card-border)"><input type="text" placeholder="🔍 Поиск по фамилии..." oninput="pprPlanFilterStaff('pprPlanBrigade', this.value)" onclick="event.stopPropagation()" autocomplete="off"></div><div class="ppr-plan-options"></div></div>
+            </div>
+            <div class="ppr-plan-dates">
+                <div><label for="pprPlanStart">Начало работ</label><input type="date" id="pprPlanStart"></div>
+                <div><label for="pprPlanEnd">Завершение работ</label><input type="date" id="pprPlanEnd"></div>
+            </div>
+            <label for="pprPlanComment">Комментарий к работам</label>
+            <textarea id="pprPlanComment" rows="4" maxlength="1500" placeholder="Какие работы предстоит выполнить"></textarea>
+            <label for="pprPlanExecutor">Исполняющий Монтажник</label>
+            <div class="custom-dropdown ppr-staff-dropdown">
+                <button type="button" class="dropdown-select-btn" id="pprPlanExecutorBtn" onclick="toggleDropdown(event, 'pprPlanExecutorList')"><span id="pprPlanExecutorSelected">Выберите исполнителя</span><span>▼</span></button>
+                <input type="hidden" id="pprPlanExecutor" value="">
+                <div class="dropdown-list" id="pprPlanExecutorList"><div style="padding:8px;border-bottom:1px solid var(--card-border)"><input type="text" placeholder="🔍 Поиск по фамилии..." oninput="pprPlanFilterStaff('pprPlanExecutor', this.value)" onclick="event.stopPropagation()" autocomplete="off"></div><div class="ppr-plan-options"></div></div>
+            </div>
+            <label for="pprPlanStatus">Статус</label>
+            <input id="pprPlanStatus" readonly>
+            <div id="pprPlanNotice" style="margin-top:12px;color:var(--beeline-yellow)"></div>
+            <div class="ppr-plan-actions">
+                <button type="button" class="btn danger-btn" onclick="closePprPlan()">Закрыть</button>
+                <button type="button" class="btn main-btn" id="pprPlanSaveBtn" onclick="confirmPprPlan(false)">Сохранить план</button>
+                <button type="button" class="btn secondary-btn" id="pprPlanCompleteBtn" onclick="confirmPprPlan(true)">✅ Выполнено</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 4.3. ОТЧЕТЫ ТЕХНИКОВ / ОТЧЕТЫ ПО ЗАЯВКАМ -->
     <div id="screen-technician-reports" class="app-screen">
         <div class="container">
@@ -2655,7 +2726,7 @@ button, input, textarea, select { font:inherit; }
         <div class="card">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                 <button class="btn action-btn" onclick="openMySchedule()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📅 Рабочий график</button>
-                <button class="btn action-btn" onclick="alert('Планы по ППР')" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
+                <button class="btn action-btn" id="pprPlansMenuBtn" onclick="openPprPlans()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
                 
                 <button class="btn action-btn" onclick="openActDebts()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📑 Долги по Актам</button>
                 <button class="btn action-btn" onclick="openMyEquipment()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔌 Оборудование и кабель</button>
@@ -3468,6 +3539,8 @@ button, input, textarea, select { font:inherit; }
             const manager = ['Старший Техник', 'Администратор', 'Владелец'].includes(role);
             technicianReportsBtn.style.display = 'flex';
             installerMenuBtn.style.display = 'flex';
+            const pprMenu = document.getElementById('pprPlansMenuBtn');
+            if (pprMenu) pprMenu.style.display = ['Техник-Универсал','Бригадир','Старший Техник','Администратор','Владелец'].includes(role) ? '' : 'none';
             equipmentAccessBtn.style.display = trainee ? 'none' : 'flex';
             scannerBtn.style.display = manager ? 'flex' : 'none';
             adminBtn.style.display = manager ? 'flex' : 'none';
@@ -6899,6 +6972,226 @@ document.addEventListener('blur', (e) => {
         }
     }
 
+
+    // Планы ППР: список и карточка города. Сервер повторно проверяет роль и версию строки.
+    let pprPlanItems = [], pprPlanStaff = [], pprPlanSelected = null, pprPlanBusy = false;
+    const pprPlanChoices = {};
+    const pprPlanRoles = ['Техник-Универсал','Бригадир','Старший Техник','Администратор','Владелец'];
+    const pprPlanManagers = ['Старший Техник','Администратор','Владелец'];
+    const pprEsc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    async function openPprPlans() {
+        if (!currentUser || !pprPlanRoles.includes(currentUser.role)) {
+            showBeelineModal('Доступ ограничен', 'Ваша роль не может просматривать планы ППР.', '🔒'); return;
+        }
+        switchScreen('screen-ppr-plans');
+        document.getElementById('pprPlansSearch').value = '';
+        await loadPprPlans();
+    }
+    function pprPlanStatusOnce(url, requestId) {
+        return new Promise((resolve, reject) => {
+            const callback = '__beelinePprCallback_' + Math.random().toString(36).slice(2);
+            const script = document.createElement('script');
+            let done = false;
+            const finish = (err, value) => {
+                if (done) return;
+                done = true; clearTimeout(timer); script.remove(); delete window[callback];
+                err ? reject(err) : resolve(value);
+            };
+            const timer = setTimeout(() => finish(new Error('Нет ответа городского скрипта')), 7000);
+            window[callback] = value => finish(null, value);
+            script.onerror = () => finish(new Error('Городской скрипт недоступен'));
+            script.src = `${url}?action=pprPlansStatus&requestId=${encodeURIComponent(requestId)}&callback=${callback}`;
+            document.head.appendChild(script);
+        });
+    }
+    async function requestPprPlans(operation, fields = {}) {
+        const url = CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;
+        if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
+        const requestId = 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        const payload = {action:'pprPlans', operation, requestId,
+            city:currentUser.city, actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
+        await fetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
+        const deadline = Date.now() + 90000;
+        while (Date.now() < deadline) {
+            try {
+                const result = await pprPlanStatusOnce(url, requestId);
+                if (result.status === 'success') return result;
+                if (result.status === 'error') throw new Error(result.message || 'Не удалось сохранить план');
+            } catch (err) {
+                if (!['Нет ответа городского скрипта','Городской скрипт недоступен'].includes(err.message)) throw err;
+            }
+            await new Promise(resolve => setTimeout(resolve, 1200));
+        }
+        throw new Error('Не удалось подтвердить запись. Проверьте таблицу города перед повторной отправкой.');
+    }
+    async function loadPprPlans() {
+        if (pprPlanBusy) return;
+        pprPlanBusy = true;
+        const hint = document.getElementById('pprPlansHint');
+        hint.textContent = 'Загрузка адресов…';
+        try {
+            const all = [];
+            let offset = 0, total = 0, staff = [];
+            do {
+                const result = await requestPprPlans('list', {offset});
+                const batch = result.items || [];
+                total = Number(result.total) || 0;
+                if (!offset) staff = result.staff || [];
+                all.push(...batch);
+                if (!batch.length && offset < total) throw new Error('Список адресов изменился во время загрузки. Откройте его снова.');
+                offset += batch.length;
+                hint.textContent = `Загрузка адресов: ${Math.min(offset,total)} из ${total}…`;
+            } while (offset < total);
+            pprPlanItems = all;
+            pprPlanStaff = staff;
+            filterPprPlans();
+            window.scrollTo(0, 0);
+        } catch (err) {
+            hint.textContent = 'Не удалось загрузить адреса.';
+            showBeelineModal('Планы ППР', pprEsc(err.message), '❌');
+        } finally { pprPlanBusy = false; }
+    }
+    function filterPprPlans() {
+        const query = document.getElementById('pprPlansSearch').value.trim().toLocaleLowerCase('ru');
+        const visible = pprPlanItems.map((item,index) => ({item,index})).filter(({item}) =>
+            `${item.address} ${item.house}`.toLocaleLowerCase('ru').includes(query));
+        document.getElementById('pprPlansHint').textContent = pprPlanItems.length
+            ? (query ? `Найдено: ${visible.length} из ${pprPlanItems.length}` : `Адреса: ${pprPlanItems.length}`)
+            : 'Нет адресов без статуса или со статусом «В работе».';
+        document.getElementById('pprPlansList').innerHTML = visible.length
+            ? visible.map(({item,index}) => `<button type="button" class="ppr-plan-item" onclick="openPprPlanCard(${index})">📍 ${pprEsc(item.address)} ${pprEsc(item.house)}</button>`).join('')
+            : (query ? '<p>По вашему запросу адреса не найдены.</p>' : '');
+    }
+    function pprPlanStaffLabel(person) {
+        const warehouse = String(person?.warehouse || '').trim();
+        const city = String(person?.city || currentUser?.city || '').trim();
+        return person.name + (warehouse ? `, ${warehouse}` : '') + (city ? ` (${city})` : '');
+    }
+    function pprPlanFindPerson(people, value) {
+        return people.find(person => person.name === value || pprPlanStaffLabel(person) === value);
+    }
+    function pprPlanAllowedStaff(id, people) {
+        const role = String(currentUser?.role || '').trim();
+        const name = String(currentUser?.fullName || '').trim();
+        const manager = pprPlanManagers.includes(role);
+        return people.filter(person => {
+            if (person.city && person.city !== currentUser?.city) return false;
+            if (id === 'pprPlanBrigade')
+                return person.role === 'Бригадир' && (manager || (role === 'Бригадир' && person.name === name));
+            if (id === 'pprPlanExecutor') {
+                if (role === 'Техник-Универсал') return person.role === role && person.name === name;
+                if (role === 'Бригадир') return person.role === 'Техник-Универсал';
+                if (manager) return person.role === 'Техник-Универсал' || person.role === 'Бригадир';
+            }
+            return false;
+        });
+    }
+    function pprPlanSetOptions(id, people, value, blank) {
+        const hidden = document.getElementById(id);
+        const list = document.getElementById(id+'List');
+        const selected = pprPlanFindPerson(pprPlanAllowedStaff(id, people), value);
+        pprPlanChoices[id] = {people, blank};
+        hidden.value = selected ? pprPlanStaffLabel(selected) : (value || '');
+        document.getElementById(id+'Selected').textContent = selected ? selected.name : (value || blank);
+        list.querySelector('input').value = '';
+        pprPlanFilterStaff(id, '');
+    }
+    function pprPlanFilterStaff(id, query) {
+        const {people, blank} = pprPlanChoices[id] || {people:[], blank:'Выберите сотрудника'};
+        const list = document.getElementById(id+'List');
+        const container = list.querySelector('.ppr-plan-options');
+        const q = String(query || '').trim().toLocaleLowerCase('ru');
+        const matches = pprPlanAllowedStaff(id, people).filter(person =>
+            [person.name, person.role, person.warehouse].some(field => String(field || '').toLocaleLowerCase('ru').includes(q)));
+        container.replaceChildren();
+        if (!q) matches.unshift({name:'', label:blank});
+        if (!matches.length) {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-secondary)';
+            empty.textContent = 'Сотрудники не найдены';
+            container.appendChild(empty);
+        }
+        matches.forEach(person => {
+            const option = document.createElement('div');
+            option.className = 'dropdown-item';
+            option.style.cssText = 'padding:12px;cursor:pointer;border-bottom:1px solid #222;color:#fff';
+            if (person.label) {
+                option.textContent = person.label;
+            } else {
+                const name = document.createElement('b');
+                name.textContent = person.name;
+                option.appendChild(name);
+                const detail = document.createElement('span');
+                detail.style.cssText = 'font-size:11px;color:var(--text-secondary)';
+                detail.textContent = ` (${person.warehouse || 'Сотрудник'})`;
+                option.appendChild(detail);
+            }
+            option.addEventListener('click', () => {
+                if (person.name && !pprPlanAllowedStaff(id, people).includes(person)) return;
+                selectOption(id, person.name ? pprPlanStaffLabel(person) : '', null, null, id+'List');
+                document.getElementById(id+'Selected').textContent = person.name || blank;
+            });
+            container.appendChild(option);
+        });
+    }
+    function pprPlanIsoDate(dmy) {
+        const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(dmy || '');
+        return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+    }
+    function openPprPlanCard(index) {
+        const item = pprPlanItems[index]; if (!item) return;
+        pprPlanSelected = item;
+        const role = currentUser.role, manager = pprPlanManagers.includes(role);
+        const inWork = item.status === 'В работе';
+        const editable = !inWork || manager;
+        document.getElementById('pprPlanTitle').textContent = `${item.address} ${item.house}`;
+        document.getElementById('pprPlanMeta').textContent = `Технология: ${item.technology || '—'} · ID дома: ${item.houseId || '—'}`;
+        pprPlanSetOptions('pprPlanBrigade',pprPlanStaff,role === 'Бригадир' && !inWork ? currentUser.fullName : item.brigade,'Выберите бригадира');
+        pprPlanSetOptions('pprPlanExecutor',pprPlanStaff,role === 'Техник-Универсал' && !inWork ? currentUser.fullName : item.executor,'Выберите исполнителя');
+        const dates = (item.dates || '').split(/\s+[—–-]\s+/);
+        document.getElementById('pprPlanStart').value = pprPlanIsoDate(dates[0]);
+        document.getElementById('pprPlanEnd').value = pprPlanIsoDate(dates[1]);
+        document.getElementById('pprPlanComment').value = item.comment || '';
+        document.getElementById('pprPlanStatus').value = item.status || 'В работе (после сохранения)';
+        ['pprPlanStart','pprPlanEnd','pprPlanComment'].forEach(id => document.getElementById(id).disabled = !editable);
+        document.getElementById('pprPlanBrigadeBtn').disabled = !editable || !manager;
+        document.getElementById('pprPlanExecutorBtn').disabled = !editable || role === 'Техник-Универсал';
+        document.getElementById('pprPlanSaveBtn').style.display = editable ? '' : 'none';
+        document.getElementById('pprPlanCompleteBtn').style.display = item.canComplete ? '' : 'none';
+        document.getElementById('pprPlanNotice').textContent = inWork && !manager ? (item.canComplete ? 'План уже в работе. Поля закрыты для редактирования; вы можете отметить выполнение.' : 'План уже в работе. Для вашей роли редактирование и завершение недоступны.') : '';
+        document.getElementById('pprPlanOverlay').style.display = 'flex';
+    }
+    function closePprPlan() { document.getElementById('pprPlanOverlay').style.display='none'; pprPlanSelected=null; }
+    function confirmPprPlan(complete) {
+        if (!pprPlanSelected || pprPlanBusy) return;
+        if (!complete) {
+            const start = document.getElementById('pprPlanStart').value, end = document.getElementById('pprPlanEnd').value;
+            if (!start || !end || start > end || !document.getElementById('pprPlanComment').value.trim()) {
+                showBeelineModal('Заполните план', 'Укажите обе даты в правильном порядке и комментарий.', '⚠️'); return;
+            }
+        }
+        showBeelineModal(complete ? 'Завершить ППР?' : 'Подтвердить план ППР?',
+            `${pprEsc(pprPlanSelected.address)} ${pprEsc(pprPlanSelected.house)}. ${complete ? 'Статус станет «Выполнено».' : 'Статус станет «В работе»; сотрудникам придут уведомления.'}`,
+            '📋', `<button type="button" class="btn main-btn" onclick="closeBeelineModal(); savePprPlan(${complete})">Подтвердить</button><button type="button" class="btn danger-btn" onclick="closeBeelineModal()">Отмена</button>`);
+    }
+    async function savePprPlan(complete) {
+        if (pprPlanBusy || !pprPlanSelected) return;
+        pprPlanBusy = true;
+        const item = pprPlanSelected;
+        const btn = document.getElementById(complete ? 'pprPlanCompleteBtn' : 'pprPlanSaveBtn');
+        const label = btn.textContent; btn.disabled=true; btn.textContent='⏳ Сохранение…';
+        try {
+            const result = await requestPprPlans('save', {row:item.row, version:item.version, complete,
+                brigade:document.getElementById('pprPlanBrigade').value,
+                start:document.getElementById('pprPlanStart').value, end:document.getElementById('pprPlanEnd').value,
+                comment:document.getElementById('pprPlanComment').value.trim(),
+                executor:document.getElementById('pprPlanExecutor').value});
+            closePprPlan();
+            showBeelineModal('План ППР сохранён', `Адрес: ${pprEsc(item.address)} ${pprEsc(item.house)}. Статус: ${pprEsc(result.result)}.${result.warning ? '<br>⚠️ '+pprEsc(result.warning) : ''}`, result.warning ? '⚠️' : '✅');
+        } catch (err) { showBeelineModal('Не удалось сохранить ППР', pprEsc(err.message), '❌'); }
+        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; loadPprPlans(); }
+    }
+
     // ===== Навигация и сброс формы отчетов =====
     function resetTechnicianReportState() {
         currentStep = 1;
@@ -7350,6 +7643,7 @@ const allowedScrollScreens = [
     'screen-access-search',  // Поиск доступа (замените на ваш реальный ID)
     'screen-act-debts',
     'screen-my-equipment',
+    'screen-ppr-plans',
     // --- Место для будущих экранов (предиктив) ---
     // 'screen-future-1',
     // 'screen-future-2'
