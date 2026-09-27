@@ -2036,7 +2036,7 @@ button, input, textarea, select { font:inherit; }
         <div class="container">
             <h2>Отчеты по заявкам</h2>
 
-            <form id="tr-reportForm" onsubmit="submitReport(event)">
+            <form id="tr-reportForm" novalidate onsubmit="submitReport(event)">
                 
                 <!-- ВЫБОР ТИПА ОТЧЕТА -->
                 <div class="card" style="z-index: 100;">
@@ -2074,16 +2074,16 @@ button, input, textarea, select { font:inherit; }
                         <div class="card">
                             <h3>Данные абонента</h3>
                             <label>Номер заявки</label>
-                            <input type="text" id="tr-appNumber" placeholder="940299">
+                            <input type="text" inputmode="numeric" id="tr-appNumber" placeholder="940299" required>
 
                             <label>Адрес</label>
-                            <input type="text" id="tr-address" placeholder="просп. Республики 69/1 21">
+                            <input type="text" id="tr-address" placeholder="просп. Республики 69/1 21" required>
 
                             <label>Логин</label>
-                            <input type="text" id="tr-login" placeholder="0017100080">
+                            <input type="text" inputmode="numeric" id="tr-login" placeholder="0017100080" required>
 
                             <label>ФИО абонента</label>
-                            <input type="text" id="tr-clientName" placeholder="Усачёва Мария Александровна">
+                            <input type="text" id="tr-clientName" placeholder="Усачёва Мария Александровна" required>
                         </div>
                         <div class="common-nav-row" style="display: flex; gap: 10px;">
                             <button type="button" class="btn danger-btn" style="flex: 1;" onclick="exitTechnicianReports()">🔚 Главное меню</button>
@@ -2110,48 +2110,48 @@ button, input, textarea, select { font:inherit; }
                             <div class="materials-grid-2">
                                 <div class="field-container">
                                     <label>Номер кабеля</label>
-                                    <input type="text" id="tr-cableNum" placeholder="9922281">
+                                    <input type="text" inputmode="numeric" id="tr-cableNum" placeholder="9922281">
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во Кабеля</label>
-                                    <input type="number" step="0.1" id="tr-cableQty" placeholder="65">
+                                    <input type="text" inputmode="decimal" id="tr-cableQty" placeholder="65">
                                 </div>
                             </div>
 
                             <div class="materials-grid-2">
                                 <div class="field-container">
                                     <label>Номер патч-корда</label>
-                                    <input type="text" id="tr-patchCableNum" placeholder="15593">
+                                    <input type="text" inputmode="numeric" id="tr-patchCableNum" placeholder="15593">
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во патч-корда</label>
-                                    <input type="number" step="0.1" id="tr-patchCableQty" placeholder="15">
+                                    <input type="text" inputmode="decimal" id="tr-patchCableQty" placeholder="15">
                                 </div>
                             </div>
 
                             <div class="materials-grid-2">
                                 <div class="field-container">
                                     <label>Кол-во коннекторов</label>
-                                    <input type="number" id="tr-connectorsQty" placeholder="10">
+                                    <input type="text" inputmode="numeric" id="tr-connectorsQty" placeholder="10">
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во изоленты</label>
-                                    <input type="number" id="tr-tapeQty" placeholder="1">
+                                    <input type="text" inputmode="numeric" id="tr-tapeQty" placeholder="1">
                                 </div>
                             </div>
 
                             <div class="materials-grid-3">
                                 <div class="field-container">
                                     <label>Кол-во клипс</label>
-                                    <input type="number" id="tr-clipsQty" placeholder="45">
+                                    <input type="text" inputmode="numeric" id="tr-clipsQty" placeholder="45">
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во хомутов</label>
-                                    <input type="number" id="tr-clampsQty" placeholder="30">
+                                    <input type="text" inputmode="numeric" id="tr-clampsQty" placeholder="30">
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во UY2</label>
-                                    <input type="number" id="tr-uy2Qty" placeholder="10">
+                                    <input type="text" inputmode="numeric" id="tr-uy2Qty" placeholder="10">
                                 </div>
                             </div>
 
@@ -2160,48 +2160,48 @@ button, input, textarea, select { font:inherit; }
                                 <div class="materials-grid-2" style="margin-top: 12px;">
                                     <div class="field-container">
                                         <label>Кабель канал 10/15</label>
-                                        <input type="number" step="0.1" id="tr-cc1015" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-cc1015" placeholder="Метров">
                                     </div>
                                     <div class="field-container">
                                         <label>Кабель канал 20/10</label>
-                                        <input type="number" step="0.1" id="tr-cc2010" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-cc2010" placeholder="Метров">
                                     </div>
                                 </div>
 
                                 <div class="materials-grid-3" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>Внешний угол</label>
-                                        <input type="number" step="0.1" id="tr-extCorner" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-extCorner" placeholder="Метров">
                                     </div>
                                     <div class="field-container">
                                         <label>Внутренний угол</label>
-                                        <input type="number" step="0.1" id="tr-intCorner" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-intCorner" placeholder="Метров">
                                     </div>
                                     <div class="field-container">
                                         <label>Поворотный угол</label>
-                                        <input type="number" step="0.1" id="tr-ftthTurnCorner" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-ftthTurnCorner" placeholder="Метров">
                                     </div>
                                 </div>
 
                                 <div class="materials-grid-3" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>Хвостовик поворотный</label>
-                                        <input type="number" id="tr-ftthTail" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-ftthTail" placeholder="Штук">
                                     </div>
                                     <div class="field-container">
                                         <label>Дюбель 6*40</label>
-                                        <input type="number" id="tr-dowels" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-dowels" placeholder="Штук">
                                     </div>
                                     <div class="field-container">
                                         <label>Клипса FTTH</label>
-                                        <input type="number" id="tr-ftthClip" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-ftthClip" placeholder="Штук">
                                     </div>
                                 </div>
 
                                 <div class="materials-grid-2" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>Кабельный настенный ввод FTTH</label>
-                                        <input type="number" id="tr-ftthWallIn" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-ftthWallIn" placeholder="Штук">
                                     </div>
                                     <div class="field-container"></div>
                                 </div>
@@ -2209,33 +2209,33 @@ button, input, textarea, select { font:inherit; }
                                 <div class="materials-grid-2" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>Оптический патч-корд</label>
-                                        <input type="number" step="0.1" id="tr-optPatchMeters" placeholder="Метров">
+                                        <input type="text" inputmode="decimal" id="tr-optPatchMeters" placeholder="Метров">
                                     </div>
                                     <div class="field-container">
                                         <label>&nbsp;</label>
-                                        <input type="number" id="tr-optPatchCount" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-optPatchCount" placeholder="Штук">
                                     </div>
                                 </div>
 
                                 <div class="materials-grid-2" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>SOC SC/APC 3.0mm</label>
-                                        <input type="number" id="tr-socConnector" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-socConnector" placeholder="Штук">
                                     </div>
                                     <div class="field-container">
                                         <label>Fast-коннектор </label>
-                                        <input type="number" id="tr-fastConnector" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-fastConnector" placeholder="Штук">
                                     </div>
                                 </div>
 
                                 <div class="materials-grid-2" style="margin-top: 8px;">
                                     <div class="field-container">
                                         <label>Оптическая гильза</label>
-                                        <input type="number" id="tr-kdzs" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-kdzs" placeholder="Штук">
                                     </div>
                                     <div class="field-container">
                                         <label>Адаптер</label>
-                                        <input type="number" id="tr-adapter" placeholder="Штук">
+                                        <input type="text" inputmode="numeric" id="tr-adapter" placeholder="Штук">
                                     </div>
                                 </div>
                             </div>
@@ -2427,7 +2427,7 @@ button, input, textarea, select { font:inherit; }
                             </div>
 
                             <label>Комментарий</label>
-                            <textarea id="tr-comment" rows="3"></textarea>
+                            <textarea id="tr-comment" rows="3" required></textarea>
 
                             <label style="margin-top: 15px;">Фото отчета (до 10 штук):</label>
                             <label class="file-upload-label" for="tr-photoInput">📂 Загрузить из галереи</label>
@@ -2569,7 +2569,7 @@ button, input, textarea, select { font:inherit; }
                             <input type="hidden" id="tr-pprInstaller1">
 
                             <label>Часовая ставка 1 монтажника</label>
-                            <input type="number" step="0.1" id="tr-pprRate1" placeholder="0">
+                            <input type="text" inputmode="decimal" id="tr-pprRate1" placeholder="0" required>
 
                             <label style="margin-top: 15px;">ФИО Монтажника 2</label>
                             <div class="custom-dropdown">
@@ -2579,10 +2579,10 @@ button, input, textarea, select { font:inherit; }
                             </div>
 
                             <label>Часовая ставка 2 монтажника</label>
-                            <input type="number" step="0.1" id="tr-pprRate2" placeholder="0">
+                            <input type="text" inputmode="decimal" id="tr-pprRate2" placeholder="0">
 
                             <label style="margin-top: 15px;">Комментарий</label>
-                            <textarea id="tr-pprComment" rows="3"></textarea>
+                            <textarea id="tr-pprComment" rows="3" required></textarea>
 
                             <label style="margin-top: 15px;">До ППР (до 20 штук):</label>
                             <label class="file-upload-label" for="tr-pprPhotoBeforeInput">📂 Загрузить ДО из галереи</label>
@@ -6108,7 +6108,66 @@ document.addEventListener('blur', (e) => {
         window.scrollTo(0, 0);
     }
 
+    const reportMaterialIds = ['tr-cableNum','tr-cableQty','tr-patchCableNum','tr-patchCableQty',
+        'tr-connectorsQty','tr-tapeQty','tr-clipsQty','tr-clampsQty','tr-uy2Qty','tr-cc1015',
+        'tr-cc2010','tr-extCorner','tr-intCorner','tr-ftthTurnCorner','tr-ftthTail','tr-dowels',
+        'tr-ftthClip','tr-ftthWallIn','tr-optPatchMeters','tr-optPatchCount','tr-socConnector',
+        'tr-fastConnector','tr-kdzs','tr-adapter'];
+    const reportDecimalIds = new Set(['tr-cableQty','tr-patchCableQty','tr-cc1015','tr-cc2010',
+        'tr-extCorner','tr-intCorner','tr-ftthTurnCorner','tr-optPatchMeters','tr-pprRate1','tr-pprRate2']);
+    const reportDigitIds = new Set(['tr-appNumber','tr-login', ...reportMaterialIds, 'tr-pprRate1','tr-pprRate2']);
+    function reportFieldError(id, message) {
+        const field = document.getElementById(id);
+        field.setCustomValidity(message);
+        const step = field.closest('.standard-report-block .step');
+        if (step && !step.classList.contains('active')) {
+            const num = {'tr-step-client':1,'tr-step-materials':2,'tr-step-finish':4}[step.id];
+            if (num) showStep(num);
+        }
+        field.reportValidity();
+        field.focus();
+        return false;
+    }
+    function validateReportField(id, required = false) {
+        const field = document.getElementById(id);
+        const value = field.value;
+        field.setCustomValidity('');
+        if (required && !value.trim()) return reportFieldError(id, 'Заполните обязательное поле.');
+        if (value && value !== value.trim()) return reportFieldError(id, 'Пробелы в начале и конце запрещены.');
+        if (!value) return true;
+        let valid = true;
+        if (reportDigitIds.has(id)) valid = (reportDecimalIds.has(id) ? /^\d+(?:[.,]\d+)?$/ : /^\d+$/).test(value);
+        if (id === 'tr-clientName') valid = /^[\p{L}]+(?:[ '-][\p{L}]+)*$/u.test(value);
+        if (id === 'tr-address') valid = /[\p{L}]/u.test(value) && /\d/u.test(value);
+        return valid || reportFieldError(id, id === 'tr-address' ? 'Укажите адрес с буквами и цифрами.' : 'Проверьте формат поля.');
+    }
+    function validateClientStep() {
+        return ['tr-appNumber','tr-address','tr-login','tr-clientName'].every(id => validateReportField(id, true));
+    }
+    function validateMaterialStep() {
+        return reportMaterialIds.every(id => validateReportField(id));
+    }
+    function validateFinishStep(isPpr) {
+        if (!validateReportField(isPpr ? 'tr-pprComment' : 'tr-comment', true)) return false;
+        if (!isPpr) return true;
+        return validateReportField('tr-pprRate1', true) &&
+            validateReportField('tr-pprRate2', !!document.getElementById('tr-pprInstaller2').value);
+    }
+    document.addEventListener('input', event => {
+        if (!event.target.matches('#screen-technician-reports input, #screen-technician-reports textarea')) return;
+        const field = event.target;
+        if (reportDigitIds.has(field.id)) {
+            const allowed = reportDecimalIds.has(field.id) ? /[^0-9.,]/g : /[^0-9]/g;
+            field.value = field.value.replace(allowed, '');
+        } else if (['tr-address','tr-clientName'].includes(field.id)) {
+            field.value = field.value.replace(/^\s+/, '');
+        }
+        field.setCustomValidity('');
+    });
+
     function nextStep(fromStep) {
+        if (fromStep === 1 && !validateClientStep()) return;
+        if (fromStep === 2 && !validateMaterialStep()) return;
         const next = getNextStepNum(fromStep);
         showStep(next);
     }
@@ -6713,7 +6772,7 @@ document.addEventListener('blur', (e) => {
     }
 
     async function waitForReportReceipt(url, requestId) {
-        const deadline = Date.now() + 45000;
+        const deadline = Date.now() + 90000;
         while (Date.now() < deadline) {
             try {
                 const result = await getReportStatusOnce(url, requestId);
@@ -6752,14 +6811,18 @@ document.addEventListener('blur', (e) => {
         const type = document.getElementById('tr-reportType').value;
         if (currentUser?.role === 'Стажер') { showBeelineModal('Доступ ограничен', 'Стажер не может завершить отчёт.', '🔒'); return; }
         setReportAuthorizedUser();
+        if (!validateReportField('tr-reportDate', true)) return;
+        if (type.includes("ППР")) {
+            if (!validateFinishStep(true)) { showPprStep(3); return; }
+        } else {
+            if (!validateClientStep()) { showStep(1); return; }
+            if (!isDemontazh() && !validateMaterialStep()) { showStep(2); return; }
+            if (!validateFinishStep(false)) { showStep(4); return; }
+        }
 
         if (type.includes("ППР")) {
             if (!document.getElementById('tr-pprInstaller1').value) {
                 showBeelineModal('Проверьте отчёт', 'Не удалось определить авторизованного монтажника!', '⚠️');
-                return;
-            }
-            if (!document.getElementById('tr-pprInstaller2').value) {
-                showBeelineModal('Проверьте отчёт', 'Пожалуйста, выберите второго монтажника для ППР!', '⚠️');
                 return;
             }
         } else {
@@ -6774,7 +6837,7 @@ document.addEventListener('blur', (e) => {
         }
 
         isSubmitting = true;
-        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = "⏳ Отправка...";
         submitBtn.disabled = true;
@@ -6818,7 +6881,13 @@ document.addEventListener('blur', (e) => {
             if (receipt.reportType !== type || !Number.isInteger(Number(receipt.rowNumber))) {
                 throw new Error('Сервер вернул некорректное подтверждение отчёта.');
             }
-            showVerifiedReportResult(type, currentUser.city, receipt);
+            if (receipt.telegram === 'error') {
+                const detail = String(receipt.telegramMessage || 'Проверьте журнал выполнения скрипта.').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+                showBeelineModal('Отчёт записан, Telegram не доставлен',
+                    `Строка ${Number(receipt.rowNumber)} в таблице ${String(receipt.spreadsheetName || '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]))}. Ошибка: ${detail}`, '⚠️');
+            } else {
+                showVerifiedReportResult(type, currentUser.city, receipt);
+            }
         } catch(error) {
             console.error(error);
             const safeMessage = String(error.message || error).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
