@@ -1095,6 +1095,69 @@
 #screen-technician-reports .btn-scan:active {
             background-color: #3b3b3b;
         }
+
+/* Оборудование: широкое поле + компактная кнопка камеры как в «Возврат оборудования» */
+#screen-technician-reports #tr-step-equipment .input-group {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+#screen-technician-reports #tr-step-equipment .input-group input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+#screen-technician-reports #tr-step-equipment .btn-scan {
+    flex: 0 0 50px;
+    width: 50px;
+    min-width: 50px;
+    height: 46px;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 204, 0, .45);
+    background: rgba(255, 204, 0, .12);
+    color: var(--beeline-yellow);
+    font-size: 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+#screen-technician-reports #tr-step-equipment .btn-scan:hover {
+    border-color: var(--beeline-yellow);
+    background: rgba(255, 204, 0, .18);
+}
+#screen-technician-reports .equipment-search-results {
+    position: absolute;
+    z-index: 12000;
+    left: 0;
+    right: 58px;
+    top: calc(100% + 4px);
+    max-height: 220px;
+    overflow-y: auto;
+    display: none;
+    background: var(--beeline-dark);
+    border: 1px solid var(--beeline-yellow);
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.9);
+    box-sizing: border-box;
+    scrollbar-width: thin;
+    scrollbar-color: var(--beeline-yellow) #171717;
+}
+#screen-technician-reports .equipment-search-results::-webkit-scrollbar { width: 8px; }
+#screen-technician-reports .equipment-search-results::-webkit-scrollbar-track { background: #171717; border-radius: 8px; }
+#screen-technician-reports .equipment-search-results::-webkit-scrollbar-thumb { background: var(--beeline-yellow); border-radius: 8px; border: 2px solid #171717; }
+#screen-technician-reports .equipment-search-results.open { display: block; }
+#screen-technician-reports .equipment-search-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #222;
+    color: var(--text-main);
+    font-size: 13px;
+}
+#screen-technician-reports .equipment-search-item:last-child { border-bottom: 0; }
+#screen-technician-reports .equipment-search-item:hover { background: rgba(255,204,0,.15); color: var(--beeline-yellow); }
+#screen-technician-reports .equipment-search-meta { display:block; margin-top:3px; font-size:11px; color:var(--text-secondary); }
+#screen-technician-reports .equipment-search-empty { padding:10px 12px; font-size:12px; color:var(--text-secondary); }
 #screen-technician-reports .btn {
             border: none;
             padding: 14px;
@@ -1912,6 +1975,77 @@ button, input, textarea, select { font:inherit; }
 .owner-city-status { color:#bcbcbc; font-size:12px; line-height:1.5; }
 @media(max-width:440px) { #screen-owner-city > .card { padding:14px; }
     .owner-city-list { max-height:43vh; } }
+
+    .cable-stock-hint { min-height:18px; margin:5px 2px 0; font-size:12px; color:#aaa; }
+    .cable-stock-hint.ok { color:#ffd400; }
+    .cable-stock-hint.error { color:#ff6b6b; }
+    .report-cable-search { position:absolute; z-index:1200; left:0; right:0; top:calc(100% + 5px);
+        max-height:220px; overflow-y:auto; background:#111; border:1px solid #ffd400; border-radius:12px;
+        box-shadow:0 12px 30px rgba(0,0,0,.45); }
+    .report-cable-search button { width:100%; border:0; border-bottom:1px solid #292929; background:#111;
+        color:#fff; padding:11px 13px; text-align:left; font:inherit; cursor:pointer; }
+    .report-cable-search button:last-child { border-bottom:0; }
+    #tr-step-materials .field-container { position:relative; }
+
+    #tr-pullMethod-btn.report-required-error {
+        border-color:#ff6b6b !important;
+        box-shadow:0 0 0 1px #ff6b6b inset;
+    }
+
+    /* Возврат оборудования: компактные выпадающие списки */
+    #retNomenclatureDropdown .dropdown-list,
+    #retKitDropdown .dropdown-list {
+        max-height: 260px !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #ffd400 #171717;
+    }
+
+    /* Chrome / Edge / Safari — тот же жёлтый стиль, что в остальных списках */
+    #retNomenclatureDropdown .dropdown-list::-webkit-scrollbar,
+    #retKitDropdown .dropdown-list::-webkit-scrollbar {
+        width: 8px;
+    }
+    #retNomenclatureDropdown .dropdown-list::-webkit-scrollbar-track,
+    #retKitDropdown .dropdown-list::-webkit-scrollbar-track {
+        background: #171717;
+        border-radius: 8px;
+    }
+    #retNomenclatureDropdown .dropdown-list::-webkit-scrollbar-thumb,
+    #retKitDropdown .dropdown-list::-webkit-scrollbar-thumb {
+        background: #ffd400;
+        border-radius: 8px;
+        border: 2px solid #171717;
+    }
+    #retNomenclatureDropdown .dropdown-list::-webkit-scrollbar-thumb:hover,
+    #retKitDropdown .dropdown-list::-webkit-scrollbar-thumb:hover {
+        background: #ffe033;
+    }
+
+    /* Номенклатура: поисковая строка остаётся сверху, прокручиваются позиции */
+    #retNomenclatureDropdown .dropdown-list {
+        padding-bottom: 2px;
+    }
+
+    /* Комплектация: уменьшаем вертикальные отступы элементов */
+    #retKitDropdown .dropdown-list {
+        padding: 4px !important;
+    }
+    #retKitDropdown .checkbox-container {
+        margin: 0 !important;
+        padding: 7px 8px !important;
+        min-height: 36px;
+    }
+
+    /* Чуть компактнее сами панели, не меняя ширину полей */
+    #retNomenclatureDropdown .dropdown-trigger,
+    #retKitDropdown .dropdown-trigger {
+        min-height: 44px;
+        padding-top: 9px;
+        padding-bottom: 9px;
+    }
 </style>
 </head>
 <!-- Библиотеки для сканирования -->
@@ -2236,6 +2370,7 @@ button, input, textarea, select { font:inherit; }
                             <div class="custom-dropdown">
                                 <button type="button" class="dropdown-select-btn" id="tr-pullMethod-btn" onclick="toggleDropdown(event, 'tr-pullMethod-list')">Выберите способ</button>
                                 <input type="hidden" id="tr-pullMethod" value="">
+                                <div id="tr-pullMethod-hint" class="cable-stock-hint"></div>
                                 <div class="dropdown-list" id="tr-pullMethod-list">
                                     <div class="dropdown-item" onclick="selectOption('tr-pullMethod', 'Дрс', 'tr-pullMethod-btn', 'Дрс', 'tr-pullMethod-list')">Дрс</div>
                                     <div class="dropdown-item" onclick="selectOption('tr-pullMethod', 'Шахта', 'tr-pullMethod-btn', 'Шахта', 'tr-pullMethod-list')">Шахта</div>
@@ -2247,6 +2382,7 @@ button, input, textarea, select { font:inherit; }
                                 <div class="field-container">
                                     <label>Номер кабеля</label>
                                     <input type="text" inputmode="numeric" id="tr-cableNum" placeholder="9922281">
+                                    <div id="tr-cableNum-stock-hint" class="cable-stock-hint"></div>
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во Кабеля</label>
@@ -2258,6 +2394,7 @@ button, input, textarea, select { font:inherit; }
                                 <div class="field-container">
                                     <label>Номер патч-корда</label>
                                     <input type="text" inputmode="numeric" id="tr-patchCableNum" placeholder="15593">
+                                    <div id="tr-patchCableNum-stock-hint" class="cable-stock-hint"></div>
                                 </div>
                                 <div class="field-container">
                                     <label>Кол-во патч-корда</label>
@@ -2402,12 +2539,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер роутера 1</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r1Sn" oninput="autoDetectRouterModel(this.value, 'tr-r1Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r1Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r1Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес роутера 1</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r1Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r1Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r1Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -2426,12 +2563,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер роутера 2</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r2Sn" oninput="autoDetectRouterModel(this.value, 'tr-r2Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r2Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r2Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес роутера 2</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r2Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r2Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r2Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -2450,12 +2587,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер роутера 3</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r3Sn" oninput="autoDetectRouterModel(this.value, 'tr-r3Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r3Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r3Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес роутера 3</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-r3Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r3Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-r3Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -2474,12 +2611,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер приставки 1</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv1Sn" oninput="autoDetectTvModel(this.value, 'tr-tv1Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv1Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv1Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес приставки 1</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv1Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv1Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv1Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -2498,12 +2635,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер приставки 2</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv2Sn" oninput="autoDetectTvModel(this.value, 'tr-tv2Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv2Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv2Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес приставки 2</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv2Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv2Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv2Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -2522,12 +2659,12 @@ button, input, textarea, select { font:inherit; }
                                     <label>Серийный номер приставки 3</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv3Sn" oninput="autoDetectTvModel(this.value, 'tr-tv3Model')">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv3Sn')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv3Sn')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                     <label>MAC адрес приставки 3</label>
                                     <div class="input-group">
                                         <input type="text" id="tr-tv3Mac">
-                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv3Mac')">📷 Сканировать</button>
+                                        <button type="button" class="btn-scan" onclick="openReportEquipmentScanner('tr-tv3Mac')" title="Сканировать" aria-label="Сканировать">📷</button>
                                     </div>
                                 </div>
                             </div>
@@ -6233,7 +6370,10 @@ document.addEventListener('blur', (e) => {
         'tr-fastConnector','tr-kdzs','tr-adapter'];
     const reportDecimalIds = new Set(['tr-cableQty','tr-patchCableQty','tr-cc1015','tr-cc2010',
         'tr-extCorner','tr-intCorner','tr-ftthTurnCorner','tr-optPatchMeters','tr-pprRate1','tr-pprRate2']);
-    const reportDigitIds = new Set(['tr-appNumber','tr-login', ...reportMaterialIds, 'tr-pprRate1','tr-pprRate2']);
+    const reportCableSerialIds = new Set(['tr-cableNum','tr-patchCableNum']);
+    const reportDigitIds = new Set(['tr-appNumber','tr-login',
+        ...reportMaterialIds.filter(id => !['tr-cableNum','tr-patchCableNum'].includes(id)),
+        'tr-pprRate1','tr-pprRate2']);
     function reportFieldError(id, message) {
         const field = document.getElementById(id);
         field.setCustomValidity(message);
@@ -6277,15 +6417,323 @@ document.addEventListener('blur', (e) => {
         if (reportDigitIds.has(field.id)) {
             const allowed = reportDecimalIds.has(field.id) ? /[^0-9.,]/g : /[^0-9]/g;
             field.value = field.value.replace(allowed, '');
+        } else if (reportCableSerialIds.has(field.id)) {
+            field.value = field.value.replace(/^\s+/, '');
         } else if (['tr-address','tr-clientName'].includes(field.id)) {
             field.value = field.value.replace(/^\s+/, '');
         }
         field.setCustomValidity('');
     });
 
+    const reportEquipmentPairs = [
+        ['tr-r1Sn','tr-r1Mac'], ['tr-r2Sn','tr-r2Mac'], ['tr-r3Sn','tr-r3Mac'],
+        ['tr-tv1Sn','tr-tv1Mac'], ['tr-tv2Sn','tr-tv2Mac'], ['tr-tv3Sn','tr-tv3Mac']
+    ];
+    const reportEquipmentSerialIds = new Set(reportEquipmentPairs.map(pair => pair[0]));
+    const reportEquipmentMacIds = new Set(reportEquipmentPairs.map(pair => pair[1]));
+
+    function normalizeEquipmentValue(field, value) {
+        let v = String(value ?? '').replace(/^\s+|\s+$/g, '');
+        if (reportEquipmentMacIds.has(field.id)) {
+            // В MAC буквы O/o не бывает: автоматически исправляем на ноль.
+            v = v.replace(/[oO]/g, '0').replace(/[^0-9a-fA-F:-]/g, '').toUpperCase();
+        } else if (reportEquipmentSerialIds.has(field.id)) {
+            // Серийные номера: только латиница/цифры и технические разделители.
+            v = v.replace(/[^0-9a-zA-Z._:/-]/g, '').toUpperCase();
+        }
+        return v;
+    }
+
+    function validateEquipmentStep() {
+        for (const [serialId, macId] of reportEquipmentPairs) {
+            const serial = document.getElementById(serialId);
+            const mac = document.getElementById(macId);
+            if (!serial || !mac) continue;
+            serial.value = normalizeEquipmentValue(serial, serial.value);
+            mac.value = normalizeEquipmentValue(mac, mac.value);
+            serial.setCustomValidity('');
+            mac.setCustomValidity('');
+            if (serial.value && !mac.value) {
+                return reportFieldError(macId, 'Если указан серийный номер, MAC адрес обязателен.');
+            }
+        }
+        return true;
+    }
+
+    document.addEventListener('input', event => {
+        const field = event.target;
+        if (!reportEquipmentSerialIds.has(field.id) && !reportEquipmentMacIds.has(field.id)) return;
+        const normalized = normalizeEquipmentValue(field, field.value);
+        if (field.value !== normalized) field.value = normalized;
+        field.setCustomValidity('');
+    });
+
+    const reportCableFields = {
+        'tr-cableNum': { qty:'tr-cableQty', hint:'tr-cableNum-stock-hint' },
+        'tr-patchCableNum': { qty:'tr-patchCableQty', hint:'tr-patchCableNum-stock-hint' }
+    };
+
+    // Отдельный кэш кабеля. Он НЕ зависит от поиска роутеров/приставок.
+    const reportCableKnown = new Map();
+    let reportCableSearchSeq = 0;
+
+    function reportCableNumber(value) {
+        const n = Number(String(value ?? '').replace(/\s/g,'').replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    async function requestReportCableLookup(query) {
+        const name=String(currentUser?.fullName||'').trim();
+        const city=String(currentUser?.city||'').trim();
+        const url=CITIES_CONFIG[city]?.reportsScriptUrl;
+        if(!name || !city || !isConfiguredCityUrl(url)) return [];
+
+        // Используем тот же проверенный endpoint, который уже работает для
+        // «Моё оборудование»: он возвращает кабель B/D/E текущего монтажника.
+        const response=await requestMyEquipment(url,name,city);
+        if(response?.status!=='success' || !Array.isArray(response.items)) {
+            throw new Error(response?.message||'Не удалось получить остатки кабеля');
+        }
+
+        const q=String(query||'').trim().toLowerCase();
+        const cables=response.items.filter(item =>
+            String(item.type||'')==='Кабель' &&
+            reportCableNumber(item.meters)>0
+        );
+
+        // Ищем не только по полному номеру: достаточно любой введённой части.
+        // Точные и совпадающие с концом номера показываем первыми.
+        return cables
+            .filter(item => !q || String(item.serial||'').trim().toLowerCase().includes(q))
+            .sort((a,b)=>{
+                const as=String(a.serial||'').trim().toLowerCase();
+                const bs=String(b.serial||'').trim().toLowerCase();
+                const ar=as===q?0:(as.endsWith(q)?1:2);
+                const br=bs===q?0:(bs.endsWith(q)?1:2);
+                return ar-br || as.localeCompare(bs);
+            })
+            .slice(0,20);
+    }
+
+    function rememberReportCable(items) {
+        (Array.isArray(items) ? items : []).forEach(item => {
+            const serial = String(item?.serial || '').trim();
+            const meters = reportCableNumber(item?.meters);
+            if (serial && meters > 0) {
+                reportCableKnown.set(serial.toLowerCase(), {serial, meters});
+            }
+        });
+    }
+
+    function closeReportCableSearch(exceptInput) {
+        document.querySelectorAll('.report-cable-search').forEach(el => {
+            if (!exceptInput || el.dataset.for !== exceptInput.id) el.remove();
+        });
+    }
+
+    function setReportCableHint(inputId, text, error=false) {
+        const cfg = reportCableFields[inputId];
+        const el = cfg ? document.getElementById(cfg.hint) : null;
+        if (!el) return;
+        el.textContent = text || '';
+        el.className = 'cable-stock-hint' + (text ? (error ? ' error' : ' ok') : '');
+    }
+
+    function renderReportCableMatches(input, items) {
+        closeReportCableSearch(input);
+        input.closest('.field-container')?.querySelector('.report-cable-search')?.remove();
+        if (!items.length || document.activeElement !== input) return;
+
+        const box = document.createElement('div');
+        box.className = 'report-cable-search';
+        box.dataset.for = input.id;
+
+        items.forEach(item => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = `${item.serial} — остаток ${reportCableNumber(item.meters)} м`;
+            btn.addEventListener('mousedown', e => e.preventDefault());
+            btn.addEventListener('click', () => {
+                input.value = String(item.serial || '');
+                rememberReportCable([item]);
+                box.remove();
+                validateReportCableStock(false);
+                document.getElementById(reportCableFields[input.id].qty)?.focus();
+            });
+            box.appendChild(btn);
+        });
+
+        input.closest('.field-container')?.appendChild(box);
+    }
+
+    async function searchReportCable(input) {
+        const query = String(input.value || '').trim();
+        closeReportCableSearch(input);
+        if (!query) {
+            setReportCableHint(input.id, '');
+            return;
+        }
+
+        const seq = ++reportCableSearchSeq;
+        try {
+            const items = await requestReportCableLookup(query);
+            if (seq !== reportCableSearchSeq) return;
+            rememberReportCable(items);
+            renderReportCableMatches(input, items);
+            validateReportCableStock(false);
+        } catch (err) {
+            // Сбой поиска НЕ запрещает ручной ввод и НЕ блокирует «Далее».
+            console.warn('Поиск кабеля недоступен:', err);
+            setReportCableHint(input.id, 'Поиск недоступен — можно продолжить ручной ввод', false);
+        }
+    }
+
+    function validateReportCableRequiredFields(reportError=false) {
+        const cableNum=String(document.getElementById('tr-cableNum')?.value||'').trim();
+        const cableQty=String(document.getElementById('tr-cableQty')?.value||'').trim();
+        const patchNum=String(document.getElementById('tr-patchCableNum')?.value||'').trim();
+        const patchQty=String(document.getElementById('tr-patchCableQty')?.value||'').trim();
+        const pullMethod=String(document.getElementById('tr-pullMethod')?.value||'').trim();
+
+        ['tr-cableQty','tr-patchCableQty','tr-pullMethod'].forEach(id=>{
+            const el=document.getElementById(id); if(el) el.setCustomValidity('');
+        });
+
+        if(cableNum && (!cableQty || reportCableNumber(cableQty)<=0)) {
+            if(reportError) return reportFieldError('tr-cableQty','Если указан номер кабеля, укажите расход кабеля больше 0.');
+            return false;
+        }
+        if(patchNum && (!patchQty || reportCableNumber(patchQty)<=0)) {
+            if(reportError) return reportFieldError('tr-patchCableQty','Если указан номер патч-корда, укажите расход патч-корда больше 0.');
+            return false;
+        }
+        const pullHint=document.getElementById('tr-pullMethod-hint');
+        const pullBtn=document.getElementById('tr-pullMethod-btn');
+        if(pullHint){ pullHint.textContent=''; pullHint.className='cable-stock-hint'; }
+        if(pullBtn) pullBtn.classList.remove('report-required-error');
+
+        if(cableNum && !pullMethod) {
+            if(pullHint){
+                pullHint.textContent='Выберите «Способ включения», чтобы перейти дальше.';
+                pullHint.className='cable-stock-hint error';
+            }
+            if(pullBtn) pullBtn.classList.add('report-required-error');
+            if(reportError){
+                pullBtn?.focus();
+                pullBtn?.scrollIntoView({behavior:'smooth',block:'center'});
+            }
+            return false;
+        }
+        return true;
+    }
+
+    function validateReportCableStock(reportError=false) {
+        // ВАЖНО: эта функция полностью синхронная и не зависит от сети.
+        // Неизвестный/ручной серийный номер всегда разрешён.
+        let ok = true;
+        const usage = new Map();
+
+        for (const cfg of Object.values(reportCableFields)) {
+            const qtyField = document.getElementById(cfg.qty);
+            if (qtyField) qtyField.setCustomValidity('');
+        }
+
+        for (const [id,cfg] of Object.entries(reportCableFields)) {
+            const serial = String(document.getElementById(id)?.value || '').trim();
+            const qty = reportCableNumber(document.getElementById(cfg.qty)?.value);
+            const item = serial ? reportCableKnown.get(serial.toLowerCase()) : null;
+
+            if (!serial) {
+                setReportCableHint(id, '');
+                continue;
+            }
+
+            if (!item) {
+                // Ручной ввод: бухты нет в локально найденных остатках.
+                // Никаких блокировок перехода.
+                setReportCableHint(id, 'Ручной ввод', false);
+                continue;
+            }
+
+            const key = item.serial.toLowerCase();
+            usage.set(key, (usage.get(key) || 0) + qty);
+            setReportCableHint(id, `В бухте осталось ${item.meters} м`, false);
+        }
+
+        for (const [id,cfg] of Object.entries(reportCableFields)) {
+            const serial = String(document.getElementById(id)?.value || '').trim().toLowerCase();
+            const item = serial ? reportCableKnown.get(serial) : null;
+            if (!item) continue;
+
+            const total = usage.get(item.serial.toLowerCase()) || 0;
+            if (total > item.meters) {
+                ok = false;
+                setReportCableHint(id, `Доступно ${item.meters} м, указано суммарно ${total} м`, true);
+            }
+        }
+
+        if (!ok && reportError) {
+            const badId = Object.keys(reportCableFields).find(id =>
+                document.getElementById(reportCableFields[id].hint)?.classList.contains('error'));
+            if (badId) {
+                return reportFieldError(
+                    reportCableFields[badId].qty,
+                    document.getElementById(reportCableFields[badId].hint).textContent
+                );
+            }
+        }
+        return ok;
+    }
+
+    // Небольшая задержка, чтобы не отправлять запрос на каждый символ слишком часто.
+    const reportCableTimers = {};
+    document.addEventListener('focusin', event => {
+        if (!reportCableFields[event.target.id]) return;
+        if (event.target.value.trim()) searchReportCable(event.target);
+    });
+    document.addEventListener('input', event => {
+        if (reportCableFields[event.target.id]) {
+            const input = event.target;
+            clearTimeout(reportCableTimers[input.id]);
+            reportCableTimers[input.id] = setTimeout(() => searchReportCable(input), 220);
+            validateReportCableStock(false);
+        } else if (Object.values(reportCableFields).some(cfg => cfg.qty === event.target.id)) {
+            validateReportCableStock(false);
+        }
+    });
+    document.addEventListener('click', event => {
+        if (!event.target.closest('.report-cable-search') && !reportCableFields[event.target.id]) {
+            closeReportCableSearch();
+        }
+    });
+
+
+    // Снимаем сообщение браузерной валидации сразу после исправления поля.
+    document.addEventListener('input', event => {
+        if (['tr-cableQty','tr-patchCableQty','tr-pullMethod'].includes(event.target.id)) {
+            event.target.setCustomValidity('');
+        }
+    });
+
+
+    document.addEventListener('click', event => {
+        if (!event.target.closest('#tr-pullMethod-list .dropdown-item')) return;
+        setTimeout(() => {
+            const value=String(document.getElementById('tr-pullMethod')?.value||'').trim();
+            if(!value) return;
+            const hint=document.getElementById('tr-pullMethod-hint');
+            const btn=document.getElementById('tr-pullMethod-btn');
+            if(hint){ hint.textContent=''; hint.className='cable-stock-hint'; }
+            btn?.classList.remove('report-required-error');
+        },0);
+    });
+
     function nextStep(fromStep) {
         if (fromStep === 1 && !validateClientStep()) return;
         if (fromStep === 2 && !validateMaterialStep()) return;
+        if (fromStep === 2 && !validateReportCableRequiredFields(true)) return;
+        if (fromStep === 2 && !validateReportCableStock(true)) return;
+        if (fromStep === 3 && !validateEquipmentStep()) return;
         const next = getNextStepNum(fromStep);
         showStep(next);
     }
@@ -6309,6 +6757,164 @@ document.addEventListener('blur', (e) => {
     function prevPprStep(fromStep) {
         showPprStep(fromStep - 1);
     }
+
+    // =====================================================================
+    // ПОИСК ОБОРУДОВАНИЯ В ТАБЛИЦЕ ГОРОДА
+    // Используется тот же городской endpoint getMyEquipment, что и экран
+    // «Моё оборудование». Сервер должен возвращать только строки, где
+    // ФИО монтажника (J) совпадает с текущим пользователем, а Логин (E) пуст.
+    // Если сервер передаёт MAC из столбца B как mac/macAddress/columnB —
+    // он автоматически подставляется в соответствующее поле.
+    // =====================================================================
+    let reportEquipmentLookupCache = null;
+    let reportEquipmentLookupKey = '';
+    let reportEquipmentLookupPromise = null;
+
+    async function loadReportEquipmentLookup() {
+        const name = String(currentUser?.fullName || '').trim();
+        const city = String(currentUser?.city || '').trim();
+        const url = CITIES_CONFIG[city]?.reportsScriptUrl;
+        const key = city + '|' + name;
+        if (!name || !city || !isConfiguredCityUrl(url)) return [];
+        if (reportEquipmentLookupCache && reportEquipmentLookupKey === key) return reportEquipmentLookupCache;
+        if (reportEquipmentLookupPromise && reportEquipmentLookupKey === key) return reportEquipmentLookupPromise;
+        reportEquipmentLookupKey = key;
+        reportEquipmentLookupPromise = requestMyEquipment(url, name, city).then(response => {
+            if (response?.status !== 'success' || !Array.isArray(response.items)) throw new Error(response?.message || 'Не удалось загрузить оборудование.');
+            // Доступ проверяет городской Apps Script. Здесь не сравниваем ФИО
+            // строка-в-строку: в J бывают дополнения про бригаду/склад.
+            reportEquipmentLookupCache = response.items.filter(item => {
+                const type = String(item.type || '');
+                if (!['Роутеры','Приставки'].includes(type)) return false;
+
+                // Для роутеров/приставок E (логин) должен быть пустым.
+                // Для кабеля E — это ФИО монтажника, поэтому к кабелю эту проверку НЕ применяем.
+                if (type === 'Роутеры' || type === 'Приставки') {
+                    const login = String(item.login ?? item.subscriberLogin ?? '').trim();
+                    if (login) return false;
+                }
+
+                return true;
+            });
+            return reportEquipmentLookupCache;
+        }).catch(err => {
+            reportEquipmentLookupCache = [];
+            console.warn('Поиск оборудования недоступен:', err);
+            return [];
+        }).finally(() => { reportEquipmentLookupPromise = null; });
+        return reportEquipmentLookupPromise;
+    }
+
+    function equipmentItemMac(item) {
+        return String(item?.mac ?? item?.macAddress ?? item?.MAC ?? item?.columnB ?? '').trim();
+    }
+
+    function equipmentSerial(item) {
+        return String(item?.serial ?? item?.serialNumber ?? item?.sn ?? '').trim();
+    }
+
+    function equipmentSearchContainer(input) {
+        const group = input?.closest('.input-group');
+        if (!group) return null;
+        let box = group.querySelector('.equipment-search-results');
+        if (!box) {
+            box = document.createElement('div');
+            box.className = 'equipment-search-results';
+            group.appendChild(box);
+        }
+        return box;
+    }
+
+    function closeEquipmentSearch(except = null) {
+        document.querySelectorAll('#tr-step-equipment .equipment-search-results.open').forEach(box => {
+            if (box !== except) box.classList.remove('open');
+        });
+    }
+
+    function selectEquipmentLookup(inputId, serial, mac, modelName) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        input.value = normalizeEquipmentValue(input, serial);
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        const macId = inputId.replace(/Sn$/, 'Mac');
+        const macInput = document.getElementById(macId);
+        if (macInput && mac) {
+            macInput.value = normalizeEquipmentValue(macInput, mac);
+            macInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        const modelId = inputId.replace(/Sn$/, 'Model');
+        if (modelName) {
+            const modelInput = document.getElementById(modelId);
+            const modelBtn = document.getElementById(modelId + '-btn');
+            if (modelInput) modelInput.value = String(modelName);
+            if (modelBtn) modelBtn.textContent = String(modelName);
+        } else {
+            if (inputId.startsWith('tr-r')) autoDetectRouterModel(input.value, modelId);
+            if (inputId.startsWith('tr-tv')) autoDetectTvModel(input.value, modelId);
+        }
+        closeEquipmentSearch();
+    }
+
+    async function showEquipmentSearch(input) {
+        if (!input || !reportEquipmentSerialIds.has(input.id)) return;
+        const query = normalizeEquipmentValue(input, input.value).toUpperCase();
+        const box = equipmentSearchContainer(input);
+        if (!box) return;
+        closeEquipmentSearch(box);
+        if (!query) { box.classList.remove('open'); box.replaceChildren(); return; }
+        box.innerHTML = '<div class="equipment-search-empty">⏳ Ищем в таблице города…</div>';
+        box.classList.add('open');
+        const items = await loadReportEquipmentLookup();
+        if (document.activeElement !== input && !input.matches(':focus')) return;
+        const type = input.id.startsWith('tr-r') ? 'Роутеры' : 'Приставки';
+        const matches = items.filter(item => {
+            if (String(item.type || '') !== type) return false;
+            const serial = equipmentSerial(item).toUpperCase();
+            // Можно искать по последним цифрам/символам серии.
+            return serial && (serial.endsWith(query) || serial.includes(query));
+        }).slice(0, 30);
+        box.replaceChildren();
+        if (!matches.length) {
+            const empty = document.createElement('div');
+            empty.className = 'equipment-search-empty';
+            empty.textContent = 'Совпадений нет — можно продолжить ручной ввод.';
+            box.appendChild(empty);
+        } else {
+            for (const item of matches) {
+                const serial = equipmentSerial(item);
+                const mac = equipmentItemMac(item);
+                const row = document.createElement('div');
+                row.className = 'equipment-search-item';
+                row.textContent = serial;
+                const meta = document.createElement('span');
+                meta.className = 'equipment-search-meta';
+                meta.textContent = (item.name ? String(item.name) : type.slice(0,-1)) + (mac ? ' · MAC: ' + mac : '');
+                row.appendChild(meta);
+                row.addEventListener('mousedown', e => { e.preventDefault(); selectEquipmentLookup(input.id, serial, mac, item.name || ''); });
+                box.appendChild(row);
+            }
+        }
+        box.classList.add('open');
+    }
+
+    function closeReportModelDropdowns() {
+        document.querySelectorAll('#tr-step-equipment .custom-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
+        document.querySelectorAll('#tr-step-equipment .dropdown-list.open').forEach(list => list.classList.remove('open'));
+    }
+
+    document.addEventListener('focusin', event => {
+        if (!reportEquipmentSerialIds.has(event.target.id)) return;
+        closeReportModelDropdowns();
+        if (event.target.value) showEquipmentSearch(event.target);
+    });
+    document.addEventListener('input', event => {
+        if (!reportEquipmentSerialIds.has(event.target.id)) return;
+        closeReportModelDropdowns();
+        showEquipmentSearch(event.target);
+    });
+    document.addEventListener('click', event => {
+        if (!event.target.closest('#tr-step-equipment .input-group')) closeEquipmentSearch();
+    });
 
     ////////////////////////////////////////////////////////
     //ФУНКЦИЯ СКАНЕРА ДЛЯ ПОЛЕЙ ВВОДА ОБОРУДОВАНИЯ ОТКРЫТИЕ
