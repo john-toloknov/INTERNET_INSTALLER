@@ -1531,6 +1531,53 @@
     box-sizing: border-box !important;
 }
 
+/* === ЕДИНЫЕ СТРЕЛКИ ВСЕХ ВЫПАДАЮЩИХ СПИСКОВ === */
+.custom-dropdown .dropdown-arrow,
+.custom-dropdown .dropdown-select-btn .dropdown-arrow,
+.custom-dropdown .dropdown-trigger .dropdown-arrow {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    color: var(--beeline-yellow);
+    font-size: 11px;
+    line-height: 1;
+    transition: transform .25s ease;
+    transform-origin: center;
+    pointer-events: none;
+}
+.custom-dropdown.open .dropdown-arrow { transform: rotate(180deg); }
+/* В отчетах старая статичная стрелка заменяется общей живой стрелкой */
+#screen-technician-reports .dropdown-select-btn::after { content: none !important; }
+
+/* Компактный список городов в регистрации */
+#regCityDropdown .dropdown-list {
+    max-height: 0 !important;
+    overflow: hidden !important;
+}
+#regCityDropdown.open .dropdown-list,
+#regCityDropdown .dropdown-list.open {
+    max-height: 260px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--beeline-yellow) #1a1a1a;
+}
+#regCityDropdown .dropdown-list::-webkit-scrollbar { width: 7px; }
+#regCityDropdown .dropdown-list::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 8px; }
+#regCityDropdown .dropdown-list::-webkit-scrollbar-thumb { background: var(--beeline-yellow); border-radius: 8px; }
+#regCityDropdown .dropdown-search-wrap {
+    padding: 7px 8px;
+    background: var(--beeline-dark);
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    border-bottom: 1px solid var(--card-border);
+}
+#regCityDropdown .dropdown-search-input { padding: 9px 11px; font-size: 13px; }
+#regCityDropdown .dropdown-item { padding: 9px 12px; font-size: 13px; }
+
 /* === SMOOTH DROPDOWNS === */
 .custom-dropdown { position: relative; }
 .custom-dropdown .dropdown-list {
@@ -1944,7 +1991,7 @@ button, input, textarea, select { font:inherit; }
                         <span class="dropdown-arrow">▼</span>
                     </div>
                     <div class="dropdown-list">
-                        <div style="padding: 8px; background: var(--beeline-dark); position: sticky; top: 0; z-index: 2;">
+                        <div class="dropdown-search-wrap">
                             <input type="text" class="dropdown-search-input" id="citySearchInput" placeholder="🔍 Поиск города..." oninput="filterCities(this.value, 'regCityDropdown', 'regCity', 'regCityLabel')" onclick="event.stopPropagation()">
                         </div>
                         <div id="city-items-container"></div>
@@ -1953,7 +2000,7 @@ button, input, textarea, select { font:inherit; }
                 <input type="hidden" id="regCity" required>
 
                 <label>Фамилия Имя Отчество</label>
-                <input type="text" id="regFullName" required placeholder="Толокнов Евгений Алексеевич">
+                <input type="text" id="regFullName" required placeholder="Введите ФИО">
 
                 <label>Номер склада</label>
                 <input type="text" id="regWarehouse" required placeholder="Бригада №1">
@@ -1999,7 +2046,7 @@ button, input, textarea, select { font:inherit; }
                 <input type="text" id="regTgGroup" required placeholder="-100xxxxxxx">
 
                 <label>ID второй рабочей группы Telegram (ППР)</label>
-                <input type="text" id="regTgGroupPpr" required value="-1003542427176" placeholder="-1003542427176">
+                <input type="text" id="regTgGroupPpr" required placeholder="-100xxxxxxx">
 
                 <label>Рабочая почта (для восстановления пароля)</label>
                 <input type="email" id="regEmail" required placeholder="example@gmail.com">
@@ -3406,6 +3453,11 @@ button, input, textarea, select { font:inherit; }
                 }));
                 usersDb = sheetUsers;
                 localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+
+                // Если форма уже открыта, сразу обновляем сотрудников из свежего общего списка.
+                if (typeof populateInstallersDropdown === 'function' && document.getElementById('installer-items-container')) {
+                    populateInstallersDropdown();
+                }
             }
         } catch (e) {
             console.error("Ошибка загрузки пользователей из таблицы:", e);
@@ -3704,56 +3756,65 @@ button, input, textarea, select { font:inherit; }
         }
     }
 
-    function toggleDropdown(arg1, arg2) {
-        // Поддерживает исходный вызов базового приложения: toggleDropdown('list-id')
-        // и форму отчета: toggleDropdown(event, 'list-id').
-        let listId;
-        let event = null;
-
-        if (typeof arg1 === 'string' && arg2 === undefined) {
-            listId = arg1;
-        } else {
-            event = arg1;
-            listId = arg2;
-        }
-
-        if (event && typeof event.stopPropagation === 'function') {
-            event.stopPropagation();
-        }
-
-        // В отчете все ID начинаются с tr-. Это позволяет безопасно
-        // работать рядом с выпадающими списками основного приложения.
-        let list = document.getElementById(listId);
-        if (!list && listId && !listId.startsWith('tr-')) {
-            list = document.getElementById('tr-' + listId);
-        }
-        if (!list) return;
-
-        const dropdown = list.closest('.custom-dropdown');
+    function ensureDropdownArrow(dropdown) {
         if (!dropdown) return;
-
-        const isOpen = dropdown.classList.contains('open') || list.classList.contains('open');
-
-        document.querySelectorAll('.custom-dropdown').forEach(d => {
-            if (d !== dropdown) {
-                d.classList.remove('open');
-                const otherList = d.querySelector('.dropdown-list');
-                if (otherList) {
-                    otherList.classList.remove('open');
-                    otherList.style.display = 'none';
-                }
+        const trigger = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
+        if (!trigger) return;
+        let arrow = trigger.querySelector('.dropdown-arrow');
+        if (!arrow) {
+            const spans = Array.from(trigger.querySelectorAll(':scope > span'));
+            const rawArrow = spans.find(el => el.textContent.trim() === '▼' || el.textContent.trim() === '▲');
+            if (rawArrow) {
+                arrow = rawArrow;
+                arrow.classList.add('dropdown-arrow');
+                arrow.textContent = '▼';
+            } else {
+                arrow = document.createElement('span');
+                arrow.className = 'dropdown-arrow';
+                arrow.textContent = '▼';
+                trigger.appendChild(arrow);
             }
-        });
-
-        if (!isOpen) {
-            dropdown.classList.add('open');
-            list.classList.add('open');
-            list.style.display = 'block';
-        } else {
-            dropdown.classList.remove('open');
-            list.classList.remove('open');
-            list.style.display = 'none';
         }
+    }
+
+    function setDropdownOpen(dropdown, open) {
+        if (!dropdown) return;
+        const list = dropdown.querySelector('.dropdown-list');
+        ensureDropdownArrow(dropdown);
+        dropdown.classList.toggle('open', open);
+        if (list) {
+            list.classList.toggle('open', open);
+            // Состояние контролируется классами, а не конфликтующими inline display.
+            list.style.removeProperty('display');
+        }
+        const trigger = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
+        if (trigger) trigger.setAttribute('aria-expanded', String(open));
+    }
+
+    function toggleDropdown(arg1, arg2) {
+        let targetId;
+        let event = null;
+        if (typeof arg1 === 'string' && arg2 === undefined) targetId = arg1;
+        else { event = arg1; targetId = arg2; }
+        if (event && typeof event.stopPropagation === 'function') event.stopPropagation();
+
+        let target = document.getElementById(targetId);
+        if (!target && targetId && !targetId.startsWith('tr-')) target = document.getElementById('tr-' + targetId);
+        if (!target) return;
+
+        // Разрешаем передавать как ID .dropdown-list, так и ID .custom-dropdown.
+        const dropdown = target.classList.contains('custom-dropdown') ? target : target.closest('.custom-dropdown');
+        if (!dropdown) return;
+        const isOpen = dropdown.classList.contains('open');
+
+        document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+            if (d !== dropdown) setDropdownOpen(d, false);
+        });
+        setDropdownOpen(dropdown, !isOpen);
+    }
+
+    function initUnifiedDropdownArrows() {
+        document.querySelectorAll('.custom-dropdown').forEach(ensureDropdownArrow);
     }
 
     function selectDropdownOption(dropdownId, hiddenInputId, selectedSpanId, fullValue, shortName) {
@@ -3773,11 +3834,7 @@ button, input, textarea, select { font:inherit; }
         // 3. Правильно закрываем список (ищем .dropdown-list внутри контейнера, а не прячем весь блок)
         const dropdown = document.getElementById(dropdownId);
         if (dropdown) {
-            dropdown.classList.remove('open');
-            const list = dropdown.querySelector('.dropdown-list');
-            if (list) {
-                list.style.display = 'none';
-            }
+            setDropdownOpen(dropdown, false);
         }
     }
 
@@ -5119,11 +5176,8 @@ async function handleSearchAccess() {
         // 3. Закрываем выпадающий список
         const list = document.getElementById('cable-list');
         if (list) {
-            list.style.display = 'none';
             const dropdown = list.closest('.custom-dropdown');
-            if (dropdown) {
-                dropdown.classList.remove('open');
-            }
+            if (dropdown) setDropdownOpen(dropdown, false);
         }
     } // <-- Здесь функция корректно закрывается (лишняя скобка ниже удалена)
 
@@ -5451,12 +5505,8 @@ function populateInstallersDropdown() {
     const hiddenInput = document.getElementById('installer');
     if (!document.getElementById('installer-items-container')) return;
 
-    let allUsers = (Array.isArray(usersDb) && usersDb.length > 0) ? usersDb : [
-        { fullName: "J.T.", warehouse: "Главный склад", city: "Темиртау" },
-        { fullName: "Лоос Виктор Геннадьевич", warehouse: "Бригада №5", city: "Темиртау" },
-        { fullName: "Толокнов Евгений Алексеевич", warehouse: "Бригада №15", city: "Темиртау" },
-        { fullName: "Павленко Николай Александрович", warehouse: "Бригада №8", city: "Темиртау" }
-    ];
+    // Единственный источник сотрудников — общий список usersDb, загруженный с сервера.
+    const allUsers = Array.isArray(usersDb) ? usersDb.filter(Boolean) : [];
 
     const userCity = (currentUser && currentUser.city) ? currentUser.city.trim().toLowerCase() : "";
     let cityUsers = allUsers.filter(u => {
@@ -5514,10 +5564,10 @@ function showFormStep() {
         }
     } else {
         if (authorDisplay) {
-            authorDisplay.innerHTML = `👤 <span style="color: var(--beeline-yellow);">Толокнов Евгений</span>`;
+            authorDisplay.innerHTML = `👤 <span style="color: var(--text-muted);">Пользователь не определён</span>`;
         }
         if (authorInput) {
-            authorInput.value = "Толокнов Евгений";
+            authorInput.value = "";
         }
     }
 
@@ -5590,7 +5640,7 @@ function showFormStep() {
         // Автоматически берем ФИО авторизованного пользователя из сессии
         const author = (currentUser && currentUser.fullName) 
             ? currentUser.fullName 
-            : (document.getElementById('author') ? document.getElementById('author').value : "Толокнов Евгений");
+            : (document.getElementById('author') ? document.getElementById('author').value : "");
             
         const installerEl = document.getElementById('installer');
         const installer = installerEl ? installerEl.value : "";
@@ -5679,7 +5729,7 @@ function showFormStep() {
 document.addEventListener('focusin', (e) => {
     if (e.target && e.target.id === 'regWarehouse') {
         if (!e.target.value.trim()) {
-            e.target.value = 'Бригада № ';
+            e.target.value = 'Бригада №';
         }
     }
 });
@@ -5741,19 +5791,7 @@ document.addEventListener('blur', (e) => {
     let activeInputId = null;
     let reportHtml5QrCode = null;
 
-    const installersList = [
-        "Курмангалиев Тимур Берикович,Бригада №1 (Темиртау)",
-        "Стрижко Дмитрий Юрьевич,Бригада №3 (Темиртау)",
-        "Новиков Иван Викторович,Бригада №4 (Темиртау)",
-        "Лоос Виктор Геннадьевич,Бригада №5 (Темиртау)",
-        "Марчуков Андрей Артемович,Бригада №6 (Темиртау)",
-        "Иванусь Аркадий Александрович,Бригада №7 (Темиртау)",
-        "Павленко Николай Александрович,Бригада №8 (Темиртау)",
-        "Седухин Владимир Игоревич,Бригада №9 (Темиртау)",
-        "Янковицкий Сергей Валерьевич,Бригада №10 (Темиртау)",
-        "Тарыца Захар Васильевич,Бригада №11 (Темиртау)",
-        "Кайзер Павел Иванович,Бригада №12 (Темиртау)"
-    ];
+    // Список сотрудников для отчётов формируется динамически из usersDb.
 
     const standardRouterModels = [
         "TP-Link EX222 (AX-1800)",
@@ -5914,13 +5952,6 @@ document.addEventListener('blur', (e) => {
     function getReportInstallersFromDatabase() {
         let allUsers = Array.isArray(usersDb) ? usersDb.filter(Boolean) : [];
 
-        if (!allUsers.length) {
-            allUsers = [
-                { fullName: 'J.T.', warehouse: 'Главный склад', city: 'Темиртау' },
-                { fullName: 'Толокнов Евгений Алексеевич', warehouse: 'Бригада №15', city: 'Темиртау' }
-            ];
-        }
-
         const userCity = (currentUser && currentUser.city ? currentUser.city : '').trim().toLowerCase();
 
         let cityUsers = allUsers.filter(u => {
@@ -6060,12 +6091,8 @@ document.addEventListener('blur', (e) => {
         const list = document.getElementById(listId);
         if (hidden) hidden.value = value;
         if (btn) btn.textContent = displayText;
-        if (list) {
-            list.classList.remove('open');
-            list.style.display = 'none';
-        }
         const dropdown = list ? list.closest('.custom-dropdown') : null;
-        if (dropdown) dropdown.classList.remove('open');
+        if (dropdown) setDropdownOpen(dropdown, false);
     }
 
     function updateMultiSelect(hiddenInputId, btnId, listId, defaultText) {
@@ -7289,15 +7316,11 @@ const NOMENCLATURE_LIST = [
 function toggleReturnDropdown(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     if (!dropdown) return;
-    const list = dropdown.querySelector('.dropdown-list');
-    if (!list) return;
-    
-    // Закрываем другие открытые списки
-    document.querySelectorAll('.custom-dropdown .dropdown-list').forEach(el => {
-        if (el !== list) el.style.display = 'none';
+    const isOpen = dropdown.classList.contains('open');
+    document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+        if (d !== dropdown) setDropdownOpen(d, false);
     });
-
-    list.style.display = (list.style.display === 'block') ? 'none' : 'block';
+    setDropdownOpen(dropdown, !isOpen);
 }
 
 // Выбор элемента из выпадающего списка
@@ -7312,10 +7335,7 @@ function selectReturnDropdownOption(dropdownId, hiddenInputId, labelId, value, t
     }
     
     const dropdown = document.getElementById(dropdownId);
-    if (dropdown) {
-        const list = dropdown.querySelector('.dropdown-list');
-        if (list) list.style.display = 'none';
-    }
+    if (dropdown) setDropdownOpen(dropdown, false);
 }
 
 // Заполнение выпадающего списка номенклатуры
@@ -7708,40 +7728,24 @@ window.addEventListener('scroll', updateSmartScrollButton);
 // Также обновляем состояние при переключении экранов (вызывайте updateSmartScrollButton внутри вашей функции switchScreen)
 
 document.addEventListener('click', function(e) {
-    // Ищем клик по любому типу триггера выпадающего списка
-    const trigger = e.target.closest('.dropdown-trigger, .dropdown-select-btn, .custom-dropdown');
-    
-    if (trigger) {
-        // Убедимся, что ищем именно контейнер .custom-dropdown
-        const dropdown = trigger.classList.contains('custom-dropdown') ? trigger : trigger.closest('.custom-dropdown');
-        
-        if (dropdown) {
-            // Проверяем, не кликнули ли мы уже внутри открытого списка по элементам
-            if (e.target.closest('.dropdown-list') && !e.target.classList.contains('dropdown-select-btn')) {
-                return;
-            }
+    const trigger = e.target.closest('.dropdown-trigger, .dropdown-select-btn');
+    const dropdown = trigger ? trigger.closest('.custom-dropdown') : null;
 
-            // Закрываем остальные открытые списки
-            document.querySelectorAll('.custom-dropdown.open').forEach(item => {
-                if (item !== dropdown) item.classList.remove('open');
+    // Большинство триггеров имеют свой onclick. Для элементов без него используем делегирование.
+    if (trigger && dropdown && !trigger.getAttribute('onclick')) {
+        if (!e.target.closest('.dropdown-list')) {
+            e.preventDefault();
+            const isOpen = dropdown.classList.contains('open');
+            document.querySelectorAll('.custom-dropdown.open').forEach(d => {
+                if (d !== dropdown) setDropdownOpen(d, false);
             });
-            
-            // Переключаем текущий список
-            dropdown.classList.toggle('open');
-            const list = dropdown.querySelector('.dropdown-list');
-            if (list) list.classList.toggle('open');
-            return;
+            setDropdownOpen(dropdown, !isOpen);
         }
+        return;
     }
 
-    // Закрываем все списки при клике в любое другое место страницы
     if (!e.target.closest('.custom-dropdown')) {
-        document.querySelectorAll('.custom-dropdown.open').forEach(item => {
-            item.classList.remove('open');
-        });
-        document.querySelectorAll('.dropdown-list.open').forEach(list => {
-            list.classList.remove('open');
-        });
+        document.querySelectorAll('.custom-dropdown.open').forEach(d => setDropdownOpen(d, false));
     }
 });
 
@@ -7751,20 +7755,20 @@ document.addEventListener('click', function(e) {
     if (item) {
         const dropdown = item.closest('.custom-dropdown');
         if (dropdown) {
-            dropdown.classList.remove('open');
-            const list = dropdown.querySelector('.dropdown-list');
-            if (list) list.classList.remove('open');
+            setDropdownOpen(dropdown, false);
             
             // Обновляем текст кнопки выбранным значением
             const btn = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
             if (btn && !item.querySelector('input')) {
                 // Если внутри кнопки есть спан или текст — обновляем его
-                const span = btn.querySelector('span');
+                const span = Array.from(btn.querySelectorAll(':scope > span')).find(el => !el.classList.contains('dropdown-arrow'));
                 if (span) {
                     span.textContent = item.textContent;
                 } else {
-                    btn.childNodes[0].textContent = item.textContent;
+                    const textNode = Array.from(btn.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+                    if (textNode) textNode.textContent = item.textContent;
                 }
+                ensureDropdownArrow(dropdown);
             }
         }
     }
@@ -7935,6 +7939,10 @@ function showSoftwarePlatform(platform, button) {
     document.querySelectorAll('.software-platform-btn').forEach(btn => btn.classList.remove('active'));
     if (button) button.classList.add('active');
 }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initUnifiedDropdownArrows();
+    });
 </script>
 
 </body>
