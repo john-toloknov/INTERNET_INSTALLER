@@ -1567,6 +1567,24 @@
 #regCityDropdown .dropdown-list::-webkit-scrollbar { width: 7px; }
 #regCityDropdown .dropdown-list::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 8px; }
 #regCityDropdown .dropdown-list::-webkit-scrollbar-thumb { background: var(--beeline-yellow); border-radius: 8px; }
+
+/* Единый стиль вертикальных скроллбаров во всех выпадающих списках.
+   Эталон: Регистрация → Город. */
+.dropdown-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--beeline-yellow) #1a1a1a;
+    overscroll-behavior: contain;
+}
+.dropdown-list::-webkit-scrollbar { width: 7px; }
+.dropdown-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 8px;
+}
+.dropdown-list::-webkit-scrollbar-thumb {
+    background: var(--beeline-yellow);
+    border-radius: 8px;
+}
+
 #regCityDropdown .dropdown-search-wrap {
     padding: 7px 8px;
     background: var(--beeline-dark);
