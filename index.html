@@ -261,8 +261,19 @@
         html:has(#screen-ppr-plans.active) { scrollbar-width: none; }
         html:has(#screen-ppr-plans.active)::-webkit-scrollbar, body:has(#screen-ppr-plans.active)::-webkit-scrollbar { display: none; }
         .ppr-plan-list { display: grid; gap: 8px; padding: 3px; overflow: visible; }
-        .ppr-plan-item { width: 100%; text-align: left; padding: 14px; border: 1px solid var(--card-border); border-radius: 10px; color: var(--text-main); background: var(--card-bg); cursor: pointer; font-weight: 600; }
-        .ppr-plan-item:hover, .ppr-plan-item:focus-visible { border-color: var(--beeline-yellow); color: var(--beeline-yellow); }
+        .ppr-plan-item { width:100%; min-height:40px; display:flex; align-items:center; gap:8px;
+            text-align:left; padding:7px 10px; border:1px solid #343434; border-radius:9px;
+            color:#fff; background:#090909; cursor:pointer; font-weight:600; font-size:13px; }
+        .ppr-plan-item.is-in-work { background:#302900; border-color:var(--beeline-yellow); }
+        .ppr-plan-item:hover, .ppr-plan-item:focus-visible { border-color:var(--beeline-yellow); outline:none; }
+        .ppr-plan-address { flex:1; min-width:0; overflow-wrap:anywhere; line-height:1.2; }
+        .ppr-plan-status { flex:0 0 auto; font-size:11px; color:#a9a9a9; font-weight:600; white-space:nowrap; }
+        .ppr-plan-item.is-in-work .ppr-plan-status { color:var(--beeline-yellow); }
+        .ppr-plan-arrow { flex:0 0 auto; color:var(--beeline-yellow); font-size:18px; font-weight:800;
+            line-height:1; transition:transform .2s ease; }
+        .ppr-plan-item.is-active .ppr-plan-arrow { transform:rotate(180deg); }
+        @media(max-width:380px) { .ppr-plan-item { font-size:12px; gap:6px; padding:7px 8px; }
+            .ppr-plan-status { font-size:10px; } }
         .ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: rgba(0,0,0,.86); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
         .ppr-plan-dialog { width: min(100%, 520px); max-height: 92vh; overflow-y: auto; scrollbar-width: none; background: var(--card-bg); border: 1px solid var(--beeline-yellow); border-radius: 15px; padding: 20px; box-sizing: border-box; }
         .ppr-plan-dialog::-webkit-scrollbar { display: none; }
@@ -606,6 +617,12 @@
         .calendar-day.empty {
             background: transparent;
             border: none;
+        }
+        .calendar-day.unpublished {
+            opacity: .55;
+        }
+        .schedule-month {
+            margin-bottom: 22px;
         }
         .day-number {
             font-size: 11px;
@@ -1934,7 +1951,7 @@ button, input, textarea, select { font:inherit; }
 .act-debts-more { display:flex; align-items:center; gap:7px; min-height:41px;
     border-top:1px solid #383838; color:var(--beeline-yellow); font-weight:700; font-size:13px; }
 .act-debts-arrow { display:inline-block; transition:transform .2s; }
-.act-debts-entry[open] .act-debts-arrow { transform:rotate(90deg); }
+.act-debts-entry[open] .act-debts-arrow { transform:rotate(180deg); }
 .act-debts-details { margin:0; padding:5px 15px 13px; border-top:1px solid #383838; }
 .act-debts-field { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px;
     padding:10px 0; border-bottom:1px solid #333; font-size:13px; }
@@ -2073,11 +2090,195 @@ button, input, textarea, select { font:inherit; }
 .hours-fine h3 {color:var(--danger)}
 .hours-empty {padding:22px 12px;text-align:center;color:var(--text-secondary);font-size:13px}
 
+
+/* Выпадающие списки: прокрутка работает и у коротких списков, и на телефоне. */
+.custom-dropdown.open > .dropdown-list,
+.custom-dropdown > .dropdown-list.open {
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    max-height: min(300px, 45dvh, var(--dropdown-space, 45dvh)) !important;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    scrollbar-gutter: stable;
+}
+#regCityDropdown.open > .dropdown-list,
+#regCityDropdown > .dropdown-list.open,
+#retNomenclatureDropdown.open > .dropdown-list,
+#retNomenclatureDropdown > .dropdown-list.open,
+#retKitDropdown.open > .dropdown-list,
+#retKitDropdown > .dropdown-list.open {
+    max-height: min(260px, 45dvh, var(--dropdown-space, 45dvh)) !important;
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+}
+.custom-dropdown .dropdown-list,
+.owner-city-list,
+.report-cable-search {
+    scrollbar-width: thin;
+    scrollbar-color: var(--beeline-yellow) #111;
+}
+.custom-dropdown .dropdown-list::-webkit-scrollbar,
+.owner-city-list::-webkit-scrollbar,
+.report-cable-search::-webkit-scrollbar { width: 8px; }
+.custom-dropdown .dropdown-list::-webkit-scrollbar-track,
+.owner-city-list::-webkit-scrollbar-track,
+.report-cable-search::-webkit-scrollbar-track { background: #111; border-radius: 8px; }
+.custom-dropdown .dropdown-list::-webkit-scrollbar-thumb,
+.owner-city-list::-webkit-scrollbar-thumb,
+.report-cable-search::-webkit-scrollbar-thumb {
+    background: var(--beeline-yellow);
+    border: 2px solid #111;
+    border-radius: 8px;
+}
+.owner-city-list,
+.report-cable-search {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    overscroll-behavior-y: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    scrollbar-gutter: stable;
+}
+.report-cable-search { max-height: min(220px, 45dvh); }
+.custom-dropdown.drop-up > .dropdown-list {
+    top: auto !important;
+    bottom: calc(100% + 4px) !important;
+}
+/* Постоянно видимая дорожка заменяет исчезающие системные скроллбары. */
+.custom-dropdown.open > .dropdown-list,
+.custom-dropdown > .dropdown-list.open,
+.owner-city-list,
+.report-cable-search,
+#screen-technician-reports .equipment-search-results.open {
+    scrollbar-width: none !important;
+    scrollbar-gutter: auto;
+    overflow-y: scroll !important;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+.custom-dropdown .dropdown-list::-webkit-scrollbar,
+.owner-city-list::-webkit-scrollbar,
+.report-cable-search::-webkit-scrollbar,
+#screen-technician-reports .equipment-search-results::-webkit-scrollbar { display: none !important; }
+.dropdown-scroll-rail:not([hidden]) {
+    display: block;
+    position: absolute;
+    width: 10px;
+    background: #080808;
+    border-radius: 10px;
+    z-index: 100001;
+    touch-action: none;
+    cursor: pointer;
+}
+.dropdown-scroll-thumb {
+    position: absolute;
+    left: 1px;
+    right: 1px;
+    top: 0;
+    background: var(--beeline-yellow);
+    border-radius: 9px;
+    min-height: 18px;
+    pointer-events: none;
+}
+/* Поиск сразу в поле выбора. */
+.searchable-dropdown .dropdown-search-trigger {
+    width: 100%; min-width: 0; padding: 0; margin: 0; border: 0;
+    background: transparent; box-shadow: none; color: #fff; font: inherit;
+    font-size: max(14px, 1rem); outline: none;
+}
+.searchable-dropdown .dropdown-search-trigger::placeholder { color: #aaa; opacity: 1; }
+.ppr-staff-dropdown { position: relative; }
+.ppr-staff-dropdown .staff-search-trigger {
+    display: block !important; padding-right: 38px !important;
+    font-size: 16px; text-overflow: ellipsis;
+}
+.ppr-staff-dropdown::after {
+    content: '▼'; position: absolute; top: 15px; right: 14px;
+    font-size: 11px; color: var(--beeline-yellow); pointer-events: none;
+    transition: transform .2s;
+}
+.ppr-staff-dropdown.open::after { transform: rotate(180deg); }
+.ppr-staff-dropdown .dropdown-list { padding: 2px 0; }
+
+/* Компактные карточки: одна строка метаданных и стрелка справа. */
+.act-debts-entry summary { padding: 12px 12px 10px; }
+.act-debts-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px 8px;
+    margin: 7px 0 0;
+    min-height: 22px;
+    font-size: 12px;
+}
+.act-debts-status { margin-left: 0; white-space: nowrap; }
+.act-debts-meta .act-debts-date { min-width: 0; overflow-wrap: anywhere; }
+.act-debts-meta .act-debts-arrow,
+.return-check-status .act-debts-arrow {
+    margin-left: auto;
+    color: var(--beeline-yellow);
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1;
+    flex: 0 0 auto;
+    transition: transform .2s ease;
+}
+#myEquipmentList .act-debts-meta .act-debts-date { min-width: 0; overflow-wrap: anywhere; }
+.return-check-entry {
+    background: #18181b;
+    border: 1px solid #333;
+    border-left: 4px solid var(--beeline-yellow);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+    overflow: hidden;
+}
+.return-check-entry summary {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 12px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+.return-check-entry summary::-webkit-details-marker { display: none; }
+.return-check-entry summary:focus-visible { outline: 2px solid var(--beeline-yellow); outline-offset: -2px; }
+.return-check-entry summary b { color: var(--text-main); overflow-wrap: anywhere; }
+.return-check-title { color: var(--beeline-yellow); font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+.return-check-status { display: flex; align-items: center; width: 100%; gap: 4px; }
+.return-check-status b { color: var(--success) !important; }
+.return-check-entry[open] .act-debts-arrow { transform: rotate(180deg); }
+.return-check-extra { border-top: 1px solid #2a2a2a; padding: 10px 12px; font-size: 12px;
+    color: var(--text-secondary); display: grid; gap: 7px; background: #121214; }
+.return-check-extra b { color: var(--text-main); }
+
+
+/* Тот же анимированный значок, что и в модальном окне. */
+.live-loading { display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; min-height:90px; padding:18px 12px; color:var(--text-secondary);
+    text-align:center; font-size:13px; }
+.live-loading-emoji { display:inline-block; font-size:34px; line-height:1.2;
+    animation:bounceSpinDrop 1.6s infinite ease-in-out; }
+.hours-hero.is-loading .hours-hero-icon { display:inline-block; animation:bounceSpinDrop 1.6s infinite ease-in-out; }
+/* Стрелка выбора совпадает с крупной жёлтой стрелкой шага «Оборудование». */
+.custom-dropdown .dropdown-arrow,
+.ppr-staff-dropdown::after { color:var(--beeline-yellow); font-size:18px; font-weight:800; line-height:1; }
+.ppr-staff-dropdown::after { top:50%; transform:translateY(-50%); right:14px; }
+.ppr-staff-dropdown.open::after { transform:translateY(-50%) rotate(180deg); }
+/* Прокрутка скрывается одновременно со списком, даже во время CSS-перехода. */
+.custom-dropdown:not(.open) > .dropdown-scroll-rail { display:none !important; }
+/* Проверка возвратов: такие же размеры и отступы, как у остальных экранов. */
+#screen-check-return { width:100%; max-width:500px; margin:0 auto; padding:0; }
+#screen-check-return > .check-return-card { width:100% !important; max-width:100%; box-sizing:border-box; margin:0 auto; }
+#screen-check-return .return-check-entry { width:100%; box-sizing:border-box; }
+#screen-check-return .common-nav-row { width:100%; }
+#screen-check-return .common-nav-row .btn { min-width:0; }
+#screen-check-return .return-write-btn, #screen-check-return .report-finish-btn { width:100%; margin-top:4px; }
+
 </style>
 </head>
-<!-- Библиотеки для сканирования -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://unpkg.com/@zxing/library@0.20.0/umd/index.min.js"></script>
 <body>
 
     <button id="smartScrollBtn" onclick="handleSmartScroll()" style="position: fixed; right: 20px; bottom: 80px; width: 45px; height: 45px; border-radius: 50%; background: #18181b; border: 1px solid #333; color: var(--beeline-yellow); font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 999; transition: transform 0.2s;" title="Прокрутить">
@@ -2164,17 +2365,12 @@ button, input, textarea, select { font:inherit; }
         <div class="card">
             <form onsubmit="handleRegister(event)">
                 <label>Город</label>
-                <div class="custom-dropdown" id="regCityDropdown">
-                    <div class="dropdown-trigger" onclick="toggleDropdown('regCityDropdown')">
-                        <span id="regCityLabel" style="color: var(--text-secondary);">Выберите город...</span>
+                <div class="custom-dropdown searchable-dropdown" id="regCityDropdown">
+                    <div class="dropdown-trigger" onclick="openSearchDropdown(event, 'regCityDropdown')">
+                        <input type="search" class="dropdown-search-trigger" id="citySearchInput" placeholder="🔍 Выберите или найдите город" autocomplete="off" aria-label="Поиск города" onfocus="this.select(); filterCities('', 'regCityDropdown', 'regCity', 'citySearchInput')" oninput="document.getElementById('regCity').value=''; filterCities(this.value, 'regCityDropdown', 'regCity', 'citySearchInput'); openSearchDropdown(event, 'regCityDropdown')">
                         <span class="dropdown-arrow">▼</span>
                     </div>
-                    <div class="dropdown-list">
-                        <div class="dropdown-search-wrap">
-                            <input type="text" class="dropdown-search-input" id="citySearchInput" placeholder="🔍 Поиск города..." oninput="filterCities(this.value, 'regCityDropdown', 'regCity', 'regCityLabel')" onclick="event.stopPropagation()">
-                        </div>
-                        <div id="city-items-container"></div>
-                    </div>
+                    <div class="dropdown-list"><div id="city-items-container"></div></div>
                 </div>
                 <input type="hidden" id="regCity" required>
 
@@ -2287,7 +2483,7 @@ button, input, textarea, select { font:inherit; }
         <div class="card">
             <label for="pprPlansSearch">Поиск по адресу</label>
             <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
-            <p id="pprPlansHint">Загрузка адресов…</p>
+            <div id="pprPlansHint"></div>
             <div id="pprPlansList" class="ppr-plan-list"></div>
             <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
                 <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
@@ -2299,11 +2495,11 @@ button, input, textarea, select { font:inherit; }
         <div class="ppr-plan-dialog">
             <h3 id="pprPlanTitle">План ППР</h3>
             <div id="pprPlanMeta"></div>
-            <label for="pprPlanBrigade">Бригада взяла в работу</label>
+            <label for="pprPlanBrigadeBtn">Бригада взяла в работу</label>
             <div class="custom-dropdown ppr-staff-dropdown">
-                <button type="button" class="dropdown-select-btn" id="pprPlanBrigadeBtn" onclick="toggleDropdown(event, 'pprPlanBrigadeList')"><span id="pprPlanBrigadeSelected">Выберите бригадира</span><span>▼</span></button>
+                <input type="search" class="dropdown-select-btn staff-search-trigger" id="pprPlanBrigadeBtn" placeholder="🔍 Выберите бригадира или найдите по фамилии" aria-label="Поиск бригадира" aria-controls="pprPlanBrigadeList" autocomplete="off" onclick="openSearchDropdown(event, 'pprPlanBrigadeList')" onfocus="this.select(); pprPlanFilterStaff('pprPlanBrigade', '')" oninput="document.getElementById('pprPlanBrigade').value=''; pprPlanFilterStaff('pprPlanBrigade', this.value); openSearchDropdown(event, 'pprPlanBrigadeList')">
                 <input type="hidden" id="pprPlanBrigade" value="">
-                <div class="dropdown-list" id="pprPlanBrigadeList"><div style="padding:8px;border-bottom:1px solid var(--card-border)"><input type="text" placeholder="🔍 Поиск по фамилии..." oninput="pprPlanFilterStaff('pprPlanBrigade', this.value)" onclick="event.stopPropagation()" autocomplete="off"></div><div class="ppr-plan-options"></div></div>
+                <div class="dropdown-list" id="pprPlanBrigadeList"><div class="ppr-plan-options"></div></div>
             </div>
             <div class="ppr-plan-dates">
                 <div><label for="pprPlanStart">Начало работ</label><input type="date" id="pprPlanStart"></div>
@@ -2311,11 +2507,11 @@ button, input, textarea, select { font:inherit; }
             </div>
             <label for="pprPlanComment">Комментарий к работам</label>
             <textarea id="pprPlanComment" rows="4" maxlength="1500" placeholder="Какие работы предстоит выполнить"></textarea>
-            <label for="pprPlanExecutor">Исполняющий Монтажник</label>
+            <label for="pprPlanExecutorBtn">Исполняющий Монтажник</label>
             <div class="custom-dropdown ppr-staff-dropdown">
-                <button type="button" class="dropdown-select-btn" id="pprPlanExecutorBtn" onclick="toggleDropdown(event, 'pprPlanExecutorList')"><span id="pprPlanExecutorSelected">Выберите исполнителя</span><span>▼</span></button>
+                <input type="search" class="dropdown-select-btn staff-search-trigger" id="pprPlanExecutorBtn" placeholder="🔍 Выберите исполнителя или найдите по фамилии" aria-label="Поиск исполнителя" aria-controls="pprPlanExecutorList" autocomplete="off" onclick="openSearchDropdown(event, 'pprPlanExecutorList')" onfocus="this.select(); pprPlanFilterStaff('pprPlanExecutor', '')" oninput="document.getElementById('pprPlanExecutor').value=''; pprPlanFilterStaff('pprPlanExecutor', this.value); openSearchDropdown(event, 'pprPlanExecutorList')">
                 <input type="hidden" id="pprPlanExecutor" value="">
-                <div class="dropdown-list" id="pprPlanExecutorList"><div style="padding:8px;border-bottom:1px solid var(--card-border)"><input type="text" placeholder="🔍 Поиск по фамилии..." oninput="pprPlanFilterStaff('pprPlanExecutor', this.value)" onclick="event.stopPropagation()" autocomplete="off"></div><div class="ppr-plan-options"></div></div>
+                <div class="dropdown-list" id="pprPlanExecutorList"><div class="ppr-plan-options"></div></div>
             </div>
             <label for="pprPlanStatus">Статус</label>
             <input id="pprPlanStatus" readonly>
@@ -2872,8 +3068,8 @@ button, input, textarea, select { font:inherit; }
                             <input type="text" inputmode="decimal" id="tr-pprRate1" placeholder="0" required>
 
                             <label style="margin-top: 15px;">ФИО Монтажника 2</label>
-                            <div class="custom-dropdown">
-                                <button type="button" class="dropdown-select-btn" id="tr-pprInstaller2-btn" onclick="toggleDropdown(event, 'tr-pprInstaller2-list')">Выберите второго монтажника</button>
+                            <div class="custom-dropdown ppr-staff-dropdown">
+                                <input type="search" class="dropdown-select-btn staff-search-trigger" id="tr-pprInstaller2-btn" placeholder="🔍 Выберите второго сотрудника или найдите по фамилии" aria-label="Поиск второго сотрудника ППР" aria-controls="tr-pprInstaller2-list" autocomplete="off" onclick="openSearchDropdown(event, 'tr-pprInstaller2-list')" onfocus="this.select(); updatePprInstallersLists(''); openSearchDropdown(event, 'tr-pprInstaller2-list')" oninput="document.getElementById('tr-pprInstaller2').value=''; updatePprInstallersLists(this.value); openSearchDropdown(event, 'tr-pprInstaller2-list')">
                                 <input type="hidden" id="tr-pprInstaller2">
                                 <div class="dropdown-list" id="tr-pprInstaller2-list"></div>
                             </div>
@@ -2906,9 +3102,6 @@ button, input, textarea, select { font:inherit; }
 
             </form>
         </div>
-    </div>
-
-    </div>
     </div>
 
     <!-- 4.0. ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ -->
@@ -2984,7 +3177,10 @@ button, input, textarea, select { font:inherit; }
                 <button type="button" class="btn action-btn" onclick="loadActDebts()">🔄 Обновить</button>
             </div>
             <div id="actDebtsList" aria-live="polite"></div>
-            <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Меню монтажника</button>
+            <div class="common-nav-row">
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button>
+            </div>
         </div>
     </div>
 
@@ -3000,7 +3196,10 @@ button, input, textarea, select { font:inherit; }
                 <button type="button" class="btn action-btn" onclick="loadMyEquipment()">🔄 Обновить</button>
             </div>
             <div id="myEquipmentList" aria-live="polite"></div>
-            <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Меню монтажника</button>
+            <div class="common-nav-row">
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button>
+            </div>
         </div>
     </div>
 
@@ -3024,7 +3223,7 @@ button, input, textarea, select { font:inherit; }
         <h2>Расчет зарплаты</h2>
         <div class="card">
             <div id="salaryContentContainer">
-                <div style="text-align: center; color: var(--text-secondary); padding: 20px;">Загрузка данных о зарплате... 🔄</div>
+                <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка данных о зарплате...</span></div>
             </div>
             <div class="common-nav-row">
                 <button class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
@@ -3038,7 +3237,7 @@ button, input, textarea, select { font:inherit; }
         <h2>Рабочий график</h2>
         <div class="card">
             <div id="scheduleContentContainer">
-                <div style="text-align: center; color: var(--text-secondary); padding: 20px;">Загрузка графика смен... 🔄</div>
+                <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка графика смен...</span></div>
             </div>
             <div class="common-nav-row">
                 <button class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
@@ -3203,21 +3402,9 @@ button, input, textarea, select { font:inherit; }
         <!-- Блок выбора получателя с поиском -->
         <div class="card" style="background: var(--card-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--card-border);">
             <label style="font-size: 12px; font-weight: 700; color: var(--text-muted);">КОМУ ВЫДАН 👤</label>
-            <div class="custom-dropdown" id="installerDropdown" style="position: relative; width: 100%; margin-top: 6px;">
-                <button type="button" class="dropdown-select-btn" id="installer-btn" onclick="toggleDropdown(event, 'installer-list')" style="width: 100%; padding: 12px; border-radius: 10px; background: #0a0a0a; color: #fff; border: 1px solid var(--card-border); display: flex; justify-content: space-between; cursor: pointer;">
-                    <span id="installer-selected">Выберите сотрудника...</span>
-                    <span>▼</span>
-                </button>
-        
-                <!-- Выпадающий список -->
-                <div class="dropdown-list" id="installer-list" style="position: absolute; top: calc(100% + 6px); left: 0; width: 100%; background: #1c1c1c; border: 1px solid var(--card-border); border-radius: 12px; max-height: 300px; overflow-y: auto; z-index: 100; display: none;">
-            
-                    <!-- Поиск -->
-                    <div style="padding: 8px; border-bottom: 1px solid var(--card-border);">
-                        <input type="text" placeholder="🔍 Поиск по фамилии..." oninput="filterInstallers(this.value)" onclick="event.stopPropagation()" style="width: 100%; padding: 10px 12px; border-radius: 8px; background: #0a0a0a; color: #fff; border: 1px solid var(--card-border); outline: none; font-size: 14px; box-sizing: border-box;">
-                    </div>
-            
-                    <!-- Сюда скрипт подгружает список -->
+            <div class="custom-dropdown ppr-staff-dropdown" id="installerDropdown" style="position: relative; width: 100%; margin-top: 6px;">
+                <input type="search" class="dropdown-select-btn staff-search-trigger" id="installer-btn" placeholder="🔍 Выберите сотрудника или найдите по фамилии" aria-label="Поиск получателя ТМЦ" aria-controls="installer-list" autocomplete="off" onclick="openSearchDropdown(event, 'installer-list')" onfocus="this.select(); filterInstallers(''); openSearchDropdown(event, 'installer-list')" oninput="document.getElementById('installer').value=''; filterInstallers(this.value); openSearchDropdown(event, 'installer-list')">
+                <div class="dropdown-list" id="installer-list" style="position:absolute;top:calc(100% + 6px);left:0;width:100%;background:#1c1c1c;border:1px solid var(--card-border);border-radius:12px;max-height:300px;overflow-y:auto;z-index:100;display:none;">
                     <div id="installer-items-container"></div>
                 </div>
             </div>
@@ -3271,19 +3458,12 @@ button, input, textarea, select { font:inherit; }
             </div>
 
             <label>Номенклатура</label>
-            <div class="custom-dropdown" id="retNomenclatureDropdown" style="margin-bottom: 12px;">
-                <div class="dropdown-trigger" onclick="toggleReturnDropdown('retNomenclatureDropdown')">
-                    <span id="retNomenclatureLabel">Выберите номенклатуру...</span>
+            <div class="custom-dropdown searchable-dropdown" id="retNomenclatureDropdown" style="margin-bottom: 12px;">
+                <div class="dropdown-trigger" onclick="openSearchDropdown(event, 'retNomenclatureDropdown')">
+                    <input type="search" class="dropdown-search-trigger" id="retNomenclatureSearch" placeholder="🔍 Выберите или найдите номенклатуру" autocomplete="off" aria-label="Поиск номенклатуры" onfocus="this.select(); filterNomenclature('')" oninput="document.getElementById('retNomenclature').value=''; filterNomenclature(this.value); openSearchDropdown(event, 'retNomenclatureDropdown')">
                     <span class="dropdown-arrow">▼</span>
                 </div>
-                <div class="dropdown-list" style="display: none;">
-                    <div style="padding: 8px; background: var(--beeline-dark); position: sticky; top: 0; z-index: 2;">
-                        <input type="text" class="dropdown-search-input" placeholder="🔍 Поиск номенклатуры..." oninput="filterNomenclature(this.value)" onclick="event.stopPropagation()">
-                    </div>
-                    <div id="retNomenclatureItemsContainer">
-                        <!-- Заполняется динамически -->
-                    </div>
-                </div>
+                <div class="dropdown-list" style="display: none;"><div id="retNomenclatureItemsContainer"></div></div>
             </div>
             <input type="hidden" id="retNomenclature" required>
 
@@ -3360,8 +3540,9 @@ button, input, textarea, select { font:inherit; }
 </div>
 
 <!-- ЭКРАН: Проверка возвращенного оборудования -->
-<div id="screen-check-return" class="app-screen screen uniform-screen" style="display: none; padding: 15px; color: var(--text-main);">
-    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+<div id="screen-check-return" class="app-screen screen uniform-screen">
+    <div class="card check-return-card">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
         <h3 style="color: var(--beeline-yellow); margin: 0;">📦 Мои возвраты за месяц</h3>
     </div>
     
@@ -3375,6 +3556,7 @@ button, input, textarea, select { font:inherit; }
         <button class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button>
     </div>
     <button class="btn report-finish-btn common-full-btn" type="button" onclick="openReturnEquipmentForm()">📝 Записать возврат</button>
+    </div>
 </div>
 
 <!-- 5. АДМИН-ПАНЕЛЬ -->
@@ -3603,6 +3785,9 @@ button, input, textarea, select { font:inherit; }
     ];
 
     let currentUser = JSON.parse(localStorage.getItem('beeline_current_user')) || null;
+    // Очищаем ранее сохранённые копии с паролями до сетевых запросов.
+    localStorage.removeItem('beeline_central_user');
+    if (currentUser?.password) localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
     let ownerCityChoiceRequired = currentUser?.role === 'Владелец';
     let ownerCitySelected = '';
     let ownerCityBusy = false;
@@ -3611,19 +3796,18 @@ button, input, textarea, select { font:inherit; }
 
     window.addEventListener('DOMContentLoaded', async () => {
         initCitiesDropdowns();
-        await loadUsersFromSheet();
+        const staffLoaded = await loadUsersFromSheet();
 
         const rememberedLogin = localStorage.getItem('beeline_remembered_login');
-        const rememberedPass = localStorage.getItem('beeline_remembered_pass');
+        // Старый сохранённый пароль удаляем: помнить можно только логин.
+        localStorage.removeItem('beeline_remembered_pass');
         if (rememberedLogin) {
             document.getElementById('loginUser').value = rememberedLogin;
             document.getElementById('rememberMe').checked = true;
         }
-        if (rememberedPass) {
-            document.getElementById('loginPass').value = rememberedPass;
-        }
 
-        checkAuthSession();
+        if (staffLoaded) checkAuthSession();
+        else if (currentUser) showBeelineModal('Нет связи', 'Не удалось загрузить список сотрудников. Повторите попытку позже.', '⚠️');
         handleSearchAccess();
         window.dispatchEvent(new Event('scroll'));
         // Камера теперь инициализируется только при открытии экрана ТМЦ
@@ -3649,15 +3833,18 @@ button, input, textarea, select { font:inherit; }
                     email: u.email
                 }));
                 usersDb = sheetUsers;
-                localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+                localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
                 // Если форма уже открыта, сразу обновляем сотрудников из свежего общего списка.
                 if (typeof populateInstallersDropdown === 'function' && document.getElementById('installer-items-container')) {
                     populateInstallersDropdown();
                 }
+                return true;
             }
+            return false;
         } catch (e) {
             console.error("Ошибка загрузки пользователей из таблицы:", e);
+            return false;
         }
     }
 
@@ -3726,9 +3913,24 @@ button, input, textarea, select { font:inherit; }
         }
     }
 
+    function renderSafeModalText(target, value) {
+        const template = document.createElement('template');
+        template.innerHTML = String(value ?? '');
+        const allowed = new Set(['B', 'STRONG', 'BR', 'EM', 'I', 'SPAN', 'P']);
+        function clean(node) {
+            if (node.nodeType === Node.TEXT_NODE) return document.createTextNode(node.textContent);
+            if (node.nodeType !== Node.ELEMENT_NODE) return document.createTextNode('');
+            const safe = document.createElement(allowed.has(node.tagName) ? node.tagName.toLowerCase() : 'span');
+            // Никаких атрибутов или исполняемых элементов из текста таблицы/сервера.
+            node.childNodes.forEach(child => safe.appendChild(clean(child)));
+            return safe;
+        }
+        target.replaceChildren(...Array.from(template.content.childNodes, clean));
+    }
+
     function showBeelineModal(title, text, icon = '🐝', buttonsHtml = null) {
         document.getElementById('beelineModalTitle').textContent = title;
-        document.getElementById('beelineModalText').innerHTML = text;
+        renderSafeModalText(document.getElementById('beelineModalText'), text);
         document.getElementById('beelineModalIcon').textContent = icon;
         
         const btnContainer = document.getElementById('beelineModalButtons');
@@ -3746,6 +3948,7 @@ button, input, textarea, select { font:inherit; }
     }
 
     function switchScreen(screenId) {
+        document.querySelectorAll('.custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.querySelectorAll('.app-screen').forEach(el => {
             el.style.display = 'none';
             el.classList.remove('active');
@@ -3767,9 +3970,9 @@ button, input, textarea, select { font:inherit; }
                 || usersDb.find(u => u.id === currentUser.id);
             if (!freshUser) { currentUser = null; localStorage.removeItem('beeline_current_user'); switchScreen('screen-login'); return; }
             currentUser = freshUser;
-            localStorage.setItem('beeline_current_user', JSON.stringify(currentUser));
+            localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
 
-            document.getElementById('userInfoHeader').innerHTML = `👤 <b>${currentUser.fullName}</b> (${currentUser.role}) | 🏢 ${currentUser.city}`;
+            document.getElementById('userInfoHeader').innerHTML = `👤 <b>${escapeScheduleHtml(currentUser.fullName)}</b> (${escapeScheduleHtml(currentUser.role)}) | 🏢 ${escapeScheduleHtml(currentUser.city)}`;
             
             const cityConf = CITIES_CONFIG[currentUser.city] || {};
             document.getElementById('ownerChangeCityBtn').style.display = currentUser.role === 'Владелец' ? 'flex' : 'none';
@@ -3804,6 +4007,7 @@ button, input, textarea, select { font:inherit; }
                 showOwnerCityPicker();
             } else {
                 switchScreen('screen-main');
+                maybeOpenPprDeepLink();
             }
         } else {
             switchScreen('screen-login');
@@ -3909,8 +4113,8 @@ button, input, textarea, select { font:inherit; }
             currentUser = {...owner, city:selected};
             const index = usersDb.findIndex(u => u.dwLogin === owner.dwLogin);
             if (index >= 0) usersDb[index] = {...usersDb[index],city:selected};
-            localStorage.setItem('beeline_central_user',JSON.stringify(usersDb));
-            localStorage.setItem('beeline_current_user',JSON.stringify(currentUser));
+            localStorage.setItem('beeline_central_user',JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
+            localStorage.setItem('beeline_current_user',JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
             ownerCityChoiceRequired = false;
             status.textContent = '';
             checkAuthSession();
@@ -3956,7 +4160,7 @@ button, input, textarea, select { font:inherit; }
     function ensureDropdownArrow(dropdown) {
         if (!dropdown) return;
         const trigger = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
-        if (!trigger) return;
+        if (!trigger || trigger instanceof HTMLInputElement) return;
         let arrow = trigger.querySelector('.dropdown-arrow');
         if (!arrow) {
             const spans = Array.from(trigger.querySelectorAll(':scope > span'));
@@ -3974,10 +4178,23 @@ button, input, textarea, select { font:inherit; }
         }
     }
 
+    function positionDropdownPanel(dropdown) {
+        if (!dropdown) return;
+        const rect = dropdown.getBoundingClientRect();
+        const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        const below = Math.max(0, viewportHeight - rect.bottom - 12);
+        const above = Math.max(0, rect.top - 12);
+        const openUp = below < 180 && above > below;
+        dropdown.classList.toggle('drop-up', openUp);
+        dropdown.style.setProperty('--dropdown-space', `${Math.max(60, (openUp ? above : below) - 8)}px`);
+    }
+
     function setDropdownOpen(dropdown, open) {
         if (!dropdown) return;
         const list = dropdown.querySelector('.dropdown-list');
         ensureDropdownArrow(dropdown);
+        if (open) positionDropdownPanel(dropdown);
+        else dropdown.classList.remove('drop-up');
         dropdown.classList.toggle('open', open);
         if (list) {
             list.classList.toggle('open', open);
@@ -3986,6 +4203,23 @@ button, input, textarea, select { font:inherit; }
         }
         const trigger = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
         if (trigger) trigger.setAttribute('aria-expanded', String(open));
+        if (!open && list?.scrollRailElement) {
+            list.scrollRailElement.hidden = true;
+            list.scrollRailElement.style.display = 'none';
+        }
+        list?.updateScrollRail?.();
+        if (open && list) setTimeout(() => list.updateScrollRail?.(), 340);
+    }
+
+    function openSearchDropdown(event, id) {
+        event?.stopPropagation();
+        const target = document.getElementById(id);
+        const dropdown = target?.classList.contains('custom-dropdown') ? target : target?.closest('.custom-dropdown');
+        if (!dropdown) return;
+        document.querySelectorAll('.custom-dropdown.open').forEach(other => {
+            if (other !== dropdown) setDropdownOpen(other, false);
+        });
+        if (!dropdown.classList.contains('open')) setDropdownOpen(dropdown, true);
     }
 
     function toggleDropdown(arg1, arg2) {
@@ -4010,6 +4244,120 @@ button, input, textarea, select { font:inherit; }
         setDropdownOpen(dropdown, !isOpen);
     }
 
+
+    // Видимая и управляемая пальцем дорожка для мобильных выпадающих списков.
+    function initDropdownScrollRails() {
+        const selector = '.custom-dropdown > .dropdown-list, .owner-city-list, .report-cable-search, .equipment-search-results';
+        function attach(list) {
+            if (list.dataset.scrollRailReady) return;
+            const host = list.parentElement;
+            if (!host) return;
+            list.dataset.scrollRailReady = '1';
+            if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+            const rail = document.createElement('div');
+            rail.className = 'dropdown-scroll-rail';
+            rail.setAttribute('aria-hidden', 'true');
+            rail.hidden = true;
+            rail.style.display = 'none';
+            list.scrollRailElement = rail;
+            const thumb = document.createElement('div');
+            thumb.className = 'dropdown-scroll-thumb';
+            rail.appendChild(thumb);
+            host.appendChild(rail);
+            function update() {
+                const box = list.getBoundingClientRect();
+                const parentBox = host.getBoundingClientRect();
+                const dropdown = list.closest('.custom-dropdown');
+                const style = getComputedStyle(list);
+                const visible = (!dropdown || dropdown.classList.contains('open')) &&
+                    box.height > 8 && box.width > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+                rail.hidden = !visible;
+                rail.style.display = visible ? 'block' : 'none';
+                if (!visible) return;
+                const height = Math.max(1, box.height - 8);
+                rail.style.top = `${box.top - parentBox.top + 4}px`;
+                rail.style.right = `${parentBox.right - box.right + 4}px`;
+                rail.style.height = `${height}px`;
+                const thumbHeight = Math.min(height, Math.max(18, height * list.clientHeight / Math.max(list.scrollHeight, 1)));
+                thumb.style.height = `${thumbHeight}px`;
+                thumb.style.transform = `translateY(${(height - thumbHeight) * list.scrollTop /
+                    Math.max(1, list.scrollHeight - list.clientHeight)}px)`;
+            }
+            rail.addEventListener('pointerdown', event => {
+                event.preventDefault();
+                rail.setPointerCapture(event.pointerId);
+                const move = point => {
+                    const bounds = rail.getBoundingClientRect();
+                    const maxThumbTravel = bounds.height - thumb.offsetHeight;
+                    if (maxThumbTravel > 0) {
+                        const position = Math.max(0, Math.min(maxThumbTravel,
+                            point.clientY - bounds.top - thumb.offsetHeight / 2));
+                        list.scrollTop = position / maxThumbTravel * (list.scrollHeight - list.clientHeight);
+                    }
+                };
+                move(event);
+                const onMove = point => move(point);
+                const onEnd = () => {
+                    rail.removeEventListener('pointermove', onMove);
+                    rail.removeEventListener('pointerup', onEnd);
+                    rail.removeEventListener('pointercancel', onEnd);
+                };
+                rail.addEventListener('pointermove', onMove);
+                rail.addEventListener('pointerup', onEnd);
+                rail.addEventListener('pointercancel', onEnd);
+            });
+            list.updateScrollRail = update;
+            list.addEventListener('scroll', update, {passive: true});
+            const sizeObserver = new ResizeObserver(update);
+            const contentObserver = new MutationObserver(update);
+            sizeObserver.observe(list);
+            contentObserver.observe(list, {childList: true, subtree: true});
+            list.cleanupScrollRail = () => {
+                sizeObserver.disconnect();
+                contentObserver.disconnect();
+                rail.remove();
+                delete list.dataset.scrollRailReady;
+                delete list.updateScrollRail;
+                delete list.scrollRailElement;
+                delete list.cleanupScrollRail;
+            };
+            update();
+        }
+        document.querySelectorAll(selector).forEach(attach);
+        // Подсказки кабеля создаются позднее при вводе текста.
+        new MutationObserver(records => records.forEach(record => {
+            record.removedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                node.cleanupScrollRail?.();
+                node.querySelectorAll?.(selector).forEach(child => child.cleanupScrollRail?.());
+            });
+            record.addedNodes.forEach(node => {
+                if (node.nodeType !== 1) return;
+                if (node.matches?.(selector)) attach(node);
+                node.querySelectorAll?.(selector).forEach(attach);
+            });
+        })).observe(document.body, {childList: true, subtree: true});
+        window.addEventListener('resize', () => document.querySelectorAll(selector).forEach(list => {
+            // ResizeObserver обновит открытые списки; скрытые пересчитаются при открытии.
+            if (list.dataset.scrollRailReady) list.dispatchEvent(new Event('scroll'));
+        }));
+    }
+    window.addEventListener('DOMContentLoaded', initDropdownScrollRails);
+
+    document.addEventListener('keydown', event => {
+        const input = event.target.closest('.staff-search-trigger, .dropdown-search-trigger');
+        if (!input) return;
+        const dropdown = input.closest('.custom-dropdown');
+        if (event.key === 'Escape') {
+            setDropdownOpen(dropdown, false);
+            input.blur();
+        } else if (event.key === 'Enter' && dropdown?.classList.contains('open')) {
+            const first = [...dropdown.querySelectorAll('.dropdown-list .dropdown-item')]
+                .find(item => getComputedStyle(item).display !== 'none' && getComputedStyle(item).pointerEvents !== 'none');
+            if (first) { event.preventDefault(); first.click(); }
+        }
+    });
+
     function initUnifiedDropdownArrows() {
         document.querySelectorAll('.custom-dropdown').forEach(ensureDropdownArrow);
     }
@@ -4024,7 +4372,8 @@ button, input, textarea, select { font:inherit; }
         // 2. Меняем текст на кнопке выбора и возвращаем нормальный цвет текста
         const selectedSpan = document.getElementById(selectedSpanId);
         if (selectedSpan) {
-            selectedSpan.textContent = shortName;
+            if (selectedSpan instanceof HTMLInputElement) selectedSpan.value = shortName;
+            else selectedSpan.textContent = shortName;
             selectedSpan.style.color = 'var(--text-main, #ffffff)'; // Возвращаем яркий цвет текста
         }
 
@@ -4036,7 +4385,7 @@ button, input, textarea, select { font:inherit; }
     }
 
     function initCitiesDropdowns() {
-        renderCitiesItems('city-items-container', CITIES_LIST, 'regCityDropdown', 'regCity', 'regCityLabel');
+        renderCitiesItems('city-items-container', CITIES_LIST, 'regCityDropdown', 'regCity', 'citySearchInput');
     }
 
     function renderCitiesItems(containerId, list, dropdownId, hiddenInputId, labelId) {
@@ -4069,11 +4418,11 @@ button, input, textarea, select { font:inherit; }
         if (found) {
             currentUser = found;
             ownerCityChoiceRequired = found.role === 'Владелец';
-            localStorage.setItem('beeline_current_user', JSON.stringify(currentUser));
+            localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
 
             if (rememberMe) {
                 localStorage.setItem('beeline_remembered_login', loginInput);
-                localStorage.setItem('beeline_remembered_pass', passInput);
+                localStorage.removeItem('beeline_remembered_pass');
             } else {
                 localStorage.removeItem('beeline_remembered_login');
                 localStorage.removeItem('beeline_remembered_pass');
@@ -4194,7 +4543,7 @@ button, input, textarea, select { font:inherit; }
             const userIndex = usersDb.findIndex(u => u.email && u.email.toLowerCase() === recoveryEmailTarget.toLowerCase());
             if (userIndex !== -1) {
                 usersDb[userIndex].password = p1;
-                localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+                localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
             }
 
             recoveryEmailTarget = '';
@@ -4222,7 +4571,7 @@ button, input, textarea, select { font:inherit; }
 
         switchScreen('screen-salary');
         const container = document.getElementById('salaryContentContainer');
-        container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Загружаем вашу зарплату... 🔄</div>`;
+        container.innerHTML = liveLoading('Загружаем вашу зарплату...');
 
         try {
             const response = await fetch(`${GLOBAL_AUTH_SALARY_URL}?action=getSalary&fullName=${encodeURIComponent(currentUser.fullName)}&city=${encodeURIComponent(currentUser.city)}`, {
@@ -4261,6 +4610,8 @@ button, input, textarea, select { font:inherit; }
 
     function renderSalaryTemplate(d) {
         const container = document.getElementById('salaryContentContainer');
+        d = Object.fromEntries(Object.entries(d).map(([key, value]) =>
+            [key, typeof value === 'string' ? escapeScheduleHtml(value) : value]));
         const role = d.role || currentUser.role || 'Техник-Универсал';
         
         const row = (label, val, style = "") => val ? `
@@ -4272,8 +4623,8 @@ button, input, textarea, select { font:inherit; }
 
         let html = `
             <div style="background: rgba(255, 204, 0, 0.1); border: 1px solid var(--beeline-yellow); border-radius: 12px; padding: 12px; margin-bottom: 14px; text-align: center;">
-                <div style="font-size: 15px; color: var(--beeline-yellow); font-weight: 800;">👤 ${d.fullName || currentUser.fullName}</div>
-                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Роль: <b>${role}</b> | Город: <b>${d.city || currentUser.city}</b></div>
+                <div style="font-size: 15px; color: var(--beeline-yellow); font-weight: 800;">👤 ${d.fullName || escapeScheduleHtml(currentUser.fullName)}</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Роль: <b>${role}</b> | Город: <b>${d.city || escapeScheduleHtml(currentUser.city)}</b></div>
             </div>
         `;
 
@@ -4425,145 +4776,197 @@ button, input, textarea, select { font:inherit; }
         container.innerHTML = html;
     }
 
+    // Источник можно расширить полем scheduleSources: [{scriptUrl, scheduleSheetUrl}, ...]
+    // в CITIES_CONFIG. Без него продолжает работать существующий scriptUrl города.
+    function getScheduleSources(cityConfig) {
+        const sources = Array.isArray(cityConfig.scheduleSources) && cityConfig.scheduleSources.length
+            ? cityConfig.scheduleSources : [cityConfig];
+        return sources.filter(source => isConfiguredCityUrl(source.scriptUrl));
+    }
+
+    function parseScheduleDate(value) {
+        if (value instanceof Date && !Number.isNaN(value.getTime())) {
+            return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+        }
+        const text = String(value ?? '').trim();
+        const match = /^(\d{1,2})[./](\d{1,2})[./](\d{4})$/.exec(text)
+            || /^(\d{4})-(\d{1,2})-(\d{1,2})(?:T.*)?$/.exec(text);
+        if (!match) return null;
+        const iso = match[1].length === 4;
+        const year = Number(match[iso ? 1 : 3]);
+        const month = Number(match[2]);
+        const day = Number(match[iso ? 3 : 1]);
+        const date = new Date(year, month - 1, day);
+        return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+    }
+
+    function scheduleDateKey(date) {
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function scheduleStatus(value) {
+        const status = String(value ?? '').trim().toUpperCase();
+        return ['В', 'Р', 'П', 'О', 'Б', 'У'].includes(status) ? status : '';
+    }
+
+    function addScheduleEntries(target, items, source) {
+        if (!Array.isArray(items)) return;
+        items.forEach(item => {
+            const date = parseScheduleDate(item?.date);
+            if (!date) return;
+            const key = scheduleDateKey(date);
+            if (!target.has(key)) target.set(key, { status: scheduleStatus(item.status), source });
+        });
+    }
+
+    // В общем списке бывает отчество, в городской таблице — Фамилия Имя.
+    function scheduleNameKey(value) {
+        return String(value ?? '').trim().replace(/ё/gi, 'е')
+            .replace(/\s+/g, ' ').toLocaleUpperCase('ru').split(' ').slice(0, 2).join(' ');
+    }
+
+    // A — должность, B — ФИО, C — Telegram ID, даты начинаются после C.
+    function addScheduleGrid(target, rows, fullName, source) {
+        if (!Array.isArray(rows)) return;
+        const name = scheduleNameKey(fullName);
+        if (!name) return;
+        for (let headerIndex = 0; headerIndex < rows.length; headerIndex++) {
+            const header = rows[headerIndex];
+            if (!Array.isArray(header)) continue;
+            const dateColumns = [];
+            for (let column = 3; column < header.length; column++) {
+                const date = parseScheduleDate(header[column]);
+                if (date) dateColumns.push({ column, date });
+            }
+            if (dateColumns.length < 2) continue;
+            const matches = [];
+            for (let rowIndex = headerIndex + 1; rowIndex < rows.length; rowIndex++) {
+                const row = rows[rowIndex];
+                if (!Array.isArray(row)) continue;
+                if (parseScheduleDate(row[dateColumns[0].column])) break;
+                const label = String(row[1] ?? '').trim().toLowerCase();
+                if (label.startsWith('количество на линии') || label.startsWith('количество отдыхает')) break;
+                if (scheduleNameKey(row[1]) === name) matches.push(row);
+            }
+            // Не выбираем случайную строку при совпадении имён.
+            if (matches.length !== 1) continue;
+            dateColumns.forEach(({ column, date }) => {
+                const key = scheduleDateKey(date);
+                if (!target.has(key)) target.set(key, { status: scheduleStatus(matches[0][column]), source });
+            });
+        }
+    }
+
+    function collectScheduleResponse(target, res, fullName, source) {
+        if (!res || res.status !== 'ok') return;
+        if (Array.isArray(res.months)) res.months.forEach(month => addScheduleEntries(target, month.schedule, source));
+        addScheduleEntries(target, res.schedule, source);
+        const grids = Array.isArray(res.sheets) ? res.sheets
+            : Array.isArray(res.tables) ? res.tables : [res];
+        grids.forEach(grid => addScheduleGrid(target, grid.values || grid.rows, fullName, source));
+    }
+
+    let scheduleSourceByDate = new Map();
+
     async function openMySchedule() {
         if (!currentUser) {
             showBeelineModal("Ошибка", "Необходимо авторизоваться в системе!", "❌");
             return;
         }
-
         switchScreen('screen-schedule');
         const container = document.getElementById('scheduleContentContainer');
-        container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Загружаем ваш график из таблицы... 🔄</div>`;
-
-        try {
-            const cityConfig = CITIES_CONFIG[currentUser.city] || {};
-            if (!isConfiguredCityUrl(cityConfig.scriptUrl)) throw new Error("График для вашего города не настроен");
-            const url = `${cityConfig.scriptUrl}?action=getSchedule&fullName=${encodeURIComponent(currentUser.fullName)}&tgId=${encodeURIComponent(currentUser.tgId || '')}`;
-            
-            const response = await fetch(url, { method: 'GET' });
-            const res = await response.json();
-
-            if (res.status === 'ok') {
-                renderScheduleCalendar(res);
-            } else {
-                container.innerHTML = `
-                    <div style="text-align: center; color: #ff5252; padding: 20px;">
-                        ❌ ${res.message || 'Не удалось загрузить график'}
-                    </div>
-                `;
-            }
-        } catch (err) {
-            container.innerHTML = `
-                <div style="text-align: center; color: #ff5252; padding: 20px;">
-                    ❌ Ошибка соединения с сервером: ${err.toString()}
-                </div>
-            `;
+        container.innerHTML = liveLoading('Загружаем ваш график...');
+        const sources = getScheduleSources(CITIES_CONFIG[currentUser.city] || {});
+        if (!sources.length) {
+            container.textContent = 'График для вашего города не настроен.';
+            return;
         }
+        const fullName = String(currentUser.fullName ?? '').trim();
+        if (!fullName) { container.textContent = 'В учётной записи не указано ФИО сотрудника.'; return; }
+        const results = await Promise.allSettled(sources.map(async source => {
+            const params = new URLSearchParams({
+                action: 'getSchedule', fullName,
+                months: '2' // старый сервер проигнорирует параметр
+            });
+            const response = await fetch(`${source.scriptUrl}?${params}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return { res: await response.json(), source };
+        }));
+        const days = new Map();
+        const errors = [];
+        results.forEach((result, index) => {
+            if (result.status === 'rejected') errors.push(result.reason?.message || 'Ошибка соединения');
+            else if (result.value.res?.status === 'ok') {
+                collectScheduleResponse(days, result.value.res, fullName, result.value.source);
+            } else errors.push(result.value.res?.message || `Источник ${index + 1}: график не найден`);
+        });
+        scheduleSourceByDate = new Map([...days].map(([key, value]) => [key, value.source]));
+        if (days.size) renderScheduleCalendar(days);
+        else container.textContent = `Не удалось найти график по ФИО ${fullName}. ${errors.join('; ')}`;
     }
 
-    function renderScheduleCalendar(res) {
+    function escapeScheduleHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[char]));
+    }
+
+    function renderScheduleCalendar(days) {
         const container = document.getElementById('scheduleContentContainer');
         const now = new Date();
-        const year = now.getFullYear();
-        const month = now.getMonth();
-        
-        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
-        const currentMonthName = monthNames[month];
-
-        const firstDayIndex = (new Date(year, month, 1).getDay() + 6) % 7; 
-        const totalDays = new Date(year, month + 1, 0).getDate();
-
-        const cityConfig = CITIES_CONFIG[currentUser.city] || {};
-        const cityScheduleUrl = cityConfig.scheduleSheetUrl || "https://docs.google.com/spreadsheets/d/your_sheet_id_here/edit";
-
-        let legendHtml = `
-            <div class="schedule-legend">
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-v)"></div>В (Выходной)</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-p)"></div>Р (Рабочий)</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-o)"></div>О (Отпуск)</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-b)"></div>Б (Больничный)</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-pr)"></div>П (Прогул)</div>
-                <div class="legend-item"><div class="legend-dot" style="background:var(--status-u)"></div>У (Учеба)</div>
-            </div>
-        `;
-
-        let gridHtml = `
-            <div class="calendar-weekday">Пн</div>
-            <div class="calendar-weekday">Вт</div>
-            <div class="calendar-weekday">Ср</div>
-            <div class="calendar-weekday">Чт</div>
-            <div class="calendar-weekday">Пт</div>
-            <div class="calendar-weekday" style="color:var(--beeline-yellow);">Сб</div>
-            <div class="calendar-weekday" style="color:var(--beeline-yellow);">Вс</div>
-        `;
-
-        for (let i = 0; i < firstDayIndex; i++) {
-            gridHtml += `<div class="calendar-day empty"></div>`;
-        }
-
-        const scheduleArray = res.schedule || [];
-        const scheduleMap = {};
-        
-        scheduleArray.forEach(item => {
-            const parts = item.date.split('.');
-            if (parts.length === 3) {
-                const dayNum = parseInt(parts[0], 10);
-                scheduleMap[dayNum] = item.status;
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+        const badgeClasses = { 'В': 'badge-v', 'Р': 'badge-p', 'П': 'badge-pr',
+            'О': 'badge-o', 'Б': 'badge-b', 'У': 'badge-u' };
+        const weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+        const legend = [ ['В', 'Выходной', 'v'], ['Р', 'Рабочий', 'p'],
+            ['О', 'Отпуск', 'o'], ['Б', 'Больничный', 'b'],
+            ['П', 'Прогул', 'pr'], ['У', 'Учеба', 'u'] ]
+            .map(([code, title, color]) => `<div class="legend-item"><div class="legend-dot" style="background:var(--status-${color})"></div>${code} (${title})</div>`).join('');
+        const monthsHtml = [0, 1].map(offset => {
+            const first = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+            const year = first.getFullYear(), month = first.getMonth();
+            const monthPrefix = `${year}-${String(month + 1).padStart(2, '0')}-`;
+            const published = [...days].some(([key, entry]) => key.startsWith(monthPrefix) && entry.status);
+            const leading = (first.getDay() + 6) % 7;
+            let grid = weekdays.map((day, index) => `<div class="calendar-weekday"${index > 4 ? ' style="color:var(--beeline-yellow)"' : ''}>${day}</div>`).join('');
+            grid += '<div class="calendar-day empty"></div>'.repeat(leading);
+            const totalDays = new Date(year, month + 1, 0).getDate();
+            for (let day = 1; day <= totalDays; day++) {
+                const date = new Date(year, month, day);
+                const entry = days.get(scheduleDateKey(date));
+                const status = entry?.status || '';
+                const displayDate = `${String(day).padStart(2, '0')}.${String(month + 1).padStart(2, '0')}.${year}`;
+                grid += `<div class="calendar-day ${entry ? '' : 'unpublished'}"${entry ? ` onclick="handleDayClick('${displayDate}')" style="cursor:pointer" title="Список на ${displayDate}"` : ''}>
+                    <span class="day-number">${day}</span><div class="day-badge ${badgeClasses[status] || 'badge-none'}">${status || '—'}</div></div>`;
             }
-        });
-
-        for (let day = 1; day <= totalDays; day++) {
-            let status = scheduleMap[day] || 'В';
-            let badgeClass = 'badge-none';
-            let upperStatus = String(status).trim().toUpperCase();
-            if (upperStatus === 'В') badgeClass = 'badge-v';
-            else if (upperStatus === 'Р') badgeClass = 'badge-p';
-            else if (upperStatus === 'П') badgeClass = 'badge-pr';
-            else if (upperStatus === 'О') badgeClass = 'badge-o';
-            else if (upperStatus === 'Б') badgeClass = 'badge-b';
-            else if (upperStatus === 'У') badgeClass = 'badge-u';
-
-            let dayStr = String(day).padStart(2, '0');
-            let monthStr = String(month + 1).padStart(2, '0');
-            let fullDateStr = `${dayStr}.${monthStr}.${year}`;
-
-            gridHtml += `
-                <div class="calendar-day" onclick="handleDayClick('${fullDateStr}')" style="cursor: pointer;" title="Нажмите, чтобы посмотреть список на ${fullDateStr}">
-                    <span class="day-number">${day}</span>
-                    <div class="day-badge ${badgeClass}">${upperStatus}</div>
-                </div>
-            `;
-        }
-
-        container.innerHTML = `
-            <div style="font-size: 14px; color: var(--beeline-yellow); margin-bottom: 4px; text-align: center; font-weight: 700;">
-                👤 ${res.fullName || currentUser.fullName} (${currentUser.city})
-            </div>
-            <div class="calendar-header-title">📅 ${currentMonthName} ${year}</div>
-            ${legendHtml}
-            <div class="calendar-grid">${gridHtml}</div>
-            <a href="${cityScheduleUrl}" target="_blank" class="btn main-btn" style="margin-top: 15px;">
-                📋 Посмотреть общий график г. ${currentUser.city} ↗
-            </a>
-        `;
+            return `<section class="schedule-month"><div class="calendar-header-title">📅 ${monthNames[month]} ${year}${offset ? ' · готовящийся график' : ''}</div>
+                ${published ? '' : '<div style="text-align:center;color:var(--text-secondary);margin-bottom:10px">График пока не опубликован</div>'}
+                <div class="calendar-grid">${grid}</div></section>`;
+        }).join('');
+        const cityConfig = CITIES_CONFIG[currentUser.city] || {};
+        const sheetUrl = cityConfig.scheduleSheetUrl;
+        const sheetLink = /^https:\/\/docs\.google\.com\/spreadsheets\//.test(sheetUrl || '')
+            ? `<a href="${escapeScheduleHtml(sheetUrl)}" target="_blank" rel="noopener noreferrer" class="btn main-btn" style="margin-top:15px">📋 Посмотреть общий график г. ${escapeScheduleHtml(currentUser.city)} ↗</a>` : '';
+        container.innerHTML = `<div style="font-size:14px;color:var(--beeline-yellow);margin-bottom:8px;text-align:center;font-weight:700">👤 ${escapeScheduleHtml(currentUser.fullName)} (${escapeScheduleHtml(currentUser.city)})</div>
+            <div class="schedule-legend">${legend}</div>${monthsHtml}${sheetLink}`;
     }
 
     async function handleDayClick(dateStr) {
-        showBeelineModal("Загрузка...", `Получаем данные по сотрудникам на ${dateStr}...`, "⏳");
+        showBeelineModal('Загрузка...', `Получаем данные по сотрудникам на ${dateStr}...`, '⏳');
         try {
+            const date = parseScheduleDate(dateStr);
             const cityConfig = CITIES_CONFIG[currentUser.city] || {};
-            if (!isConfiguredCityUrl(cityConfig.scriptUrl)) throw new Error("График для вашего города не настроен");
-            const url = `${cityConfig.scriptUrl}?action=getDayDetails&date=${encodeURIComponent(dateStr)}`;
-            const response = await fetch(url, { method: 'GET' });
+            const source = scheduleSourceByDate.get(scheduleDateKey(date)) || getScheduleSources(cityConfig)[0];
+            if (!source) throw new Error('Источник графика не настроен');
+            const url = `${source.scriptUrl}?action=getDayDetails&date=${encodeURIComponent(dateStr)}`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const res = await response.json();
-
-            if (res.status === 'ok') {
-                renderDayDetailsModal(res);
-            } else {
-                showBeelineModal("Ошибка", res.message || "Не удалось получить данные дня", "❌");
-            }
+            if (res.status === 'ok') renderDayDetailsModal(res);
+            else showBeelineModal('Ошибка', res.message || 'Не удалось получить данные дня', '❌');
         } catch (err) {
-            showBeelineModal("Ошибка", `Ошибка соединения: ${err.toString()}`, "❌");
+            showBeelineModal('Ошибка', `Ошибка соединения: ${err.message}`, '❌');
         }
     }
 
@@ -4703,7 +5106,7 @@ button, input, textarea, select { font:inherit; }
         }
 
         usersDb.push(newUser);
-        localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+        localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
         showBeelineModal(
             "Успешно", 
@@ -4845,8 +5248,8 @@ async function handleSearchAccess() {
 
     let html = '';
     filtered.forEach(item => {
-        const cleanPhone1 = (item.phone1 || '').replace(/^'/, '');
-        const cleanPhone2 = (item.phone2 || '').replace(/^'/, '');
+        const cleanPhone1 = escapeScheduleHtml((item.phone1 || '').replace(/^'/, ''));
+        const cleanPhone2 = escapeScheduleHtml((item.phone2 || '').replace(/^'/, ''));
 
         let phonesHtml = `<span>${cleanPhone1 || '-'}</span>`;
         if (cleanPhone2 && cleanPhone2 !== '-') {
@@ -4855,11 +5258,11 @@ async function handleSearchAccess() {
 
         html += `
             <div class="access-item-card" style="display:block; background:rgba(255,255,255,0.05); padding:12px; border-radius:8px; margin-bottom:10px;">
-                <div class="access-info" style="margin-bottom:4px;">📍 <b>Адрес:</b> <span>${item.address}</span></div>
+                <div class="access-info" style="margin-bottom:4px;">📍 <b>Адрес:</b> <span>${escapeScheduleHtml(item.address)}</span></div>
                 <div class="access-info" style="margin-bottom:4px;">📞 <b>Контактные номера:</b> ${phonesHtml}</div>
-                <div class="access-info" style="margin-bottom:4px;">🏢 <b>КСК (адрес ключей):</b> <span>${item.kskKeys || '-'}</span></div>
-                <div class="access-info" style="margin-bottom:4px;">🏠 <b>Открытая крыша:</b> <span>${item.roofOpen || '-'}</span></div>
-                <div class="access-info">🚪 <b>Код домофона:</b> <span style="color: var(--beeline-yellow);">${item.intercomCode || '-'}</span></div>
+                <div class="access-info" style="margin-bottom:4px;">🏢 <b>КСК (адрес ключей):</b> <span>${escapeScheduleHtml(item.kskKeys || '-')}</span></div>
+                <div class="access-info" style="margin-bottom:4px;">🏠 <b>Открытая крыша:</b> <span>${escapeScheduleHtml(item.roofOpen || '-')}</span></div>
+                <div class="access-info">🚪 <b>Код домофона:</b> <span style="color: var(--beeline-yellow);">${escapeScheduleHtml(item.intercomCode || '-')}</span></div>
             </div>
         `;
     });
@@ -5088,7 +5491,7 @@ async function handleSearchAccess() {
             usersDb[index].tgGroupPpr = updatedUser.tgGroupPpr;
             usersDb[index].email = updatedUser.email;
 
-            localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+            localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
             closeEditModal(); // Закрываем модальное окно редактирования
             renderUsersList();
@@ -5139,7 +5542,7 @@ async function handleSearchAccess() {
 
         // Удаляем из локального массива и обновляем localStorage
         usersDb = usersDb.filter(item => item.id !== userId);
-        localStorage.setItem('beeline_central_user', JSON.stringify(usersDb));
+        localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
         closeBeelineModal();
         renderUsersList();
@@ -5170,47 +5573,38 @@ async function handleSearchAccess() {
     let allInstallersData = [];
 
     // 1. Загрузка данных из таблицы Google Apps Script
-    function loadInstallersDropdown() {
-        const scriptUrl = "https://script.google.com/macros/s/AKfycbyFcYBp90UUg7koztArk61GASabeelnRSoRvVF2-crsXdToB4Y-3bfmoRzGohrXfYMiFw/exec";
-
-        fetch(scriptUrl)
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === "success" && data.data) {
-                    allInstallersData = data.data;
-                    renderInstallersItems(allInstallersData); // Заполняем контейнер элементов
-                }
-            })
-            .catch(err => console.error("Ошибка загрузки списка сотрудников:", err));
+    function isEligibleEquipmentEmployee(employee) {
+        const role = String(employee?.role || '').trim().toLocaleLowerCase('ru').replace(/[—–-]/g, ' ').replace(/\s+/g, ' ');
+        return ['техник универсал', 'бригадир', 'старший техник'].includes(role);
     }
-
-    // 2. Отрисовка списка сотрудников в выпадающем окне
+    function loadInstallersDropdown() {
+        populateInstallersDropdown();
+    }
     function renderInstallersItems(list) {
         const container = document.getElementById('installer-items-container');
         if (!container) return;
-
-        let html = '';
-        if (!list || list.length === 0) {
-            html = `<div style="color: var(--text-secondary); padding: 12px; text-align: center;">Сотрудники не найдены</div>`;
-        } else {
-            list.forEach(employee => {
-                const name = employee.fullName || employee.name || "Сотрудник";
-                const warehouse = employee.warehouse || "";
-                const city = employee.city || (currentUser?.city || '');
-            
-                // Формируем итоговый формат: Фамилия Имя Отчество, Бригада №5 (Темиртау)
-                const warehousePart = warehouse ? `, ${warehouse} (${city})` : ` (${city})`;
-                const fullValue = `${name}${warehousePart}`;
-
-                html += `
-                    <div class="dropdown-item" style="padding: 12px; cursor: pointer; border-bottom: 1px solid #222; color: #fff;" 
-                         onclick="selectDropdownOption('installer-list', 'installer', 'installer-selected', '${escapeHtml(fullValue)}', '${escapeHtml(name)}')">
-                        <b>${name}</b> <span style="font-size: 11px; color: var(--text-secondary);">(${warehouse || 'Сотрудник'})</span>
-                    </div>
-                `;
-            });
+        container.replaceChildren();
+        const people = (list || []).filter(isEligibleEquipmentEmployee);
+        if (!people.length) {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-secondary)';
+            empty.textContent = 'Сотрудники не найдены';
+            container.appendChild(empty);
         }
-        container.innerHTML = html;
+        people.forEach(employee => {
+            const name = employee.fullName || employee.name;
+            const value = formatReportInstallerValue({...employee, fullName:name});
+            const option = document.createElement('div');
+            option.className = 'dropdown-item';
+            option.style.cssText = 'padding:12px;cursor:pointer;border-bottom:1px solid #222;color:#fff';
+            const title = document.createElement('b'); title.textContent = name;
+            const detail = document.createElement('span');
+            detail.style.cssText = 'display:block;font-size:11px;color:var(--text-secondary)';
+            detail.textContent = `${employee.warehouse || 'Сотрудник'} · ${employee.role}`;
+            option.append(title, detail);
+            option.addEventListener('click', () => selectDropdownOption('installerDropdown', 'installer', 'installer-btn', value, name));
+            container.appendChild(option);
+        });
     }
 
     // 3. Мгновенный поиск по каждой введенной букве
@@ -5696,36 +6090,13 @@ async function handleSearchAccess() {
 // ФУНКЦИЯ ЗАПОЛНЕНИЯ СПИСКА СОТРУДНИКОВ ПО ГОРОДУ ТЕКУЩЕГО ПОЛЬЗОВАТЕЛЯ
 // =========================================================================
 function populateInstallersDropdown() {
-    // Поле поиска находится внутри #installer-list и не должно удаляться
-    // при обновлении списка сотрудников.
-    const selectedSpan = document.getElementById('installer-selected');
-    const hiddenInput = document.getElementById('installer');
-    if (!document.getElementById('installer-items-container')) return;
-
-    // Единственный источник сотрудников — общий список usersDb, загруженный с сервера.
-    const allUsers = Array.isArray(usersDb) ? usersDb.filter(Boolean) : [];
-
-    const userCity = (currentUser && currentUser.city) ? currentUser.city.trim().toLowerCase() : "";
-    let cityUsers = allUsers.filter(u => {
-        const uCity = (u.city || "").trim().toLowerCase();
-        return !!userCity && uCity === userCity;
-    });
-    
-
-    allInstallersData = cityUsers.map(u => ({
-        fullName: u.fullName || u.name || "Сотрудник",
-        name: u.name || u.fullName || "Сотрудник",
-        role: u.role || "",
-        warehouse: u.warehouse || "",
-        city: u.city || (currentUser ? currentUser.city : "")
-    }));
-
-    const searchInput = document.querySelector('#installer-list input[oninput*="filterInstallers"]');
+    const hidden = document.getElementById('installer');
+    const search = document.getElementById('installer-btn');
+    allInstallersData = getReportInstallersFromDatabase();
+    const selected = allInstallersData.find(person => formatReportInstallerValue(person) === hidden?.value);
+    if (hidden && hidden.value && !selected) hidden.value = '';
+    if (search) search.value = selected ? selected.fullName : '';
     renderInstallersItems(allInstallersData);
-    if (searchInput) searchInput.value = '';
-    if (selectedSpan && !(hiddenInput && hiddenInput.value)) {
-        selectedSpan.textContent = 'Выберите сотрудника...';
-    }
 }
 
 function escapeHtml(text) {
@@ -5754,7 +6125,7 @@ function showFormStep() {
         const cityStr = currentUser.city ? ` | 🏢 ${currentUser.city}` : '';
         
         if (authorDisplay) {
-            authorDisplay.innerHTML = `👤 <span style="color: var(--beeline-yellow); font-weight: 700;">${currentUser.fullName}</span>${roleStr}${cityStr}`;
+            authorDisplay.innerHTML = `👤 <span style="color: var(--beeline-yellow); font-weight: 700;">${escapeScheduleHtml(currentUser.fullName)}</span>${escapeScheduleHtml(roleStr)}${escapeScheduleHtml(cityStr)}`;
         }
         if (authorInput) {
             authorInput.value = currentUser.fullName;
@@ -6129,6 +6500,7 @@ document.addEventListener('blur', (e) => {
         document.querySelectorAll('.dropdown-list').forEach(el => {
             if (el.id !== 'tr-completionTheme-list') el.classList.remove('open');
         });
+        positionDropdownPanel(document.getElementById('tr-theme-dropdown-container'));
         document.getElementById('tr-completionTheme-list').classList.add('open');
         renderThemesList(document.getElementById('tr-themeSearchInput').value);
     }
@@ -6136,6 +6508,7 @@ document.addEventListener('blur', (e) => {
     function filterThemes() {
         const query = document.getElementById('tr-themeSearchInput').value;
         document.getElementById('tr-completionTheme').value = query;
+        positionDropdownPanel(document.getElementById('tr-theme-dropdown-container'));
         document.getElementById('tr-completionTheme-list').classList.add('open');
         renderThemesList(query);
     }
@@ -6153,7 +6526,7 @@ document.addEventListener('blur', (e) => {
 
         let cityUsers = allUsers.filter(u => {
             const uCity = String(u.city || '').trim().toLowerCase();
-            return !!userCity && uCity === userCity;
+            return !!userCity && uCity === userCity && isEligibleEquipmentEmployee(u);
         });
 
         
@@ -6161,6 +6534,7 @@ document.addEventListener('blur', (e) => {
         return cityUsers.map(u => ({
             id: u.id || u.dwLogin || u.fullName,
             fullName: u.fullName || u.name || 'Сотрудник',
+            role: u.role || '',
             warehouse: u.warehouse || '',
             city: u.city || (currentUser ? currentUser.city : '')
         }));
@@ -6203,37 +6577,33 @@ document.addEventListener('blur', (e) => {
         updatePprInstallersLists();
     }
 
-    function updatePprInstallersLists() {
-        const list2 = document.getElementById('tr-pprInstaller2-list');
-        const hidden2 = document.getElementById('tr-pprInstaller2');
-        const btn2 = document.getElementById('tr-pprInstaller2-btn');
-
-        if (!list2) return;
-
-        const currentName = currentUser && currentUser.fullName ? currentUser.fullName : '';
-        const users = getReportInstallersFromDatabase();
-
-        let html = '';
-        users.forEach(user => {
-            if (user.fullName === currentName) return;
-
-            const value = formatReportInstallerValue(user);
-            const safeValue = String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-            const safeName = String(user.fullName).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-
-            html += `<div class="dropdown-item" onclick="selectOption('tr-pprInstaller2', '${safeValue}', 'tr-pprInstaller2-btn', '${safeName}', 'tr-pprInstaller2-list')">${safeName}<span style="display:block;font-size:11px;color:var(--text-secondary);">${user.warehouse || 'Сотрудник'}${user.city ? ' · ' + user.city : ''}</span></div>`;
+    function updatePprInstallersLists(query = '') {
+        const list = document.getElementById('tr-pprInstaller2-list');
+        const hidden = document.getElementById('tr-pprInstaller2');
+        const input = document.getElementById('tr-pprInstaller2-btn');
+        if (!list) return;
+        const currentName = String(currentUser?.fullName || '').trim();
+        const people = getReportInstallersFromDatabase().filter(person => person.fullName !== currentName);
+        const selected = people.find(person => formatReportInstallerValue(person) === hidden?.value);
+        if (hidden?.value && !selected) { hidden.value = ''; if (input) input.value = ''; }
+        const q = String(query || '').trim().toLocaleLowerCase('ru');
+        const matches = people.filter(person => [person.fullName, person.role, person.warehouse].some(value => String(value || '').toLocaleLowerCase('ru').includes(q)));
+        list.replaceChildren();
+        if (!matches.length) {
+            const empty = document.createElement('div');
+            empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-secondary)';
+            empty.textContent = 'Сотрудники не найдены'; list.appendChild(empty);
+        }
+        matches.forEach(person => {
+            const option = document.createElement('div'); option.className = 'dropdown-item';
+            const title = document.createElement('b'); title.textContent = person.fullName;
+            const detail = document.createElement('span');
+            detail.style.cssText = 'display:block;font-size:11px;color:var(--text-secondary)';
+            detail.textContent = `${person.warehouse || 'Сотрудник'} · ${person.role}`;
+            option.append(title, detail);
+            option.addEventListener('click', () => selectOption('tr-pprInstaller2', formatReportInstallerValue(person), 'tr-pprInstaller2-btn', person.fullName, 'tr-pprInstaller2-list'));
+            list.appendChild(option);
         });
-
-        if (!html) {
-            html = `<div class="dropdown-item" style="color:var(--text-secondary);cursor:default;">Нет доступных сотрудников</div>`;
-        }
-
-        list2.innerHTML = html;
-
-        if (hidden2 && hidden2.value === currentName) {
-            hidden2.value = '';
-            if (btn2) btn2.textContent = 'Выберите второго монтажника';
-        }
     }
 
     function initEquipmentDropdowns() {
@@ -6287,7 +6657,8 @@ document.addEventListener('blur', (e) => {
         const btn = document.getElementById(btnId);
         const list = document.getElementById(listId);
         if (hidden) hidden.value = value;
-        if (btn) btn.textContent = displayText;
+        if (btn instanceof HTMLInputElement) btn.value = displayText;
+        else if (btn) btn.textContent = displayText;
         const dropdown = list ? list.closest('.custom-dropdown') : null;
         if (dropdown) setDropdownOpen(dropdown, false);
     }
@@ -7297,6 +7668,13 @@ document.addEventListener('blur', (e) => {
             document.head.appendChild(script);
         });
     }
+    function liveLoading(message) {
+        const safe = String(message || 'Загружаем данные...').replace(/[&<>"']/g, ch => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[ch]));
+        return `<div class="live-loading" role="status" aria-live="polite"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>${safe}</span></div>`;
+    }
+
     function actDebtsNode(tag, className, value) {
         const node = document.createElement(tag);
         if (className) node.className = className;
@@ -7337,11 +7715,8 @@ document.addEventListener('blur', (e) => {
                 const meta = actDebtsNode('span', 'act-debts-meta');
                 meta.appendChild(actDebtsNode('time', 'act-debts-date', '📅 ' + (formatActDebtDate(entry.date) || 'Дата не указана')));
                 meta.appendChild(actDebtsNode('span', 'act-debts-status', '● Акт не сдан'));
+                meta.appendChild(actDebtsNode('span', 'act-debts-arrow', '▼'));
                 summary.appendChild(meta);
-                const more = actDebtsNode('span', 'act-debts-more');
-                more.appendChild(actDebtsNode('span', 'act-debts-arrow', '▸'));
-                more.appendChild(actDebtsNode('span', '', '🔍 Подробнее'));
-                summary.appendChild(more);
                 card.appendChild(summary);
                 const details = actDebtsNode('dl', 'act-debts-details');
                 for (const field of entry.details || []) {
@@ -7376,7 +7751,7 @@ document.addEventListener('blur', (e) => {
         document.getElementById('actDebtsSubtitle').textContent = 'Ищем ваши акты';
         document.getElementById('actDebtsBreakdown').replaceChildren();
         document.getElementById('actDebtsUser').textContent = name && city ? name + ' · ' + city : '';
-        actDebtsState('⏳', 'Загружаем данные из таблицы города...');
+        document.getElementById('actDebtsList').innerHTML = liveLoading('Ищем ваши акты...');
         try {
             if (!name || !city || !isConfiguredCityUrl(url)) throw new Error('Нет данных пользователя или ссылки скрипта его города.');
             const response = await requestActDebts(url, name, city);
@@ -7448,11 +7823,8 @@ document.addEventListener('blur', (e) => {
                 const meta = actDebtsNode('span', 'act-debts-meta');
                 meta.appendChild(actDebtsNode('span', 'act-debts-date', (type === 'Приставки' ? 'STB: ' : 'Серийный номер: ') + (entry.serial || 'Не указан')));
                 if (type === 'Кабель') meta.appendChild(actDebtsNode('span', 'act-debts-status', '● ' + entry.meters + ' м'));
+                meta.appendChild(actDebtsNode('span', 'act-debts-arrow', '▼'));
                 summary.appendChild(meta);
-                const more = actDebtsNode('span', 'act-debts-more');
-                more.appendChild(actDebtsNode('span', 'act-debts-arrow', '▸'));
-                more.appendChild(actDebtsNode('span', '', '🔍 Подробнее'));
-                summary.appendChild(more);
                 card.appendChild(summary);
                 const details = actDebtsNode('dl', 'act-debts-details');
                 for (const [label, value] of [['Дата выдачи', formatActDebtDate(entry.date) || 'Не указана'], ['Кем выдан', entry.issuedBy || 'Не указано']]) {
@@ -7486,7 +7858,7 @@ document.addEventListener('blur', (e) => {
         document.getElementById('myEquipmentSubtitle').textContent = 'Ищем ваши остатки';
         document.getElementById('myEquipmentBreakdown').replaceChildren();
         document.getElementById('myEquipmentUser').textContent = name && city ? name + ' · ' + city : '';
-        myEquipmentState('⏳', 'Загружаем данные из таблицы города...');
+        document.getElementById('myEquipmentList').innerHTML = liveLoading('Проверяем оборудование и кабель...');
         try {
             if (!name || !city || !isConfiguredCityUrl(url)) throw new Error('Нет данных пользователя или ссылки скрипта его города.');
             const response = await requestMyEquipment(url, name, city);
@@ -7668,6 +8040,7 @@ document.addEventListener('blur', (e) => {
 
     // Планы ППР: список и карточка города. Сервер повторно проверяет роль и версию строки.
     let pprPlanItems = [], pprPlanStaff = [], pprPlanSelected = null, pprPlanBusy = false;
+    let pprDeepLinkOpening = false;
     const pprPlanChoices = {};
     const pprPlanRoles = ['Техник-Универсал','Бригадир','Старший Техник','Администратор','Владелец'];
     const pprPlanManagers = ['Старший Техник','Администратор','Владелец'];
@@ -7678,7 +8051,27 @@ document.addEventListener('blur', (e) => {
         }
         switchScreen('screen-ppr-plans');
         document.getElementById('pprPlansSearch').value = '';
-        await loadPprPlans();
+        return await loadPprPlans();
+    }
+    async function maybeOpenPprDeepLink() {
+        const params = new URLSearchParams(window.location.search);
+        const rowText = params.get('pprRow');
+        const city = params.get('pprCity');
+        if (!rowText || !/^\d{1,7}$/.test(rowText) || !city || pprDeepLinkOpening || !currentUser) return;
+        if (currentUser.city !== city || !pprPlanRoles.includes(currentUser.role)) return;
+        pprDeepLinkOpening = true;
+        try {
+            if (!await openPprPlans()) return;
+            const index = pprPlanItems.findIndex(item => Number(item.row) === Number(rowText));
+            if (index < 0) {
+                showBeelineModal('План ППР', 'Адрес уже завершён или недоступен вашей учётной записи.', 'ℹ️');
+            } else {
+                openPprPlanCard(index); // Только открыть: сохранение требует отдельного подтверждения.
+            }
+            params.delete('pprRow'); params.delete('pprCity');
+            const query = params.toString();
+            history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + location.hash);
+        } finally { pprDeepLinkOpening = false; }
     }
     function pprPlanStatusOnce(url, requestId) {
         return new Promise((resolve, reject) => {
@@ -7721,7 +8114,8 @@ document.addEventListener('blur', (e) => {
         if (pprPlanBusy) return;
         pprPlanBusy = true;
         const hint = document.getElementById('pprPlansHint');
-        hint.textContent = 'Загрузка адресов…';
+        pprPlanItems = [];
+        hint.innerHTML = liveLoading('Загружаем планы ППР...');
         try {
             const all = [];
             let offset = 0, total = 0, staff = [];
@@ -7733,15 +8127,17 @@ document.addEventListener('blur', (e) => {
                 all.push(...batch);
                 if (!batch.length && offset < total) throw new Error('Список адресов изменился во время загрузки. Откройте его снова.');
                 offset += batch.length;
-                hint.textContent = `Загрузка адресов: ${Math.min(offset,total)} из ${total}…`;
+                hint.innerHTML = liveLoading(`Загружено адресов: ${Math.min(offset,total)} из ${total}`);
             } while (offset < total);
             pprPlanItems = all;
             pprPlanStaff = staff;
             filterPprPlans();
             window.scrollTo(0, 0);
+            return true;
         } catch (err) {
             hint.textContent = 'Не удалось загрузить адреса.';
             showBeelineModal('Планы ППР', pprEsc(err.message), '❌');
+            return false;
         } finally { pprPlanBusy = false; }
     }
     function filterPprPlans() {
@@ -7752,7 +8148,13 @@ document.addEventListener('blur', (e) => {
             ? (query ? `Найдено: ${visible.length} из ${pprPlanItems.length}` : `Адреса: ${pprPlanItems.length}`)
             : 'Нет адресов без статуса или со статусом «В работе».';
         document.getElementById('pprPlansList').innerHTML = visible.length
-            ? visible.map(({item,index}) => `<button type="button" class="ppr-plan-item" onclick="openPprPlanCard(${index})">📍 ${pprEsc(item.address)} ${pprEsc(item.house)}</button>`).join('')
+            ? visible.map(({item,index}) => {
+                const inWork = item.status === 'В работе';
+                return `<button type="button" class="ppr-plan-item${inWork ? ' is-in-work' : ''}" data-ppr-row="${Number(item.row)}" onclick="openPprPlanCard(${index})" aria-label="Открыть план: ${pprEsc(item.address)} ${pprEsc(item.house)}. ${inWork ? 'В работе' : 'Не начат'}">
+                    <span class="ppr-plan-address">📍 ${pprEsc(item.address)} ${pprEsc(item.house)}</span>
+                    <span class="ppr-plan-status">${inWork ? 'В работе' : 'Не начат'}</span><span class="ppr-plan-arrow" aria-hidden="true">▼</span>
+                </button>`;
+            }).join('')
             : (query ? '<p>По вашему запросу адреса не найдены.</p>' : '');
     }
     function pprPlanStaffLabel(person) {
@@ -7785,8 +8187,8 @@ document.addEventListener('blur', (e) => {
         const selected = pprPlanFindPerson(pprPlanAllowedStaff(id, people), value);
         pprPlanChoices[id] = {people, blank};
         hidden.value = selected ? pprPlanStaffLabel(selected) : (value || '');
-        document.getElementById(id+'Selected').textContent = selected ? selected.name : (value || blank);
-        list.querySelector('input').value = '';
+        document.getElementById(id+'Btn').value = selected ? selected.name : (value || '');
+        document.getElementById(id+'Btn').placeholder = '🔍 ' + blank + ' или найдите по фамилии';
         pprPlanFilterStaff(id, '');
     }
     function pprPlanFilterStaff(id, query) {
@@ -7797,7 +8199,6 @@ document.addEventListener('blur', (e) => {
         const matches = pprPlanAllowedStaff(id, people).filter(person =>
             [person.name, person.role, person.warehouse].some(field => String(field || '').toLocaleLowerCase('ru').includes(q)));
         container.replaceChildren();
-        if (!q) matches.unshift({name:'', label:blank});
         if (!matches.length) {
             const empty = document.createElement('div');
             empty.style.cssText = 'padding:12px;text-align:center;color:var(--text-secondary)';
@@ -7822,7 +8223,7 @@ document.addEventListener('blur', (e) => {
             option.addEventListener('click', () => {
                 if (person.name && !pprPlanAllowedStaff(id, people).includes(person)) return;
                 selectOption(id, person.name ? pprPlanStaffLabel(person) : '', null, null, id+'List');
-                document.getElementById(id+'Selected').textContent = person.name || blank;
+                document.getElementById(id+'Btn').value = person.name || '';
             });
             container.appendChild(option);
         });
@@ -7834,6 +8235,8 @@ document.addEventListener('blur', (e) => {
     function openPprPlanCard(index) {
         const item = pprPlanItems[index]; if (!item) return;
         pprPlanSelected = item;
+        document.querySelectorAll('.ppr-plan-item.is-active').forEach(button => button.classList.remove('is-active'));
+        document.querySelector(`.ppr-plan-item[data-ppr-row="${Number(item.row)}"]`)?.classList.add('is-active');
         const role = currentUser.role, manager = pprPlanManagers.includes(role);
         const inWork = item.status === 'В работе';
         const editable = !inWork || manager;
@@ -7854,7 +8257,12 @@ document.addEventListener('blur', (e) => {
         document.getElementById('pprPlanNotice').textContent = inWork && !manager ? (item.canComplete ? 'План уже в работе. Поля закрыты для редактирования; вы можете отметить выполнение.' : 'План уже в работе. Для вашей роли редактирование и завершение недоступны.') : '';
         document.getElementById('pprPlanOverlay').style.display = 'flex';
     }
-    function closePprPlan() { document.getElementById('pprPlanOverlay').style.display='none'; pprPlanSelected=null; }
+    function closePprPlan() {
+        document.querySelectorAll('#pprPlanOverlay .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
+        document.getElementById('pprPlanOverlay').style.display='none';
+        document.querySelectorAll('.ppr-plan-item.is-active').forEach(button => button.classList.remove('is-active'));
+        pprPlanSelected=null;
+    }
     function confirmPprPlan(complete) {
         if (!pprPlanSelected || pprPlanBusy) return;
         if (!complete) {
@@ -7996,7 +8404,8 @@ function selectReturnDropdownOption(dropdownId, hiddenInputId, labelId, value, t
     
     if (hiddenInput) hiddenInput.value = value;
     if (label) {
-        label.textContent = text;
+        if (label instanceof HTMLInputElement) label.value = text;
+        else label.textContent = text;
         label.style.color = 'var(--text-main, #fff)';
     }
     
@@ -8011,7 +8420,7 @@ function initNomenclatureDropdown(list = NOMENCLATURE_LIST) {
     let html = '';
     list.forEach(item => {
         const safeItem = item.replace(/'/g, "\\'");
-        html += `<div class="dropdown-item" onclick="selectReturnDropdownOption('retNomenclatureDropdown', 'retNomenclature', 'retNomenclatureLabel', '${safeItem}', '${safeItem}')">${item}</div>`;
+        html += `<div class="dropdown-item" onclick="selectReturnDropdownOption('retNomenclatureDropdown', 'retNomenclature', 'retNomenclatureSearch', '${safeItem}', '${safeItem}')">${item}</div>`;
     });
     container.innerHTML = html;
 }
@@ -8067,7 +8476,7 @@ function detectModelBySerial(s) {
 function detectNomenclatureBySerial(serialVal) {
     const model = detectModelBySerial(serialVal.trim());
     if (model) {
-        selectReturnDropdownOption('retNomenclatureDropdown', 'retNomenclature', 'retNomenclatureLabel', model, model);
+        selectReturnDropdownOption('retNomenclatureDropdown', 'retNomenclature', 'retNomenclatureSearch', model, model);
     }
 }
 
@@ -8154,7 +8563,7 @@ function openReturnEquipmentForm() {
     const serialEl = document.getElementById('retSerial');
     const macEl = document.getElementById('retMac');
     const nomEl = document.getElementById('retNomenclature');
-    const nomLabel = document.getElementById('retNomenclatureLabel');
+    const nomLabel = document.getElementById('retNomenclatureSearch');
     const kitEl = document.getElementById('retKit');
     const kitLabel = document.getElementById('retKitLabel');
     const reasonEl = document.getElementById('retReason');
@@ -8165,7 +8574,7 @@ function openReturnEquipmentForm() {
     if (macEl) macEl.value = '';
     if (nomEl) nomEl.value = '';
     if (nomLabel) {
-        nomLabel.textContent = 'Выберите номенклатуру...';
+        nomLabel.value = '';
         nomLabel.style.color = '';
     }
     if (kitEl) kitEl.value = '';
@@ -8246,7 +8655,7 @@ async function openCheckReturnScreen() {
     const container = document.getElementById('returnedEquipmentListContainer');
     if (!container) return;
 
-    container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Загрузка возвращенного оборудования... 🔄</div>`;
+    container.innerHTML = liveLoading('Проверяем возвраты оборудования...');
 
     const cityConf = CITIES_CONFIG[currentUser.city] || {};
     const targetUrl = cityConf.reportsScriptUrl;
@@ -8284,22 +8693,19 @@ async function openCheckReturnScreen() {
                 let displayDate = formatDateToRu(item.date);
 
                 html += `
-                    <div class="card" style="background: #18181b; border: 1px solid #333; border-left: 4px solid var(--beeline-yellow); border-radius: 12px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                        <div style="font-size: 15px; font-weight: 700; color: var(--beeline-yellow); margin-bottom: 8px;">📦 ${item.nomenclature || 'Оборудование'}</div>
-                        <div style="font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 5px;">
-                            <div>Серийный номер: <span style="color: var(--text-main); font-family: monospace; font-weight: 600;">${item.series || '—'}</span></div>
-                            <div>МАК адрес: <span style="color: var(--text-main); font-family: monospace; font-weight: 600;">${item.mac || '—'}</span></div>
-                            <div>Дата возврата: <span style="color: var(--text-main);">${displayDate}</span></div>
-                            <div>Статус: <span style="color: var(--success); font-weight: 600;">${item.status || '—'}</span></div>
+                    <details class="return-check-entry">
+                        <summary>
+                            <span class="return-check-title">📦 ${escapeScheduleHtml(item.nomenclature || 'Оборудование')}</span>
+                            <span>Серийный номер: <b>${escapeScheduleHtml(item.series || '—')}</b></span>
+                            <span>МАК адрес: <b>${escapeScheduleHtml(item.mac || '—')}</b></span>
+                            <span>Дата возврата: <b>${escapeScheduleHtml(displayDate)}</b></span>
+                            <span class="return-check-status">Статус: <b>${escapeScheduleHtml(item.status || '—')}</b><span class="act-debts-arrow" aria-hidden="true">▼</span></span>
+                        </summary>
+                        <div class="return-check-extra">
+                            <div><b>Комплектация:</b> ${escapeScheduleHtml(item.kit || 'Не указана')}</div>
+                            <div><b>Причина возврата:</b> ${escapeScheduleHtml(item.reason || 'Не указана')}</div>
                         </div>
-                        <details style="margin-top: 10px; border-top: 1px solid #2a2a2a; padding-top: 8px;">
-                            <summary style="cursor: pointer; font-size: 13px; color: var(--beeline-yellow); font-weight: 600; outline: none;">🔍 Подробнее</summary>
-                            <div style="margin-top: 8px; font-size: 12px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 6px; background: #121214; padding: 8px; border-radius: 8px;">
-                                <div><b>Комплектация:</b> <span style="color: var(--text-main);">${item.kit || 'Не указана'}</span></div>
-                                <div><b>Причина возврата:</b> <span style="color: var(--text-main);">${item.reason || 'Не указана'}</span></div>
-                            </div>
-                        </details>
-                    </div>
+                    </details>
                 `;
             });
             container.innerHTML = html;
@@ -8425,7 +8831,8 @@ document.addEventListener('click', function(e) {
             
             // Обновляем текст кнопки выбранным значением
             const btn = dropdown.querySelector('.dropdown-trigger, .dropdown-select-btn');
-            if (btn && !item.querySelector('input')) {
+            if (btn instanceof HTMLInputElement && !dropdown.classList.contains('ppr-staff-dropdown')) btn.value = item.textContent.trim();
+            if (btn && !(btn instanceof HTMLInputElement) && !item.querySelector('input')) {
                 // Если внутри кнопки есть спан или текст — обновляем его
                 const span = Array.from(btn.querySelectorAll(':scope > span')).find(el => !el.classList.contains('dropdown-arrow'));
                 if (span) {
@@ -8521,7 +8928,6 @@ const softwareAndroidApps = [
     { title: "Teams", url: "https://play.google.com/store/apps/details?id=com.microsoft.teams", img: "teams.png", showName: false },
     { title: "Documentolog", url: "https://play.google.com/store/apps/details?id=com.documentolog_mobile", img: "documentolog.png", showName: false },
     { title: "Darlean.kz", url: "https://play.google.com/store/apps/details?id=io.dar.qit.kz", img: "darlean.png", showName: false },
-    { title: "PingTools", url: "https://play.google.com/store/apps/details?id=ua.com.streamsoft.pingtools", img: "pingtools.png", showName: false },
     { title: "SpeedTest", url: "https://play.google.com/store/apps/details?id=org.zwanoo.android.speedtest", img: "speedtest.png", showName: false }
 ];
 const softwareIosApps = [
@@ -8717,7 +9123,8 @@ function showSoftwarePlatform(platform, button) {
         document.getElementById('myHoursTotal').textContent = '—';
         document.getElementById('myHoursPeriod').textContent = 'Загрузка из таблицы города...';
         document.getElementById('myHoursUser').textContent = fullName && city ? fullName + ' · ' + city : '';
-        root.replaceChildren(actDebtsNode('div','hours-empty','⏳ Загружаем часы и заявки...'));
+        root.innerHTML = liveLoading('Загружаем часы и заявки...');
+        document.querySelector('#screen-my-hours .hours-hero')?.classList.add('is-loading');
         try {
             if (!fullName || !city || !isConfiguredCityUrl(url)) throw new Error('Для города не настроен скрипт отчётов.');
             const data = await requestMyHours(url, fullName, city);
@@ -8729,6 +9136,8 @@ function showSoftwarePlatform(platform, button) {
             if (request !== myHoursRequest) return;
             document.getElementById('myHoursPeriod').textContent = 'Не удалось загрузить';
             root.replaceChildren(actDebtsNode('div','hours-empty','⚠️ ' + (error.message || 'Ошибка загрузки.')));
+        } finally {
+            if (request === myHoursRequest) document.querySelector('#screen-my-hours .hours-hero')?.classList.remove('is-loading');
         }
     }
 
