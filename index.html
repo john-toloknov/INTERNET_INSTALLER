@@ -2046,6 +2046,33 @@ button, input, textarea, select { font:inherit; }
         padding-top: 9px;
         padding-bottom: 9px;
     }
+
+/* Экран часов использует палитру и размеры карточек раздела зарплаты. */
+#screen-my-hours > .card {width:500px;max-width:100%;box-sizing:border-box;margin:auto}
+.hours-hero {display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px;
+    margin-bottom:12px;border-radius:14px;background:rgba(255,204,0,.1);border:1px solid var(--beeline-yellow)}
+.hours-hero strong {display:block;color:var(--beeline-yellow);font-size:36px;line-height:1.2}
+.hours-hero small {display:block;color:var(--text-secondary);font-size:12px}
+.hours-eyebrow {font-size:10px;letter-spacing:.12em;font-weight:800;color:var(--beeline-yellow)}
+.hours-hero-icon {font-size:35px}
+.hours-section {background:rgba(255,255,255,.03);border:1px solid var(--card-border);border-radius:12px;
+    padding:12px 14px;margin:10px 0}
+.hours-section h3 {color:var(--beeline-yellow);font-size:14px;margin:0 0 8px}
+.hours-line {display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+    padding:8px 0;border-bottom:1px solid rgba(255,255,255,.07);font-size:13px}
+.hours-line:last-child {border-bottom:0}
+.hours-line span {color:var(--text-secondary)}
+.hours-line b {text-align:right;color:var(--text-main);font-variant-numeric:tabular-nums}
+.hours-alert {color:var(--danger)!important}
+.hours-norm {font-size:11px!important;color:var(--text-muted)!important}
+.hours-meter {height:6px;border-radius:8px;background:#303030;overflow:hidden;margin:1px 0 9px}
+.hours-meter span {display:block;height:100%;border-radius:8px;background:var(--beeline-yellow)}
+.hours-meter.is-met span {background:var(--success)}
+.hours-short {white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;font-size:13px;color:var(--text-main)}
+.hours-fine {border-color:rgba(255,77,77,.42);background:rgba(255,77,77,.06)}
+.hours-fine h3 {color:var(--danger)}
+.hours-empty {padding:22px 12px;text-align:center;color:var(--text-secondary);font-size:13px}
+
 </style>
 </head>
 <!-- Библиотеки для сканирования -->
@@ -2934,7 +2961,7 @@ button, input, textarea, select { font:inherit; }
                 <button class="btn action-btn" onclick="openMyEquipment()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔌 Оборудование и кабель</button>
                 
                 <button class="btn action-btn" onclick="openMySalary()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">💰 Моя Зарплата</button>
-                <button class="btn action-btn" onclick="alert('Мои часы и дни')" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">⏱ Часы и дни</button>
+                <button class="btn action-btn" onclick="openMyHours()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">⏱ Часы и дни</button>
                 
                 <button class="btn action-btn" onclick="openReturnEquipmentForm()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔄 Возврат</button>
                 <button class="btn action-btn" onclick="openCheckReturnScreen()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔍 Проверить возврат</button>
@@ -2974,6 +3001,21 @@ button, input, textarea, select { font:inherit; }
             </div>
             <div id="myEquipmentList" aria-live="polite"></div>
             <button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Меню монтажника</button>
+        </div>
+    </div>
+
+    <!-- Часы и заявки авторизованного монтажника -->
+    <div id="screen-my-hours" class="app-screen uniform-screen">
+        <h2>⏱ Часы и дни</h2>
+        <div class="card">
+            <div class="hours-hero"><div><span class="hours-eyebrow">МОЙ ОТЧЕТ</span>
+                <strong id="myHoursTotal">—</strong><small id="myHoursPeriod">Загрузка из таблицы города...</small></div>
+                <span class="hours-hero-icon" aria-hidden="true">⏱</span></div>
+            <div class="act-debts-toolbar"><span id="myHoursUser"></span>
+                <button type="button" class="btn action-btn" onclick="loadMyHours()">🔄 Обновить</button></div>
+            <div id="myHoursContent" aria-live="polite"></div>
+            <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
+                <button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
         </div>
     </div>
 
@@ -8567,6 +8609,129 @@ function showSoftwarePlatform(platform, button) {
     document.addEventListener('DOMContentLoaded', () => {
         initUnifiedDropdownArrows();
     });
+
+    // Текущий город и ФИО берутся из активного пользователя, как в разделе актов.
+    let myHoursRequest = 0;
+    function requestMyHours(url, fullName, city) {
+        return new Promise((resolve, reject) => {
+            const callback = '__beelineMyHoursCallback_' + Math.random().toString(36).slice(2);
+            const script = document.createElement('script');
+            let finished = false;
+            const finish = (error, result) => {
+                if (finished) return;
+                finished = true;
+                clearTimeout(timer);
+                script.remove();
+                delete window[callback];
+                if (error) reject(error); else resolve(result);
+            };
+            const timer = setTimeout(() => finish(new Error('Таблица города не ответила. Попробуйте обновить.')), 20000);
+            window[callback] = result => finish(null, result);
+            script.onerror = () => finish(new Error('Не удалось подключиться к скрипту города.'));
+            script.src = url + '?action=getMyHours&fullName=' + encodeURIComponent(fullName)
+                + '&city=' + encodeURIComponent(city) + '&callback=' + encodeURIComponent(callback);
+            document.head.appendChild(script);
+        });
+    }
+    function hoursLine(parent, label, value, alert) {
+        const line = actDebtsNode('div', 'hours-line');
+        line.appendChild(actDebtsNode('span', '', label));
+        line.appendChild(actDebtsNode('b', alert ? 'hours-alert' : '', value === '' ? '—' : value));
+        parent.appendChild(line);
+    }
+    function hoursSection(parent, title) {
+        const section = actDebtsNode('section', 'hours-section');
+        section.appendChild(actDebtsNode('h3', '', title));
+        parent.appendChild(section);
+        return section;
+    }
+    function hoursNumber(value) {
+        const parsed = Number(String(value ?? '').replace(/\s|\u00a0/g,'').replace('%','').replace(',','.'));
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+    function hoursNorm(parent, label, actualText, goal, unit, actualNumber, isPercent) {
+        const comparable = isPercent && actualNumber > 0 && actualNumber <= 1 ? actualNumber * 100 : actualNumber;
+        const shown = String(actualText || '0');
+        hoursLine(parent,label, shown + (unit === '%' && shown.includes('%') ? '' : unit) + ' / ' + goal + unit,comparable < goal);
+        const meter = actDebtsNode('div','hours-meter' + (comparable >= goal ? ' is-met' : ''));
+        const bar = actDebtsNode('span');
+        bar.style.width = Math.min(100,Math.max(0,comparable / goal * 100)) + '%';
+        meter.appendChild(bar);
+        parent.appendChild(meter);
+    }
+    function renderMyHours(data) {
+        const root = document.getElementById('myHoursContent');
+        root.replaceChildren();
+        const h = data.hours, r = data.requests;
+        const role = currentUser?.role || '';
+        const norm = role === 'Техник-Универсал' ? {hours:165,days:15,remote:5} :
+            role === 'Бригадир' ? {hours:135,days:15,remote:5} : null;
+        document.getElementById('myHoursUser').textContent = (data.fullName || currentUser.fullName) + ' · ' + data.city;
+        document.getElementById('myHoursTotal').textContent = (h.total || '0') + ' ч';
+        document.getElementById('myHoursPeriod').textContent = 'На ' + data.asOf + ' · ' + role;
+        const plan = hoursSection(root,'🎯 Мой план');
+        if (norm) {
+            hoursNorm(plan,'Часы',h.total,norm.hours,' ч',hoursNumber(h.total),false);
+            hoursNorm(plan,'Отработанные дни',data.workedDays,norm.days,' дн.',hoursNumber(data.workedDays),false);
+            hoursNorm(plan,'Закрыто удалённо',data.remotePercent,norm.remote,'%',hoursNumber(data.remotePercent),true);
+        } else {
+            plan.appendChild(actDebtsNode('div','hours-empty','Нормы для роли «' + (role || 'не указана') + '» не заданы.'));
+            hoursLine(plan,'Отработано дней',data.workedDays || '0');
+            hoursLine(plan,'Закрыто удалённо',data.remotePercent || '0%');
+        }
+        const requests = hoursSection(root, '🛠 Заявки и часы');
+        for (const [name, count, hours] of [
+            ['Включения',r.inclusion,h.inclusion], ['Переезды',r.move,h.move],
+            ['Сервисы',r.service,h.service], ['Демонтажи',r.dismantle,h.dismantle]
+        ]) hoursLine(requests,name,(count || '0') + ' заявок · ' + (hours || '0') + ' ч');
+        hoursLine(requests,'ППР', (h.ppr || '0') + ' ч');
+        const results = hoursSection(root, '📊 Результаты месяца');
+        hoursLine(results,'Количество отработанных дней',data.workedDays || '0');
+        hoursLine(results,'Продуктивность',data.productivity || '0%');
+        hoursLine(results,'Сервисов закрыто удалённо',r.remote || '0');
+        hoursLine(results,'Не включено',r.notConnected || '0',hoursNumber(r.notConnected)>0);
+        const repeatCount=Math.max(0,hoursNumber(r.repeats));
+        const fine = hoursSection(root,'⚠️ Повторные сервисы');
+        fine.classList.add('hours-fine');
+        hoursLine(fine,'Количество повторов',r.repeats || '0',repeatCount>0);
+        if (norm) hoursLine(fine,'Штраф: ' + (new Intl.NumberFormat('ru-RU').format(2000)) + ' ₸ за каждый',
+            '−' + new Intl.NumberFormat('ru-RU').format(repeatCount * 2000) + ' ₸',repeatCount>0);
+        const short=hoursSection(root,'📅 Дни менее 8 часов');
+        short.appendChild(actDebtsNode('div',data.shortDays ? 'hours-short' : 'hours-empty',
+            data.shortDays || 'Таких дней нет'));
+    }
+    function openMyHours() {
+        if (currentUser?.role === 'Стажер') return;
+        if (!currentUser?.fullName || !currentUser?.city) {
+            showBeelineModal('Требуется вход','Авторизуйтесь для просмотра часов.','🔒');
+            return;
+        }
+        switchScreen('screen-my-hours');
+        loadMyHours();
+    }
+    async function loadMyHours() {
+        const request = ++myHoursRequest, user = currentUser;
+        const fullName = user?.fullName, city = user?.city;
+        const url = CITIES_CONFIG[city]?.reportsScriptUrl;
+        const root = document.getElementById('myHoursContent');
+        document.getElementById('myHoursTotal').textContent = '—';
+        document.getElementById('myHoursPeriod').textContent = 'Загрузка из таблицы города...';
+        document.getElementById('myHoursUser').textContent = fullName && city ? fullName + ' · ' + city : '';
+        root.replaceChildren(actDebtsNode('div','hours-empty','⏳ Загружаем часы и заявки...'));
+        try {
+            if (!fullName || !city || !isConfiguredCityUrl(url)) throw new Error('Для города не настроен скрипт отчётов.');
+            const data = await requestMyHours(url, fullName, city);
+            if (request !== myHoursRequest || currentUser?.fullName !== fullName || currentUser?.city !== city) return;
+            if (data?.status !== 'success' || data.city !== city || !data.hours || !data.requests || typeof data.shortDays !== 'string')
+                throw new Error(data?.message || 'Не удалось получить часы и заявки.');
+            renderMyHours(data);
+        } catch(error) {
+            if (request !== myHoursRequest) return;
+            document.getElementById('myHoursPeriod').textContent = 'Не удалось загрузить';
+            root.replaceChildren(actDebtsNode('div','hours-empty','⚠️ ' + (error.message || 'Ошибка загрузки.')));
+        }
+    }
+
 </script>
 
 </body>
