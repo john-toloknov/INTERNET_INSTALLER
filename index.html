@@ -2277,6 +2277,32 @@ button, input, textarea, select { font:inherit; }
 #screen-check-return .common-nav-row .btn { min-width:0; }
 #screen-check-return .return-write-btn, #screen-check-return .report-finish-btn { width:100%; margin-top:4px; }
 
+
+.schedule-staff-list {display:flex !important;flex-direction:column !important;gap:6px;width:100%;}
+.schedule-staff-row {display:block !important;width:100%;box-sizing:border-box;padding:9px 11px;background:#161616;border:1px solid #333;border-radius:10px;text-align:left;}
+#screen-shift-swaps>.card {width:500px;max-width:100%;}
+#shiftSwapContent {display:flex;flex-direction:column;gap:10px;width:100%;}
+
+.schedule-day-details {display:flex;flex-direction:column;gap:14px;max-height:48vh;overflow-y:auto;text-align:left;width:100%;padding:2px;box-sizing:border-box;}
+.schedule-staff-group {display:flex;flex-direction:column;gap:6px;width:100%;}
+.schedule-staff-heading {display:block;font-size:15px;font-weight:700;color:var(--beeline-yellow);}
+.schedule-staff-row {font-size:14px;line-height:1.4;overflow-wrap:anywhere;}
+.schedule-day-actions {display:flex;flex-direction:column;gap:8px;width:100%;}
+.schedule-day-actions .btn {margin:0;width:100%;}
+
+/* Прокрутка карточек дня и формы обмена: фирменный жёлтый на чёрном. */
+.schedule-day-details, #shiftSwapContent, #beelineModalText {scrollbar-width:thin;scrollbar-color:var(--beeline-yellow) #111;}
+.schedule-day-details::-webkit-scrollbar, #shiftSwapContent::-webkit-scrollbar, #beelineModalText::-webkit-scrollbar {width:8px;height:8px;}
+.schedule-day-details::-webkit-scrollbar-track, #shiftSwapContent::-webkit-scrollbar-track, #beelineModalText::-webkit-scrollbar-track {background:#111;border-radius:10px;}
+.schedule-day-details::-webkit-scrollbar-thumb, #shiftSwapContent::-webkit-scrollbar-thumb, #beelineModalText::-webkit-scrollbar-thumb {background:var(--beeline-yellow);border:2px solid #111;border-radius:10px;}
+.schedule-day-details::-webkit-scrollbar-button, #shiftSwapContent::-webkit-scrollbar-button, #beelineModalText::-webkit-scrollbar-button {display:none;width:0;height:0;}
+#beelineModalText #shiftSwapPersonSearch, #beelineModalText #shiftSwapComment {background:#111;color:var(--text-primary);border:1px solid #444;border-radius:10px;padding:11px;box-sizing:border-box;font:inherit;}
+#beelineModalText #shiftSwapComment:focus, #beelineModalText #shiftSwapPersonSearch:focus {outline:none;border-color:var(--beeline-yellow);}
+
+/* Две строки кнопок обмена: действия и навигация. */
+#screen-shift-swaps .common-nav-row .btn {min-width:0;padding:12px 6px;line-height:1.3;white-space:normal;overflow-wrap:anywhere;}
+#screen-shift-swaps .shift-swap-action-row .btn:only-child,
+#screen-shift-swaps .shift-swap-action-row.is-single .btn {grid-column:1 / -1;}
 </style>
 </head>
 <body>
@@ -3665,6 +3691,7 @@ button, input, textarea, select { font:inherit; }
 </div>
 
 <!-- МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ -->
+<div id="screen-shift-swaps" class="app-screen uniform-screen" style="display:none"><div class="card"><h2>🔄 Обмены сменами</h2><div id="shiftSwapContent"></div><div class="common-nav-row shift-swap-action-row is-single"><button type="button" id="shiftSwapCancel" class="btn main-btn" style="display:none" onclick="shiftSwapAction('cancel')">❌ Отменить запрос</button><button type="button" class="btn main-btn" onclick="openShiftSwapHistory()">📋 Все мои запросы</button></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openMySchedule()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
 <div id="beelineModal" class="beeline-modal-overlay">
     <div class="beeline-modal-card">
         <div class="beeline-modal-icon" id="beelineModalIcon">⚠️</div>
@@ -3943,7 +3970,23 @@ button, input, textarea, select { font:inherit; }
         document.getElementById('beelineModal').style.display = 'flex';
     }
 
+    // Интерактивное содержимое создаётся кодом приложения; текст сервера по-прежнему очищается.
+    function showBeelineModalNode(title, content, icon = '🐝', actions = null) {
+        if (!(content instanceof Node)) throw new TypeError('Ожидается DOM-узел модального окна');
+        showBeelineModal(title, '', icon);
+        document.getElementById('beelineModalText').replaceChildren(content);
+        if (actions instanceof Node) document.getElementById('beelineModalButtons').replaceChildren(actions);
+    }
+
+    function createLocalModalNode(html) {
+        // Только локальные шаблоны приложения с экранированными динамическими значениями.
+        const root = document.createElement('div');
+        root.innerHTML = html;
+        return root;
+    }
+
     function closeBeelineModal() {
+        document.querySelectorAll('#beelineModal .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('beelineModal').style.display = 'none';
     }
 
@@ -4007,7 +4050,7 @@ button, input, textarea, select { font:inherit; }
                 showOwnerCityPicker();
             } else {
                 switchScreen('screen-main');
-                maybeOpenPprDeepLink();
+                if(new URLSearchParams(location.search).has('swapId'))maybeOpenShiftSwapDeepLink();else maybeOpenPprDeepLink();
             }
         } else {
             switchScreen('screen-login');
@@ -4867,6 +4910,7 @@ button, input, textarea, select { font:inherit; }
     }
 
     let scheduleSourceByDate = new Map();
+    const scheduleDayDetailsCache = new Map();
 
     async function openMySchedule() {
         if (!currentUser) {
@@ -4881,16 +4925,15 @@ button, input, textarea, select { font:inherit; }
             container.textContent = 'График для вашего города не настроен.';
             return;
         }
+        scheduleDayDetailsCache.clear();
         const fullName = String(currentUser.fullName ?? '').trim();
         if (!fullName) { container.textContent = 'В учётной записи не указано ФИО сотрудника.'; return; }
         const results = await Promise.allSettled(sources.map(async source => {
             const params = new URLSearchParams({
                 action: 'getSchedule', fullName,
-                months: '2' // старый сервер проигнорирует параметр
+                months: '2', includeDayDetails:'1' // старый сервер проигнорирует дополнительные параметры
             });
-            const response = await fetch(`${source.scriptUrl}?${params}`);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return { res: await response.json(), source };
+            return {res:await fetchScheduleJson(source, Object.fromEntries(params)), source};
         }));
         const days = new Map();
         const errors = [];
@@ -4898,6 +4941,7 @@ button, input, textarea, select { font:inherit; }
             if (result.status === 'rejected') errors.push(result.reason?.message || 'Ошибка соединения');
             else if (result.value.res?.status === 'ok') {
                 collectScheduleResponse(days, result.value.res, fullName, result.value.source);
+                Object.entries(result.value.res.dayDetails||{}).forEach(([date,detail])=>scheduleDayDetailsCache.set(currentUser.city+'|'+result.value.source.scriptUrl+'|'+date,{value:detail,time:Date.now()}));
             } else errors.push(result.value.res?.message || `Источник ${index + 1}: график не найден`);
         });
         scheduleSourceByDate = new Map([...days].map(([key, value]) => [key, value.source]));
@@ -4949,70 +4993,110 @@ button, input, textarea, select { font:inherit; }
         const sheetLink = /^https:\/\/docs\.google\.com\/spreadsheets\//.test(sheetUrl || '')
             ? `<a href="${escapeScheduleHtml(sheetUrl)}" target="_blank" rel="noopener noreferrer" class="btn main-btn" style="margin-top:15px">📋 Посмотреть общий график г. ${escapeScheduleHtml(currentUser.city)} ↗</a>` : '';
         container.innerHTML = `<div style="font-size:14px;color:var(--beeline-yellow);margin-bottom:8px;text-align:center;font-weight:700">👤 ${escapeScheduleHtml(currentUser.fullName)} (${escapeScheduleHtml(currentUser.city)})</div>
-            <div class="schedule-legend">${legend}</div>${monthsHtml}${sheetLink}`;
+            <div class="schedule-legend">${legend}</div>${monthsHtml}<button class="btn secondary-btn" onclick="openShiftSwapHistory()">🔄 Мои обмены сменами</button>${sheetLink}`;
     }
 
+    async function fetchScheduleJson(source, params) {
+        if (!isConfiguredCityUrl(source?.scriptUrl)) throw new Error('Источник графика не настроен');
+        let lastError;
+        // Новый URL исключает повторное использование устаревшего перенаправления Apps Script.
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const url = new URL(source.scriptUrl);
+            Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, String(value)));
+            url.searchParams.set('_request', Date.now() + '_' + attempt + '_' + Math.random().toString(36).slice(2));
+            try {
+                const response = await fetch(url.href, {cache:'no-store',credentials:'omit',redirect:'follow'});
+                if (!response.ok) {
+                    const error = new Error(response.status === 404
+                        ? 'Скрипт графика недоступен (HTTP 404). Проверьте адрес /exec и действующее развёртывание скрипта графика.'
+                        : 'Ошибка загрузки графика: HTTP ' + response.status);
+                    error.retryable = [404, 502, 503, 504].includes(response.status);
+                    throw error;
+                }
+                return await response.json();
+            } catch (error) {
+                lastError = error;
+                if (!error.retryable || attempt === 2) throw error;
+                await new Promise(resolve=>setTimeout(resolve,300*(attempt+1)));
+            }
+        }
+        throw lastError;
+    }
+
+    let scheduleDayRequest = 0;
     async function handleDayClick(dateStr) {
-        showBeelineModal('Загрузка...', `Получаем данные по сотрудникам на ${dateStr}...`, '⏳');
+        const request = ++scheduleDayRequest;
+        showBeelineModalNode('Загрузка дня', createLocalModalNode(liveLoading('Получаем сотрудников на ' + dateStr + '…')), '');
         try {
             const date = parseScheduleDate(dateStr);
-            const cityConfig = CITIES_CONFIG[currentUser.city] || {};
+            if (!date) throw new Error('Некорректная дата графика');
+            const cityConfig = CITIES_CONFIG[currentUser?.city] || {};
             const source = scheduleSourceByDate.get(scheduleDateKey(date)) || getScheduleSources(cityConfig)[0];
-            if (!source) throw new Error('Источник графика не настроен');
-            const url = `${source.scriptUrl}?action=getDayDetails&date=${encodeURIComponent(dateStr)}`;
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const res = await response.json();
-            if (res.status === 'ok') renderDayDetailsModal(res);
-            else showBeelineModal('Ошибка', res.message || 'Не удалось получить данные дня', '❌');
-        } catch (err) {
-            showBeelineModal('Ошибка', `Ошибка соединения: ${err.message}`, '❌');
+            const cacheKey=currentUser.city+'|'+source.scriptUrl+'|'+dateStr;
+            const cached=scheduleDayDetailsCache.get(cacheKey);
+            const res=cached&&Date.now()-cached.time<30000?cached.value:await fetchScheduleJson(source, {action:'getDayDetails', date:dateStr});
+            if(res.status==='ok')scheduleDayDetailsCache.set(cacheKey,{value:res,time:cached&&res===cached.value?cached.time:Date.now()});
+            if (request !== scheduleDayRequest || document.getElementById('beelineModal').style.display === 'none') return;
+            if (res.status === 'ok') renderDayDetailsModal({...res, date:dateStr});
+            else showBeelineModal('Ошибка', escapeScheduleHtml(res.message || 'Не удалось получить данные дня'), '❌');
+        } catch (error) {
+            if (request !== scheduleDayRequest || document.getElementById('beelineModal').style.display === 'none') return;
+            showBeelineModal('Ошибка загрузки дня', escapeScheduleHtml(error.message), '❌');
         }
     }
 
     function renderDayDetailsModal(res) {
         const grouped = res.grouped || {};
-        const statusTitles = {
-            'Р': '⚪ Работают:',
-            'В': '🟢 Выходной:',
-            'О': '🟡 Отпуск:',
-            'Б': '🔵 Больничный:',
-            'П': '🔴 Прогул:',
-            'У': '🟣 Учеба:'
-        };
-
-        let contentHtml = `<div style="max-height: 55vh; overflow-y: auto; text-align: left; padding: 5px;">`;
+        const statusTitles = {'Р':'⚪ Работают','В':'🟢 Выходной','О':'🟡 Отпуск',
+            'Б':'🔵 Больничный','П':'🔴 Прогул','У':'🟣 Учеба'};
+        const root = document.createElement('div');
+        root.className = 'schedule-day-details';
         let hasData = false;
-        
-        for (let key in statusTitles) {
-            const list = grouped[key] || [];
-            if (list.length > 0) {
-                hasData = true;
-                contentHtml += `<div style="margin-bottom: 14px;">`;
-                contentHtml += `<div style="font-weight: 700; color: var(--beeline-yellow); margin-bottom: 6px; font-size: 15px;">${statusTitles[key]}</div>`;
-                contentHtml += `<ul style="margin: 0; padding-left: 20px; color: var(--text-primary); font-size: 14px; line-height: 1.5;">`;
-                list.forEach(name => { contentHtml += `<li>${name}</li>`; });
-                contentHtml += `</ul></div>`;
-            }
-        }
-
+        Object.entries(statusTitles).forEach(([status, title]) => {
+            const names = Array.isArray(grouped[status]) ? grouped[status] : [];
+            if (!names.length) return;
+            hasData = true;
+            const group = document.createElement('section');
+            group.className = 'schedule-staff-group';
+            const heading = document.createElement('div');
+            heading.className = 'schedule-staff-heading';
+            heading.textContent = title + ' · ' + names.length;
+            const list = document.createElement('div');
+            list.className = 'schedule-staff-list';
+            names.forEach(name => {
+                const row = document.createElement('div');
+                row.className = 'schedule-staff-row';
+                row.textContent = String(name ?? '');
+                list.appendChild(row);
+            });
+            group.append(heading, list);
+            root.appendChild(group);
+        });
         if (!hasData) {
-            contentHtml += `<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Нет данных по сотрудникам на эту дату.</div>`;
+            const empty = document.createElement('p');
+            empty.textContent = 'Нет данных по сотрудникам на эту дату.';
+            root.appendChild(empty);
         }
-        contentHtml += `</div>`;
-
-        let weekDayStr = "";
-        try {
-            const parts = res.date.split('.');
-            if (parts.length === 3) {
-                const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
-                weekDayStr = dateObj.toLocaleDateString('ru-RU', { weekday: 'long' });
-                weekDayStr = weekDayStr.charAt(0).toUpperCase() + weekDayStr.slice(1);
-            }
-        } catch (e) { weekDayStr = ""; }
-
-        const modalTitle = weekDayStr ? `📅 ${res.date} (${weekDayStr})` : `📅 ${res.date}`;
-        showBeelineModal(modalTitle, contentHtml, "");
+        const actions = document.createElement('div');
+        actions.className = 'schedule-day-actions';
+        if (shiftSwapEligibleRole(currentUser?.role) && shiftSwapAllowedDate(res.date)) {
+            const swap = document.createElement('button');
+            swap.type = 'button';
+            swap.className = 'btn main-btn';
+            swap.textContent = '🔄 Поменяться сменами';
+            swap.addEventListener('click', () => openShiftSwapRequest(res.date));
+            actions.appendChild(swap);
+        }
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'btn secondary-btn';
+        close.textContent = 'Закрыть';
+        close.addEventListener('click', closeBeelineModal);
+        actions.appendChild(close);
+        const date = parseScheduleDate(res.date);
+        const weekday = date ? date.toLocaleDateString('ru-RU', {weekday:'long'}) : '';
+        const title = '📅 ' + res.date + (weekday ? ' (' + weekday + ')' : '');
+        showBeelineModalNode(title, root, '', actions);
     }
 
     //регистрация
@@ -9140,6 +9224,109 @@ function showSoftwarePlatform(platform, button) {
             if (request === myHoursRequest) document.querySelector('#screen-my-hours .hours-hero')?.classList.remove('is-loading');
         }
     }
+
+let shiftSwapPeople=[],shiftSwapDates=[],shiftSwapDate='',shiftSwapId='';
+function shiftSwapUrl(){return getScheduleSources(CITIES_CONFIG[currentUser?.city]||{})[0]?.scriptUrl;}
+async function shiftSwapFetchJson(url,options={},timeout=30000){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+ try{
+  const response=await fetch(url,{...options,mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const result=await response.json();
+  if(!result||!['success','error','pending'].includes(result.status))throw new Error('Неверный ответ скрипта графика');
+  return result;
+ }finally{clearTimeout(timer);}
+}
+function shiftSwapStatusOnce(url,id,timeout=20000){
+ const endpoint=new URL(url);endpoint.searchParams.set('action','shiftSwapStatus');endpoint.searchParams.set('requestId',id);endpoint.searchParams.set('_request',Date.now()+'_'+Math.random().toString(36).slice(2));
+ return shiftSwapFetchJson(endpoint.href,{},timeout);
+}
+async function shiftSwapRequest(operation,fields={}){
+ const url=shiftSwapUrl();if(!isConfiguredCityUrl(url))throw new Error('Для города не настроен график');
+ const requestId='sw_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));
+ const body={action:'shiftSwap',operation,requestId,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,...fields};
+ const deadline=Date.now()+60000;let result,lastError;
+ // Один запрос: браузер сразу читает JSON из POST. При обрыве POST не повторяется.
+ try{result=await shiftSwapFetchJson(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(body)});}
+ catch(error){lastError=error;}
+ while(!result||result.status==='pending'){
+  if(Date.now()>=deadline)throw new Error('Не удалось получить результат. Откройте «Все мои запросы» перед повторной отправкой. '+(lastError?.message||''));
+  try{result=await shiftSwapStatusOnce(url,requestId,Math.min(20000,deadline-Date.now()));}
+  catch(error){lastError=error;}
+  if(!result||result.status==='pending')await new Promise(resolve=>setTimeout(resolve,Math.min(1000,Math.max(0,deadline-Date.now()))));
+ }
+ if(result.status==='error')throw new Error(result.message||'Ошибка обмена');
+ return result;
+}
+function shiftSwapEligibleRole(role){return ['монтажник','техник универсал','бригадир','старший техник'].includes(String(role||'').trim().toLowerCase().replace(/[—–-]/g,' ').replace(/\s+/g,' '));}
+function shiftSwapAllowedDate(date){const parsed=parseScheduleDate(date);if(!parsed)return false;const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Almaty',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());return scheduleDateKey(parsed)>today;}
+function shiftSwapLabel(state){return {pending:'Ожидает ответную дату',proposed:'Ожидает подтверждение инициатора',approved:'Согласован',declined:'Отклонён',cancelled:'Отменён',expired:'Срок истёк',conflict:'График изменился',delivery_failed:'Не доставлен',applying:'Проверяется запись'}[state]||state;}
+let shiftSwapCandidatesVersion=0;
+async function openShiftSwapRequest(date){
+ const version=++shiftSwapCandidatesVersion,login=currentUser?.dwLogin;
+ const current=()=>version===shiftSwapCandidatesVersion&&currentUser?.dwLogin===login&&document.getElementById('beelineModal').style.display!=='none';
+ try{shiftSwapDate=date;showBeelineModalNode('Обмен сменами',createLocalModalNode(liveLoading('Ищем коллег с противоположной сменой…')),'',createLocalModalNode('<button type="button" class="btn danger-btn" onclick="closeBeelineModal()">🔚 Отмена</button>'));const r=await shiftSwapRequest('candidates',{date});if(!current())return;shiftSwapPeople=r.people||[];
+ const content=`<p>Первая дата: <b>${escapeScheduleHtml(date)}</b>. Ваш статус: <b>${escapeScheduleHtml(r.mine)}</b>.</p><p>Коллега предложит ответную дату. Вы подтвердите обе замены.</p><div class="custom-dropdown ppr-staff-dropdown"><input type="search" class="dropdown-select-btn staff-search-trigger" id="shiftSwapPersonSearch" placeholder="🔍 Выберите коллегу или найдите по фамилии" autocomplete="off" onclick="openSearchDropdown(event,'shiftSwapPersonList')" oninput="document.getElementById('shiftSwapPerson').value='';filterShiftSwapPeople(this.value);openSearchDropdown(event,'shiftSwapPersonList')"><input type="hidden" id="shiftSwapPerson"><div class="dropdown-list" id="shiftSwapPersonList"></div></div><textarea id="shiftSwapComment" rows="2" maxlength="500" placeholder="Причина — необязательно" style="width:100%;box-sizing:border-box;margin-top:12px"></textarea><button class="btn main-btn" onclick="sendShiftSwap()">Отправить запрос</button>`;
+ showBeelineModalNode('Поменяться сменами',createLocalModalNode(content),'');filterShiftSwapPeople('');initUnifiedDropdownArrows();
+ }catch(e){if(current())showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}
+}
+function filterShiftSwapPeople(query){const list=document.getElementById('shiftSwapPersonList');if(!list)return;list.replaceChildren();const q=String(query||'').toLocaleLowerCase('ru');let count=0;shiftSwapPeople.forEach(p=>{if(![p.name,p.role].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q)))return;count++;const b=document.createElement('div');b.className='dropdown-item';b.textContent=p.name+' · '+p.role;b.onclick=()=>{document.getElementById('shiftSwapPerson').value=p.login;document.getElementById('shiftSwapPersonSearch').value=p.name;setDropdownOpen(list.closest('.custom-dropdown'),false);};list.appendChild(b);});if(!count){const empty=document.createElement('div');empty.textContent='Нет подходящих коллег';empty.style.padding='12px';list.appendChild(empty);}}
+let shiftSwapBusy=false;
+async function sendShiftSwap(){if(shiftSwapBusy)return;const partnerLogin=document.getElementById('shiftSwapPerson')?.value;if(!partnerLogin){showBeelineModal('Обмен сменами','Выберите коллегу из списка','⚠️');return;}const comment=document.getElementById('shiftSwapComment')?.value||'';shiftSwapBusy=true;try{const r=await shiftSwapRequest('create',{date:shiftSwapDate,partnerLogin,comment});closeBeelineModal();await openShiftSwapDetail(r.request.id,r);}catch(e){showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}finally{shiftSwapBusy=false;}}
+let shiftSwapViewVersion=0;
+function setShiftSwapCancel(request){const button=document.getElementById('shiftSwapCancel');button.style.display=request?.state==='pending'&&request?.isInitiator?'':'none';button.disabled=shiftSwapBusy;button.parentElement.classList.toggle('is-single',button.style.display==='none');}
+function shiftSwapViewCurrent(version){return version===shiftSwapViewVersion&&document.getElementById('screen-shift-swaps').style.display!=='none';}
+async function openShiftSwapHistory(){
+ const version=++shiftSwapViewVersion;switchScreen('screen-shift-swaps');setShiftSwapCancel(null);
+ const el=document.getElementById('shiftSwapContent');el.innerHTML=liveLoading('Загружаем запросы…');
+ try{const r=await shiftSwapRequest('list');if(!shiftSwapViewCurrent(version))return;el.replaceChildren();if(!r.requests.length)el.textContent='Запросов на обмен пока нет';r.requests.forEach(q=>{const button=document.createElement('button');button.className='btn secondary-btn';button.style.textAlign='left';button.textContent=q.dateA+(q.dateB?' ↔ '+q.dateB:'')+' · '+q.initiator+' / '+q.partner+' · '+shiftSwapLabel(q.state);button.onclick=()=>openShiftSwapDetail(q.id);el.appendChild(button);});}catch(e){if(shiftSwapViewCurrent(version))el.textContent=e.message;}
+}
+async function openShiftSwapDetail(id,response){
+ shiftSwapId=id;const version=++shiftSwapViewVersion;switchScreen('screen-shift-swaps');setShiftSwapCancel(null);
+ const el=document.getElementById('shiftSwapContent');el.innerHTML=liveLoading('Проверяем обмен…');
+ try{const r=response||await shiftSwapRequest('get',{id,includeReturnDates:true});if(!shiftSwapViewCurrent(version))return false;const q=r.request;
+ if(q.state==='approved')scheduleDayDetailsCache.clear();
+ el.innerHTML=`<p><b>${escapeScheduleHtml(q.initiator)}</b> ↔ <b>${escapeScheduleHtml(q.partner)}</b></p><p>${escapeScheduleHtml(q.dateA)}${q.dateB?' ↔ '+escapeScheduleHtml(q.dateB):''}</p><p style="color:var(--beeline-yellow)">${escapeScheduleHtml(shiftSwapLabel(q.state))}</p>${q.comment?'<p>'+escapeScheduleHtml(q.comment)+'</p>':''}`;
+ setShiftSwapCancel(q);
+ if(q.state==='pending'&&q.isPartner){
+  // Старый сервер поддерживается до обновления развертывания.
+  const dates=Array.isArray(r.dates)?r:await shiftSwapRequest('returnDates',{id});if(!shiftSwapViewCurrent(version))return;
+  shiftSwapDates=dates.dates||[];
+  const partnerWorks=q.firstStatuses?.[0]==='Р';
+  el.innerHTML+=`<p>Выберите ответную дату: ${partnerWorks?'вы работаете, а инициатор отдыхает. В этот день он выйдет за вас.':'вы отдыхаете, а инициатор работает. В этот день вы выйдете за него.'}</p><div class="custom-dropdown ppr-staff-dropdown"><input type="search" class="dropdown-select-btn staff-search-trigger" id="shiftSwapReturnSearch" placeholder="🔍 Выберите ответную дату" onclick="openSearchDropdown(event,'shiftSwapReturnList')" oninput="document.getElementById('shiftSwapReturnDate').value='';filterShiftSwapDates(this.value);openSearchDropdown(event,'shiftSwapReturnList')"><input type="hidden" id="shiftSwapReturnDate"><div class="dropdown-list" id="shiftSwapReturnList"></div></div><div class="common-nav-row"><button type="button" class="btn main-btn" onclick="proposeShiftSwapDate()">📅 Предложить дату</button><button type="button" class="btn main-btn" onclick="shiftSwapAction('decline')">❌ Отклонить</button></div>`;
+  filterShiftSwapDates('');initUnifiedDropdownArrows();
+ }
+ if(q.state==='proposed'&&q.isInitiator)el.innerHTML+=`<p>Коллега предложил ответную дату. Подтвердите обе замены здесь или в Telegram.</p><div class="common-nav-row"><button type="button" class="btn main-btn" onclick="shiftSwapAction('approve')">✅ Согласен</button><button type="button" class="btn main-btn" onclick="shiftSwapAction('decline')">❌ Отклонить</button></div>`;
+ if(q.state==='proposed'&&q.isPartner)el.innerHTML+='<p>📨 Ответная дата отправлена инициатору. Ожидаем его подтверждения.</p>';
+ if(q.state==='approved')el.innerHTML+='<p>✅ Обе замены записаны в график. Количество смен сохранено.</p>';
+ if(q.state==='applying'&&q.isInitiator)el.innerHTML+=`<p>Проверяем результат записи. Повторная проверка не меняет смены второй раз.</p><button type="button" class="btn main-btn" onclick="shiftSwapAction('approve')">🔄 Проверить завершение</button>`;
+ return true;
+ }catch(e){if(shiftSwapViewCurrent(version))el.textContent='⚠️ '+e.message;return false;}
+}
+function filterShiftSwapDates(query){const list=document.getElementById('shiftSwapReturnList');if(!list)return;list.replaceChildren();shiftSwapDates.filter(d=>d.includes(String(query||'').trim())).forEach(date=>{const row=document.createElement('div');row.className='dropdown-item';row.textContent=date;row.onclick=()=>{document.getElementById('shiftSwapReturnDate').value=date;document.getElementById('shiftSwapReturnSearch').value=date;setDropdownOpen(list.closest('.custom-dropdown'),false);};list.appendChild(row);});if(!list.childElementCount){const row=document.createElement('div');row.textContent='Подходящих ответных дат нет';row.style.padding='12px';list.appendChild(row);}}
+async function proposeShiftSwapDate(){
+ const input=document.getElementById('shiftSwapReturnSearch'),selected=document.getElementById('shiftSwapReturnDate')?.value;
+ const date=selected||String(input?.value||'').trim();
+ if(!shiftSwapDates.includes(date)){showBeelineModal('Ответная дата','Выберите доступную дату в раскрывающемся списке. Это должен быть день с противоположными сменами.','⚠️');return;}
+ await shiftSwapAction('propose',{date});
+}
+async function shiftSwapAction(operation,fields={}){
+ if(shiftSwapBusy)return;const id=shiftSwapId,version=shiftSwapViewVersion,el=document.getElementById('shiftSwapContent');
+ shiftSwapBusy=true;document.getElementById('shiftSwapCancel').disabled=true;
+ const content=Array.from(el.childNodes);el.replaceChildren(createLocalModalNode(liveLoading(operation==='propose'?'Отправляем ответную дату инициатору…':operation==='approve'?'Подтверждаем обе замены…':'Обновляем запрос…')));
+ try{const r=await shiftSwapRequest(operation,{id,...fields});if(shiftSwapViewCurrent(version))await openShiftSwapDetail(id,r);}
+ catch(e){if(shiftSwapViewCurrent(version)){el.replaceChildren(...content);showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}}
+ finally{shiftSwapBusy=false;document.getElementById('shiftSwapCancel').disabled=false;}
+}
+let shiftSwapDeepLinkOpening=false;
+async function maybeOpenShiftSwapDeepLink(){
+ const params=new URLSearchParams(location.search),id=params.get('swapId'),city=params.get('swapCity');
+ if(!id||!currentUser||shiftSwapDeepLinkOpening)return;
+ if(!/^[a-f0-9]{24}$/.test(id)||city!==currentUser.city){showBeelineModal('Обмен сменами','Запрос относится к другому городу либо ссылка неверна','⚠️');return;}
+ shiftSwapDeepLinkOpening=true;
+ try{if(!await openShiftSwapDetail(id))return;const clean=new URLSearchParams(location.search);if(clean.get('swapId')!==id)return;clean.delete('swapId');clean.delete('swapCity');history.replaceState(null,'',location.pathname+(clean.toString()?'?'+clean:'')+location.hash);}
+ finally{shiftSwapDeepLinkOpening=false;}
+}
 
 </script>
 
