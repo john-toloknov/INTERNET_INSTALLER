@@ -3691,7 +3691,7 @@ button, input, textarea, select { font:inherit; }
 </div>
 
 <!-- МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ -->
-<div id="screen-shift-swaps" class="app-screen uniform-screen" style="display:none"><div class="card"><h2>🔄 Обмены сменами</h2><div id="shiftSwapContent"></div><div class="common-nav-row shift-swap-action-row is-single"><button type="button" id="shiftSwapCancel" class="btn main-btn" style="display:none" onclick="shiftSwapAction('cancel')">❌ Отменить запрос</button><button type="button" class="btn main-btn" onclick="openShiftSwapHistory()">📋 Все мои запросы</button></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openMySchedule()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-shift-swaps" class="app-screen uniform-screen" style="display:none"><div class="card"><h2>🔄 Обмены сменами</h2><div id="shiftSwapContent"></div><div class="common-nav-row shift-swap-action-row is-single"><button type="button" id="shiftSwapCancel" class="btn main-btn" style="display:none" onclick="shiftSwapAction('cancel')">🚫 Отменить запрос</button><button type="button" class="btn main-btn" onclick="openShiftSwapHistory()">📋 Все мои запросы</button></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openMySchedule()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
 <div id="beelineModal" class="beeline-modal-overlay">
     <div class="beeline-modal-card">
         <div class="beeline-modal-icon" id="beelineModalIcon">⚠️</div>
@@ -3991,6 +3991,7 @@ button, input, textarea, select { font:inherit; }
     }
 
     function switchScreen(screenId) {
+        if(typeof stopShiftSwapAutoRefresh==='function')stopShiftSwapAutoRefresh();
         document.querySelectorAll('.custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.querySelectorAll('.app-screen').forEach(el => {
             el.style.display = 'none';
@@ -9273,20 +9274,48 @@ async function openShiftSwapRequest(date){
 function filterShiftSwapPeople(query){const list=document.getElementById('shiftSwapPersonList');if(!list)return;list.replaceChildren();const q=String(query||'').toLocaleLowerCase('ru');let count=0;shiftSwapPeople.forEach(p=>{if(![p.name,p.role].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q)))return;count++;const b=document.createElement('div');b.className='dropdown-item';b.textContent=p.name+' · '+p.role;b.onclick=()=>{document.getElementById('shiftSwapPerson').value=p.login;document.getElementById('shiftSwapPersonSearch').value=p.name;setDropdownOpen(list.closest('.custom-dropdown'),false);};list.appendChild(b);});if(!count){const empty=document.createElement('div');empty.textContent='Нет подходящих коллег';empty.style.padding='12px';list.appendChild(empty);}}
 let shiftSwapBusy=false;
 async function sendShiftSwap(){if(shiftSwapBusy)return;const partnerLogin=document.getElementById('shiftSwapPerson')?.value;if(!partnerLogin){showBeelineModal('Обмен сменами','Выберите коллегу из списка','⚠️');return;}const comment=document.getElementById('shiftSwapComment')?.value||'';shiftSwapBusy=true;try{const r=await shiftSwapRequest('create',{date:shiftSwapDate,partnerLogin,comment});closeBeelineModal();await openShiftSwapDetail(r.request.id,r);}catch(e){showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}finally{shiftSwapBusy=false;}}
+let shiftSwapAutoTimer=null,shiftSwapAutoContext=null,shiftSwapAutoInFlight=false;
+function stopShiftSwapAutoRefresh(){clearTimeout(shiftSwapAutoTimer);shiftSwapAutoTimer=null;shiftSwapAutoContext=null;}
+function startShiftSwapAutoRefresh(kind,id,data){
+ stopShiftSwapAutoRefresh();
+ if(kind==='detail'&&!['pending','proposed','applying'].includes(data.state))return;
+ shiftSwapAutoContext={kind,id,signature:JSON.stringify(data),version:shiftSwapViewVersion,userKey:currentUser?.city+'|'+currentUser?.dwLogin};
+ shiftSwapAutoTimer=setTimeout(refreshShiftSwapStatus,10000);
+}
+async function refreshShiftSwapStatus(){
+ const context=shiftSwapAutoContext;if(!context)return;
+ if(shiftSwapAutoInFlight){clearTimeout(shiftSwapAutoTimer);shiftSwapAutoTimer=setTimeout(refreshShiftSwapStatus,10000);return;}
+ clearTimeout(shiftSwapAutoTimer);
+ if(!shiftSwapViewCurrent(context.version)||context.userKey!==currentUser?.city+'|'+currentUser?.dwLogin){stopShiftSwapAutoRefresh();return;}
+ if(document.hidden||shiftSwapBusy){shiftSwapAutoTimer=setTimeout(refreshShiftSwapStatus,10000);return;}
+ shiftSwapAutoInFlight=true;
+ try{
+  const result=await shiftSwapRequest(context.kind==='history'?'list':'get',context.kind==='history'?{}:{id:context.id});
+  if(shiftSwapAutoContext!==context||!shiftSwapViewCurrent(context.version)||shiftSwapBusy)return;
+  const data=context.kind==='history'?result.requests:result.request;
+  if(JSON.stringify(data)!==context.signature){
+   if(context.kind==='history')await openShiftSwapHistory(result);
+   else await openShiftSwapDetail(context.id,result);
+  }
+ }catch(error){/* Сохраняем карточку и ввод, повторяем обновление без всплывающей ошибки. */}
+ finally{shiftSwapAutoInFlight=false;if(shiftSwapAutoContext===context)shiftSwapAutoTimer=setTimeout(refreshShiftSwapStatus,10000);}
+}
+window.addEventListener('focus',()=>{if(shiftSwapAutoContext)refreshShiftSwapStatus();});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&shiftSwapAutoContext)refreshShiftSwapStatus();});
 let shiftSwapViewVersion=0;
 function setShiftSwapCancel(request){const button=document.getElementById('shiftSwapCancel');button.style.display=request?.state==='pending'&&request?.isInitiator?'':'none';button.disabled=shiftSwapBusy;button.parentElement.classList.toggle('is-single',button.style.display==='none');}
 function shiftSwapViewCurrent(version){return version===shiftSwapViewVersion&&document.getElementById('screen-shift-swaps').style.display!=='none';}
-async function openShiftSwapHistory(){
+async function openShiftSwapHistory(response){
  const version=++shiftSwapViewVersion;switchScreen('screen-shift-swaps');setShiftSwapCancel(null);
  const el=document.getElementById('shiftSwapContent');el.innerHTML=liveLoading('Загружаем запросы…');
- try{const r=await shiftSwapRequest('list');if(!shiftSwapViewCurrent(version))return;el.replaceChildren();if(!r.requests.length)el.textContent='Запросов на обмен пока нет';r.requests.forEach(q=>{const button=document.createElement('button');button.className='btn secondary-btn';button.style.textAlign='left';button.textContent=q.dateA+(q.dateB?' ↔ '+q.dateB:'')+' · '+q.initiator+' / '+q.partner+' · '+shiftSwapLabel(q.state);button.onclick=()=>openShiftSwapDetail(q.id);el.appendChild(button);});}catch(e){if(shiftSwapViewCurrent(version))el.textContent=e.message;}
+ try{const r=response||await shiftSwapRequest('list');if(!shiftSwapViewCurrent(version))return;el.replaceChildren();if(!r.requests.length)el.textContent='Запросов на обмен пока нет';r.requests.forEach(q=>{const button=document.createElement('button');button.className='btn secondary-btn';button.style.textAlign='left';button.textContent=q.dateA+(q.dateB?' ↔ '+q.dateB:'')+' · '+q.initiator+' / '+q.partner+' · '+shiftSwapLabel(q.state);button.onclick=()=>openShiftSwapDetail(q.id);el.appendChild(button);});startShiftSwapAutoRefresh('history','',r.requests);}catch(e){if(shiftSwapViewCurrent(version))el.textContent=e.message;}
 }
 async function openShiftSwapDetail(id,response){
  shiftSwapId=id;const version=++shiftSwapViewVersion;switchScreen('screen-shift-swaps');setShiftSwapCancel(null);
  const el=document.getElementById('shiftSwapContent');el.innerHTML=liveLoading('Проверяем обмен…');
  try{const r=response||await shiftSwapRequest('get',{id,includeReturnDates:true});if(!shiftSwapViewCurrent(version))return false;const q=r.request;
  if(q.state==='approved')scheduleDayDetailsCache.clear();
- el.innerHTML=`<p><b>${escapeScheduleHtml(q.initiator)}</b> ↔ <b>${escapeScheduleHtml(q.partner)}</b></p><p>${escapeScheduleHtml(q.dateA)}${q.dateB?' ↔ '+escapeScheduleHtml(q.dateB):''}</p><p style="color:var(--beeline-yellow)">${escapeScheduleHtml(shiftSwapLabel(q.state))}</p>${q.comment?'<p>'+escapeScheduleHtml(q.comment)+'</p>':''}`;
+ el.innerHTML=`<p><b>${escapeScheduleHtml(q.initiator)}</b> ↔ <b>${escapeScheduleHtml(q.partner)}</b></p><p>${escapeScheduleHtml(q.dateA)}${q.dateB?' ↔ '+escapeScheduleHtml(q.dateB):''}</p><p style="color:${q.state==='approved'?'#4caf50':['declined','cancelled','conflict','delivery_failed'].includes(q.state)?'var(--danger)':'var(--beeline-yellow)'};font-weight:700">${q.state==='approved'?'✅ ':q.state==='declined'?'❌ ':''}${escapeScheduleHtml(shiftSwapLabel(q.state))}</p>${q.comment?'<p>'+escapeScheduleHtml(q.comment)+'</p>':''}`;
  setShiftSwapCancel(q);
  if(q.state==='pending'&&q.isPartner){
   // Старый сервер поддерживается до обновления развертывания.
@@ -9300,6 +9329,7 @@ async function openShiftSwapDetail(id,response){
  if(q.state==='proposed'&&q.isPartner)el.innerHTML+='<p>📨 Ответная дата отправлена инициатору. Ожидаем его подтверждения.</p>';
  if(q.state==='approved')el.innerHTML+='<p>✅ Обе замены записаны в график. Количество смен сохранено.</p>';
  if(q.state==='applying'&&q.isInitiator)el.innerHTML+=`<p>Проверяем результат записи. Повторная проверка не меняет смены второй раз.</p><button type="button" class="btn main-btn" onclick="shiftSwapAction('approve')">🔄 Проверить завершение</button>`;
+ startShiftSwapAutoRefresh('detail',id,q);
  return true;
  }catch(e){if(shiftSwapViewCurrent(version))el.textContent='⚠️ '+e.message;return false;}
 }
@@ -9311,12 +9341,12 @@ async function proposeShiftSwapDate(){
  await shiftSwapAction('propose',{date});
 }
 async function shiftSwapAction(operation,fields={}){
- if(shiftSwapBusy)return;const id=shiftSwapId,version=shiftSwapViewVersion,el=document.getElementById('shiftSwapContent');
+ if(shiftSwapBusy)return;const previousRefresh=shiftSwapAutoContext;let failed=false;stopShiftSwapAutoRefresh();const id=shiftSwapId,version=shiftSwapViewVersion,el=document.getElementById('shiftSwapContent');
  shiftSwapBusy=true;document.getElementById('shiftSwapCancel').disabled=true;
  const content=Array.from(el.childNodes);el.replaceChildren(createLocalModalNode(liveLoading(operation==='propose'?'Отправляем ответную дату инициатору…':operation==='approve'?'Подтверждаем обе замены…':'Обновляем запрос…')));
  try{const r=await shiftSwapRequest(operation,{id,...fields});if(shiftSwapViewCurrent(version))await openShiftSwapDetail(id,r);}
- catch(e){if(shiftSwapViewCurrent(version)){el.replaceChildren(...content);showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}}
- finally{shiftSwapBusy=false;document.getElementById('shiftSwapCancel').disabled=false;}
+ catch(e){failed=true;if(shiftSwapViewCurrent(version)){el.replaceChildren(...content);showBeelineModal('Обмен сменами',escapeScheduleHtml(e.message),'⚠️');}}
+ finally{shiftSwapBusy=false;document.getElementById('shiftSwapCancel').disabled=false;if(failed&&previousRefresh&&shiftSwapViewCurrent(version)){shiftSwapAutoContext=previousRefresh;shiftSwapAutoTimer=setTimeout(refreshShiftSwapStatus,10000);}}
 }
 let shiftSwapDeepLinkOpening=false;
 async function maybeOpenShiftSwapDeepLink(){
