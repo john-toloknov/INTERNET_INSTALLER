@@ -3625,9 +3625,9 @@ button, input, textarea, select { font:inherit; }
       <h2>⚙️ Админ-панель</h2>
       <div class="card management-menu">
         <p id="managementCity"></p>
-        <button class="btn action-btn" type="button" onclick="openAdminEmployees()">👥 Сотрудники</button>
-        <button class="btn action-btn" id="managementDebtsBtn" type="button" onclick="sendCityActDebts()">📋 Долги по актам</button>
-        <button class="btn action-btn" type="button" onclick="openManagementEvent()">📣 Собрание</button>
+        <button class="btn main-btn" type="button" onclick="openAdminEmployees()">👥 Сотрудники</button>
+        <button class="btn main-btn" id="managementDebtsBtn" type="button" onclick="sendCityActDebts()">📋 Долги по актам</button>
+        <button class="btn main-btn" type="button" onclick="openManagementEvent()">📣 Собрание</button>
         <div id="managementStatus" class="management-status" role="status" aria-live="polite"></div>
         <button class="btn main-btn" id="managementDeliveryReopen" type="button" hidden onclick="openManagementDelivery()">📨 Статус рассылки</button>
         <div class="common-nav-row">
@@ -3662,7 +3662,7 @@ button, input, textarea, select { font:inherit; }
             <div id="managementEventPreviewText"></div>
           </div>
           <p class="management-hint">Уведомление получат сотрудники вашего города. Напоминание — в день мероприятия в 08:30.</p>
-          <button class="btn action-btn" id="managementEventSend" type="submit">📨 Отправить уведомление</button>
+          <button class="btn main-btn" id="managementEventSend" type="submit">📨 Отправить уведомление</button>
           <div id="managementEventResult" class="management-status" role="status" aria-live="polite"></div>
         </form>
         <div class="common-nav-row">
@@ -5947,7 +5947,7 @@ async function handleSearchAccess() {
 
     function addItemToBatch(code) {
         if (!code) return;
-        code = code.trim();
+        code = String(code).trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/, "").replace(/\s+/g, "");
 
         const now = Date.now();
         if (code === lastScannedCode && (now - lastScanTime < SCAN_COOLDOWN)) {
@@ -7512,12 +7512,12 @@ document.addEventListener('blur', (e) => {
 
     function autoDetectRouterModel(serial, modelInputId) {
         if (!serial) return;
-        const s = serial.trim();
+        const s = String(serial).trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/, "").replace(/\s+/g, "");
         let detectedModel = "";
 
         if (s.indexOf("QXH") === 0) {
             detectedModel = "D-Link Dir 615";
-        } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || s.indexOf("218") === 0 || s.indexOf("216") === 0) {
+        } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || (s.indexOf("218") === 0 && !s.startsWith("2184545")) || s.indexOf("216") === 0) {
             detectedModel = "Маршрутизатор беспроводной 840 TP-Link";
         } else if (s.indexOf("2312T2DM") === 0 || s.indexOf("2309T2DM") === 0) {
             detectedModel = "AX3000 (Ultimate Black)";
@@ -8601,11 +8601,12 @@ function filterNomenclature(query) {
 
 function detectModelBySerial(s) {
     if (!s) return "";
+    s = String(s).trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/, "").replace(/\s+/g, "");
     let detectedModel = "";
 
     if (s.indexOf("QXH") === 0) {
         detectedModel = "D-Link Dir 615";
-    } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || s.indexOf("218") === 0 || s.indexOf("216") === 0) {
+    } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || (s.indexOf("218") === 0 && !s.startsWith("2184545")) || s.indexOf("216") === 0) {
         detectedModel = "Маршрутизатор беспроводной 840 TP-Link";
     } else if (s.indexOf("2312T2DM") === 0 || s.indexOf("2309T2DM") === 0) {
         detectedModel = "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000";
@@ -9545,7 +9546,7 @@ function managementEventFields(){return {kind:document.getElementById('managemen
 function updateManagementPreview(){
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
- text.textContent=`🐝 BEELINE INSTALLER\n📣 ${f.kind} · ${currentUser?.city||''}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
+ text.textContent=`🐝 BEELINE INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
 }
 async function sendManagementEvent(event){
  event.preventDefault();if(managementBusy||!managementAllowed())return;
