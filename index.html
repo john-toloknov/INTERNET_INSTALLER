@@ -2637,13 +2637,13 @@ html[data-app-layout=mobile] .view-app-catalog { grid-template-columns:repeat(2,
   const softwareChoices=[];
   function softwareScreen(id,title){
    const screen=document.createElement('div');screen.id=id;screen.className='app-screen uniform-screen';screen.dataset.viewKind='data';
-   const heading=document.createElement('h2');heading.textContent=id.startsWith('screen-software-device-')?'📡 Прошивки и оборудование':'📱 Приложения';
+   const heading=document.createElement('h2');heading.textContent=id.startsWith('screen-software-device-')?'🛜 Прошивки и оборудование':'📱 Приложения';
    const card=document.createElement('div');card.className='card view-software-page';const cardHeading=document.createElement('h3');cardHeading.className='view-software-card-heading';cardHeading.textContent=title;card.append(cardHeading);
    const nav=document.createElement('div');nav.className='common-nav-row';const back=document.createElement('button');back.type='button';back.className='btn danger-btn';back.textContent='🔙 Назад';back.onclick=()=>switchScreen('screen-software');nav.append(back);card.append(nav);screen.append(heading,card);document.querySelector('body > .container').append(screen);return card;
   }
   function softwareChoice(id,text,kind){const button=document.createElement('button');button.type='button';button.textContent=text;button.dataset.viewTarget=id;button.onclick=()=>switchScreen(id);softwareChoices.push({button,kind});}
   softwareRoutersData.forEach((router,index)=>{
-   const id='screen-software-device-'+index,card=softwareScreen(id,'📡 '+router.title);
+   const id='screen-software-device-'+index,card=softwareScreen(id,'🛜 '+router.title);
    const content=document.createElement('div');content.className='view-router-content';
    const image=document.createElement('img');image.className='view-router-image';image.src=router.img;image.alt=router.title;image.loading='lazy';
    const links=document.createElement('div');links.className='view-router-links';router.links.forEach(link=>{const a=document.createElement('a');a.className='software-download-btn';a.textContent=link.text;a.setAttribute('href',link.url);a.target=link.target||'_blank';a.rel='noopener noreferrer';if(link.text==='Список актуальных каналов'){a.removeAttribute('target');a.onclick=e=>{e.preventDefault();openChannelCatalog();};}links.append(a);});const imageArea=document.createElement('div');imageArea.className='view-router-image-area';imageArea.append(image);content.append(imageArea,links);card.insertBefore(content,card.querySelector('.common-nav-row'));softwareChoice(id,router.title,'devices');
@@ -2698,7 +2698,7 @@ html[data-app-layout=mobile] .view-app-catalog { grid-template-columns:repeat(2,
    sidebar.replaceChildren();if(auth)return;
    const user=document.createElement('div');user.className='view-sidebar-user';user.textContent=document.getElementById('userInfoHeader')?.textContent||'Разделы приложения';sidebar.append(user);
    const visible=button=>!!button&&!button.hidden&&button.style.display!=='none';
-   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
+   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
    function matches(original){
     if(original.dataset.viewTarget)return original.dataset.viewTarget===active.id;
     const action=original.getAttribute('onclick')||'';
@@ -2729,20 +2729,20 @@ html[data-app-layout=mobile] .view-app-catalog { grid-template-columns:repeat(2,
     section('reports','📝 Отчёты по заявкам',options,active.id==='screen-technician-reports',{allow:()=>visible(reports),before:()=>{if(document.querySelector('.app-screen.active')?.id!=='screen-technician-reports')reports.click();}});
     sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===document.getElementById('tr-reportType').value;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
    }
-   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
+   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
    const access=document.getElementById('equipmentAccessBtn');if(visible(access))addButton(access,sidebar);
    const software=document.getElementById('softwareBtn');
    if(visible(software)){
     section('software','🛠️ Программное обеспечение',softwareChoices.map(choice=>choice.button),(active.id.startsWith('screen-software')||active.id==='screen-channel-catalog'),{allow:()=>visible(software)});
     const items=sidebar.querySelector('[data-view-section=software] .view-sidebar-items');
-    if(items){const buttons=[...items.children];for(const [kind,title] of [['devices','📡 Прошивки и оборудование'],['apps','📱 Приложения']]){
+    if(items){const buttons=[...items.children];for(const [kind,title] of [['devices','🛜 Прошивки и оборудование'],['apps','📱 Приложения']]){
      const group=document.createElement('details');group.className='view-sidebar-subsection';group.dataset.viewSubsection=kind;const matching=softwareChoices.filter(choice=>choice.kind===kind);group.open=openGroups.get('software-'+kind)??matching.some(choice=>choice.button.dataset.viewTarget===active.id);
      const summary=document.createElement('summary');summary.textContent=title;const arrow=document.createElement('span');arrow.className='view-sidebar-arrow';arrow.textContent='▼';arrow.setAttribute('aria-hidden','true');summary.append(arrow);group.append(summary);
      matching.forEach(choice=>{const index=softwareChoices.indexOf(choice);group.append(buttons[index]);});group.addEventListener('toggle',()=>{if(group.isConnected)openGroups.set('software-'+kind,group.open);});items.append(group);
     }softwareChoices.filter(choice=>choice.kind==='channels').forEach(choice=>items.append(buttons[softwareChoices.indexOf(choice)]));}
    }
    const scanner=document.getElementById('scannerAppBtn');if(visible(scanner))addButton(scanner,sidebar);
-   if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event',{allow:()=>visible(admin)});
+   if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event'||active.id==='screen-tmc-requests-management',{allow:()=>visible(admin)});
    const tools=document.createElement('div');tools.className='view-sidebar-tools';sidebar.append(tools);
    const logoutButton=document.querySelector('#screen-main > .card > .danger-btn');if(visible(logoutButton)){const button=addButton(logoutButton,tools);button.classList.add('view-sidebar-logout');}
    lastScreen=active.id;
@@ -3829,11 +3829,11 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
                             <div class="photo-preview-grid" id="tr-photoPreviewContainer"></div>
                         </div>
 
-                        <div class="common-nav-row">
-                            <button type="button" class="btn danger-btn" onclick="prevStep(4)">🔙 Назад</button>
-                            <button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
-                        </div>
-                        <button type="submit" class="btn report-finish-btn common-full-btn">📝 Завершить отчет</button>
+                        <div class="common-nav-row mobile-report-finish-nav">
+<button type="button" class="btn danger-btn" onclick="prevStep(4)">🔙 Назад</button>
+<button type="submit" class="btn report-finish-btn common-full-btn">📝 Завершить отчет</button>
+<button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
+</div>
                     </div>
                 </div>
 
@@ -3988,11 +3988,11 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
                             <div class="photo-preview-grid" id="tr-pprPhotoAfterContainer"></div>
                         </div>
 
-                        <div class="common-nav-row">
-                            <button type="button" class="btn danger-btn" onclick="prevPprStep(3)">🔙 Назад</button>
-                            <button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
-                        </div>
-                        <button type="submit" class="btn report-finish-btn common-full-btn">📝 Завершить отчет ППР</button>
+                        <div class="common-nav-row mobile-report-finish-nav">
+<button type="button" class="btn danger-btn" onclick="prevPprStep(3)">🔙 Назад</button>
+<button type="submit" class="btn report-finish-btn common-full-btn">📝 Завершить отчет ППР</button>
+<button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
+</div>
                     </div>
 
                 </div>
@@ -4014,7 +4014,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
             </div>
             <div class="software-section">
                 <button type="button" class="software-section-header" onclick="toggleSoftwareSection('software-firmware-section', this)">
-                    <span>📡 Прошивки и оборудование</span><span class="software-arrow">▼</span>
+                    <span>🛜 Прошивки и оборудование</span><span class="software-arrow">▼</span>
                 </button>
                 <div id="software-firmware-section" class="software-section-content">
                     <div id="softwareFirmwareList"></div>
@@ -4053,6 +4053,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         <h2>Меню монтажника</h2>
         <div class="card">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
+                <button class="btn action-btn" type="button" onclick="openTmcRequest()">📦 Выдача ТМЦ</button>
                 <button class="btn action-btn" onclick="openMySchedule()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📅 Рабочий график</button>
                 <button class="btn action-btn" id="pprPlansMenuBtn" onclick="openPprPlans()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
                 
@@ -4467,10 +4468,10 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
 
 <!-- 5. АДМИН-ПАНЕЛЬ -->
 
-<div id="screen-admin-table-home" class="app-screen uniform-screen"><h2>📋 Таблица</h2><div class="card management-menu"><button class="btn main-btn" onclick="openCompletedActs()">📋 Акты выполненных работ</button><button class="btn main-btn" onclick="openStockTableMenu()">📦 Оборудование и кабель</button><button class="btn danger-btn" onclick="openAdminPanel()">🔙 Админ-панель</button></div></div>
-<div id="screen-admin-stock-routers" class="app-screen uniform-screen"><h2>📡 Роутеры</h2></div>
+<div id="screen-admin-table-home" class="app-screen uniform-screen"><h2>📋 Таблица</h2><div class="card management-menu"><button class="btn main-btn" onclick="openCompletedActs()">📋 Акты выполненных работ</button><button class="btn main-btn" onclick="openStockTableMenu()">📦 Оборудование и кабель</button><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-admin-stock-routers" class="app-screen uniform-screen"><h2>🛜 Роутеры</h2></div>
 <div id="screen-admin-stock-stbs" class="app-screen uniform-screen"><h2>📺 Приставки</h2></div>
-<div id="screen-admin-stock-cable" class="app-screen uniform-screen"><h2>🧵 Кабель</h2></div>
+<div id="screen-admin-stock-cable" class="app-screen uniform-screen"><h2>🔌 Кабель</h2></div>
 <div id="screen-admin-table" class="app-screen uniform-screen">
  <h2>📋 Акты выполненных работ</h2>
  <div class="card" id="cityTableEditor">
@@ -4487,17 +4488,20 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
   <div id="cityTableNew"></div>
   <div id="cityTableRows"></div>
   <div class="common-nav-row">
-   <button class="btn danger-btn" type="button" onclick="ctBackToSections()">🔙 Разделы таблицы</button>
+   <button class="btn danger-btn" type="button" onclick="ctBackToSections()">🔙 Назад</button>
    <button class="btn danger-btn" type="button" onclick="ctCloseDropdowns();switchScreen('screen-main')">🔚 Главное меню</button>
   </div>
  </div>
 </div>
 
+<div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📦 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
     <div id="screen-admin" class="app-screen uniform-screen">
       <h2>⚙️ Админ-панель</h2>
       <div class="card management-menu">
         <p id="managementCity"></p>
         <button class="btn main-btn" type="button" onclick="openCityTable()">📋 Таблица</button>
+        <button class="btn main-btn" type="button" onclick="openTmcRequestsManagement()">📦 Заявки на выдачу ТМЦ</button>
         <button class="btn main-btn" type="button" onclick="openWorkingSchedule()">📅 Рабочий график</button>
         <button class="btn main-btn" id="managementDebtsBtn" type="button" onclick="openCityDebtPreview()">📋 Долги по актам</button>
         <button class="btn main-btn" type="button" onclick="openAdminTools('archive')">📦 Архивация</button>
@@ -4508,7 +4512,6 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         <div id="managementStatus" class="management-status" role="status" aria-live="polite"></div>
         <button class="btn main-btn" id="managementDeliveryReopen" type="button" hidden onclick="openManagementDelivery()">📨 Статус рассылки</button>
         <div class="common-nav-row">
-          <button class="btn danger-btn" type="button" onclick="switchScreen('screen-main')">🔙 Назад</button>
           <button class="btn danger-btn" type="button" onclick="switchScreen('screen-main')">🔚 Главное меню</button>
         </div>
       </div>
@@ -5033,7 +5036,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
             scannerBtn.style.display = manager ? 'flex' : 'none';
             adminBtn.style.display = manager ? 'flex' : 'none';
             document.querySelectorAll('#screen-installer-menu .card button').forEach(btn => {
-                btn.style.display = trainee && !btn.textContent.includes('Рабочий график') ? 'none' : '';
+                btn.style.display = trainee && !btn.textContent.includes('Рабочий график') && !btn.textContent.includes('Выдача ТМЦ') ? 'none' : '';
             });
             document.querySelectorAll('.report-finish-btn').forEach(btn => {
                 btn.style.display = trainee ? 'none' : '';
@@ -9764,16 +9767,13 @@ async function openCheckReturnScreen() {
 // 8. ПРИВЯЗКА КНОПОК «ВОЗВРАТ» И «ПРОСМОТР ВОЗВРАТА» В МЕНЮ МОНТАЖНИКА
 
 document.addEventListener("DOMContentLoaded", () => {
-    const installerMenuBtns = document.querySelectorAll('#screen-installer-menu button');
-    if (installerMenuBtns.length >= 8) {
-        installerMenuBtns[6].setAttribute('onclick', 'openReturnEquipmentForm()');
-        installerMenuBtns[7].setAttribute('onclick', 'openCheckReturnScreen()');
-    }
+    document.querySelector('#screen-installer-menu [onclick="openReturnEquipmentForm()"]')?.setAttribute('onclick', 'openReturnEquipmentForm()');
+    document.querySelector('#screen-installer-menu [onclick="openCheckReturnScreen()"]')?.setAttribute('onclick', 'openCheckReturnScreen()');
 });
 
 // Список экранов, на которых должна работать умная кнопка прокрутки
 const allowedScrollScreens = [
-    'screen-channel-catalog',
+    'screen-channel-catalog','screen-tmc-request','screen-tmc-requests-management',
     'screen-admin-table','screen-admin-stock-routers','screen-admin-stock-stbs','screen-admin-stock-cable','screen-admin-employees','screen-management-event','screen-admin-archive','screen-admin-themes','screen-admin-board',
     'screen-admin',          // Админ панель (замените на ваш реальный ID экрана)
     'screen-check-return',   // Проверить возврат
@@ -10449,11 +10449,11 @@ async function sendManagementEvent(event){
 function maybeOpenManagementDeepLink(){
  const params=new URLSearchParams(location.search),section=params.get('appSection'),city=params.get('appCity');
  if(!section||!currentUser)return false;
- if(!['debts','hours','main'].includes(section))return false;
+ if(!['debts','hours','main','tmcRequest','tmcManage'].includes(section))return false;
  if(city&&city!==currentUser.city){showBeelineModal('Другой город','Ссылка относится к городу '+city+'. Войдите в учётную запись этого города.','🔒');return true;}
- if(currentUser.role==='Стажер'&&section!=='main'){showBeelineModal('Доступ ограничен','Раздел недоступен для роли Стажер.','🔒');return true;}
+ if(currentUser.role==='Стажер'&&!['main','tmcRequest'].includes(section)){showBeelineModal('Доступ ограничен','Раздел недоступен для роли Стажер.','🔒');return true;}
  params.delete('appSection');params.delete('appCity');history.replaceState(null,'',location.pathname+(params.toString()?'?'+params.toString():'')+location.hash);
- if(section==='debts')openActDebts();else if(section==='hours')openMyHours();else switchScreen('screen-main');return true;
+ if(section==='tmcRequest')openTmcRequest();else if(section==='tmcManage')openTmcRequestsManagement();else if(section==='debts')openActDebts();else if(section==='hours')openMyHours();else switchScreen('screen-main');return true;
 }
 
 
@@ -10632,7 +10632,7 @@ function openBoardCityDay(day,trigger){const body=document.createElement('div');
 
 <script id="cityTableScript">
 // «Таблица»: per-city management editor, isolated from existing report flows.
-const CT_SECTIONS=[['inclusion','🔌 Включение FTTB/GPON'],['move','📦 Переезд FTTB/GPON'],['service','🛠️ Сервис FTTB/GPON'],['equipment','📡 Предоставления FTTB/GPON'],['dismantle','❌ Демонтаж FTTB/GPON']];
+const CT_SECTIONS=[['inclusion','🔌 Включение FTTB/GPON'],['move','📦 Переезд FTTB/GPON'],['service','🛠️ Сервис FTTB/GPON'],['equipment','🛜 Предоставления FTTB/GPON'],['dismantle','❌ Демонтаж FTTB/GPON']];
 let ctState={group:'inclusion',sheets:[],staff:[],version:0,busy:false,owner:'',drafts:new Map(),limit:50};
 function ctNode(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}
 function ctIdentity(record){return record.sheet+':'+record.row;}
@@ -10654,7 +10654,7 @@ function ctSetMessage(text,loading=false){const n=document.getElementById('cityT
 function ctDirty(){return [...ctState.drafts.values()].some(d=>Object.keys(d.changes).length);}
 function ctConfirm(title,text,accept){const p=ctNode('p','',text),actions=ctNode('div','common-nav-row'),cancel=ctNode('button','btn danger-btn','🔙 Назад'),yes=ctNode('button','btn main-btn','✅ Подтвердить');cancel.type=yes.type='button';cancel.onclick=closeBeelineModal;yes.onclick=()=>{closeBeelineModal();accept();};actions.append(cancel,yes);showBeelineModalNode(title,p,'⚠️',actions);}
 function ctCloseDropdowns(){document.querySelectorAll('#cityTableEditor .custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));if(typeof closeAppCalendar==='function')closeAppCalendar();}
-const CT_STOCK_SECTIONS=[['stockRouters','📡 Роутеры'],['stockStbs','📺 Приставки'],['stockCable','🧵 Кабель']];
+const CT_STOCK_SECTIONS=[['stockRouters','🛜 Роутеры'],['stockStbs','📺 Приставки'],['stockCable','🔌 Кабель']];
 const CT_STOCK_SCREENS={stockRouters:'screen-admin-stock-routers',stockStbs:'screen-admin-stock-stbs',stockCable:'screen-admin-stock-cable'};
 let ctPart='acts',ctFilters={},ctKindFilter='';
 const ctTabCache=new Map();let ctCacheOwner='';
@@ -10754,7 +10754,7 @@ function ctArticle(record,schema){
  const arrow=ctNode('button','ct-toggle');arrow.type='button';arrow.setAttribute('aria-label','Раскрыть поля заявки');arrow.setAttribute('aria-expanded','false');arrow.append(ctNode('span','dropdown-arrow','▼'));arrow.onclick=()=>{if(hidden.hidden&&!hidden.dataset.ctMounted){mountHidden();hidden.dataset.ctMounted='true';}hidden.hidden=!hidden.hidden;arrow.setAttribute('aria-expanded',String(!hidden.hidden));arrow.setAttribute('aria-label',hidden.hidden?'Раскрыть поля заявки':'Скрыть поля заявки');ctCloseDropdowns();};
  controls.append(arrow);if(schema.act){const ack=ctNode('button','btn main-btn',ctActOpen(record)?'📄 Сдать акт':'✅ АКТ Сдан');ack.type='button';ack.dataset.ctAck='true';ack.title=record.actReadonly?'АКТ вычисляется формулой':ctActOpen(record)?'Отметить акт как сданный':'Изменить отметку: акт не сдан';ack.onclick=()=>ctConfirm(ctActOpen(record)?'Сдать акт?':'Изменить отметку АКТ?',ctActOpen(record)?'Подтвердить сдачу акта этой записи?':'Отметить этот акт как несданный?',()=>ctMutate(ctActOpen(record)?'ack':'unack',[record]));controls.append(ack);}visible.append(controls);
 
- function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','📡 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const device=ctNode('div','ct-device');const start=(kind==='router'?0:9)+index*3;fields.slice(start,start+3).forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}if(typeof mountAppCalendars==='function')mountAppCalendars();}
+ function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const device=ctNode('div','ct-device');const start=(kind==='router'?0:9)+index*3;fields.slice(start,start+3).forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}if(typeof mountAppCalendars==='function')mountAppCalendars();}
  const footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.dataset.ctSave='true';save.onclick=()=>ctMutate('save',[record]);footer.append(status,save);article.append(visible,hidden,footer);ctUpdateDraft(article,record);return article;
 }
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]);}
@@ -10929,7 +10929,7 @@ async function gsRequest(operation,fields={}){
  }
  if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Не удалось выполнить операцию. Обновите скрипт графика.');return result;
 }
-function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">＋ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Админ-панель</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
+function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">＋ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
 async function openWorkingSchedule(){if(!managementAllowed())return;gsEnsure();const owner=managementOwnerKey();if(gsState.owner!==owner)gsState={data:null,blockId:'',busy:false,owner:owner,drafts:new Map(),vacations:new Map(),newVacations:[],preview:false,cycle:3,serial:gsState.serial+1};switchScreen('screen-admin-work-schedule');if(!gsState.data)await gsLoad();else gsRender();}
 function gsBusy(busy){gsState.busy=busy;gsClosePicker();document.querySelectorAll('#screen-admin-work-schedule button,#screen-admin-work-schedule input,#screen-admin-work-schedule textarea').forEach(b=>{if(busy){b.dataset.gsDisabled=String(b.disabled);b.disabled=true;}else if(b.dataset.gsDisabled!==undefined){b.disabled=b.dataset.gsDisabled==='true';delete b.dataset.gsDisabled;}});}
 async function gsLoad(){if(gsState.busy)return;gsBusy(true);gsMessage('Загружаем оба месяца и отпуска…',true);const serial=++gsState.serial,owner=managementOwnerKey();try{const data=await gsRequest('list');if(serial!==gsState.serial||owner!==managementOwnerKey())return;gsState.data=data;gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];gsState.preview=false;gsState.cycle=data.cycle;gsState.blockId=data.blocks.some(b=>b.id===gsState.blockId)?gsState.blockId:data.blocks[0]?.id||'';gsRender();gsMessage('Данные загружены · '+currentUser.city+' · '+data.today);}catch(e){gsMessage('⚠️ '+e.message);}finally{gsBusy(false);}}
@@ -10966,5 +10966,109 @@ window.addEventListener('beforeunload',e=>{if(gsDirty()){e.preventDefault();e.re
 })();
 </script>
 
+<style id="tmcRequestsStyle">
+.tmr-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.tmr-field{display:flex;flex-direction:column;gap:7px;min-width:0}.tmr-field>span{padding-left:8px;color:var(--text-muted);font-size:12px}.tmr-field input{margin:0;width:100%;box-sizing:border-box}.tmr-wide{grid-column:span 2}.tmr-cable{grid-column:1/-1}.tmr-cable .dropdown-select-btn{width:100%;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px;padding:10px 14px}.tmr-cable .dropdown-select-btn span:first-child{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}.tmr-cable .dropdown-arrow{flex:none;margin-left:auto}.tmr-cable .dropdown-item{width:100%;display:flex;gap:10px;text-align:left;white-space:normal;background:#151515;color:var(--text-main);border:0;border-bottom:1px solid #303030;padding:12px;cursor:pointer}.tmr-cable .dropdown-item[aria-selected=true]{color:var(--beeline-yellow);background:#292410}.tmr-cable .dropdown-list{max-height:280px!important}.tmr-info{padding:14px;border:1px solid var(--card-border);border-radius:14px;background:#171717;margin-bottom:18px;color:var(--text-muted);line-height:1.6}.tmr-info strong{color:var(--beeline-yellow)}.tmr-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:18px}.tmr-toolbar .tmr-field{max-width:220px}.tmr-toolbar .btn,.tmr-actions .btn{width:auto;margin:0}.tmr-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.tmr-record{padding:18px;border:1px solid var(--card-border);border-radius:18px;margin-top:18px;background:#151515}.tmr-record h3{color:var(--beeline-yellow);margin:0 0 12px}.tmr-record summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}.tmr-record summary::-webkit-details-marker{display:none}.tmr-record summary .dropdown-arrow{color:var(--beeline-yellow)}.tmr-record[open] summary .dropdown-arrow{transform:rotate(180deg)}.tmr-summary{color:var(--text-muted);line-height:1.6;white-space:pre-wrap}.tmr-state{margin:16px 0;line-height:1.5}.tmr-record .tmr-grid{margin-top:18px}.tmr-history{margin-top:20px}.tmr-chip{display:inline-block;border-radius:8px;padding:6px 10px;border:1px solid var(--card-border);margin:4px 6px 4px 0;color:var(--beeline-yellow)}.tmr-chip.done{background:var(--beeline-yellow);color:#111}.tmr-empty{color:var(--text-muted)}
+@media(max-width:700px){.tmr-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tmr-wide{grid-column:1/-1}.tmr-actions{display:grid;grid-template-columns:1fr}.tmr-actions .btn{width:100%}.tmr-toolbar{display:grid;grid-template-columns:1fr 1fr}.tmr-toolbar .tmr-field{max-width:none}.tmr-record{padding:12px}.tmr-toolbar .btn{width:100%}}
+</style>
+<script id="tmcRequestsScript">
+const TMR_UI_FIELDS=[['routers','Роутеры'],['stbs','Приставки'],['connectors','Коннектора'],['clips','Клипсы'],['ties','Хомуты'],['uy2','UY2'],['tape','Изолента']];
+let tmrUi={owner:'',data:null,busy:false,pending:null,manager:false};
+function tmrOwner(){return (currentUser?.city||'')+'|'+(currentUser?.dwLogin||'');}
+function tmrDayLabel(day){return String(day||'').split('-').reverse().join('.');}
+function tmrUiSummary(item){return [...item.cables,...TMR_UI_FIELDS.filter(([key])=>item.quantities[key]>0).map(([key,label])=>label+': '+item.quantities[key]+' шт.')].join('\n');}
+function tmrScreen(manager){return document.getElementById(manager?'screen-tmc-requests-management':'screen-tmc-request');}
+function tmrUiMessage(text,error=false,loading=false){const root=tmrScreen(tmrUi.manager)?.querySelector('.tmr-state');if(root){if(loading)root.innerHTML=liveLoading(text,'📦');else root.textContent=text;root.style.color=error?'var(--danger)':'';}}
+async function tmrApi(operation,fields={}){const user=currentUser,owner=tmrOwner(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Войдите в систему и выберите настроенный город');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tmcRequests',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==tmrOwner())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось сохранить заявку');e.confirmed=true;throw e;}return data;}finally{clearTimeout(timer);}}
+function tmrSetBusy(value){tmrUi.busy=value;tmrScreen(tmrUi.manager).querySelectorAll('button,input').forEach(n=>{if(value){n.dataset.tmrDisabled=String(n.disabled);n.disabled=true;}else if(n.dataset.tmrDisabled!==undefined){n.disabled=n.dataset.tmrDisabled==='true';delete n.dataset.tmrDisabled;}});}
+function tmrCablePicker(options,selected,disabled){const wrap=ctNode('div','custom-dropdown tmr-cable'),button=ctNode('button','dropdown-select-btn'),label=ctNode('span'),arrow=ctNode('span','dropdown-arrow','▼'),list=ctNode('div','dropdown-list');button.type='button';button.disabled=disabled;button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');list.setAttribute('aria-multiselectable','true');const values=new Set(selected||[]);function sync(){label.textContent=values.size?[...values].join(' · '):'Выберите наименования кабеля';list.querySelectorAll('button').forEach(b=>{const on=values.has(b.dataset.value);b.setAttribute('aria-selected',String(on));b.firstChild.textContent=on?'☑':'☐';});}for(const name of [...new Set([...options,...selected])]){const item=ctNode('button','dropdown-item');item.type='button';item.dataset.value=name;item.setAttribute('role','option');item.append(ctNode('span'),ctNode('span','',name));item.onclick=e=>{e.stopPropagation();values.has(name)?values.delete(name):values.add(name);sync();};list.append(item);}button.append(label,arrow);button.onclick=e=>{e.stopPropagation();const open=!wrap.classList.contains('open');document.querySelectorAll('.custom-dropdown.open').forEach(n=>setDropdownOpen(n,false));setDropdownOpen(wrap,open);button.setAttribute('aria-expanded',String(open));};wrap.onkeydown=e=>{if(e.key==='Escape'){setDropdownOpen(wrap,false);button.focus();}};wrap.append(button,list);wrap.tmrValues=()=>[...values];sync();return wrap;}
+function tmrField(label,value,readonly=false){const wrap=ctNode('label','tmr-field'),input=ctNode('input');input.value=value||'';input.readOnly=readonly;wrap.append(ctNode('span','',label),input);return {wrap,input};}
+function tmrUiForm(item,disabled){const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,name=tmrField('ФИО Монтажника',item?.name||data.actorName,true),date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);name.wrap.classList.add('tmr-person');date.wrap.classList.add('tmr-form-date');grid.append(date.wrap);const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const field=tmrField(label,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.append(name.wrap);grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
+function tmrUiValidate(values){for(const [key,label] of TMR_UI_FIELDS){if(!Number.isSafeInteger(values.quantities[key])||values.quantities[key]<0||values.quantities[key]>999999)throw new Error(label+': укажите целое количество от 0 до 999999');}if(!values.cables.length&&!TMR_UI_FIELDS.some(([key])=>values.quantities[key]>0))throw new Error('Выберите кабель или укажите количество ТМЦ');return values;}
+function tmrStaffFilter(onchange){
+ const wrap=ctNode('div','custom-dropdown searchable-dropdown staff-dropdown tmr-staff-filter'),trigger=ctNode('div','dropdown-trigger'),input=ctNode('input','dropdown-search-trigger'),arrow=ctNode('span','dropdown-arrow','▼'),list=ctNode('div','dropdown-list');
+ input.type='search';input.placeholder='🔍 Выберите сотрудника или найдите по фамилии';input.setAttribute('aria-label','Сотрудник города: поиск и выбор');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');list.id='tmrStaffFilterList';list.setAttribute('role','listbox');input.setAttribute('aria-controls',list.id);arrow.setAttribute('aria-hidden','true');trigger.append(input,arrow);wrap.append(trigger,list);let selected=null;
+ const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');
+ const people=(Array.isArray(usersDb)?usersDb:[]).filter(p=>city&&String(p.city||'').trim().toLocaleLowerCase('ru')===city&&String(p.fullName||p.name||'').trim()).sort((a,b)=>String(a.fullName||a.name).localeCompare(String(b.fullName||b.name),'ru'));
+ function close(){setDropdownOpen(wrap,false);input.setAttribute('aria-expanded','false');}
+ function choose(person){selected=person;input.value=person?String(person.fullName||person.name):'';close();onchange();}
+ function fill(query=''){list.replaceChildren();const q=String(query).trim().toLocaleLowerCase('ru');const all=ctNode('button','dropdown-item staff-option','Все сотрудники');all.type='button';all.setAttribute('role','option');all.onclick=e=>{e.stopPropagation();choose(null);};list.append(all);const matches=people.filter(p=>[p.fullName||p.name,p.role,p.warehouse].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q)));for(const p of matches){const b=ctNode('button','dropdown-item');b.type='button';b.setAttribute('role','option');b.setAttribute('aria-selected',String(selected===p));staffDropdownOption(b,p);b.onclick=e=>{e.stopPropagation();choose(p);};list.append(b);}if(!matches.length)list.append(ctNode('p','tmr-empty',people.length?'Сотрудники не найдены':'Список сотрудников города пуст'));}
+ function open(query=''){document.querySelectorAll('.custom-dropdown.open').forEach(n=>{if(n!==wrap)setDropdownOpen(n,false);});fill(query);setDropdownOpen(wrap,true);input.setAttribute('aria-expanded','true');}
+ input.onfocus=()=>open();input.onclick=e=>{e.stopPropagation();open();};input.oninput=()=>{selected=null;open(input.value);onchange();};trigger.onclick=e=>{e.stopPropagation();if(e.target===input)return;if(wrap.classList.contains('open'))close();else{open();input.focus();}};input.onkeydown=e=>{if(e.key==='Escape')close();if(e.key==='ArrowDown'){e.preventDefault();open(input.value);list.querySelector('button')?.focus();}};
+ wrap.tmrMatches=item=>selected?(selected.dwLogin?String(item.login||'').toLowerCase()===String(selected.dwLogin).toLowerCase():String(item.name||'').trim()===String(selected.fullName||selected.name).trim()):(!input.value||String(item.name||'').toLocaleLowerCase('ru').includes(input.value.trim().toLocaleLowerCase('ru')));
+ wrap.tmrReset=()=>{selected=null;input.value='';close();};fill();return wrap;
+}
+function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.append(search,date.wrap,clear);content.append(toolbar,list);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn'),label);button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
+function tmrStatusChips(root,item){root.append(ctNode('span','tmr-chip'+(item.oneC?' done':''),item.oneC?'Оформлено в 1С':'В 1С не оформлено'),ctNode('span','tmr-chip'+(item.entered?' done':''),item.entered?'Оформил в таблицу: Да':'Оформил в таблицу: Нет'));if(item.oneCBy||item.enteredBy)root.append(ctNode('p','tmr-summary',[item.oneCBy?'1С: '+item.oneCBy:'',item.enteredBy?'Таблица: '+item.enteredBy:''].filter(Boolean).join(' · ')));}
+async function tmrSave(op,fields){if(tmrUi.busy)return;const owner=tmrOwner();if(!tmrUi.pending)tmrUi.pending={op,fields:{...fields,requestId:ctRequestId()}};const pending=tmrUi.pending;tmrSetBusy(true);tmrUiMessage('Сохраняем заявку…',false,true);try{const data=await tmrApi(pending.op,pending.fields);if(owner!==tmrOwner())return;tmrUi.pending=null;tmrUi.data=data;tmrRender();tmrUiMessage(data.warning||'✅ Заявка сохранена. Уведомления поставлены в очередь Telegram.');}catch(e){if(owner!==tmrOwner())return;if(e.confirmed)tmrUi.pending=null;tmrUiMessage(e.message+(e.confirmed?'':' Результат не подтверждён. Нажмите «Проверить сохранение» — операция повторится с тем же ID.'),true);}finally{if(owner===tmrOwner()){tmrSetBusy(false);if(tmrUi.pending){const root=tmrScreen(tmrUi.manager);root.querySelectorAll('.tmr-content button,.tmr-content input').forEach(n=>n.disabled=true);const retry=ctNode('button','btn main-btn','🔄 Проверить сохранение');retry.type='button';retry.onclick=()=>{retry.remove();tmrSave(pending.op,pending.fields);};root.querySelector('.tmr-state').append(retry);}}}}
+async function tmrLoad(){if(tmrUi.busy||tmrUi.pending)return;const owner=tmrOwner();tmrSetBusy(true);tmrUiMessage('Загружаем заявки…',false,true);try{const data=await tmrApi('list');if(owner!==tmrOwner())return;tmrUi.data=data;tmrRender();}catch(e){if(owner===tmrOwner())tmrUiMessage(e.message,true);}finally{if(owner===tmrOwner())tmrSetBusy(false);}}
+async function openTmcRequest(){return tmrOpen(false);}
+async function openTmcRequestsManagement(){if(!managementAllowed())return;return tmrOpen(true);}
+async function tmrOpen(manager){if(!currentUser)return;if(tmrUi.owner!==tmrOwner())tmrUi={owner:tmrOwner(),data:null,busy:false,pending:null,manager};if(tmrUi.busy||tmrUi.pending){switchScreen(tmrUi.manager?'screen-tmc-requests-management':'screen-tmc-request');return;}tmrUi.manager=manager;switchScreen(manager?'screen-tmc-requests-management':'screen-tmc-request');await tmrLoad();}
+</script>
+
+
+<style id="mobileNavigationAligned">
+/* Report finishing row: preserve the existing desktop placement. */
+html[data-app-layout=desktop] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="prev"]{grid-column:1;grid-row:1}
+html[data-app-layout=desktop] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="exitTechnicianReports"]{grid-column:2;grid-row:1}
+html[data-app-layout=desktop] #screen-technician-reports .mobile-report-finish-nav > .report-finish-btn{grid-column:1/-1;grid-row:2;margin:0!important}
+/* Both navigation buttons share the available width on phones. */
+html[data-app-layout=mobile] .app-screen .common-nav-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:none!important;width:100%!important;box-sizing:border-box}
+html[data-app-layout=mobile] .app-screen .common-nav-row > .btn{grid-column:auto!important;flex-basis:auto!important;min-width:0!important;width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box;padding:11px 7px!important;font-size:13px!important;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+html[data-app-layout=mobile] .app-screen .common-nav-row:has(> .btn:only-child){grid-template-columns:minmax(0,1fr)!important}
+html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row{grid-template-columns:minmax(0,1fr)!important}
+html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row > .btn[onclick*="nextStep"]{grid-column:1!important;grid-row:1!important}
+html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row > .btn[onclick*="exitTechnicianReports"]{grid-column:1!important;grid-row:2!important}
+html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="prev"]{grid-column:1!important;grid-row:1!important}
+html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .report-finish-btn{grid-column:2!important;grid-row:1!important}
+html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="exitTechnicianReports"]{grid-column:1/-1!important;grid-row:2!important}
+</style>
+
+
+<style id="tmcRequestsCompactLayout">
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-field{margin:0;padding:0;gap:6px;min-width:0;align-self:stretch}
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-field>span{height:16px;line-height:16px;margin:0;padding:0 0 0 6px;font-size:10px;font-weight:700;letter-spacing:.2px;text-transform:uppercase;white-space:nowrap}
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-field input{height:44px;min-height:44px;margin:0;padding:10px 8px;box-sizing:border-box;min-width:0;width:100%;font-size:13px;line-height:22px}
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-cable.custom-dropdown{margin:0;padding:0;min-width:0;width:100%}
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-cable .dropdown-select-btn{height:44px!important;min-height:44px!important;box-sizing:border-box;margin:0;padding:10px 12px;font-size:12px;line-height:22px}
+:is(#screen-tmc-request,#screen-tmc-requests-management) .tmr-cable .dropdown-select-btn span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmr-request-grid{display:grid;grid-template-columns:minmax(230px,1.3fr) repeat(7,88px) minmax(200px,1fr);gap:10px;align-items:start}
+.tmr-request-grid>.tmr-cable{grid-column:auto}
+.tmr-request-grid>.tmr-form-date{grid-column:1/-1;justify-self:end;width:150px;margin-bottom:10px}
+.tmr-quantity input{appearance:textfield;-moz-appearance:textfield;text-align:center;font-variant-numeric:tabular-nums}
+.tmr-quantity input::-webkit-inner-spin-button,.tmr-quantity input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.tmr-quantity input::placeholder{text-align:center}
+.tmr-request-header{display:flex;align-items:end;justify-content:space-between;gap:12px}
+.tmr-request-header>.tmr-form-date{width:150px;max-width:150px;flex:0 0 150px}
+.tmr-request-header>.btn{margin:0;height:44px;min-height:44px;box-sizing:border-box}
+.tmr-request-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.tmr-request-actions>.btn{width:100%;min-width:0;margin:0;padding:12px 8px}
+.tmr-history[hidden]{display:none}
+#screen-tmc-requests-management .tmr-content>.tmr-toolbar{display:grid;grid-template-columns:160px 160px;align-items:end;gap:12px;min-width:0;max-width:100%;width:100%;box-sizing:border-box}
+#screen-tmc-requests-management .tmr-content>.tmr-toolbar>input{grid-column:1/-1;margin:0;min-width:0;width:100%!important;max-width:100%;box-sizing:border-box}
+#screen-tmc-requests-management .tmr-content>.tmr-toolbar>.tmr-field{max-width:none;width:100%;margin:0;padding:0}
+#screen-tmc-requests-management .tmr-toolbar .app-date-control{width:100%;min-width:0;margin:0;padding:0}
+#screen-tmc-requests-management .tmr-toolbar .app-date-trigger,
+#screen-tmc-requests-management .tmr-toolbar>.tmr-reset-filter{width:100%;max-width:100%;height:44px!important;min-height:44px!important;box-sizing:border-box;margin:0!important;padding:10px 8px!important;font-size:12px!important;line-height:22px;border-radius:10px;align-self:end}
+#screen-tmc-requests-management .tmr-toolbar .app-date-trigger{display:flex;align-items:center;justify-content:space-between}
+html[data-app-layout=mobile] #screen-installer-menu .view-installer-grid{align-items:stretch!important;grid-auto-rows:48px;gap:10px!important}
+html[data-app-layout=mobile] #screen-installer-menu .view-installer-grid>.btn{height:48px!important;min-height:48px!important;width:100%;margin:0!important;padding:10px 7px!important;font-size:13px!important;box-sizing:border-box;align-self:stretch}
+@media(max-width:1240px){.tmr-request-grid{grid-template-columns:repeat(7,minmax(0,1fr))}.tmr-request-grid>.tmr-cable{grid-column:1/5;grid-row:2}.tmr-request-grid>.tmr-person{grid-column:5/-1;grid-row:2}.tmr-request-grid>.tmr-quantity{grid-row:3}#screen-tmc-request .tmr-request-grid>.tmr-cable,#screen-tmc-request .tmr-request-grid>.tmr-person{grid-row:1}#screen-tmc-request .tmr-request-grid>.tmr-quantity{grid-row:2}}
+html[data-app-layout=mobile] .tmr-request-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html[data-app-layout=mobile] .tmr-request-grid>.tmr-cable,html[data-app-layout=mobile] .tmr-request-grid>.tmr-person{grid-column:1/-1;grid-row:auto}
+html[data-app-layout=mobile] #screen-tmc-request .tmr-request-grid>.tmr-cable,html[data-app-layout=mobile] #screen-tmc-request .tmr-request-grid>.tmr-person,html[data-app-layout=mobile] #screen-tmc-request .tmr-request-grid>.tmr-quantity{grid-row:auto}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-content>.tmr-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:700px){.tmr-request-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tmr-request-grid>.tmr-cable,.tmr-request-grid>.tmr-person{grid-column:1/-1;grid-row:auto}.tmr-request-grid>.tmr-quantity{grid-row:auto}.tmr-request-actions>.btn{font-size:13px}#screen-tmc-requests-management .tmr-content>.tmr-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+
+<style id="tmrStaffFilterStyle">
+#screen-tmc-requests-management .tmr-content>.tmr-toolbar>.tmr-staff-filter{grid-column:1/-1;min-width:0;width:100%;max-width:100%;box-sizing:border-box;margin:0}
+#screen-tmc-requests-management .tmr-staff-filter>.dropdown-trigger{display:flex;align-items:center;gap:8px;height:44px;min-height:44px;box-sizing:border-box;padding:10px 12px;margin:0;min-width:0}
+#screen-tmc-requests-management .tmr-staff-filter .dropdown-search-trigger{flex:1;min-width:0;width:100%;max-width:100%;height:auto;box-sizing:border-box;padding:0;margin:0;border:0;background:transparent;box-shadow:none;font-size:12px;line-height:22px}
+#screen-tmc-requests-management .tmr-staff-filter .dropdown-arrow{flex:none;margin-left:auto}
+#screen-tmc-requests-management .tmr-staff-filter .dropdown-item{width:100%;box-sizing:border-box;margin:0;text-align:left;background:#111;color:var(--text-main);cursor:pointer;appearance:none;border:0;border-bottom:1px solid #282828;border-radius:0;font:inherit;outline:none}
+#screen-tmc-requests-management .tmr-staff-filter .dropdown-item:hover,#screen-tmc-requests-management .tmr-staff-filter .dropdown-item:focus-visible{background:#292410;color:var(--beeline-yellow)}
+</style>
+<style id="tmrStaffFocusStyle">#screen-tmc-requests-management .tmr-staff-filter .dropdown-item:focus-visible{outline:1px solid var(--beeline-yellow);outline-offset:-2px}</style>
 </body>
 </html>
