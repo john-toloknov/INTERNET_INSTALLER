@@ -1,0 +1,1723 @@
+{
+  "source": "Embedded verified images from Beeline_Table_Compact_Filters.html",
+  "channelNames": 286,
+  "uniqueImages": 241,
+  "channels": [
+    {
+      "channel": "QAZAQSTAN HD (Qazaqstan HD)",
+      "file": "qazaqstan-hd-qazaqstan-hd-23f5198835.webp",
+      "lightBackground": false,
+      "sha256": "23f5198835132022e15cb6ef3cec7647f16a15acce4e2851bcf9de90018e101c"
+    },
+    {
+      "channel": "Khabar HD",
+      "file": "khabar-hd-140ee261f7.webp",
+      "lightBackground": false,
+      "sha256": "140ee261f72a9a40154aaa354f38c731226307268ac42ee0ed0b5a3efe0656e0"
+    },
+    {
+      "channel": "24KZ HD",
+      "file": "24kz-hd-0affb93a37.webp",
+      "lightBackground": false,
+      "sha256": "0affb93a379b592f45ca021d328ca832ba937c76bf429cbb8c654ecde9fe9719"
+    },
+    {
+      "channel": "Balapan HD",
+      "file": "balapan-hd-e20f047545.webp",
+      "lightBackground": false,
+      "sha256": "e20f047545c823a6fd85e457da6848ec67481bb4ea3e1a3ccf4f39ec5cdd5910"
+    },
+    {
+      "channel": "ABAI TV (Абай ТВ)",
+      "file": "abai-tv-abay-tv-a37ef9948f.webp",
+      "lightBackground": false,
+      "sha256": "a37ef9948fc6b15da729bf28703f43973dd535d01cd85e58d112a2418a64b3b0"
+    },
+    {
+      "channel": "Qazsport HD",
+      "file": "qazsport-hd-df6d041ef0.webp",
+      "lightBackground": false,
+      "sha256": "df6d041ef0acf458c0a5e5f44a851f1246f4497d2d5628d79a53c5e8e621d58e"
+    },
+    {
+      "channel": "Jibek Joly (Kazakh TV) (Bilim)",
+      "file": "jibek-joly-kazakh-tv-bilim-14887cf9fc.webp",
+      "lightBackground": false,
+      "sha256": "14887cf9fc5e687223a86223a9f0d182ee0ba52c45c3df669fe034087df2d8e8"
+    },
+    {
+      "channel": "МИР",
+      "file": "mir-05a5ac32d7.webp",
+      "lightBackground": false,
+      "sha256": "05a5ac32d7ee78b3a062a25da8c564b601ca128de3ae1d4c1e9e54f0c0417e2c"
+    },
+    {
+      "channel": "ASTANA TV (Астана)",
+      "file": "astana-tv-astana-7449f1f09e.webp",
+      "lightBackground": false,
+      "sha256": "7449f1f09e1b4b927b6d3f4e8b46b7ae2af7257721a8b5acb1d5e9bb3a7d8f8c"
+    },
+    {
+      "channel": "Almaty tv (Алматы)",
+      "file": "almaty-tv-almaty-b0dcd9043e.webp",
+      "lightBackground": false,
+      "sha256": "b0dcd9043e49f7728f9979b493ec69ad22735770b2e33c7fbff107ab71be17ba"
+    },
+    {
+      "channel": "Первый Канал Евразия",
+      "file": "pervyy-kanal-evrazia-a550531dda.webp",
+      "lightBackground": true,
+      "sha256": "a550531dda2f23f67198bc30200f62b51c63731abe2733b690201fe741283e71"
+    },
+    {
+      "channel": "31 Канал",
+      "file": "31-kanal-d441479059.webp",
+      "lightBackground": false,
+      "sha256": "d441479059879f4b814cd968b164e6a0a5f3b4b78da080b0fb69ca8ca9cd3895"
+    },
+    {
+      "channel": "Седьмой канал",
+      "file": "sed-moy-kanal-6664bf93a4.webp",
+      "lightBackground": true,
+      "sha256": "6664bf93a443c17a733f51e099aee2a51c6a3182d250d6287eabfc63a0e96fd6"
+    },
+    {
+      "channel": "ТНТ HD",
+      "file": "tnt-hd-5c0509eff7.webp",
+      "lightBackground": false,
+      "sha256": "5c0509eff72b3e07c8cc11cca3c02cf462342bacee5201ae11b92494ac051ed9"
+    },
+    {
+      "channel": "Пятница International KZ",
+      "file": "patnica-international-kz-eff015cd27.webp",
+      "lightBackground": true,
+      "sha256": "eff015cd270201ce47550aee5b11a45b85d156961514af197d91d1449f8c0ab4"
+    },
+    {
+      "channel": "НТК",
+      "file": "ntk-6f2df9365e.webp",
+      "lightBackground": false,
+      "sha256": "6f2df9365ea6a6b088ba07d20051f7d9612c5ef5aac6c0f9282554042e94e14f"
+    },
+    {
+      "channel": "HIT TV (HitTV)",
+      "file": "hit-tv-hittv-abb3a04698.webp",
+      "lightBackground": false,
+      "sha256": "abb3a046989d51ac1960a2e4d292e6db051d864295a2b12aabfc7c82d1409c2d"
+    },
+    {
+      "channel": "Turan TV (Туран-ТВ)",
+      "file": "turan-tv-turan-tv-e6eca770e8.webp",
+      "lightBackground": false,
+      "sha256": "e6eca770e87079ac56c26471af4d5d5695f68b8200e5948058e4a76a2f2a8763"
+    },
+    {
+      "channel": "5 канал (Казахстан)",
+      "file": "5-kanal-kazahstan-ea45b658a6.webp",
+      "lightBackground": false,
+      "sha256": "ea45b658a6172b8946482efacd919e179f7626183cd6d0ee9bbe1f5d4a370d61"
+    },
+    {
+      "channel": "МИР 24 (Мир 24)",
+      "file": "mir-24-mir-24-0bd7c37e9b.webp",
+      "lightBackground": false,
+      "sha256": "0bd7c37e9b3c491c5a417a725287c4259d58d4bf066b03fbe80533bd39ad6f84"
+    },
+    {
+      "channel": "Nick Jr.",
+      "file": "nick-jr-6b6b90b34a.webp",
+      "lightBackground": false,
+      "sha256": "6b6b90b34a51a1b412b9f6dfd2de5c25dcd4e62aa90e6497a49294e5f613139e"
+    },
+    {
+      "channel": "Nicktoons",
+      "file": "nicktoons-c92b1d4d5d.webp",
+      "lightBackground": false,
+      "sha256": "c92b1d4d5d339f457eb705cfc814d7cf65255746a1a945713432a52e46db9dd7"
+    },
+    {
+      "channel": "CartoonNetwork",
+      "file": "cartoonnetwork-dfc3d1271a.webp",
+      "lightBackground": true,
+      "sha256": "dfc3d1271a67a7a1f67d42708f18ff3ca5d6d812ab005075f2448fa5d36dd497"
+    },
+    {
+      "channel": "Лева",
+      "file": "leva-6264d9ca69.webp",
+      "lightBackground": false,
+      "sha256": "6264d9ca69a261ce2a4ecc91879f6f00aa1fea96f3cbce2490a5fa64328a41c5"
+    },
+    {
+      "channel": "Gulli Girl",
+      "file": "gulli-girl-5b94cc1271.webp",
+      "lightBackground": false,
+      "sha256": "5b94cc12710275c12885929d9f66cc04b7c01a38d2e95135a327a5e65419c0d8"
+    },
+    {
+      "channel": "Cartoonito",
+      "file": "cartoonito-ef92f57cf8.webp",
+      "lightBackground": false,
+      "sha256": "ef92f57cf80f489cf64d98d01b231f7178bb3fb4606dde6560bb2d3218c4770a"
+    },
+    {
+      "channel": "О! (O)",
+      "file": "o-o-33808ca440.webp",
+      "lightBackground": false,
+      "sha256": "33808ca4405e25b764d9b4230f4bcc998e6d1771dfdaed39d21e73a6ef9ce0d9"
+    },
+    {
+      "channel": "СТС Kids",
+      "file": "sts-kids-e0ddf7ea52.webp",
+      "lightBackground": false,
+      "sha256": "e0ddf7ea52b7dfb235a7e3405bea976a69baf357c8a2f720a8ffd1cfe517c9c6"
+    },
+    {
+      "channel": "Мульт",
+      "file": "mul-t-3ebb1600ce.webp",
+      "lightBackground": false,
+      "sha256": "3ebb1600ce9a511ab44f04a4ce3cf45abfa22451c0dc4ed1e0e0ca39953d8b2e"
+    },
+    {
+      "channel": "Карусель International",
+      "file": "karusel-international-6e23b26174.webp",
+      "lightBackground": false,
+      "sha256": "6e23b26174911a6279a59be7a0dbbb6018948a943372965baeda4ddbd324c8a3"
+    },
+    {
+      "channel": "Уникум (Детский)",
+      "file": "unikum-detskiy-2b2307d277.webp",
+      "lightBackground": false,
+      "sha256": "2b2307d277210269427f7293876a3940139a9e9e9c2a2c386ec33b879821644f"
+    },
+    {
+      "channel": "Детский мир",
+      "file": "detskiy-mir-aeffe57c9c.webp",
+      "lightBackground": false,
+      "sha256": "aeffe57c9cd6d4d664483d502db231c4c14749b97882b243abf3a6e666776744"
+    },
+    {
+      "channel": "В гостях у сказки",
+      "file": "v-gostah-u-skazki-43956d56b2.webp",
+      "lightBackground": true,
+      "sha256": "43956d56b238f308686b5ab7cdb857d4c03ffc18e629b91cfada4d5029732973"
+    },
+    {
+      "channel": "viju TV 1000 HD",
+      "file": "viju-tv-1000-hd-40386e18ec.webp",
+      "lightBackground": true,
+      "sha256": "40386e18ecfb5cd5168259496597b5bdd46d181c5e8440c0d9c9d1ff4b78b3dd"
+    },
+    {
+      "channel": "viju TV 1000 Action HD",
+      "file": "viju-tv-1000-action-hd-997c2d58c8.webp",
+      "lightBackground": true,
+      "sha256": "997c2d58c820c9e8cc3546196072b54d5ac3f59c34049bf7d5a72bc704b90d70"
+    },
+    {
+      "channel": "НСТ (НСТВ)",
+      "file": "nst-nstv-fd0fa315bc.webp",
+      "lightBackground": true,
+      "sha256": "fd0fa315bc1bfe79281aedd92ef9162b17d9d2525baff066e29a53b80f74c7e7"
+    },
+    {
+      "channel": "Black",
+      "file": "black-3625f31da0.webp",
+      "lightBackground": true,
+      "sha256": "3625f31da064233b2e4040e6938ddb26d1765aaabac77079db03169a26d1c402"
+    },
+    {
+      "channel": "Red",
+      "file": "red-0efcb13fcc.webp",
+      "lightBackground": true,
+      "sha256": "0efcb13fcc969885de0507c49443c19a30cf3455e55edc595b460fcfbcd5abbb"
+    },
+    {
+      "channel": "Sci-Fi",
+      "file": "sci-fi-0d026fd671.webp",
+      "lightBackground": false,
+      "sha256": "0d026fd67189c32940b128803596d319f561aa43e85a8393f167719991acf447"
+    },
+    {
+      "channel": "Любимое Кино (Наше Любимое Кино)",
+      "file": "lubimoe-kino-nase-lubimoe-kino-b7d64395d3.webp",
+      "lightBackground": false,
+      "sha256": "b7d64395d3c45fd1bc9211467553911db020104d269d424d1a88c541d897ee4e"
+    },
+    {
+      "channel": "Мосфильм. Золотая коллекция",
+      "file": "mosfil-m-zolotaa-kollekcia-bf7354297c.webp",
+      "lightBackground": false,
+      "sha256": "bf7354297ced5b6f16e69c9a595dd9bb942f16bda1a106565349a6701d5d4ff6"
+    },
+    {
+      "channel": "Дом кино",
+      "file": "dom-kino-e60d846c20.webp",
+      "lightBackground": true,
+      "sha256": "e60d846c2024afaf8a0b64e9d5d13dea8485922b28afc54c5bbc8de6d8dc823b"
+    },
+    {
+      "channel": "CINEMA (Cinema)",
+      "file": "cinema-cinema-ab630b8b79.webp",
+      "lightBackground": false,
+      "sha256": "ab630b8b79e93788e5b4352a6d459453f5953d54669be0c192a7f9e3d41cf53c"
+    },
+    {
+      "channel": "Amedia Premium HD",
+      "file": "amedia-premium-hd-18bf9b5497.webp",
+      "lightBackground": true,
+      "sha256": "18bf9b549790197081f66b8118c2d4b0215124d585c47593639d6ce9e514e284"
+    },
+    {
+      "channel": "A1",
+      "file": "a1-9dc5ec4e58.webp",
+      "lightBackground": true,
+      "sha256": "9dc5ec4e5870029fe59324840151005fb7ac4b82f7c315cb4bb09bd91b71324f"
+    },
+    {
+      "channel": "A2",
+      "file": "a2-30f8b06b11.webp",
+      "lightBackground": true,
+      "sha256": "30f8b06b11701f4b18bb90bb035d1caed0894d6c72142fe0d40e5d7b76ef0cf5"
+    },
+    {
+      "channel": "Amedia Hit HD",
+      "file": "amedia-hit-hd-3036fc28a9.webp",
+      "lightBackground": true,
+      "sha256": "3036fc28a95900a51dfb80b5be4dbaef719e5a7ef65ecd6d8ad27b3a222611df"
+    },
+    {
+      "channel": "Русский Иллюзион",
+      "file": "russkiy-illuzion-64681946b8.webp",
+      "lightBackground": true,
+      "sha256": "64681946b839c2d2485136e99416b13dcfee88b5ab2176251865ced7c793ff3f"
+    },
+    {
+      "channel": "Иллюзион+ HD",
+      "file": "illuzion-hd-fe9cb68522.webp",
+      "lightBackground": false,
+      "sha256": "fe9cb68522fab77f033eae32220a5048554da595acca6e44613ae608e9d9d10f"
+    },
+    {
+      "channel": "FOX HD",
+      "file": "fox-hd-bb38fb37d7.webp",
+      "lightBackground": false,
+      "sha256": "bb38fb37d79e12f340b19f212af400b4b895e83384c5b73512e19ace544066cc"
+    },
+    {
+      "channel": "FOX Life HD",
+      "file": "fox-life-hd-9b23e37b27.webp",
+      "lightBackground": true,
+      "sha256": "9b23e37b27c7b05b9b0f2a6eb3c47cfcc3ae00f8e56a644dd2afdf1e24d2baf5"
+    },
+    {
+      "channel": "Дорама HD",
+      "file": "dorama-hd-bd104bf4ff.webp",
+      "lightBackground": false,
+      "sha256": "bd104bf4ffbdfe017f3eacf8e3dbc52d7b49879c18229bd4980613a8b2bc6870"
+    },
+    {
+      "channel": "FILMUADrama HD (FilmUADrama)",
+      "file": "filmuadrama-hd-filmuadrama-058542e28a.webp",
+      "lightBackground": false,
+      "sha256": "058542e28a36d8582ab5f7157c944fa81bb6b8b86c796cf34fcb33a967f05f39"
+    },
+    {
+      "channel": "Bollywood HD",
+      "file": "bollywood-hd-d4f35919c1.webp",
+      "lightBackground": false,
+      "sha256": "d4f35919c16d42342a48cccae66b34e290a362c9680131b69ec8bac9701e7ee1"
+    },
+    {
+      "channel": "КИНОДРАМА",
+      "file": "kinodrama-88655e42d4.webp",
+      "lightBackground": false,
+      "sha256": "88655e42d42bc89a0bfe0d4f924d0d0ba193e8a6b634da1446985765c5aa42a5"
+    },
+    {
+      "channel": "КИНОСЕРИАЛ",
+      "file": "kinoserial-ab98152c2a.webp",
+      "lightBackground": false,
+      "sha256": "ab98152c2a5f1f58fd82bf89b0bda406783775a392711e8885196db229a92205"
+    },
+    {
+      "channel": "Start.Air HD",
+      "file": "start-air-hd-b7ee8eedc2.webp",
+      "lightBackground": true,
+      "sha256": "b7ee8eedc27ecbd92fffa2d47dd5e8dc7f3233f11b25e9604ebefd5e84154fbf"
+    },
+    {
+      "channel": "Start.World HD",
+      "file": "start-world-hd-ea54d0d0b0.webp",
+      "lightBackground": true,
+      "sha256": "ea54d0d0b0845d9b5582499fb783045d05624469601f2a835574f5f38c1892de"
+    },
+    {
+      "channel": "Еврокино",
+      "file": "evrokino-6164572d5c.webp",
+      "lightBackground": false,
+      "sha256": "6164572d5c1499d4fe87a8f13cc15485f674cd21baf8a568fa2b46eb6fbf238a"
+    },
+    {
+      "channel": "Hollywood",
+      "file": "hollywood-5ed0dedf71.webp",
+      "lightBackground": false,
+      "sha256": "5ed0dedf7196ada94ad789b1c3fa4925eef4ac56bdc68b90a69748cfecf56eaf"
+    },
+    {
+      "channel": "Феникс+ Кино",
+      "file": "feniks-kino-73ae62f496.webp",
+      "lightBackground": false,
+      "sha256": "73ae62f4961f4f546d7878a436f0f37bc3b2297bf2fb7b7d1c8055f5255a7d60"
+    },
+    {
+      "channel": "Plan B",
+      "file": "plan-b-42ce488d9c.webp",
+      "lightBackground": true,
+      "sha256": "42ce488d9c343514ff1b47fc0f8b6dda2f80131db7d85775ab9b7f721c416525"
+    },
+    {
+      "channel": "Победа",
+      "file": "pobeda-f6e51419fc.webp",
+      "lightBackground": true,
+      "sha256": "f6e51419fc8b7765ca21029987df38ad9e0d00ad4604a0cdab6236c5f6d6c6f0"
+    },
+    {
+      "channel": "Мир Сериала",
+      "file": "mir-seriala-8095179a20.webp",
+      "lightBackground": false,
+      "sha256": "8095179a20a3cf59b4cefd724d62ea9569d4350ef1c07eab728113a01a5c6afb"
+    },
+    {
+      "channel": "viju+ Comedy HD",
+      "file": "viju-comedy-hd-d4c55676e4.webp",
+      "lightBackground": true,
+      "sha256": "d4c55676e46c54c11b5422df41eea2ca9558b7a1d9dd4ac80722923efdbfb2af"
+    },
+    {
+      "channel": "viju+ Megahit HD",
+      "file": "viju-megahit-hd-ca78a358b0.webp",
+      "lightBackground": true,
+      "sha256": "ca78a358b0d1320970cce2c3c7715486d251b7e7ae9232d1b0a4c2338f5101d6"
+    },
+    {
+      "channel": "viju+ Premiere HD",
+      "file": "viju-premiere-hd-719a61206f.webp",
+      "lightBackground": true,
+      "sha256": "719a61206fcfef88654628d7d342bccca8ff3f8b54edf9e5b0edfe172a5ff5cb"
+    },
+    {
+      "channel": "VIP Serial HD",
+      "file": "vip-serial-hd-e2406fb9df.webp",
+      "lightBackground": true,
+      "sha256": "e2406fb9df0f0fcfedcac3b41a06fb6a1fc435af77659736402dc89c15b735ac"
+    },
+    {
+      "channel": "Кинеко HD",
+      "file": "kineko-hd-86a89a3ebc.webp",
+      "lightBackground": true,
+      "sha256": "86a89a3ebcffa83e3fe2c6552ba7efca00c5762354a70c82efdac4d873fce028"
+    },
+    {
+      "channel": "Сапфир HD",
+      "file": "sapfir-hd-90f7ee68e2.webp",
+      "lightBackground": true,
+      "sha256": "90f7ee68e2cf42d7f526ee0b913f05ea6c589dbfca691ed99cc16f9e66beb988"
+    },
+    {
+      "channel": "НТВ Сериал",
+      "file": "ntv-serial-0d531c7857.webp",
+      "lightBackground": false,
+      "sha256": "0d531c7857a6c6d9a37498b9289c9414d2121d12848e5fcacd730160fe47bb0a"
+    },
+    {
+      "channel": "Точка отрыва",
+      "file": "tocka-otryva-a001abd666.webp",
+      "lightBackground": true,
+      "sha256": "a001abd6666ad3c1c213c44bb0ef78a2fdf8fc196b75870dd7a0b720139c0a63"
+    },
+    {
+      "channel": "Eurosport 1 HD",
+      "file": "eurosport-1-hd-3cc8004829.webp",
+      "lightBackground": true,
+      "sha256": "3cc8004829423d02e1750c9646e4d5e3bf42f018b58f8a0e354657d4a0455c75"
+    },
+    {
+      "channel": "Eurosport 2 HD",
+      "file": "eurosport-2-hd-a952c044a7.webp",
+      "lightBackground": true,
+      "sha256": "a952c044a711357c644bd40a5968bd160144d974565861f10f63ac4feb97ddec"
+    },
+    {
+      "channel": "Setanta Qazaqstan HD (Setanta Казахстан HD RU)",
+      "file": "setanta-qazaqstan-hd-setanta-kazahstan-hd-ru-0d2ae72197.webp",
+      "lightBackground": false,
+      "sha256": "0d2ae72197f7e1e31d630665c358cac3c80de780f582f2defb29180c6828bb75"
+    },
+    {
+      "channel": "Q League HD",
+      "file": "q-league-hd-97ecc32080.webp",
+      "lightBackground": false,
+      "sha256": "97ecc32080aaa37dfc0ab1324c82e59e915fa07e519c63d4d7543e922ec7d2ad"
+    },
+    {
+      "channel": "viju+ Sport",
+      "file": "viju-sport-20cff52a1f.webp",
+      "lightBackground": true,
+      "sha256": "20cff52a1fc1b29889ab2746fcdbd9e2f8ad233243de5bff5435162fd466cb37"
+    },
+    {
+      "channel": "РТР-Планета",
+      "file": "rtr-planeta-aeade487bf.webp",
+      "lightBackground": false,
+      "sha256": "aeade487bfb15fd8e9ec74d065ef7557f3a4ca03f064ebd5bece6d19524b7748"
+    },
+    {
+      "channel": "НТВ МИР",
+      "file": "ntv-mir-310669f702.webp",
+      "lightBackground": false,
+      "sha256": "310669f70219fe0380b85cbfa31fd7461aaa5f0970983f0f0e6e6c49bb844640"
+    },
+    {
+      "channel": "Россия 24",
+      "file": "rossia-24-135202aa03.webp",
+      "lightBackground": false,
+      "sha256": "135202aa03b7493124118f123676327ad37143828f5bafbbb40a23268180f99f"
+    },
+    {
+      "channel": "RTVi HD",
+      "file": "rtvi-hd-114fb6c1ec.webp",
+      "lightBackground": true,
+      "sha256": "114fb6c1ec718bfd42bbb419cb370005e4f3f1d24f9661f7c72a5f491c264901"
+    },
+    {
+      "channel": "ТНВ-Планета",
+      "file": "tnv-planeta-7084d1e83c.webp",
+      "lightBackground": false,
+      "sha256": "7084d1e83c9e238163c4fe335dfec441c5d81b240e64fd8ad92ecfd21a46c8ca"
+    },
+    {
+      "channel": "Sport plus",
+      "file": "sport-plus-7297eeb01a.webp",
+      "lightBackground": true,
+      "sha256": "7297eeb01aa5860882f9b8b3ead1448de292a273a6a29928dbe7d345c0032575"
+    },
+    {
+      "channel": "Euronews",
+      "file": "euronews-3591f6673b.webp",
+      "lightBackground": false,
+      "sha256": "3591f6673b87192bcfcc935e51357c5d9cf69f8948463cd6424081ea8e77b079"
+    },
+    {
+      "channel": "EuroNews English HD",
+      "file": "euronews-english-hd-40e64c5787.webp",
+      "lightBackground": true,
+      "sha256": "40e64c57874f6a978082b543e685f558048aadfe6382622b9eb89e297a82f673"
+    },
+    {
+      "channel": "8 канал",
+      "file": "8-kanal-893f6fd179.webp",
+      "lightBackground": false,
+      "sha256": "893f6fd1799ca4f7f7c425964d781be10eca640a0eeaeb51e21c96b1ccb4eea6"
+    },
+    {
+      "channel": "РБК (РБК-ТВ)",
+      "file": "rbk-rbk-tv-289d99b7f0.webp",
+      "lightBackground": true,
+      "sha256": "289d99b7f04d3182a71398b8dd973bd87b7322be9c71eed7ddae479ad78fc155"
+    },
+    {
+      "channel": "CNN International",
+      "file": "cnn-international-a3adceaba2.webp",
+      "lightBackground": true,
+      "sha256": "a3adceaba272e47c351842d9d0bd9cbaaac7c0f99ff2a930b6c390ca5a5e9ec2"
+    },
+    {
+      "channel": "СПАС",
+      "file": "spas-59a8d2f43a.webp",
+      "lightBackground": false,
+      "sha256": "59a8d2f43acf4c2b507501a0ff03f08899e5844070f7564eae9ded8650f2f385"
+    },
+    {
+      "channel": "Музыка Первого",
+      "file": "muzyka-pervogo-20de2f3a47.webp",
+      "lightBackground": true,
+      "sha256": "20de2f3a4713d8438512be26722f94875bfef4918a6701a5f689ab223d8f4f82"
+    },
+    {
+      "channel": "Шансон ТВ",
+      "file": "sanson-tv-9e6a1ba413.webp",
+      "lightBackground": false,
+      "sha256": "9e6a1ba413738fe62962d3030347dd6daae35cb6bc01d831c7acc8c45a3c56c9"
+    },
+    {
+      "channel": "MCM Top",
+      "file": "mcm-top-79009ce196.webp",
+      "lightBackground": true,
+      "sha256": "79009ce1967ed62a3f50fe28b64f8e8f3ea3720a4d4a2e5d197e0f3845ba2c3c"
+    },
+    {
+      "channel": "Mezzo",
+      "file": "mezzo-2546045c79.webp",
+      "lightBackground": true,
+      "sha256": "2546045c79f9f7bd1dd3927578e95f8d524139f0220875e271bd5efa6b804194"
+    },
+    {
+      "channel": "1HD Music Television",
+      "file": "muzyka-pervogo-20de2f3a47.webp",
+      "lightBackground": true,
+      "sha256": "20de2f3a4713d8438512be26722f94875bfef4918a6701a5f689ab223d8f4f82"
+    },
+    {
+      "channel": "ТНТ MUSIC (TNT Music)",
+      "file": "tnt-music-tnt-music-d0490d9187.webp",
+      "lightBackground": false,
+      "sha256": "d0490d91870b22219e299b8c77b1743c927b103f72aa93ae09a93cc3136c6135"
+    },
+    {
+      "channel": "MUZZONE (Muzzone)",
+      "file": "muzzone-muzzone-62e98d6c1a.webp",
+      "lightBackground": false,
+      "sha256": "62e98d6c1a47b059a92c53b19064ac012927b5c1a8b2d650d7adeb61bc874d68"
+    },
+    {
+      "channel": "MTV 00s",
+      "file": "mtv-00s-050a156626.webp",
+      "lightBackground": false,
+      "sha256": "050a15662688fa06f5a86d535a6a5d3926e6d96a9729fd76721df2e11344498d"
+    },
+    {
+      "channel": "Big Planet HD",
+      "file": "big-planet-hd-50b26c1866.webp",
+      "lightBackground": true,
+      "sha256": "50b26c186684eb42bd8e983d92dd8bcf9f8cbe86930dc35db84069452911c94c"
+    },
+    {
+      "channel": "Поехали!",
+      "file": "poehali-51486792a4.webp",
+      "lightBackground": false,
+      "sha256": "51486792a4c384264a2f586c9c019d92bdcaa47426e01b2569ac99b6c89e5983"
+    },
+    {
+      "channel": "Salem Alem",
+      "file": "salem-alem-65ce5cef46.webp",
+      "lightBackground": true,
+      "sha256": "65ce5cef465be3acfca164d92f7ce0acf2fe1cb21a21c11d8d2bc3ebd85e1320"
+    },
+    {
+      "channel": "Живая природа HD",
+      "file": "jivaa-priroda-hd-481667bc77.webp",
+      "lightBackground": false,
+      "sha256": "481667bc777e8da6298f71b1ca24dc971bd0e28d0f4d5f5ff4c77025816ac818"
+    },
+    {
+      "channel": "Вопросы и ответы",
+      "file": "voprosy-i-otvety-12b3de084a.webp",
+      "lightBackground": true,
+      "sha256": "12b3de084af6fb164bea86518bd217d4124143c88c077f8aa2f41a24b920f842"
+    },
+    {
+      "channel": "English Club TV",
+      "file": "english-club-tv-29c369a774.webp",
+      "lightBackground": false,
+      "sha256": "29c369a77448c0e76cf267910d2fcb3985ce8d86d120563da9689fde60a97c21"
+    },
+    {
+      "channel": "History HD",
+      "file": "history-hd-f5df12f9d5.webp",
+      "lightBackground": false,
+      "sha256": "f5df12f9d5c53c846f7214db388ea60e4849b49e1eb411336ced4497cc2b447b"
+    },
+    {
+      "channel": "History 2 HD",
+      "file": "history-2-hd-dcbf52032a.webp",
+      "lightBackground": false,
+      "sha256": "dcbf52032a4354fbab1dd3dd93d72f8d4f685131226ceb07f86635be957b6b7e"
+    },
+    {
+      "channel": "Т24 (Техно 24)",
+      "file": "t24-tehno-24-db231d87a2.webp",
+      "lightBackground": true,
+      "sha256": "db231d87a21221e64e60c80624f4c5bb208cf06f50ebbbb280176436748bfbc0"
+    },
+    {
+      "channel": "Планета HD",
+      "file": "planeta-hd-4daebc165c.webp",
+      "lightBackground": true,
+      "sha256": "4daebc165cd2665c8e07f70237d949c50945d18419336a2b0d56d39293ce5b90"
+    },
+    {
+      "channel": "Discovery Channel HD (Discovery HD)",
+      "file": "discovery-channel-hd-discovery-hd-6aae908e19.webp",
+      "lightBackground": false,
+      "sha256": "6aae908e1992ebf37f38e3838fff5eb4b30bf0aec9b96ae773d65c8054fc0d3a"
+    },
+    {
+      "channel": "Animal Planet HD",
+      "file": "animal-planet-hd-bee114b2bf.webp",
+      "lightBackground": true,
+      "sha256": "bee114b2bfd0f67d5c57ad734c1841d2dfa6df6f3164abefc8ed354e3aa59bc4"
+    },
+    {
+      "channel": "Тайны галактики HD",
+      "file": "tayny-galaktiki-hd-312e259eda.webp",
+      "lightBackground": false,
+      "sha256": "312e259eda27d48936b87bd3b0956fbee4fde840ec0db82a467659c413a170f3"
+    },
+    {
+      "channel": "Оружие",
+      "file": "orujie-28860299e3.webp",
+      "lightBackground": true,
+      "sha256": "28860299e380e680e0d62588f3533d09acf0f12e492d3595c16d3f43eaf47a16"
+    },
+    {
+      "channel": "viju History HD",
+      "file": "viju-history-hd-231dc6d5c0.webp",
+      "lightBackground": true,
+      "sha256": "231dc6d5c07b66410360c2e8816d0c0f2b65df38016ebf4c52370f60276379f1"
+    },
+    {
+      "channel": "viju Nature HD",
+      "file": "viju-nature-hd-4f394804df.webp",
+      "lightBackground": false,
+      "sha256": "4f394804df63538412092e603724f59633b9937b9b3dd45ed6062c8dde0ebea0"
+    },
+    {
+      "channel": "Da Vinci Learning",
+      "file": "da-vinci-learning-56cea5eab9.webp",
+      "lightBackground": true,
+      "sha256": "56cea5eab95f716a76545e394c8081bc2693139fbaf7da7911e874e30d37ff9a"
+    },
+    {
+      "channel": "Первый космический HD",
+      "file": "pervyy-kosmiceskiy-hd-1b396da632.webp",
+      "lightBackground": true,
+      "sha256": "1b396da632016a3334d1084d106c43e34c10f328988ee232b3ae0e03167e7f47"
+    },
+    {
+      "channel": "Глазами Туриста HD",
+      "file": "glazami-turista-hd-5655c8de9e.webp",
+      "lightBackground": false,
+      "sha256": "5655c8de9e595b2becd79e3c22c7edcf74656b803261d9205d5c1fcc0cf8ed40"
+    },
+    {
+      "channel": "National Geographic HD",
+      "file": "national-geographic-hd-ad042839b3.webp",
+      "lightBackground": true,
+      "sha256": "ad042839b37f3f3e7062e8fe170288021fc4d91caccaac6f75d5b8124bc576b0"
+    },
+    {
+      "channel": "Nat Geo Wild HD",
+      "file": "nat-geo-wild-hd-0ecb617ad2.webp",
+      "lightBackground": true,
+      "sha256": "0ecb617ad2a48b8826cdb62866ac118acd413713fddd5c104d32666876e5192a"
+    },
+    {
+      "channel": "Загородная жизнь HD",
+      "file": "zagorodnaa-jizn-hd-12116103f1.webp",
+      "lightBackground": false,
+      "sha256": "12116103f1f7d779f52040fc2b17e0872c55e096e64bde2ad1a4ce628b260961"
+    },
+    {
+      "channel": "Россия К",
+      "file": "rossia-k-1a6a2ae0de.webp",
+      "lightBackground": true,
+      "sha256": "1a6a2ae0de6ccbda6287dd672d0cd7a00d81230222706a9f6d766eb303cc4544"
+    },
+    {
+      "channel": "Бобёр",
+      "file": "bober-de82c5640e.webp",
+      "lightBackground": false,
+      "sha256": "de82c5640ec8a211822d3ece1c9d4480760e47a2e9fadb1012c6bbdf9a879788"
+    },
+    {
+      "channel": "Рен ТВ",
+      "file": "ren-tv-945fdabab5.webp",
+      "lightBackground": false,
+      "sha256": "945fdabab588b1135dd155ea028b4f087812d0be50fdb3431f4bdc8f3950ab4b"
+    },
+    {
+      "channel": "Здоровое ТВ",
+      "file": "zdorovoe-tv-949c3f1184.webp",
+      "lightBackground": false,
+      "sha256": "949c3f1184022daf2598d5815b6a9178e6c619914e1c903547a4963afd81ebdf"
+    },
+    {
+      "channel": "НТВ Право",
+      "file": "ntv-pravo-280d7dacac.webp",
+      "lightBackground": false,
+      "sha256": "280d7dacac8794b5c13b89c7dea40194969591e22da5fac421cd312de5ca4fb2"
+    },
+    {
+      "channel": "Кто куда",
+      "file": "kto-kuda-7a96362aa7.webp",
+      "lightBackground": true,
+      "sha256": "7a96362aa75d0f5d93cc81bea3f44833a0c41b7a846edb7b6f6f80191df725cf"
+    },
+    {
+      "channel": "Время",
+      "file": "vrema-033da92a82.webp",
+      "lightBackground": true,
+      "sha256": "033da92a82cdc0c665f00b0926c4e4e1996e3155e1b6c4deb2cea773059ee0aa"
+    },
+    {
+      "channel": "Телекафе",
+      "file": "telekafe-d476ec2bfd.webp",
+      "lightBackground": false,
+      "sha256": "d476ec2bfda2d6f9eef57eac2223bfa8e4b2d3d22950dd61aa1b001c42bd9f19"
+    },
+    {
+      "channel": "Fashion & LifeStyle HD (Fashion One HD)",
+      "file": "fashion-lifestyle-hd-fashion-one-hd-359eaa64a6.webp",
+      "lightBackground": false,
+      "sha256": "359eaa64a627362e7f17f071af5e6a0d11ee00385251139903958901c12583fc"
+    },
+    {
+      "channel": "Домашний International",
+      "file": "domasniy-international-fc0a9abd14.webp",
+      "lightBackground": false,
+      "sha256": "fc0a9abd146411b49312376cd17b6ab60eb87a71f3f1f402bc763c8179509301"
+    },
+    {
+      "channel": "Рыбалка и охота (Рыбалка и Охота Int.)",
+      "file": "rybalka-i-ohota-rybalka-i-ohota-int-aeae0aee2a.webp",
+      "lightBackground": false,
+      "sha256": "aeae0aee2ae21db0143141de9db144d5c10a451a6caa82ca34ea88d794b383b6"
+    },
+    {
+      "channel": "Мужской",
+      "file": "mujskoy-b85b4ce576.webp",
+      "lightBackground": false,
+      "sha256": "b85b4ce576dc4c69cdb5398aa29ccc6a4cff3e9384cf8e38c679b645e553086e"
+    },
+    {
+      "channel": "Домашние животные",
+      "file": "domasnie-jivotnye-9ca5f92296.webp",
+      "lightBackground": false,
+      "sha256": "9ca5f9229620fa176e66528a03d366f7d9446c14eb48ba27a91addd5c33cb486"
+    },
+    {
+      "channel": "АВТО24 (Авто 24)",
+      "file": "avto24-avto-24-9b3341355c.webp",
+      "lightBackground": true,
+      "sha256": "9b3341355c60b44ce8e20b89adb04fd80e489c9989f3c5b7f0cf4277079d4682"
+    },
+    {
+      "channel": "TLC HD",
+      "file": "tlc-hd-bd85e7c0a7.webp",
+      "lightBackground": false,
+      "sha256": "bd85e7c0a7ccf9780188c567212aded90d378c6f6fd43bd7d74b1a13b8bdf726"
+    },
+    {
+      "channel": "ТНТ4",
+      "file": "tnt4-f01d559cbb.webp",
+      "lightBackground": false,
+      "sha256": "f01d559cbb1b113170f01f2f2289635321f50ff76f70aeae39738e865aa9f49f"
+    },
+    {
+      "channel": "Еда Премиум HD",
+      "file": "eda-premium-hd-b434ee65c9.webp",
+      "lightBackground": true,
+      "sha256": "b434ee65c9af38cbb4130ccfa64e7e095e2ed009ead09af89bd5e4ccbcb717f1"
+    },
+    {
+      "channel": "Анекдот ТВ",
+      "file": "anekdot-tv-ebdfad71f2.webp",
+      "lightBackground": true,
+      "sha256": "ebdfad71f200a7520df605776858b5db2363f0ff1f385ba1816c77739eece0b9"
+    },
+    {
+      "channel": "НТВ Стиль",
+      "file": "ntv-stil-731f841db2.webp",
+      "lightBackground": false,
+      "sha256": "731f841db244eaf203fc05f1e4ff4e09edca320cf009125d8358ad562cc0cc7c"
+    },
+    {
+      "channel": "Ключ HD",
+      "file": "kluc-hd-d21156a8af.webp",
+      "lightBackground": true,
+      "sha256": "d21156a8afeb45f77ec76479bffc5ccfef7d9df0d8b6203807e8c8c95baaf143"
+    },
+    {
+      "channel": "Terra HD",
+      "file": "terra-hd-cbe7e5f658.webp",
+      "lightBackground": false,
+      "sha256": "cbe7e5f6586d54aad8815656bc7ee6c337f0758a947417e50c2fe3be1e218bec"
+    },
+    {
+      "channel": "Jambyl (Казахстан-Тараз)",
+      "file": "jambyl-kazahstan-taraz-3dbccce118.webp",
+      "lightBackground": false,
+      "sha256": "3dbccce118921c0ba9a79adfb08d12bafe0743ca8c28a6563c3c907cf6c83c6e"
+    },
+    {
+      "channel": "РИКА-ТВ (Рика ТВ)",
+      "file": "rika-tv-rika-tv-842d5d7648.webp",
+      "lightBackground": false,
+      "sha256": "842d5d7648031b34235b8b9f00a0b1fdb156ea9c54144dd7ce086575a4711462"
+    },
+    {
+      "channel": "ТВК 6",
+      "file": "tvk-6-dbb1ea3b6e.webp",
+      "lightBackground": false,
+      "sha256": "dbb1ea3b6e3d8705a9f7dc60f24d296ccdbfc5c317209876264b803fce8e0375"
+    },
+    {
+      "channel": "ULYTAU  (Дидар)",
+      "file": "ulytau-didar-5dc5175804.webp",
+      "lightBackground": false,
+      "sha256": "5dc5175804d71a6dc4daf6751f417243047fd6d79fd734b73b9caae5d4646410"
+    },
+    {
+      "channel": "Ertis",
+      "file": "ertis-ce5ba3fe26.webp",
+      "lightBackground": false,
+      "sha256": "ce5ba3fe262989494c7f3409674cf2e02d7922ce8759f83c7dc38b40005bf97a"
+    },
+    {
+      "channel": "Atyraý (Казахстан Атырау)",
+      "file": "atyray-kazahstan-atyrau-47f3835f00.webp",
+      "lightBackground": false,
+      "sha256": "47f3835f00689f19028f354306f7e42d6de9f2d039048f25e47b113759b8584f"
+    },
+    {
+      "channel": "Mańǵystaý (Казахстан Актау)",
+      "file": "mangystay-kazahstan-aktau-ea2d904d00.webp",
+      "lightBackground": true,
+      "sha256": "ea2d904d00527e0a7ce0c24484bbfd25e5a72362e23d634d3cbea9542063164c"
+    },
+    {
+      "channel": "Ońtústik (Казахстан Шымкент)",
+      "file": "ontustik-kazahstan-symkent-ba892514ce.webp",
+      "lightBackground": false,
+      "sha256": "ba892514ce5f0460fb9f2e3d0c8f7869d80754975642b36dc43f83d268a7b3b5"
+    },
+    {
+      "channel": "Qostanai (Казахстан Костанай)",
+      "file": "qostanai-kazahstan-kostanay-eb28d48c5f.webp",
+      "lightBackground": false,
+      "sha256": "eb28d48c5fdaf4b031429b67c044556e49676296f945e92ef69a3a5c05dec468"
+    },
+    {
+      "channel": "Altai (Казахстан Оскемен)",
+      "file": "altai-kazahstan-oskemen-1c5ea6334a.webp",
+      "lightBackground": false,
+      "sha256": "1c5ea6334a8249a99f60509382380de7dfdcb2961a7e39aeabf3648029d43c83"
+    },
+    {
+      "channel": "Qyzyljar (Казахстан Петропавловск)",
+      "file": "qyzyljar-kazahstan-petropavlovsk-37abe5b8df.webp",
+      "lightBackground": false,
+      "sha256": "37abe5b8df1aaab5e824609d277a8597a11bee0a489514df17d453a1c53002a8"
+    },
+    {
+      "channel": "Saryarqa (Казахстан Караганда)",
+      "file": "saryarqa-kazahstan-karaganda-c8a3e9dc85.webp",
+      "lightBackground": false,
+      "sha256": "c8a3e9dc85f2975cead1cb443a9ef2163a559e39f4ab6549d2a766972b183825"
+    },
+    {
+      "channel": "Kókshe (Казахстан Кокшетау)",
+      "file": "kokshe-kazahstan-koksetau-1235c90121.webp",
+      "lightBackground": false,
+      "sha256": "1235c901217146a40d4038b088be1bfa974b133431c45cb0ea1647ec7b606bd2"
+    },
+    {
+      "channel": "Qyzylorda (Казахстан Кызылорда)",
+      "file": "qyzylorda-kazahstan-kyzylorda-111d1bab7a.webp",
+      "lightBackground": false,
+      "sha256": "111d1bab7ab6d3c7e88ff0611a6d654ec0b52dfed5241137ec1fd010b1e373b0"
+    },
+    {
+      "channel": "Semei",
+      "file": "semei-71b467c652.webp",
+      "lightBackground": false,
+      "sha256": "71b467c652978bcb61801ba1b88681b528cdb140de5ff9fe50ad04f627f13573"
+    },
+    {
+      "channel": "Премиум Кино HD",
+      "file": "premium-kino-hd-8584554182.webp",
+      "lightBackground": false,
+      "sha256": "85845541825cc920085412a1e94d7163bba188547788c624471cea91b97a3b7e"
+    },
+    {
+      "channel": "Мировое Кино HD",
+      "file": "mirovoe-kino-hd-263b0642c6.webp",
+      "lightBackground": false,
+      "sha256": "263b0642c6ecd0e6dbc1a014625e4aacd72b7148ff575fe4297ebbcb9c6ee5fc"
+    },
+    {
+      "channel": "Семейное кино HD",
+      "file": "semeynoe-kino-hd-0646aa7ac6.webp",
+      "lightBackground": false,
+      "sha256": "0646aa7ac66adb11d53b63d86b51d7de751b18c481e7f8231b6da87f72916fca"
+    },
+    {
+      "channel": "Кинобоевик HD",
+      "file": "kinoboevik-hd-078fb5cc71.webp",
+      "lightBackground": false,
+      "sha256": "078fb5cc71316be8f785cc854f25ba09e238413297ec36a51f88e80945831aad"
+    },
+    {
+      "channel": "Women's Magazine HD",
+      "file": "women-s-magazine-hd-9931e40a7c.webp",
+      "lightBackground": true,
+      "sha256": "9931e40a7c16f33fdc001cf50571217972b16bdf92133c3d44c63b10faca0325"
+    },
+    {
+      "channel": "Диалоги о Рыбалке",
+      "file": "dialogi-o-rybalke-6af6395d3f.webp",
+      "lightBackground": false,
+      "sha256": "6af6395d3f6f12599f3b08312d1c3b4eac25791652994b3d2117dcf369e72c0b"
+    },
+    {
+      "channel": "Наша Тема",
+      "file": "nasa-tema-35c5151b65.webp",
+      "lightBackground": false,
+      "sha256": "35c5151b652c81de3dfe3b33082801d0f5ce133f18bb091fc061fac3d0f310a3"
+    },
+    {
+      "channel": "Киноман",
+      "file": "kinoman-e4111cf64c.webp",
+      "lightBackground": false,
+      "sha256": "e4111cf64cd4ffa322744fcfc5654969ce1d5132cb3d7eeeea8e13469d6e6458"
+    },
+    {
+      "channel": "FlixSnip HD",
+      "file": "flixsnip-hd-5f98c3e0ba.webp",
+      "lightBackground": false,
+      "sha256": "5f98c3e0baa97dfecbf33b08c22185833a7d87544a842b7c2e3c8213c1fcf3e3"
+    },
+    {
+      "channel": "Q Football",
+      "file": "q-football-7ac0cffadf.webp",
+      "lightBackground": false,
+      "sha256": "7ac0cffadf28ba962b262778e3c5e2611b3a9a49f68bf1483faaf3a5564514c7"
+    },
+    {
+      "channel": "Зал суда",
+      "file": "zal-suda-519eb3df82.webp",
+      "lightBackground": false,
+      "sha256": "519eb3df8267fead2dbee3b41dbd2c6fb2f763dc438051dc68cad7b2a4477d20"
+    },
+    {
+      "channel": "Gagsnetwork",
+      "file": "gagsnetwork-5667559244.webp",
+      "lightBackground": false,
+      "sha256": "566755924486733a8984a1c486713c67454c306592c0a8af027196502f9e28bb"
+    },
+    {
+      "channel": "Лёва",
+      "file": "leva-6264d9ca69.webp",
+      "lightBackground": false,
+      "sha256": "6264d9ca69a261ce2a4ecc91879f6f00aa1fea96f3cbce2490a5fa64328a41c5"
+    },
+    {
+      "channel": "Мультиландия",
+      "file": "mul-tilandia-593426d057.webp",
+      "lightBackground": false,
+      "sha256": "593426d057e2ebc8b363c778b6d502cb66d46d8b91a138a2e91aa9fbb50efb67"
+    },
+    {
+      "channel": "Trace Sport Stars HD",
+      "file": "trace-sport-stars-hd-bf23bb91bc.webp",
+      "lightBackground": false,
+      "sha256": "bf23bb91bc90c634648d4dd0f68adea87165bac79a5a373afdfbb71d82bf8432"
+    },
+    {
+      "channel": "Trace Urban HD",
+      "file": "trace-urban-hd-7fcd794da3.webp",
+      "lightBackground": true,
+      "sha256": "7fcd794da301916574a47682c719358065a7b361f7e579b35ff2ec0229aeb33e"
+    },
+    {
+      "channel": "Лапки LIVE",
+      "file": "lapki-live-e4e25844c3.webp",
+      "lightBackground": false,
+      "sha256": "e4e25844c3053db9bb6dc3919b0761b4b2b26eb9b90db4690b73c31a01c9e290"
+    },
+    {
+      "channel": "SHOW KZ",
+      "file": "show-kz-171c9a5156.webp",
+      "lightBackground": false,
+      "sha256": "171c9a5156c06909afe7192b006d47d851870a770f8cb2aed15654a8bc643e72"
+    },
+    {
+      "channel": "Аппетитный",
+      "file": "appetitnyy-2f1a588972.webp",
+      "lightBackground": false,
+      "sha256": "2f1a588972e79a946f955da1b3db9d96257357612d1011e99ee9f35e540c1cdc"
+    },
+    {
+      "channel": "Супергерой (малыш)",
+      "file": "supergeroy-malys-bc67f6451a.webp",
+      "lightBackground": false,
+      "sha256": "bc67f6451a085e114af22dc8cf0235c04f7ef2b3ff7ddedcfeda74dd2293f621"
+    },
+    {
+      "channel": "Cartoon Classics",
+      "file": "cartoon-classics-b8f402fa6e.webp",
+      "lightBackground": false,
+      "sha256": "b8f402fa6e549a7cffb0aaf97f4b5c81d28748e33bffd6a0276edcaf6de22f65"
+    },
+    {
+      "channel": "AQTÓBE (Казахстан Актобе)",
+      "file": "aqtobe-kazahstan-aktobe-1cd01e9f3b.webp",
+      "lightBackground": false,
+      "sha256": "1cd01e9f3b5530ed73f26fe7a89b202b58d069a8992943ae622ab902100d951a"
+    },
+    {
+      "channel": "мама",
+      "file": "mama-40ff0c2be8.webp",
+      "lightBackground": false,
+      "sha256": "40ff0c2be841a0e992cd6e399f622153501a00fd67d0a2bf3e31bd66b939e760"
+    },
+    {
+      "channel": "Киномульт",
+      "file": "kinomul-t-4cc875fcb8.webp",
+      "lightBackground": false,
+      "sha256": "4cc875fcb8aeb11442fd226f35bac973f616f584e61e1083bdbfca37ce725c96"
+    },
+    {
+      "channel": "АВТО 24",
+      "file": "avto24-avto-24-9b3341355c.webp",
+      "lightBackground": true,
+      "sha256": "9b3341355c60b44ce8e20b89adb04fd80e489c9989f3c5b7f0cf4277079d4682"
+    },
+    {
+      "channel": "Любимое Кино",
+      "file": "lubimoe-kino-nase-lubimoe-kino-b7d64395d3.webp",
+      "lightBackground": false,
+      "sha256": "b7d64395d3c45fd1bc9211467553911db020104d269d424d1a88c541d897ee4e"
+    },
+    {
+      "channel": "МИР 24",
+      "file": "mir-24-mir-24-0bd7c37e9b.webp",
+      "lightBackground": false,
+      "sha256": "0bd7c37e9b3c491c5a417a725287c4259d58d4bf066b03fbe80533bd39ad6f84"
+    },
+    {
+      "channel": "Мир сериала",
+      "file": "mir-seriala-8095179a20.webp",
+      "lightBackground": false,
+      "sha256": "8095179a20a3cf59b4cefd724d62ea9569d4350ef1c07eab728113a01a5c6afb"
+    },
+    {
+      "channel": "Мир увлечений",
+      "file": "mir-uvleceniy-5014c2e2e5.webp",
+      "lightBackground": false,
+      "sha256": "5014c2e2e568890789949408f2547c5a005f2fbdd0c6807693546eff44cbb2d0"
+    },
+    {
+      "channel": "НСТ",
+      "file": "nst-nstv-fd0fa315bc.webp",
+      "lightBackground": true,
+      "sha256": "fd0fa315bc1bfe79281aedd92ef9162b17d9d2525baff066e29a53b80f74c7e7"
+    },
+    {
+      "channel": "О!",
+      "file": "o-o-33808ca440.webp",
+      "lightBackground": false,
+      "sha256": "33808ca4405e25b764d9b4230f4bcc998e6d1771dfdaed39d21e73a6ef9ce0d9"
+    },
+    {
+      "channel": "Пятница International",
+      "file": "patnica-international-9348170e40.webp",
+      "lightBackground": true,
+      "sha256": "9348170e409a76b36f19477f8c5785ac4b8022d38c40050d8a59c50755b8c03d"
+    },
+    {
+      "channel": "Пятый канал (5 канал int)",
+      "file": "5-kanal-kazahstan-ea45b658a6.webp",
+      "lightBackground": false,
+      "sha256": "ea45b658a6172b8946482efacd919e179f7626183cd6d0ee9bbe1f5d4a370d61"
+    },
+    {
+      "channel": "РТР-Планета (Россия)",
+      "file": "rtr-planeta-aeade487bf.webp",
+      "lightBackground": false,
+      "sha256": "aeade487bfb15fd8e9ec74d065ef7557f3a4ca03f064ebd5bece6d19524b7748"
+    },
+    {
+      "channel": "Рыбалка и охота",
+      "file": "rybalka-i-ohota-rybalka-i-ohota-int-aeae0aee2a.webp",
+      "lightBackground": false,
+      "sha256": "aeae0aee2ae21db0143141de9db144d5c10a451a6caa82ca34ea88d794b383b6"
+    },
+    {
+      "channel": "Супергерой",
+      "file": "supergeroy-malys-bc67f6451a.webp",
+      "lightBackground": false,
+      "sha256": "bc67f6451a085e114af22dc8cf0235c04f7ef2b3ff7ddedcfeda74dd2293f621"
+    },
+    {
+      "channel": "Т24",
+      "file": "t24-tehno-24-db231d87a2.webp",
+      "lightBackground": true,
+      "sha256": "db231d87a21221e64e60c80624f4c5bb208cf06f50ebbbb280176436748bfbc0"
+    },
+    {
+      "channel": "ТВ 3 International",
+      "file": "tv-3-international-5f1ef2d96c.webp",
+      "lightBackground": true,
+      "sha256": "5f1ef2d96c9436ec9c8ffb4d5c29d4489594ee49f175aba5e83b21430920d1c5"
+    },
+    {
+      "channel": "ТНТ MUSIC",
+      "file": "tnt-music-tnt-music-d0490d9187.webp",
+      "lightBackground": false,
+      "sha256": "d0490d91870b22219e299b8c77b1743c927b103f72aa93ae09a93cc3136c6135"
+    },
+    {
+      "channel": "Уникум",
+      "file": "unikum-detskiy-2b2307d277.webp",
+      "lightBackground": false,
+      "sha256": "2b2307d277210269427f7293876a3940139a9e9e9c2a2c386ec33b879821644f"
+    },
+    {
+      "channel": "Astana TV",
+      "file": "astana-tv-astana-7449f1f09e.webp",
+      "lightBackground": false,
+      "sha256": "7449f1f09e1b4b927b6d3f4e8b46b7ae2af7257721a8b5acb1d5e9bb3a7d8f8c"
+    },
+    {
+      "channel": "Cartoon Network",
+      "file": "cartoonnetwork-dfc3d1271a.webp",
+      "lightBackground": true,
+      "sha256": "dfc3d1271a67a7a1f67d42708f18ff3ca5d6d812ab005075f2448fa5d36dd497"
+    },
+    {
+      "channel": "CINEMA",
+      "file": "cinema-cinema-ab630b8b79.webp",
+      "lightBackground": false,
+      "sha256": "ab630b8b79e93788e5b4352a6d459453f5953d54669be0c192a7f9e3d41cf53c"
+    },
+    {
+      "channel": "Eurosport 1",
+      "file": "eurosport-1-hd-3cc8004829.webp",
+      "lightBackground": true,
+      "sha256": "3cc8004829423d02e1750c9646e4d5e3bf42f018b58f8a0e354657d4a0455c75"
+    },
+    {
+      "channel": "Eurosport 2",
+      "file": "eurosport-2-hd-a952c044a7.webp",
+      "lightBackground": true,
+      "sha256": "a952c044a711357c644bd40a5968bd160144d974565861f10f63ac4feb97ddec"
+    },
+    {
+      "channel": "Fashion & LifeStyle HD",
+      "file": "fashion-lifestyle-hd-fashion-one-hd-359eaa64a6.webp",
+      "lightBackground": false,
+      "sha256": "359eaa64a627362e7f17f071af5e6a0d11ee00385251139903958901c12583fc"
+    },
+    {
+      "channel": "FILMUADrama",
+      "file": "filmuadrama-hd-filmuadrama-058542e28a.webp",
+      "lightBackground": false,
+      "sha256": "058542e28a36d8582ab5f7157c944fa81bb6b8b86c796cf34fcb33a967f05f39"
+    },
+    {
+      "channel": "HIT TV",
+      "file": "hit-tv-hittv-abb3a04698.webp",
+      "lightBackground": false,
+      "sha256": "abb3a046989d51ac1960a2e4d292e6db051d864295a2b12aabfc7c82d1409c2d"
+    },
+    {
+      "channel": "Jambyl",
+      "file": "jambyl-kazahstan-taraz-3dbccce118.webp",
+      "lightBackground": false,
+      "sha256": "3dbccce118921c0ba9a79adfb08d12bafe0743ca8c28a6563c3c907cf6c83c6e"
+    },
+    {
+      "channel": "MUZZONE",
+      "file": "muzzone-muzzone-62e98d6c1a.webp",
+      "lightBackground": false,
+      "sha256": "62e98d6c1a47b059a92c53b19064ac012927b5c1a8b2d650d7adeb61bc874d68"
+    },
+    {
+      "channel": "Setanta Qazaqstan HD",
+      "file": "setanta-qazaqstan-hd-setanta-kazahstan-hd-ru-0d2ae72197.webp",
+      "lightBackground": false,
+      "sha256": "0d2ae72197f7e1e31d630665c358cac3c80de780f582f2defb29180c6828bb75"
+    },
+    {
+      "channel": "Setanta Sports 1 HD",
+      "file": "setanta-sports-1-hd-4e7a9fc5e8.webp",
+      "lightBackground": false,
+      "sha256": "4e7a9fc5e8c17f1f376bc6415fc5773d9fc77ecf6b8ba500efcd94ed0518ed92"
+    },
+    {
+      "channel": "Setanta Sports 2 HD",
+      "file": "setanta-sports-2-hd-3f661cf611.webp",
+      "lightBackground": false,
+      "sha256": "3f661cf6119e77dfa6e68a6edfc5912b19234fec8650e890ddeccb9837de01fb"
+    },
+    {
+      "channel": "TiJi",
+      "file": "tiji-febc970427.webp",
+      "lightBackground": false,
+      "sha256": "febc9704273fc772c67e603a6338610331c70ebba5022b3c27e294609c5ee2b9"
+    },
+    {
+      "channel": "Turan TV",
+      "file": "turan-tv-turan-tv-e6eca770e8.webp",
+      "lightBackground": false,
+      "sha256": "e6eca770e87079ac56c26471af4d5d5695f68b8200e5948058e4a76a2f2a8763"
+    },
+    {
+      "channel": "viju TV1000 Action HD",
+      "file": "viju-tv-1000-action-hd-997c2d58c8.webp",
+      "lightBackground": true,
+      "sha256": "997c2d58c820c9e8cc3546196072b54d5ac3f59c34049bf7d5a72bc704b90d70"
+    },
+    {
+      "channel": "viju TV1000 HD",
+      "file": "viju-tv-1000-hd-40386e18ec.webp",
+      "lightBackground": true,
+      "sha256": "40386e18ecfb5cd5168259496597b5bdd46d181c5e8440c0d9c9d1ff4b78b3dd"
+    },
+    {
+      "channel": "viju+ Serial HD",
+      "file": "vip-serial-hd-e2406fb9df.webp",
+      "lightBackground": true,
+      "sha256": "e2406fb9df0f0fcfedcac3b41a06fb6a1fc435af77659736402dc89c15b735ac"
+    },
+    {
+      "channel": "Zooпарк",
+      "file": "zoopark-eda92a7e9b.webp",
+      "lightBackground": false,
+      "sha256": "eda92a7e9ba6d79f873aa122225e5409eb41d33ec86e9a20480060a2d23d3b33"
+    },
+    {
+      "channel": "КТК HD",
+      "file": "ktk-hd-38cc666f77.webp",
+      "lightBackground": false,
+      "sha256": "38cc666f775d262929243cc4fa5d2453dda7ac4db209c2df7722de6440b00153"
+    },
+    {
+      "channel": "Новое Телевидение HD",
+      "file": "novoe-televidenie-hd-e4d915a08f.webp",
+      "lightBackground": false,
+      "sha256": "e4d915a08fff3b6c0ec4488a2023e9d63ea7c4cafbb12287e0e1904a7ab417fa"
+    },
+    {
+      "channel": "Алау-ТВ (Алау)",
+      "file": "alau-tv-alau-c443803d3c.webp",
+      "lightBackground": false,
+      "sha256": "c443803d3c7b144f4d5db90b3800c89c09a7b3735e8b891f26058cf44ffe7c30"
+    },
+    {
+      "channel": "Алау ТВ",
+      "file": "alau-tv-alau-c443803d3c.webp",
+      "lightBackground": false,
+      "sha256": "c443803d3c7b144f4d5db90b3800c89c09a7b3735e8b891f26058cf44ffe7c30"
+    },
+    {
+      "channel": "Умка",
+      "file": "umka-435d8e008e.webp",
+      "lightBackground": false,
+      "sha256": "435d8e008e619e38ebcfec68d5404980a9f36f633acd46fdf48f2d3f34b92fdc"
+    },
+    {
+      "channel": "Nickelodeon RU",
+      "file": "nickelodeon-ru-c081b79904.webp",
+      "lightBackground": false,
+      "sha256": "c081b79904a314044fc72d846f03ea7ac26c5b83f7572c82aa9d3bf6496dac5f"
+    },
+    {
+      "channel": "TiJi RU",
+      "file": "tiji-febc970427.webp",
+      "lightBackground": false,
+      "sha256": "febc9704273fc772c67e603a6338610331c70ebba5022b3c27e294609c5ee2b9"
+    },
+    {
+      "channel": "viju TV 1000 Русское кино HD",
+      "file": "viju-tv-1000-russkoe-kino-hd-48f6298144.webp",
+      "lightBackground": true,
+      "sha256": "48f6298144993706e4edac44d17471d8447392b7d596b664ab8fa16799fb844e"
+    },
+    {
+      "channel": "viju TV1000 Русское кино HD",
+      "file": "viju-tv-1000-russkoe-kino-hd-48f6298144.webp",
+      "lightBackground": true,
+      "sha256": "48f6298144993706e4edac44d17471d8447392b7d596b664ab8fa16799fb844e"
+    },
+    {
+      "channel": "Дом кино Premium HD",
+      "file": "dom-kino-premium-hd-7b25bddf4a.webp",
+      "lightBackground": false,
+      "sha256": "7b25bddf4a4f63ef608f63724bddf97f14923f6791a92b799ff1d91a2a2a9ca4"
+    },
+    {
+      "channel": "СТС International",
+      "file": "sts-international-fd001ee80e.webp",
+      "lightBackground": false,
+      "sha256": "fd001ee80e5f314ef7d51fe42df604b5334aa9a062ac21431f30f0cc8100cf15"
+    },
+    {
+      "channel": "Setanta Sports 1 HD RU(Сетанта Спорт HD)",
+      "file": "setanta-sports-1-hd-4e7a9fc5e8.webp",
+      "lightBackground": false,
+      "sha256": "4e7a9fc5e8c17f1f376bc6415fc5773d9fc77ecf6b8ba500efcd94ed0518ed92"
+    },
+    {
+      "channel": "Setanta Sports 2 HD RU (Сетанта Спорт 2 HD)",
+      "file": "setanta-sports-2-hd-3f661cf611.webp",
+      "lightBackground": false,
+      "sha256": "3f661cf6119e77dfa6e68a6edfc5912b19234fec8650e890ddeccb9837de01fb"
+    },
+    {
+      "channel": "Extreme Sports",
+      "file": "extreme-sports-1d4f2ec2e1.webp",
+      "lightBackground": true,
+      "sha256": "1d4f2ec2e1eaff59b6831cedadc9ba5f98dccd5ceeb9389da981f86ac0dee9aa"
+    },
+    {
+      "channel": "Удар HD",
+      "file": "udar-hd-5113de9346.webp",
+      "lightBackground": true,
+      "sha256": "5113de934655c9fe6b10ad86673e6502fcf10ac7a67a7ccd9fa28010a77a1e8c"
+    },
+    {
+      "channel": "Atameken Business Channel HD",
+      "file": "atameken-business-channel-hd-6a32d89a14.webp",
+      "lightBackground": true,
+      "sha256": "6a32d89a1470e6998b31e6cb4ab418c89f4cf33e38ca9d722445029360ec014d"
+    },
+    {
+      "channel": "Той Думан",
+      "file": "toy-duman-5fdd32359b.webp",
+      "lightBackground": false,
+      "sha256": "5fdd32359bbe5d03c0d9c4f5916ec16460543c47cf7a8dbfb3b6958c232c153e"
+    },
+    {
+      "channel": "Zоопарк (Зоопарк)",
+      "file": "zoopark-eda92a7e9b.webp",
+      "lightBackground": false,
+      "sha256": "eda92a7e9ba6d79f873aa122225e5409eb41d33ec86e9a20480060a2d23d3b33"
+    },
+    {
+      "channel": "Перец",
+      "file": "perec-da820d29af.webp",
+      "lightBackground": true,
+      "sha256": "da820d29afd4af43c06e8e3714df7123adb599c95328a61e1345338edd8ae78a"
+    },
+    {
+      "channel": "Туркестан",
+      "file": "turkestan-30239f640b.webp",
+      "lightBackground": false,
+      "sha256": "30239f640bee42ab16cd70147e6f95e177f67f4028ef6e02f4d0071f8e028931"
+    },
+    {
+      "channel": "ТДК 42 (ТДК-42)",
+      "file": "tdk-42-tdk-42-a5185e6336.webp",
+      "lightBackground": false,
+      "sha256": "a5185e6336951d86e077d1fff59745aabee7e70beb73717e2f28a08d0792df9e"
+    },
+    {
+      "channel": "ТДК-42",
+      "file": "tdk-42-tdk-42-a5185e6336.webp",
+      "lightBackground": false,
+      "sha256": "a5185e6336951d86e077d1fff59745aabee7e70beb73717e2f28a08d0792df9e"
+    },
+    {
+      "channel": "Ирбис TV (Irbis)",
+      "file": "irbis-tv-irbis-708454da8d.webp",
+      "lightBackground": false,
+      "sha256": "708454da8d4815232392a2ca16e6db545477c343b19ad131d518eeca84236445"
+    },
+    {
+      "channel": "Айғак (Айгак)",
+      "file": "ayak-aygak-bfae182acb.webp",
+      "lightBackground": false,
+      "sha256": "bfae182acb88ddd784298b546d31c2531adf29926abe348d354e4f154a153a2b"
+    },
+    {
+      "channel": "Отырар-TV (Отырар)",
+      "file": "otyrar-tv-otyrar-1dbdb4a2df.webp",
+      "lightBackground": false,
+      "sha256": "1dbdb4a2dffb6636e0015521c249c8261320094887a5a6d0dbf56ebf6813d82b"
+    },
+    {
+      "channel": "Жетісу (Жетысу)",
+      "file": "jetsu-jetysu-6d59b51dff.webp",
+      "lightBackground": true,
+      "sha256": "6d59b51dffe74a6ac96602b3112c6f80d5a20196273b759195204fd3be434778"
+    },
+    {
+      "channel": "Жетiсу",
+      "file": "jetsu-jetysu-6d59b51dff.webp",
+      "lightBackground": true,
+      "sha256": "6d59b51dffe74a6ac96602b3112c6f80d5a20196273b759195204fd3be434778"
+    },
+    {
+      "channel": "Aqjaıyq (Казахстан Орал)",
+      "file": "aqjayq-kazahstan-oral-969eb4ec96.webp",
+      "lightBackground": false,
+      "sha256": "969eb4ec9626813e8e6b0e9c7c13e5e9b5a1c5fc736e1f73c9370368f54848d2"
+    },
+    {
+      "channel": "Kөktem",
+      "file": "kktem-f94c710900.webp",
+      "lightBackground": false,
+      "sha256": "f94c710900f961fc447080779c53d980b945df4672683b9ed243e5e0bd6f0a5f"
+    },
+    {
+      "channel": "QAZAQSTAN HD int",
+      "file": "qazaqstan-hd-int-e802be30ea.webp",
+      "lightBackground": true,
+      "sha256": "e802be30ea7b0a851641099e975d6fca356863f481c3eb13f8bea9708b91bbf0"
+    },
+    {
+      "channel": "Еда Premium HD",
+      "file": "eda-premium-hd-95ced4a7f1.webp",
+      "lightBackground": false,
+      "sha256": "95ced4a7f1c31e5773f2acc8dc49e289900ca370be42ca87c2490a9a347cb58e"
+    },
+    {
+      "channel": "Setanta Sport KZ+",
+      "file": "setanta-sport-kz-56b3bc8288.webp",
+      "lightBackground": true,
+      "sha256": "56b3bc8288ac02df9a8732e65562dc041e8e456fb8e84d38d2f7e2a980460cb4"
+    },
+    {
+      "channel": "AQTOBE",
+      "file": "aqtobe-48ec59a12c.webp",
+      "lightBackground": true,
+      "sha256": "48ec59a12cb6a9df2b5ff97e93df1dccbb99add4c7680ea1ced1025f3590e89e"
+    },
+    {
+      "channel": "Dostyq TV",
+      "file": "dostyq-tv-d3901a0d89.webp",
+      "lightBackground": false,
+      "sha256": "d3901a0d89255ba174c58d46bc890666e023eb769652f5c1d091d2c9b520d5f6"
+    },
+    {
+      "channel": "Live 5",
+      "file": "live-5-c56ff31cb2.webp",
+      "lightBackground": true,
+      "sha256": "c56ff31cb2b42128c9ea00c3cdfb33ac52ade3188116fd42d3cfecc60a9d0855"
+    },
+    {
+      "channel": "BeeTV Семейные мелодрамы",
+      "file": "beetv-semeynye-melodramy-a91cafe277.webp",
+      "lightBackground": true,
+      "sha256": "a91cafe277cd80776ff2d9d82e4d9446900554532608395fa84579fd47b0fdeb"
+    },
+    {
+      "channel": "BeeTV Орел и Решка",
+      "file": "beetv-orel-i-reska-1ffa3fa0b1.webp",
+      "lightBackground": true,
+      "sha256": "1ffa3fa0b1bb233cd9dd8c67b73db8f909e6435dcbbc143e54bcb095ac3cf2f7"
+    },
+    {
+      "channel": "BeeTV Вещдок",
+      "file": "beetv-vesdok-85505a970a.webp",
+      "lightBackground": true,
+      "sha256": "85505a970a71b20aabfe5717819502d9372c51fd17ad84df10bd87b590673f35"
+    },
+    {
+      "channel": "77 TV",
+      "file": "77-tv-9b3b137e93.webp",
+      "lightBackground": false,
+      "sha256": "9b3b137e93f28b1f51880deaa5fee51e71c21da372796e24906e4e8821293309"
+    },
+    {
+      "channel": "Твоё Телевидение",
+      "file": "tvoe-televidenie-87cd06f525.webp",
+      "lightBackground": true,
+      "sha256": "87cd06f5259f7f44af16765aab6a2841238719b24d64fc69f04b651da54cd2b9"
+    },
+    {
+      "channel": "Первый канал СНГ",
+      "file": "pervyy-kanal-sng-d3f204299c.webp",
+      "lightBackground": true,
+      "sha256": "d3f204299cbb4d565718194a3e9c8ae14e5270bbd394f3c2dc5535281e2682af"
+    },
+    {
+      "channel": "5 канал int",
+      "file": "5-kanal-int-863a75f3ab.webp",
+      "lightBackground": false,
+      "sha256": "863a75f3ab58af041e4bed5c12c3f6321594fa53d9c87b2ee8f528772b9fb8ad"
+    },
+    {
+      "channel": "Центральные Телевидение (Центральное ТВ)",
+      "file": "central-nye-televidenie-central-noe-tv-e15a38539b.webp",
+      "lightBackground": true,
+      "sha256": "e15a38539b381849824067beefdffec49f3c079b65240b89ec41448820553717"
+    },
+    {
+      "channel": "BBC World News HD (BBC World)",
+      "file": "bbc-world-news-hd-bbc-world-0c2d57007a.webp",
+      "lightBackground": true,
+      "sha256": "0c2d57007a026951fa4ce9036a781b207152d7c40d0fe5d6d17909817978d83e"
+    },
+    {
+      "channel": "BBC World News HD",
+      "file": "bbc-world-news-hd-bbc-world-0c2d57007a.webp",
+      "lightBackground": true,
+      "sha256": "0c2d57007a026951fa4ce9036a781b207152d7c40d0fe5d6d17909817978d83e"
+    },
+    {
+      "channel": "BeeTV Movies",
+      "file": "beetv-movies-cf331149ca.webp",
+      "lightBackground": true,
+      "sha256": "cf331149ca115946eebd39ecbd16f8644b2ea80e122df92ce805ea7b1fadd2d3"
+    },
+    {
+      "channel": "Dostyk Eurasia",
+      "file": "dostyk-eurasia-22253acce5.webp",
+      "lightBackground": false,
+      "sha256": "22253acce505c01ffc6de1bbd78a105d9c3b89040e2ef6320c45d20ad1863412"
+    },
+    {
+      "channel": "Dostyk Eurasian",
+      "file": "dostyk-eurasia-22253acce5.webp",
+      "lightBackground": false,
+      "sha256": "22253acce505c01ffc6de1bbd78a105d9c3b89040e2ef6320c45d20ad1863412"
+    },
+    {
+      "channel": "Curiosity HD",
+      "file": "curiosity-hd-ff247905f5.webp",
+      "lightBackground": true,
+      "sha256": "ff247905f50ba6613ce3635b2e6b25e244c784177f7840e1cf23f0d879fab73b"
+    },
+    {
+      "channel": "Среда",
+      "file": "sreda-0c3d2ed78f.webp",
+      "lightBackground": false,
+      "sha256": "0c3d2ed78f35922df52d2ed04b5099a2c1c2232a683f4f0791a7a76226a7c628"
+    },
+    {
+      "channel": "Семейные мелодрамы",
+      "file": "semeynye-melodramy-83bf6bb167.webp",
+      "lightBackground": true,
+      "sha256": "83bf6bb16795365b94b96a736bf6ec6502852780e807037f249f2418fdc8099d"
+    },
+    {
+      "channel": "Орел и Решка",
+      "file": "orel-i-reska-5170dbcf0d.webp",
+      "lightBackground": true,
+      "sha256": "5170dbcf0d08039dce95da8cf0856d34ec9f76699585755b5e6da06557eb33bb"
+    },
+    {
+      "channel": "Вещдок",
+      "file": "vesdok-448d230176.webp",
+      "lightBackground": true,
+      "sha256": "448d230176a4e25510fbaba077bf5b5b17bd36b7f503fd7dcaa89333172e1aca"
+    },
+    {
+      "channel": "TB 3 International",
+      "file": "tv-3-international-5f1ef2d96c.webp",
+      "lightBackground": true,
+      "sha256": "5f1ef2d96c9436ec9c8ffb4d5c29d4489594ee49f175aba5e83b21430920d1c5"
+    },
+    {
+      "channel": "ТВ21",
+      "file": "tv21-f63e61a49f.webp",
+      "lightBackground": true,
+      "sha256": "f63e61a49f9cc7e387f297d080970719f5a897b4b3a296dc21c7bdef1b803c0e"
+    },
+    {
+      "channel": "TV ХХI",
+      "file": "tv21-f63e61a49f.webp",
+      "lightBackground": true,
+      "sha256": "f63e61a49f9cc7e387f297d080970719f5a897b4b3a296dc21c7bdef1b803c0e"
+    },
+    {
+      "channel": "Comedy Central",
+      "file": "comedy-central-564cd6b21b.webp",
+      "lightBackground": true,
+      "sha256": "564cd6b21b9ed9bf6b527e00686a605a5010d78b62fc53cf9e24f7a5f7955854"
+    },
+    {
+      "channel": "MTV Live HD",
+      "file": "mtv-live-hd-82dcf0c60a.webp",
+      "lightBackground": true,
+      "sha256": "82dcf0c60af8714f90776b58ca3545e2ca73c71a2e3531805b173cf31bc86b26"
+    },
+    {
+      "channel": "viju Explorer HD",
+      "file": "viju-explorer-hd-1165c54363.webp",
+      "lightBackground": true,
+      "sha256": "1165c5436356ff5f7dc65e701b4f7234b742973b046b06ab7564b3d631e65b2a"
+    },
+    {
+      "channel": "Новый игровой канал",
+      "file": "novyy-igrovoy-kanal-50dbd9a695.webp",
+      "lightBackground": true,
+      "sha256": "50dbd9a695d953135fda0ee43e6bce0cf74820d662a4f0e514e7964bab632119"
+    },
+    {
+      "channel": "Народ всё видит",
+      "file": "narod-vse-vidit-9c3f3323f8.webp",
+      "lightBackground": true,
+      "sha256": "9c3f3323f833fe332a2f4d7bc2e861032ba42f96fa8e5a8c542f9b3f3dc35528"
+    },
+    {
+      "channel": "Q ARENA HD",
+      "file": "q-arena-hd-b8c5a13dc5.webp",
+      "lightBackground": true,
+      "sha256": "b8c5a13dc5feef41220def547a232883b63de4e4e7325733fac06b418c1b619c"
+    },
+    {
+      "channel": "Q Arena HD (Qsport international HD)",
+      "file": "q-arena-hd-b8c5a13dc5.webp",
+      "lightBackground": true,
+      "sha256": "b8c5a13dc5feef41220def547a232883b63de4e4e7325733fac06b418c1b619c"
+    },
+    {
+      "channel": "Тараз 24",
+      "file": "taraz-24-f64f7ed329.webp",
+      "lightBackground": true,
+      "sha256": "f64f7ed3296d0cf9fa9d92357acad59caffccce8aabd61c376d4e14c59876910"
+    },
+    {
+      "channel": "Q Live 1",
+      "file": "q-live-1-54b5e58802.webp",
+      "lightBackground": false,
+      "sha256": "54b5e58802d6151fb263523f68c687f434ea1ade8af953f5e85aad728b46d0b4"
+    },
+    {
+      "channel": "Q Live 2",
+      "file": "q-live-2-d7a2781bed.webp",
+      "lightBackground": false,
+      "sha256": "d7a2781bed7fd951b328cb94dc1907516398730ac695f48240219b58b1d086b6"
+    },
+    {
+      "channel": "Q Live 3 (wimbledon)",
+      "file": "q-live-3-wimbledon-028a124f64.webp",
+      "lightBackground": false,
+      "sha256": "028a124f64de29c3b735381b58ce333ed5f5a481cf0f722a49e55703374b42f2"
+    },
+    {
+      "channel": "Q Live 4",
+      "file": "q-live-4-0d0511af88.webp",
+      "lightBackground": false,
+      "sha256": "0d0511af88b0cdd4ce8e1d2d8eff038dd99d694571ffdef4d89d34f56c25d404"
+    },
+    {
+      "channel": "Romance",
+      "file": "romance-7f36e382cf.webp",
+      "lightBackground": true,
+      "sha256": "7f36e382cf585782a0933c3ef7e6bd08ab92d335f46790337fa34f4135cfab10"
+    },
+    {
+      "channel": "RomanceChannel",
+      "file": "romance-7f36e382cf.webp",
+      "lightBackground": true,
+      "sha256": "7f36e382cf585782a0933c3ef7e6bd08ab92d335f46790337fa34f4135cfab10"
+    },
+    {
+      "channel": "Suspense",
+      "file": "suspense-5f356787ac.webp",
+      "lightBackground": false,
+      "sha256": "5f356787ac08428053e0090ceeacd7cef167af60f9b05cfab65317d498f8bf38"
+    },
+    {
+      "channel": "ТНТ HD RU",
+      "file": "tnt-hd-5c0509eff7.webp",
+      "lightBackground": false,
+      "sha256": "5c0509eff72b3e07c8cc11cca3c02cf462342bacee5201ae11b92494ac051ed9"
+    }
+  ]
+}
