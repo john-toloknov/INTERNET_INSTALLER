@@ -3846,15 +3846,15 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
                             <h3>Данные адреса ППР</h3>
 
                             <label>Адрес ППР</label>
-                            <input type="text" id="tr-pprAddress" placeholder="просп. Республики 69/1">
+                            <input type="text" id="tr-pprAddress" required placeholder="просп. Республики 69/1">
 
                             <label>Логин ППР</label>
-                            <input type="text" id="tr-pprLogin" placeholder="0011998877">
+                            <input type="text" id="tr-pprLogin" required placeholder="0011998877">
 
                             <label>Место проведения ППР (можно выбрать несколько)</label>
                             <div class="custom-dropdown">
                                 <button type="button" class="dropdown-select-btn" id="tr-pprPlace-btn" onclick="toggleDropdown(event, 'tr-pprPlace-list')">Выберите место (-а)</button>
-                                <input type="hidden" id="tr-pprPlace" value="">
+                                <input type="hidden" id="tr-pprPlace" value="" aria-required="true">
                                 <div class="dropdown-list" id="tr-pprPlace-list">
                                     <label class="dropdown-item-checkbox"><input type="checkbox" value="ТКД" onchange="updateMultiSelect('tr-pprPlace', 'tr-pprPlace-btn', 'tr-pprPlace-list', 'Выберите место (-а)')"> ТКД</label>
                                     <label class="dropdown-item-checkbox"><input type="checkbox" value="Крыша" onchange="updateMultiSelect('tr-pprPlace', 'tr-pprPlace-btn', 'tr-pprPlace-list', 'Выберите место (-а)')"> Крыша</label>
@@ -3867,7 +3867,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
                             <label>Вид производимых работ (можно выбрать несколько)</label>
                             <div class="custom-dropdown">
                                 <button type="button" class="dropdown-select-btn" id="tr-pprWorkType-btn" onclick="toggleDropdown(event, 'tr-pprWorkType-list')">Выберите вид работ (-ы)</button>
-                                <input type="hidden" id="tr-pprWorkType" value="">
+                                <input type="hidden" id="tr-pprWorkType" value="" aria-required="true">
                                 <div class="dropdown-list" id="tr-pprWorkType-list">
                                     <label class="dropdown-item-checkbox"><input type="checkbox" value="Строительство новых плинтов" onchange="updateMultiSelect('tr-pprWorkType', 'tr-pprWorkType-btn', 'tr-pprWorkType-list', 'Выберите вид работ (-ы)')"> Строительство новых плинтов</label>
                                     <label class="dropdown-item-checkbox"><input type="checkbox" value="Замена существующих плинтов" onchange="updateMultiSelect('tr-pprWorkType', 'tr-pprWorkType-btn', 'tr-pprWorkType-list', 'Выберите вид работ (-ы)')"> Замена существующих плинтов</label>
@@ -3880,7 +3880,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
                             </div>
 
                             <label>Подъезд №</label>
-                            <input type="text" id="tr-pprEntrance" placeholder="1">
+                            <input type="text" id="tr-pprEntrance" required placeholder="1">
                         </div>
                         <div class="common-nav-row">
                             <button type="button" class="btn main-btn" onclick="nextPprStep(1)">Далее ➡️</button>
@@ -4787,20 +4787,15 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
 
     let usersDb = []; // Учётные записи загружаются только из листа сотрудников.
 
-    let accessDb = JSON.parse(localStorage.getItem('beeline_access_db')) || [
-        {
-            id: 'acc_1',
-            city: 'Темиртау',
-            address: 'ул. Мира, д. 25, кв. 42',
-            phone1: '+7 (700)-111-22-33',
-            phone2: '+7 (700)-444-55-66',
-            ksk: 'КСК «Восход», ул. Строителей 12',
-            roof: '1 подъезд',
-            intercom: 'К1234'
-        }
-    ];
+    function readStoredJson(key, fallback) {
+        try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+        catch (_) { return fallback; }
+    }
+    let accessDb = readStoredJson('beeline_access_db', []);
 
-    let currentUser = JSON.parse(localStorage.getItem('beeline_current_user')) || null;
+    if (!Array.isArray(accessDb)) accessDb = [];
+    let currentUser = readStoredJson('beeline_current_user', null);
+    if (!currentUser || typeof currentUser !== 'object' || Array.isArray(currentUser)) currentUser = null;
     // Очищаем ранее сохранённые копии с паролями до сетевых запросов.
     localStorage.removeItem('beeline_central_user');
     if (currentUser?.password) localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
@@ -4829,12 +4824,20 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         // Камера теперь инициализируется только при открытии экрана ТМЦ
     });
 
-    async function loadUsersFromSheet() {
+    let usersLoadPromise = null;
+    function loadUsersFromSheet() {
+        if (usersLoadPromise) return usersLoadPromise;
+        usersLoadPromise = loadUsersFromSheetOnce().finally(() => { usersLoadPromise = null; });
+        return usersLoadPromise;
+    }
+    async function loadUsersFromSheetOnce() {
+        const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
         try {
-            const response = await fetch(`${GLOBAL_AUTH_SALARY_URL}?action=getUsers`);
+            const response = await fetch(`${GLOBAL_AUTH_SALARY_URL}?action=getUsers`, {signal:controller.signal});
+            if (!response.ok) throw new Error('HTTP ' + response.status);
             const res = await response.json();
             if (res.status === 'ok' && Array.isArray(res.users)) {
-                let sheetUsers = res.users.map((u, index) => ({
+                let sheetUsers = res.users.filter(u => u && typeof u === 'object').map((u, index) => ({
                     id: u.id || ('user_' + index),
                     city: u.city,
                     fullName: u.fullName,
@@ -4861,7 +4864,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         } catch (e) {
             console.error("Ошибка загрузки пользователей из таблицы:", e);
             return false;
-        }
+        } finally { clearTimeout(timer); }
     }
 
     function applyPhoneMask(input) {
@@ -5152,6 +5155,8 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
             currentUser = {...owner, city:selected};
             const index = usersDb.findIndex(u => u.dwLogin === owner.dwLogin);
             if (index >= 0) usersDb[index] = {...usersDb[index],city:selected};
+            staffIndexSource = null;
+            invalidateEquipmentSnapshots();
             localStorage.setItem('beeline_central_user',JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
             localStorage.setItem('beeline_current_user',JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
             ownerCityChoiceRequired = false;
@@ -5474,6 +5479,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
     }
 
     function logout() {
+        invalidateEquipmentSnapshots();
         currentUser = null;
         ownerCityChoiceRequired = false;
         ownerCitySelected = '';
@@ -5906,6 +5912,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         grids.forEach(grid => addScheduleGrid(target, grid.values || grid.rows, fullName, source));
     }
 
+    let scheduleRequestVersion = 0;
     let scheduleSourceByDate = new Map();
     const scheduleDayDetailsCache = new Map();
 
@@ -5914,6 +5921,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
             showBeelineModal("Ошибка", "Необходимо авторизоваться в системе!", "❌");
             return;
         }
+        const requestVersion = ++scheduleRequestVersion, city = currentUser.city, login = currentUser.dwLogin;
         switchScreen('screen-schedule');
         const container = document.getElementById('scheduleContentContainer');
         container.innerHTML = liveLoading('Загружаем ваш график...');
@@ -5932,13 +5940,14 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
             });
             return {res:await fetchScheduleJson(source, Object.fromEntries(params)), source};
         }));
+        if (requestVersion !== scheduleRequestVersion || currentUser?.city !== city || currentUser?.dwLogin !== login || currentUser?.fullName !== fullName) return;
         const days = new Map();
         const errors = [];
         results.forEach((result, index) => {
             if (result.status === 'rejected') errors.push(result.reason?.message || 'Ошибка соединения');
             else if (result.value.res?.status === 'ok') {
                 collectScheduleResponse(days, result.value.res, fullName, result.value.source);
-                Object.entries(result.value.res.dayDetails||{}).forEach(([date,detail])=>scheduleDayDetailsCache.set(currentUser.city+'|'+result.value.source.scriptUrl+'|'+date,{value:detail,time:Date.now()}));
+                Object.entries(result.value.res.dayDetails||{}).forEach(([date,detail])=>scheduleDayDetailsCache.set(city+'|'+result.value.source.scriptUrl+'|'+date,{value:detail,time:Date.now()}));
             } else errors.push(result.value.res?.message || `Источник ${index + 1}: график не найден`);
         });
         scheduleSourceByDate = new Map([...days].map(([key, value]) => [key, value.source]));
@@ -6187,6 +6196,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
         }
 
         usersDb.push(newUser);
+        staffIndexSource = null;
         localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
         showBeelineModal(
@@ -6282,10 +6292,20 @@ async function handleSaveAccess(e) {
 }
 
 // 2. Поиск и выгрузка доступов
-async function handleSearchAccess() {
+let accessSearchTimer = null, accessSearchVersion = 0, accessSearchController = null;
+function handleSearchAccess() {
+    const version = ++accessSearchVersion;
+    clearTimeout(accessSearchTimer);
+    accessSearchController?.abort();
+    const query = document.getElementById('searchAddressInput').value.trim();
+    if (!query) return runSearchAccess(version);
+    accessSearchTimer = setTimeout(() => runSearchAccess(version), 250);
+}
+async function runSearchAccess(version) {
     const query = document.getElementById('searchAddressInput').value.toLowerCase().trim();
     const container = document.getElementById('accessSearchResultsContainer');
     const userCity = currentUser?.city || '';
+    const userLogin = currentUser?.dwLogin;
     const cityConf = CITIES_CONFIG[userCity];
     const scriptUrl = cityConf ? cityConf.reportsScriptUrl : null;
 
@@ -6299,21 +6319,25 @@ async function handleSearchAccess() {
     let serverResults = [];
 
     if (isConfiguredCityUrl(scriptUrl)) {
+        const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
+        accessSearchController = controller;
         try {
-            const response = await fetch(`${scriptUrl}?mode=equipment_search&query=${encodeURIComponent(query)}`);
+            const response = await fetch(`${scriptUrl}?mode=equipment_search&query=${encodeURIComponent(query)}`, {signal:controller.signal});
+            if (!response.ok) throw new Error('HTTP ' + response.status);
             const res = await response.json();
             
-            if (res.status === 'success' && res.data) {
-                serverResults = res.data;
+            if (res.status === 'success' && Array.isArray(res.data)) {
+                serverResults = res.data.filter(item => item && (!item.city || item.city === userCity));
             }
         } catch (e) {
-            console.error("Ошибка при запросе к серверу:", e);
-        }
+            if (e.name !== "AbortError") console.error("Ошибка при запросе к серверу:", e);
+        } finally { clearTimeout(timer); if (accessSearchController === controller) accessSearchController = null; }
     }
+    if (version !== accessSearchVersion || currentUser?.city !== userCity || currentUser?.dwLogin !== userLogin) return;
 
     let localResults = accessDb.filter(item => {
         const addr = (item.address || '').toLowerCase();
-        return addr.includes(query);
+        return !!userCity && item.city === userCity && addr.includes(query);
     });
 
     const map = new Map();
@@ -6352,16 +6376,13 @@ async function handleSearchAccess() {
 }
 
 
-    function renderUsersList() {
+    function renderUsersList(limit = 100) {
+        if (!currentUser) return;
         const search = document.getElementById('adminSearch').value.toLowerCase();
         const container = document.getElementById('usersListContainer');
         
-        let filtered = usersDb.filter(u => 
-            u.fullName.toLowerCase().includes(search) || 
-            u.city.toLowerCase().includes(search) || 
-            u.email.toLowerCase().includes(search) ||
-            u.role.toLowerCase().includes(search)
-        );
+        let filtered = usersDb.filter(u => u && [u.fullName, u.city, u.email, u.role]
+            .some(value => String(value || '').toLowerCase().includes(search)));
 
         if (currentUser.role === 'Старший Техник' || currentUser.role === 'Администратор') {
             filtered = filtered.filter(u => u.city === currentUser.city);
@@ -6370,7 +6391,7 @@ async function handleSearchAccess() {
         document.getElementById('usersCount').textContent = filtered.length;
 
         let html = '';
-        filtered.forEach(u => {
+        filtered.slice(0, limit).forEach(u => {
             const canModify = currentUser.role === 'Владелец' ||
                 (currentUser.role === 'Администратор' && u.city === currentUser.city && !['Владелец','Администратор'].includes(u.role)) ||
                 (currentUser.role === 'Старший Техник' && u.city === currentUser.city && ['Стажер','Техник-Универсал','Бригадир'].includes(u.role));
@@ -6378,22 +6399,29 @@ async function handleSearchAccess() {
 
             html += `
                 <div class="user-row">
-                    <div class="user-info"><span>${u.fullName}</span> (${u.role})</div>
-                    <div class="user-info">Город: ${u.city} | Склад: ${u.warehouse}</div>
+                    <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})</div>
+                    <div class="user-info">Город: ${escapeScheduleHtml(u.city)} | Склад: ${u.warehouse}</div>
                     <div class="user-info">Рабочий номер: <span>${u.workPhone || 'Не указан'}</span></div>
-                    <div class="user-info">Почта: ${u.email}</div>
-                    <div class="user-info">Логин DW: ${u.dwLogin} | Пароль: ••••••••</div>
-                    <div class="user-info">Telegram ID: ${u.tgId} | Группа ID: ${u.tgGroup} | ППР ID: ${u.tgGroupPpr || "—"}</div>
+                    <div class="user-info">Почта: ${escapeScheduleHtml(u.email)}</div>
+                    <div class="user-info">Логин DW: ${escapeScheduleHtml(u.dwLogin)} | Пароль: ••••••••</div>
+                    <div class="user-info">Telegram ID: ${escapeScheduleHtml(u.tgId)} | Группа ID: ${escapeScheduleHtml(u.tgGroup)} | ППР ID: ${escapeScheduleHtml(u.tgGroupPpr || "—")}</div>
                     ${(canModify || canDelete || currentUser.id === u.id) ? `
                         <div class="user-actions">
-                            <button class="btn action-btn" onclick="openEditModal('${u.id}')" ${canModify || currentUser.id === u.id ? '' : 'hidden'}>✏️ Редактировать</button>
-                            ${canDelete ? `<button class="btn danger-btn" onclick="confirmDeleteUser('${u.id}')">🗑️ Удалить</button>` : ''}
+                            <button class="btn action-btn" onclick="openEditModal('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')" ${canModify || currentUser.id === u.id ? '' : 'hidden'}>✏️ Редактировать</button>
+                            ${canDelete ? `<button class="btn danger-btn" onclick="confirmDeleteUser('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')">🗑️ Удалить</button>` : ''}
                         </div>
                     ` : ''}
                 </div>
             `;
         });
         container.innerHTML = html;
+        if (filtered.length > limit) {
+            const more = document.createElement('button');
+            more.type = 'button'; more.className = 'btn main-btn';
+            more.textContent = 'Показать ещё · осталось ' + (filtered.length - limit);
+            more.onclick = () => renderUsersList(limit + 100);
+            container.appendChild(more);
+        }
     }
 
     // Сохранение редактирования удаление учетных запесей.
@@ -6425,7 +6453,7 @@ async function handleSearchAccess() {
         document.getElementById('editPassword').value = u.password;
         document.getElementById('editTgId').value = u.tgId;
         document.getElementById('editTgGroup').value = u.tgGroup || '';
-        document.getElementById('editTgGroupPpr').value = u.tgGroupPpr || '-1003542427176';
+        document.getElementById('editTgGroupPpr').value = u.tgGroupPpr || '';
         document.getElementById('editEmail').value = u.email;
 
         const roleInput = document.getElementById('editRole');
@@ -6577,6 +6605,7 @@ async function handleSearchAccess() {
             usersDb[index].tgGroup = updatedUser.tgGroup;
             usersDb[index].tgGroupPpr = updatedUser.tgGroupPpr;
             usersDb[index].email = updatedUser.email;
+            staffIndexSource = null;
 
             localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
 
@@ -7191,11 +7220,6 @@ function populateInstallersDropdown() {
     renderInstallersItems(allInstallersData);
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
 // =========================================================================
 // ПЕРЕХОД К ФОРМЕ (С АВТОМАТИЧЕСКИМ АВТОРОМ И ФИЛЬТРАЦИЕЙ СОТРУДНИКОВ)
 // =========================================================================
@@ -7383,20 +7407,14 @@ document.addEventListener('blur', (e) => {
    МОДУЛЬ «ОТЧЕТЫ ТЕХНИКОВ» — функционал из исходного файла
    ========================================================== */
 
-    const SCRIPT_URL = null; // URL берется из CITIES_CONFIG текущего города
-    const reportTg = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
 
     
 
     document.getElementById('tr-reportDate').valueAsDate = new Date();
 
-    let currentStep = 1;
-    let currentPprStep = 1;
     let photosList = [];
     let pprPhotosBefore = [];
     let pprPhotosAfter = [];
-    let activeInputId = null;
-    let reportHtml5QrCode = null;
 
     // Список сотрудников для отчётов формируется динамически из usersDb.
 
@@ -7580,10 +7598,25 @@ document.addEventListener('blur', (e) => {
     }
 
     // Common employee option layout; stored values and eligibility remain owned by each form.
+    let staffIndexSource = null;
+    let staffNameIndex = new Map();
+    function staffNameKey(name, city) { return JSON.stringify([String(city || '').trim().toLowerCase(), String(name || '').trim()]); }
+    function indexedStaffPerson(name, city) {
+        if (staffIndexSource !== usersDb) {
+            staffIndexSource = usersDb;
+            staffNameIndex = new Map();
+            for (const user of Array.isArray(usersDb) ? usersDb : []) {
+                if (!user) continue;
+                const key = staffNameKey(user.fullName || user.name, user.city);
+                if (!staffNameIndex.has(key)) staffNameIndex.set(key, user);
+            }
+        }
+        return staffNameIndex.get(staffNameKey(name, city));
+    }
     function staffDropdownPerson(person) {
         const name = String(person.fullName || person.name || '').split(',')[0].trim();
         const city = person.city || currentUser?.city || '';
-        const known = (Array.isArray(usersDb) ? usersDb : []).find(u => String(u.fullName || u.name || '').trim() === name && String(u.city || '').trim().toLowerCase() === String(city).trim().toLowerCase());
+        const known = indexedStaffPerson(name, city);
         const value = String(person.value || '');
         const warehouse = person.warehouse || known?.warehouse || (value.includes(',') ? value.slice(value.indexOf(',')+1).replace(/\s*\([^)]*\)\s*$/, '').trim() : '');
         return {name, warehouse, role:known?.role || person.role || ''};
@@ -7728,6 +7761,9 @@ document.addEventListener('blur', (e) => {
 
         const hiddenInput = document.getElementById(hiddenInputId);
         const btn = document.getElementById(btnId);
+        hiddenInput.setCustomValidity('');
+        btn.classList.remove('report-required-error');
+        btn.removeAttribute('aria-invalid');
 
         if (selected.length > 0) {
             hiddenInput.value = selected.join(', ');
@@ -7826,7 +7862,6 @@ document.addEventListener('blur', (e) => {
         if (step === 3) document.getElementById('tr-step-equipment').classList.add('active');
         if (step === 4) document.getElementById('tr-step-finish').classList.add('active');
 
-        currentStep = step;
         window.scrollTo(0, 0);
     }
 
@@ -7843,14 +7878,25 @@ document.addEventListener('blur', (e) => {
         'tr-pprRate1','tr-pprRate2']);
     function reportFieldError(id, message) {
         const field = document.getElementById(id);
+        if (!field) return false;
         field.setCustomValidity(message);
-        const step = field.closest('.standard-report-block .step');
+        const step = field.closest('.step');
         if (step && !step.classList.contains('active')) {
-            const num = {'tr-step-client':1,'tr-step-materials':2,'tr-step-finish':4}[step.id];
+            const num = {'tr-step-client':1,'tr-step-materials':2,'tr-step-equipment':3,'tr-step-finish':4}[step.id];
             if (num) showStep(num);
+            else if (/^tr-ppr-step-[123]$/.test(step.id)) showPprStep(Number(step.id.slice(-1)));
         }
-        field.reportValidity();
-        field.focus();
+        field.closest('.accordion-item')?.classList.add('open');
+        if (field.type === 'hidden') {
+            const button = document.getElementById(id + '-btn');
+            button?.classList.add('report-required-error');
+            button?.setAttribute('aria-invalid', 'true');
+            button?.focus();
+            showBeelineModal('Обязательное поле', message, '⚠️');
+        } else {
+            field.reportValidity();
+            field.focus();
+        }
         return false;
     }
     function validateReportField(id, required = false) {
@@ -7867,7 +7913,20 @@ document.addEventListener('blur', (e) => {
         return valid || reportFieldError(id, id === 'tr-address' ? 'Укажите адрес с буквами и цифрами.' : 'Проверьте формат поля.');
     }
     function validateClientStep() {
-        return ['tr-appNumber','tr-address','tr-login','tr-clientName'].every(id => validateReportField(id, true));
+        return ['tr-reportDate','tr-appNumber','tr-address','tr-login','tr-clientName'].every(id => validateReportField(id, true));
+    }
+    function validatePprDataStep() {
+        const labels = {'tr-reportDate':'Дата ППР','tr-pprAddress':'Адрес ППР','tr-pprLogin':'Логин ППР',
+            'tr-pprPlace':'Место проведения ППР','tr-pprWorkType':'Вид производимых работ','tr-pprEntrance':'Подъезд №'};
+        for (const [id, label] of Object.entries(labels)) {
+            const field = document.getElementById(id);
+            field.setCustomValidity('');
+            const button = document.getElementById(id + '-btn');
+            button?.classList.remove('report-required-error');
+            button?.removeAttribute('aria-invalid');
+            if (!field.value.trim()) return reportFieldError(id, 'Заполните поле «' + label + '».');
+        }
+        return true;
     }
     function validateMaterialStep() {
         return reportMaterialIds.every(id => validateReportField(id));
@@ -7911,7 +7970,17 @@ document.addEventListener('blur', (e) => {
         return v;
     }
 
+    function syncReportEquipmentRequired() {
+        for (const [serialId, macId] of reportEquipmentPairs) {
+            const serial = document.getElementById(serialId), mac = document.getElementById(macId);
+            if (!serial || !mac) continue;
+            mac.required = !!serial.value.trim();
+            mac.setAttribute('aria-required', String(mac.required));
+            if (!mac.required) mac.setCustomValidity('');
+        }
+    }
     function validateEquipmentStep() {
+        syncReportEquipmentRequired();
         for (const [serialId, macId] of reportEquipmentPairs) {
             const serial = document.getElementById(serialId);
             const mac = document.getElementById(macId);
@@ -7923,6 +7992,9 @@ document.addEventListener('blur', (e) => {
             if (serial.value && !mac.value) {
                 return reportFieldError(macId, 'Если указан серийный номер, MAC адрес обязателен.');
             }
+            if (mac.value && !/^(?:[0-9A-F]{12}|(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|(?:[0-9A-F]{2}-){5}[0-9A-F]{2})$/.test(mac.value)) {
+                return reportFieldError(macId, 'Укажите MAC адрес из 12 шестнадцатеричных цифр, например AA:BB:CC:DD:EE:FF.');
+            }
         }
         return true;
     }
@@ -7933,6 +8005,7 @@ document.addEventListener('blur', (e) => {
         const normalized = normalizeEquipmentValue(field, field.value);
         if (field.value !== normalized) field.value = normalized;
         field.setCustomValidity('');
+        syncReportEquipmentRequired();
     });
 
     const reportCableFields = {
@@ -7942,6 +8015,12 @@ document.addEventListener('blur', (e) => {
 
     // Отдельный кэш кабеля. Он НЕ зависит от поиска роутеров/приставок.
     const reportCableKnown = new Map();
+    let reportCableOwner = '';
+    function ensureReportCableOwner() {
+        const key = JSON.stringify([currentUser?.city, currentUser?.fullName, currentUser?.dwLogin]);
+        if (reportCableOwner !== key) { reportCableOwner = key; reportCableKnown.clear(); reportCableSearchSeq++; }
+        return key;
+    }
     let reportCableSearchSeq = 0;
 
     function reportCableNumber(value) {
@@ -7950,6 +8029,7 @@ document.addEventListener('blur', (e) => {
     }
 
     async function requestReportCableLookup(query) {
+        const owner = ensureReportCableOwner();
         const name=String(currentUser?.fullName||'').trim();
         const city=String(currentUser?.city||'').trim();
         const url=CITIES_CONFIG[city]?.reportsScriptUrl;
@@ -7958,6 +8038,7 @@ document.addEventListener('blur', (e) => {
         // Используем тот же проверенный endpoint, который уже работает для
         // «Моё оборудование»: он возвращает кабель B/D/E текущего монтажника.
         const response=await requestMyEquipment(url,name,city);
+        if (owner !== ensureReportCableOwner()) return [];
         if(response?.status!=='success' || !Array.isArray(response.items)) {
             throw new Error(response?.message||'Не удалось получить остатки кабеля');
         }
@@ -7983,6 +8064,7 @@ document.addEventListener('blur', (e) => {
     }
 
     function rememberReportCable(items) {
+        ensureReportCableOwner();
         (Array.isArray(items) ? items : []).forEach(item => {
             const serial = String(item?.serial || '').trim();
             const meters = reportCableNumber(item?.meters);
@@ -8041,6 +8123,7 @@ document.addEventListener('blur', (e) => {
             return;
         }
 
+        ensureReportCableOwner();
         const seq = ++reportCableSearchSeq;
         try {
             const items = await requestReportCableLookup(query);
@@ -8049,6 +8132,7 @@ document.addEventListener('blur', (e) => {
             renderReportCableMatches(input, items);
             validateReportCableStock(false);
         } catch (err) {
+            if (seq !== reportCableSearchSeq) return;
             // Сбой поиска НЕ запрещает ручной ввод и НЕ блокирует «Далее».
             console.warn('Поиск кабеля недоступен:', err);
             setReportCableHint(input.id, 'Поиск недоступен — можно продолжить ручной ввод', false);
@@ -8095,6 +8179,7 @@ document.addEventListener('blur', (e) => {
     }
 
     function validateReportCableStock(reportError=false) {
+        ensureReportCableOwner();
         // ВАЖНО: эта функция полностью синхронная и не зависит от сети.
         // Неизвестный/ручной серийный номер всегда разрешён.
         let ok = true;
@@ -8213,11 +8298,11 @@ document.addEventListener('blur', (e) => {
     function showPprStep(step) {
         document.querySelectorAll('.ppr-only .step').forEach(el => el.classList.remove('active'));
         document.getElementById(`tr-ppr-step-${step}`).classList.add('active');
-        currentPprStep = step;
         window.scrollTo(0, 0);
     }
 
     function nextPprStep(fromStep) {
+        if (fromStep === 1 && !validatePprDataStep()) return;
         showPprStep(fromStep + 1);
     }
 
@@ -8233,43 +8318,22 @@ document.addEventListener('blur', (e) => {
     // Если сервер передаёт MAC из столбца B как mac/macAddress/columnB —
     // он автоматически подставляется в соответствующее поле.
     // =====================================================================
-    let reportEquipmentLookupCache = null;
-    let reportEquipmentLookupKey = '';
-    let reportEquipmentLookupPromise = null;
 
     async function loadReportEquipmentLookup() {
         const name = String(currentUser?.fullName || '').trim();
         const city = String(currentUser?.city || '').trim();
+        const login = currentUser?.dwLogin;
         const url = CITIES_CONFIG[city]?.reportsScriptUrl;
-        const key = city + '|' + name;
         if (!name || !city || !isConfiguredCityUrl(url)) return [];
-        if (reportEquipmentLookupCache && reportEquipmentLookupKey === key) return reportEquipmentLookupCache;
-        if (reportEquipmentLookupPromise && reportEquipmentLookupKey === key) return reportEquipmentLookupPromise;
-        reportEquipmentLookupKey = key;
-        reportEquipmentLookupPromise = requestMyEquipment(url, name, city).then(response => {
-            if (response?.status !== 'success' || !Array.isArray(response.items)) throw new Error(response?.message || 'Не удалось загрузить оборудование.');
-            // Доступ проверяет городской Apps Script. Здесь не сравниваем ФИО
-            // строка-в-строку: в J бывают дополнения про бригаду/склад.
-            reportEquipmentLookupCache = response.items.filter(item => {
-                const type = String(item.type || '');
-                if (!['Роутеры','Приставки'].includes(type)) return false;
-
-                // Для роутеров/приставок E (логин) должен быть пустым.
-                // Для кабеля E — это ФИО монтажника, поэтому к кабелю эту проверку НЕ применяем.
-                if (type === 'Роутеры' || type === 'Приставки') {
-                    const login = String(item.login ?? item.subscriberLogin ?? '').trim();
-                    if (login) return false;
-                }
-
-                return true;
-            });
-            return reportEquipmentLookupCache;
-        }).catch(err => {
-            reportEquipmentLookupCache = [];
-            console.warn('Поиск оборудования недоступен:', err);
+        try {
+            const response = await requestMyEquipment(url, name, city);
+            if (currentUser?.city !== city || currentUser?.fullName !== name || currentUser?.dwLogin !== login) return [];
+            return response.items.filter(item => ['Роутеры','Приставки'].includes(String(item.type || '')) &&
+                !String(item.login ?? item.subscriberLogin ?? '').trim());
+        } catch (error) {
+            console.warn('Поиск оборудования недоступен:', error);
             return [];
-        }).finally(() => { reportEquipmentLookupPromise = null; });
-        return reportEquipmentLookupPromise;
+        }
     }
 
     function equipmentItemMac(item) {
@@ -8365,7 +8429,7 @@ document.addEventListener('blur', (e) => {
     }
 
     function closeReportModelDropdowns() {
-        document.querySelectorAll('#tr-step-equipment .custom-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
+        document.querySelectorAll('#tr-step-equipment .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.querySelectorAll('#tr-step-equipment .dropdown-list.open').forEach(list => list.classList.remove('open'));
     }
 
@@ -8399,66 +8463,38 @@ document.addEventListener('blur', (e) => {
         });
     }
 
+function normalizeEquipmentSerialCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/, "").replace(/\s+/g, "");
+}
+function ctDetectRouterModel(s) {
+  s=normalizeEquipmentSerialCode(s);
+  if (s.indexOf("QXH")===0) return "D-Link Dir 615";
+  if (/^(2312T2DM|2309T2DM)/.test(s)) return "AX3000 (Ultimate Black)";
+  if (s.indexOf("22161K")===0) return "TP-Link DEKO M4 (Ultimate)";
+  if (s.indexOf("220B")===0) return "TP-Link Archer C24";
+  if (/^(2184545|2212252|2211846|2211477|2211225)/.test(s)) return "TP-Link Archer C20";
+  if (/^(318|317|218|216)/.test(s)) return "Маршрутизатор беспроводной 840 TP-Link";
+  if (s.indexOf("BRDM")!==-1) return "TURBO";
+  if (s.indexOf("DDM")!==-1) return "AC1200 - G12-B";
+  if (s.indexOf("ZTEPHAG")===0) return "ZXHN H3601P V7 (ZTE Router)";
+  if (s.indexOf("223B0A3")===0) return "TP-Link HC220-G5 (Ultimate White)";
+  if (/^(225507Y|2258085|226110C|22550HS|225500S|22570CR|2256443)/.test(s)) return "TP-Link EX222 (AX-1800)";
+  if (/^(22482P1|224C3S8|22494J9|22473N7|22473N8|22524R3|22461W9|22454W2|2245291|224A0W2|224B5Q4|224C3SB|224BQ40|2244774|224B2K4)/.test(s)) return "TP Link EC225-G5 (AC-1300)";
+  if (s.indexOf("FRDM")!==-1 || s.indexOf("EBDM")!==-1 || s.indexOf("FNDM")!==-1) return "Basic (Модель F1O-D)";
+  return "";
+}
+
+function ctDetectStbModel(serial) {
+  const code = normalizeEquipmentSerialCode(serial);
+  return code.startsWith('VMPLC') ? 'RASSE-001' : code.startsWith('VMPZ') ? 'Приставка IPTV ZXV10 B860H' : '';
+}
     function autoDetectRouterModel(serial, modelInputId) {
-        if (!serial) return;
-        const s = serial.trim();
-        let detectedModel = "";
-
-        if (s.indexOf("QXH") === 0) {
-            detectedModel = "D-Link Dir 615";
-        } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || s.indexOf("218") === 0 || s.indexOf("216") === 0) {
-            detectedModel = "Маршрутизатор беспроводной 840 TP-Link";
-        } else if (s.indexOf("2312T2DM") === 0 || s.indexOf("2309T2DM") === 0) {
-            detectedModel = "AX3000 (Ultimate Black)";
-        } else if (s.indexOf("22161K") === 0) {
-            detectedModel = "TP-Link DEKO M4 (Ultimate)";
-        } else if (s.indexOf("220B") === 0) {
-            detectedModel = "TP-Link Archer C24";
-        } else if (s.indexOf("2184545") === 0 || s.indexOf("2212252") === 0 || s.indexOf("2211846") === 0 || s.indexOf("2211477") === 0 || s.indexOf("2211225") === 0) {
-            detectedModel = "TP-Link Archer C20";
-        } else if (s.includes("BRDM")) {
-            detectedModel = "TURBO";
-        } else if (s.includes("DDM")) {
-            detectedModel = "AC1200 - G12-B";
-        } else if (s.indexOf("ZTEPHAG") === 0) {
-            detectedModel = "ZXHN H3601P V7 (ZTE Router)";
-        } else if (s.indexOf("223B0A3") === 0) {
-            detectedModel = "TP-Link HC220-G5 (Ultimate White)";
-        } else if (s.indexOf("225507Y") === 0 || s.indexOf("2258085") === 0 || s.indexOf("226110C") === 0 || s.indexOf("22550HS") === 0 || s.indexOf("225500S") === 0 || s.indexOf("22570CR") === 0 || s.indexOf("2256443") === 0) {
-            detectedModel = "TP-Link EX222 (AX-1800)";
-        } else if (s.indexOf("22482P1") === 0 || s.indexOf("224C3S8") === 0 || s.indexOf("22494J9") === 0 || s.indexOf("22473N7") === 0 || s.indexOf("22473N8") === 0 || s.indexOf("22524R3") === 0 || s.indexOf("22461W9") === 0 || s.indexOf("22454W2") === 0 || s.indexOf("2245291") === 0 || s.indexOf("224A0W2") === 0 || s.indexOf("224B5Q4") === 0 || s.indexOf("224C3SB") === 0 || s.indexOf("224BQ40") === 0 || s.indexOf("2244774") === 0 || s.indexOf("224B2K4") === 0) {
-            detectedModel = "TP Link EC225-G5 (AC-1300)";
-        } else if (s.includes("FRDM") || s.includes("EBDM") || s.includes("FNDM")) {
-            detectedModel = "Basic (Модель F1O-D)";
-        }
-
-        if (detectedModel) {
-            let btnId = modelInputId + '-btn';
-            let listId = modelInputId + '-list';
-            
-            if (typeof selectOption === 'function') {
-                selectOption(modelInputId, detectedModel, btnId, detectedModel, listId);
-            } else {
-                document.getElementById(modelInputId).value = detectedModel;
-                document.getElementById(btnId).innerText = detectedModel;
-            }
-            
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            }
-        }
+        applyDetectedReportModel(ctDetectRouterModel(serial), modelInputId);
     }
-
     function autoDetectTvModel(serial, modelInputId) {
-        if (!serial) return;
-        const s = serial.trim();
-        let detectedModel = "";
-
-        if (s.indexOf("VMPZ") === 0) {
-            detectedModel = "Приставка IPTV ZXV10 B860H";
-        } else if (s.indexOf("VMPLC") === 0) {
-            detectedModel = "RASSE-001";
-        }
+        applyDetectedReportModel(ctDetectStbModel(serial), modelInputId);
+    }
+    function applyDetectedReportModel(detectedModel, modelInputId) {
 
         if (detectedModel) {
             let btnId = modelInputId + '-btn';
@@ -8701,26 +8737,28 @@ document.addEventListener('blur', (e) => {
 
     // Долги по актам: GET через JSONP, потому что городские Apps Script отвечают с другого домена.
     let actDebtsRequest = 0;
-    function requestActDebts(url, fullName, city) {
+    function requestCityReadJsonp(url, fields, prefix) {
         return new Promise((resolve, reject) => {
-            const callback = '__beelineActDebtsCallback_' + Math.random().toString(36).slice(2);
+            const callback = prefix + (window.crypto?.randomUUID?.().replaceAll('-', '') || Math.random().toString(36).slice(2));
             const script = document.createElement('script');
             let finished = false;
             const finish = (error, data) => {
                 if (finished) return;
                 finished = true;
-                clearTimeout(timer);
-                script.remove();
-                delete window[callback];
+                clearTimeout(timer); script.remove(); delete window[callback];
                 if (error) reject(error); else resolve(data);
             };
             const timer = setTimeout(() => finish(new Error('Сервер города не ответил. Попробуйте обновить список.')), 20000);
             window[callback] = data => finish(null, data);
             script.onerror = () => finish(new Error('Не удалось подключиться к скрипту вашего города.'));
-            script.src = url + '?action=getActDebts&fullName=' + encodeURIComponent(fullName)
-                + '&city=' + encodeURIComponent(city) + '&callback=' + encodeURIComponent(callback);
+            const target = new URL(url);
+            Object.entries({...fields, callback}).forEach(([key, value]) => target.searchParams.set(key, value));
+            script.src = target.href;
             document.head.appendChild(script);
         });
+    }
+    function requestActDebts(url, fullName, city) {
+        return requestCityReadJsonp(url, {action:'getActDebts', fullName, city}, '__beelineActDebtsCallback_');
     }
     function liveLoading(message) {
         const safe = String(message || 'Загружаем данные...').replace(/[&<>"']/g, ch => ({
@@ -8832,26 +8870,34 @@ document.addEventListener('blur', (e) => {
 
     // Остатки оборудования из скрипта города; запрос каждый раз читает актуальные строки.
     let myEquipmentRequest = 0;
-    function requestMyEquipment(url, fullName, city) {
-        return new Promise((resolve, reject) => {
-            const callback = '__beelineMyEquipmentCallback_' + Math.random().toString(36).slice(2);
-            const script = document.createElement('script');
-            let finished = false;
-            const finish = (error, data) => {
-                if (finished) return;
-                finished = true;
-                clearTimeout(timer);
-                script.remove();
-                delete window[callback];
-                if (error) reject(error); else resolve(data);
-            };
-            const timer = setTimeout(() => finish(new Error('Сервер города не ответил. Попробуйте обновить список.')), 20000);
-            window[callback] = data => finish(null, data);
-            script.onerror = () => finish(new Error('Не удалось подключиться к скрипту вашего города.'));
-            script.src = url + '?action=getMyEquipment&fullName=' + encodeURIComponent(fullName)
-                + '&city=' + encodeURIComponent(city) + '&callback=' + encodeURIComponent(callback);
-            document.head.appendChild(script);
-        });
+    const equipmentSnapshots = new Map();
+    const EQUIPMENT_CACHE_MS = 15000;
+    function invalidateEquipmentSnapshots() {
+        equipmentSnapshots.clear();
+        reportCableKnown.clear();
+        reportCableSearchSeq++;
+    }
+    function requestMyEquipment(url, fullName, city, {fresh = false} = {}) {
+        const key = JSON.stringify([url, city, fullName, currentUser?.dwLogin || '']);
+        const cached = equipmentSnapshots.get(key);
+        if (cached?.promise) return cached.promise;
+        if (!fresh && cached?.value && Date.now() - cached.time < EQUIPMENT_CACHE_MS) return Promise.resolve(cached.value);
+        const entry = {time:0, value:null, promise:null};
+        equipmentSnapshots.set(key, entry);
+        entry.promise = requestMyEquipmentOnce(url, fullName, city).then(response => {
+            if (response?.status !== 'success' || !Array.isArray(response.items) || response.city !== city) {
+                throw new Error(response?.message || 'Некорректный ответ оборудования для выбранного города.');
+            }
+            if (equipmentSnapshots.get(key) === entry) { entry.value = response; entry.time = Date.now(); }
+            return response;
+        }).catch(error => {
+            if (equipmentSnapshots.get(key) === entry) equipmentSnapshots.delete(key);
+            throw error;
+        }).finally(() => { entry.promise = null; });
+        return entry.promise;
+    }
+    function requestMyEquipmentOnce(url, fullName, city) {
+        return requestCityReadJsonp(url, {action:'getMyEquipment', fullName, city}, '__beelineMyEquipmentCallback_');
     }
     function myEquipmentState(icon, message) {
         const list = document.getElementById('myEquipmentList');
@@ -8916,7 +8962,7 @@ document.addEventListener('blur', (e) => {
         document.getElementById('myEquipmentList').innerHTML = liveLoading('Проверяем оборудование и кабель...');
         try {
             if (!name || !city || !isConfiguredCityUrl(url)) throw new Error('Нет данных пользователя или ссылки скрипта его города.');
-            const response = await requestMyEquipment(url, name, city);
+            const response = await requestMyEquipment(url, name, city, {fresh:true});
             if (request !== myEquipmentRequest || currentUser?.fullName !== name || currentUser?.city !== city) return;
             if (response?.status !== 'success' || !Array.isArray(response.items) || response.city !== city)
                 throw new Error(response?.message || 'Не удалось прочитать остатки оборудования.');
@@ -9006,10 +9052,13 @@ document.addEventListener('blur', (e) => {
         setReportAuthorizedUser();
         if (!validateReportField('tr-reportDate', true)) return;
         if (type.includes("ППР")) {
+            if (!validatePprDataStep()) { showPprStep(1); return; }
             if (!validateFinishStep(true)) { showPprStep(3); return; }
         } else {
             if (!validateClientStep()) { showStep(1); return; }
             if (!isDemontazh() && !validateMaterialStep()) { showStep(2); return; }
+            if (!isDemontazh() && (!validateReportCableRequiredFields(true) || !validateReportCableStock(true))) { showStep(2); return; }
+            if (!isПереезд() && !validateEquipmentStep()) { showStep(3); return; }
             if (!validateFinishStep(false)) { showStep(4); return; }
         }
 
@@ -9047,7 +9096,7 @@ document.addEventListener('blur', (e) => {
                 payload = {
                     action:"report", reportType:type, rowValues:built.row, maxCol:built.maxCol,
                     city:currentUser.city, requestId:requestId,
-                    tgGroupId: currentUser.tgGroupPpr || "-1003542427176",
+                    tgGroupId: currentUser.tgGroupPpr || cityConf.tgGroupPpr || '',
                     authorizedUser:document.getElementById('tr-pprInstaller1').value,
                     secondInstaller:document.getElementById('tr-pprInstaller2').value,
                     photosBefore:await filesToTelegramPhotos(pprPhotosBefore,20),
@@ -9071,6 +9120,7 @@ document.addEventListener('blur', (e) => {
             });
 
             const receipt = await waitForReportReceipt(targetUrl, requestId);
+            invalidateEquipmentSnapshots();
             if (receipt.reportType !== type || !Number.isInteger(Number(receipt.rowNumber))) {
                 throw new Error('Сервер вернул некорректное подтверждение отчёта.');
             }
@@ -9341,15 +9391,16 @@ document.addEventListener('blur', (e) => {
 
     // ===== Навигация и сброс формы отчетов =====
     function resetTechnicianReportState() {
-        currentStep = 1;
-        currentPprStep = 1;
         photosList = [];
         pprPhotosBefore = [];
         pprPhotosAfter = [];
-        activeInputId = null;
 
         const form = document.getElementById('tr-reportForm');
-        if (form) form.reset();
+        if (form) {
+            form.reset();
+            form.querySelectorAll('input, textarea, select').forEach(field => field.setCustomValidity(''));
+            form.querySelectorAll('.report-required-error').forEach(button => {button.classList.remove('report-required-error');button.removeAttribute('aria-invalid');});
+        }
 
         const type = document.getElementById('tr-reportType');
         const typeBtn = document.getElementById('tr-reportType-btn');
@@ -9373,6 +9424,7 @@ document.addEventListener('blur', (e) => {
                 if (hidden) hidden.value = defaultThemes[0];
             }
 
+            syncReportEquipmentRequired();
             renderPhotos();
             renderPprPhotos('before');
             renderPprPhotos('after');
@@ -9382,7 +9434,9 @@ document.addEventListener('blur', (e) => {
     }
 
     function exitTechnicianReports() {
-        try { closeScanner(); } catch (e) {}
+        closeUniversalScanner();
+        closeEquipmentSearch();
+        closeReportCableSearch();
         switchScreen('screen-main');
         window.scrollTo(0, 0);
     }
@@ -9481,43 +9535,28 @@ function filterNomenclature(query) {
 // 2. АВТООПРЕДЕЛЕНИЕ МОДЕЛИ ПО СЕРИЙНОМУ НОМЕРУ
 
 function detectModelBySerial(s) {
-    if (!s) return "";
-    let detectedModel = "";
-
-    if (s.indexOf("QXH") === 0) {
-        detectedModel = "D-Link Dir 615";
-    } else if (s.indexOf("318") === 0 || s.indexOf("317") === 0 || s.indexOf("218") === 0 || s.indexOf("216") === 0) {
-        detectedModel = "Маршрутизатор беспроводной 840 TP-Link";
-    } else if (s.indexOf("2312T2DM") === 0 || s.indexOf("2309T2DM") === 0) {
-        detectedModel = "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000";
-    } else if (s.indexOf("22161K") === 0) {
-        detectedModel = "TP-Link DEKO M4 (Ultimate)";
-    } else if (s.indexOf("220B") === 0) {
-        detectedModel = "Маршрутизатор беспроводной двухдиапазонный Archer C24";
-    } else if (s.indexOf("2184545") === 0 || s.indexOf("2212252") === 0 || s.indexOf("2211846") === 0 || s.indexOf("2211477") === 0 || s.indexOf("2211225") === 0) {
-        detectedModel = "Маршрутизатор беспроводной двухдиапазонный Archer C20";
-    } else if (s.includes("BRDM")) {
-        detectedModel = "Роутер Wi-Fi TURBO / router Wi-Fi TURBO";
-    } else if (s.includes("DDM")) {
-        detectedModel = "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B";
-    } else if (s.indexOf("ZTEPHAG") === 0) {
-        detectedModel = "Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre";
-    } else if (s.indexOf("223B0A3") === 0) {
-        detectedModel = "Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi";
-    } else if (s.indexOf("225507Y") === 0 || s.indexOf("2258085") === 0 || s.indexOf("226110C") === 0 || s.indexOf("22550HS") === 0 || s.indexOf("225500S") === 0 || s.indexOf("22570CR") === 0 || s.indexOf("2256443") === 0) {
-        detectedModel = "Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP";
-    } else if (s.indexOf("22482P1") === 0 || s.indexOf("224C3S8") === 0 || s.indexOf("22494J9") === 0 || s.indexOf("22473N7") === 0 || s.indexOf("22473N8") === 0 || s.indexOf("22524R3") === 0 || s.indexOf("22461W9") === 0 || s.indexOf("22454W2") === 0 || s.indexOf("2245291") === 0 || s.indexOf("224A0W2") === 0 || s.indexOf("224B5Q4") === 0 || s.indexOf("224C3SB") === 0 || s.indexOf("224BQ40") === 0 || s.indexOf("2244774") === 0 || s.indexOf("224B2K4") === 0) {
-        detectedModel = "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5";
-    } else if (s.includes("FRDM") || s.includes("EBDM") || s.includes("FNDM")) {
-        detectedModel = "Роутер СРЕ / Router СРЕ (Модель F1O-D)";
-    } else if (s.indexOf("VMPZ") === 0) {
-        detectedModel = "Приставка IPTV ZXV10 B860H|||";
-    } else if (s.indexOf("VMPLC") === 0) {
-        detectedModel = "RASSE-001";
-    }
-
-    return detectedModel;
+    const routerModel = ctDetectRouterModel(s);
+    const routerNomenclature = {
+        "D-Link Dir 615": "D-Link Dir 615",
+        "Маршрутизатор беспроводной 840 TP-Link": "Маршрутизатор беспроводной 840 TP-Link",
+        "AX3000 (Ultimate Black)": "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000",
+        "TP-Link DEKO M4 (Ultimate)": "TP-Link DEKO M4 (Ultimate)",
+        "TP-Link Archer C24": "Маршрутизатор беспроводной двухдиапазонный Archer C24",
+        "TP-Link Archer C20": "Маршрутизатор беспроводной двухдиапазонный Archer C20",
+        "TURBO": "Роутер Wi-Fi TURBO / router Wi-Fi TURBO",
+        "AC1200 - G12-B": "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B",
+        "ZXHN H3601P V7 (ZTE Router)": "Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre",
+        "TP-Link HC220-G5 (Ultimate White)": "Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi",
+        "TP-Link EX222 (AX-1800)": "Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP",
+        "TP Link EC225-G5 (AC-1300)": "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5",
+        "Basic (Модель F1O-D)": "Роутер СРЕ / Router СРЕ (Модель F1O-D)",
+    };
+    if (routerModel) return routerNomenclature[routerModel] || routerModel;
+    const stbModel = ctDetectStbModel(s);
+    if (stbModel) return stbModel === "RASSE-001" ? stbModel : stbModel + "|||";
+    return "";
 }
+
 
 function detectNomenclatureBySerial(serialVal) {
     const model = detectModelBySerial(serialVal.trim());
@@ -9642,9 +9681,11 @@ function openReturnEquipmentForm() {
 
 // 6. ОТПРАВКА ДАННЫХ ВОЗВРАТА ОБОРУДОВАНИЯ В GOOGLE ТАБЛИЦУ (ЧЕРЕЗ reportsScriptUrl)
 
+let returnSubmitBusy = false;
 async function handleReturnEquipment(e) {
-    if (currentUser?.role === 'Стажер') return;
     e.preventDefault();
+    if (!currentUser || currentUser.role === 'Стажер' || returnSubmitBusy) return;
+    const owner = managementOwnerKey();
     
     const payload = {
         action: 'recordReturn',
@@ -9667,17 +9708,22 @@ async function handleReturnEquipment(e) {
     const targetUrl = cityConf.reportsScriptUrl;
     if (!isConfiguredCityUrl(targetUrl)) { showBeelineModal("Ошибка", "Скрипт вашего города не настроен", "❌"); return; }
 
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 30000);
+    returnSubmitBusy = true;
     showBeelineModal("Запись", "Сохранение возврата оборудования...", "⏳");
 
     try {
         const response = await fetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload), signal:controller.signal
         });
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         const res = await response.json();
+        if (owner !== managementOwnerKey()) return;
 
         if (res.status === 'success') {
+            invalidateEquipmentSnapshots();
             showBeelineModal("Успешно", "Возврат оборудования успешно зарегистрирован!", "✅", 
                 `<button class="btn main-btn" onclick="closeBeelineModal(); switchScreen('screen-installer-menu');" style="margin-top:0;">Понятно</button>`
             );
@@ -9685,10 +9731,11 @@ async function handleReturnEquipment(e) {
             throw new Error(res.message || "Ошибка записи");
         }
     } catch (err) {
+        if (owner !== managementOwnerKey()) return;
         console.error("Ошибка при записи возврата:", err);
         // Выводим текст ошибки на экран, чтобы в случае чего сразу видеть причину
         showBeelineModal("Ошибка", "Не удалось записать: " + (err.message || err), "❌");
-    }
+    } finally { clearTimeout(timer); returnSubmitBusy = false; }
 }
 
 
@@ -10659,8 +10706,8 @@ const CT_STOCK_SCREENS={stockRouters:'screen-admin-stock-routers',stockStbs:'scr
 let ctPart='acts',ctFilters={},ctKindFilter='';
 const ctTabCache=new Map();let ctCacheOwner='';
 function ctCacheCurrent(){if(ctState.loaded&&ctState.owner===managementOwnerKey())ctTabCache.set(ctState.group,{sheets:ctState.sheets,staff:ctState.staff,options:ctState.options});}
-function ctInvalidateGroups(groups){for(const group of groups)ctTabCache.delete(group);if(groups.includes(ctState.group))ctState.loaded=false;}
-function ctInvalidateOtherTabs(){for(const key of ctTabCache.keys())if(key!==ctState.group)ctTabCache.delete(key);ctCacheCurrent();}
+function ctInvalidateGroups(groups){invalidateEquipmentSnapshots();for(const group of groups)ctTabCache.delete(group);if(groups.includes(ctState.group))ctState.loaded=false;}
+function ctInvalidateOtherTabs(){invalidateEquipmentSnapshots();for(const key of ctTabCache.keys())if(key!==ctState.group)ctTabCache.delete(key);ctCacheCurrent();}
 function ctListData(result){
  if(!result||!Array.isArray(result.sheets))throw new Error(result?.message||'Скрипт города не вернул список записей. Проверьте актуальную версию развёртывания и нажмите «Обновить».');
  if(result.sheets.some(sheet=>!sheet||!Array.isArray(sheet.rows)||!Array.isArray(sheet.schema?.fields)))throw new Error('Некорректный формат записей от скрипта города. Обновите список.');
@@ -10781,6 +10828,7 @@ async function ctMutate(operation,records){
   let result;try{result=await ctRequest(operation,{group,requestId,items});}catch(error){if(error.confirmed)throw error;ctSetMessage('Проверяем результат сохранения…',true);for(let i=0;i<4;i++){await new Promise(resolve=>setTimeout(resolve,1500));result=await ctRequest('status',{requestId},20000);if(result.status!=='pending')break;}if(!result||result.status==='pending')throw new Error('Результат ещё не подтверждён. Не повторяйте сдачу: обновите список через несколько секунд.');}
   if(owner!==managementOwnerKey())return;
   if(result.status!=='success')throw new Error(result.message||'Таблица не подтвердила изменение');
+  invalidateEquipmentSnapshots();
   if(operation==='save'){const s=ctState.sheets.find(s=>s.name===result.record.sheet),index=s.rows.findIndex(r=>r.row===result.record.row);s.rows[index]=result.record;ctState.drafts.delete(ctIdentity(result.record));}
   else if(result.record){const sheet=ctState.sheets.find(s=>s.name===result.record.sheet);sheet.rows[sheet.rows.findIndex(r=>r.row===result.record.row)]=result.record;ctState.drafts.delete(ctIdentity(result.record));}else{ctSetBusy(false);await ctLoad();}
   if(ctPart==='acts'&&operation!=='save')ctInvalidateOtherTabs();else ctCacheCurrent();ctSetBusy(false);ctBuildFilters();ctRender();ctLoadCounts(true);ctSetMessage(operation==='save'?'✅ Изменения сохранены и проверены':operation==='unack'?'✅ Акт отмечен как несданный':`✅ Сдано актов: ${result.count}`);
@@ -10795,26 +10843,10 @@ async function ctIssueRequest(fields,requestId){
 }
 function ctClearNewIssue(){if(ctNewIssue){ctState.drafts.delete(ctIdentity(ctNewIssue.record));ctNewIssue.rows.forEach(r=>ctState.drafts.delete(ctIdentity(r)));}ctNewIssue=null;document.getElementById('cityTableNew').replaceChildren();}
 function ctIssueToday(){const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Almaty',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),get=type=>parts.find(p=>p.type===type).value;return get('year')+'-'+get('month')+'-'+get('day');}
-function ctDetectRouterModel(s) {
-  s=String(s || "").trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/,"").replace(/\s+/g,"");
-  if (s.indexOf("QXH")===0) return "D-Link Dir 615";
-  if (/^(2312T2DM|2309T2DM)/.test(s)) return "AX3000 (Ultimate Black)";
-  if (s.indexOf("22161K")===0) return "TP-Link DEKO M4 (Ultimate)";
-  if (s.indexOf("220B")===0) return "TP-Link Archer C24";
-  if (/^(2184545|2212252|2211846|2211477|2211225)/.test(s)) return "TP-Link Archer C20";
-  if (/^(318|317|218|216)/.test(s)) return "Маршрутизатор беспроводной 840 TP-Link";
-  if (s.indexOf("BRDM")!==-1) return "TURBO";
-  if (s.indexOf("DDM")!==-1) return "AC1200 - G12-B";
-  if (s.indexOf("ZTEPHAG")===0) return "ZXHN H3601P V7 (ZTE Router)";
-  if (s.indexOf("223B0A3")===0) return "TP-Link HC220-G5 (Ultimate White)";
-  if (/^(225507Y|2258085|226110C|22550HS|225500S|22570CR|2256443)/.test(s)) return "TP-Link EX222 (AX-1800)";
-  if (/^(22482P1|224C3S8|22494J9|22473N7|22473N8|22524R3|22461W9|22454W2|2245291|224A0W2|224B5Q4|224C3SB|224BQ40|2244774|224B2K4)/.test(s)) return "TP Link EC225-G5 (AC-1300)";
-  if (s.indexOf("FRDM")!==-1 || s.indexOf("EBDM")!==-1 || s.indexOf("FNDM")!==-1) return "Basic (Модель F1O-D)";
-  return "";
-}
+
 
 function ctIssueCableOptions(){return [...document.querySelectorAll('#screen-scanner [onclick^="selectCableOption"]')].map(n=>{const match=/selectCableOption\('([^']+)',\s*'[^']*',\s*(\d+)\)/.exec(n.getAttribute('onclick'));return match?{name:match[1],meters:match[2]}:null;}).filter(Boolean);}
-function ctDetectStbModel(serial){const code=String(serial||'').trim().toUpperCase();return code.startsWith('VMPLC')?'RASSE-001':code.startsWith('VMPZ')?'Приставка IPTV ZXV10 B860H':'';}
+
 function ctStartAdd(){
  if(ctState.busy||ctPart!=='stock')return;if(ctNewIssue){ctNewIssue.rows.at(-1)?.node.querySelector('[data-ct-serial]').focus();return;}const sheet=ctState.sheets[0];if(!sheet||sheet.missing){showBeelineModal('Выдача ТМЦ','Сначала загрузите лист оборудования.','⚠️');return;}
  const isCable=ctState.group==='stockCable',record={sheet:sheet.name,row:0,__ctBatch:true,values:{},readonly:[],act:null};ctNewIssue={record,schema:sheet.schema,rows:[],requestId:ctRequestId(),isCable,nextRow:-1};
@@ -10842,7 +10874,7 @@ async function ctSubmitNewIssue(){
  const seen=new Set();for(const record of rows){const values=ctDraft(record).values,serial=String(values[serialCol]).trim().toUpperCase().replace(/\s+/g,'');if(seen.has(serial)){showBeelineModal('Выдача ТМЦ','Повтор серийного номера: '+serial,'⚠️');return;}seen.add(serial);if(!values[issue.isCable?'C':'A']||issue.isCable&&!(Number(String(values.D||'').replace(',','.'))>0)){record.node.querySelector('[data-ct-serial]').focus();showBeelineModal('Выдача ТМЦ','Выберите модель для всех позиций. Для кабеля укажите метраж больше нуля.','⚠️');return;}}
  ctSetBusy(true);ctSetMessage('Записываем выдачу: '+rows.length+'…',true);
  try{const result=await ctIssueRequest({installer,batchData:rows.map(r=>({mode:{stockRouters:'router',stockStbs:'stb',stockCable:'cable'}[group],values:{...ctDraft(r).values}}))},issue.requestId);if(owner!==managementOwnerKey()||group!==ctState.group)return;if(result.status!=='success')throw new Error(result.message||'Выдача не подтверждена');
- const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(!result.notification?.sent)ctShowIssueNotificationError(result,issue.requestId);
+ const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});invalidateEquipmentSnapshots();ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(!result.notification?.sent)ctShowIssueNotificationError(result,issue.requestId);
  }catch(error){ctSetMessage('⚠️ '+error.message);showBeelineModal('Выдача ТМЦ',error.message,'⚠️');}finally{if(owner===managementOwnerKey())ctSetBusy(false);}
 }
 
@@ -10873,7 +10905,6 @@ function initDrawer(){const nav=document.querySelector('.view-sidebar'),header=d
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initDrawer);else initDrawer();
 </script><script id="channelCatalogScript">
 const channelCatalogState={tab:'tv',data:null,loaded:0,busy:false,serial:0};
-const CHANNEL_SOURCE='https://docs.google.com/spreadsheets/d/1YB1xc289SKMpMcrI-Xr_oTEvGXIf2SroEWVaUeEY34o/edit?gid=1278118745#gid=1278118745';
 const CHANNEL_CURRENT_LOGOS={"QAZAQSTAN HD (Qazaqstan HD)":"./qazaqstan-hd-qazaqstan-hd-23f5198835.webp","Khabar HD":"./khabar-hd-140ee261f7.webp","24KZ HD":"./24kz-hd-0affb93a37.webp","Balapan HD":"./balapan-hd-e20f047545.webp","ABAI TV (Абай ТВ)":"./abai-tv-abay-tv-a37ef9948f.webp","Qazsport HD":"./qazsport-hd-df6d041ef0.webp","Jibek Joly (Kazakh TV) (Bilim)":"./jibek-joly-kazakh-tv-bilim-14887cf9fc.webp","МИР":"./mir-05a5ac32d7.webp","ASTANA TV (Астана)":"./astana-tv-astana-7449f1f09e.webp","Almaty tv (Алматы)":"./almaty-tv-almaty-b0dcd9043e.webp","Первый Канал Евразия":"./pervyy-kanal-evrazia-a550531dda.webp","31 Канал":"./31-kanal-d441479059.webp","Седьмой канал":"./sed-moy-kanal-6664bf93a4.webp","ТНТ HD":"./tnt-hd-5c0509eff7.webp","Пятница International KZ":"./patnica-international-kz-eff015cd27.webp","НТК":"./ntk-6f2df9365e.webp","HIT TV (HitTV)":"./hit-tv-hittv-abb3a04698.webp","Turan TV (Туран-ТВ)":"./turan-tv-turan-tv-e6eca770e8.webp","5 канал (Казахстан)":"./5-kanal-kazahstan-ea45b658a6.webp","МИР 24 (Мир 24)":"./mir-24-mir-24-0bd7c37e9b.webp","Nick Jr.":"./nick-jr-6b6b90b34a.webp","Nicktoons":"./nicktoons-c92b1d4d5d.webp","CartoonNetwork":"./cartoonnetwork-dfc3d1271a.webp","Лева":"./leva-6264d9ca69.webp","Gulli Girl":"./gulli-girl-5b94cc1271.webp","Cartoonito":"./cartoonito-ef92f57cf8.webp","О! (O)":"./o-o-33808ca440.webp","СТС Kids":"./sts-kids-e0ddf7ea52.webp","Мульт":"./mul-t-3ebb1600ce.webp","Карусель International":"./karusel-international-6e23b26174.webp","Уникум (Детский)":"./unikum-detskiy-2b2307d277.webp","Детский мир":"./detskiy-mir-aeffe57c9c.webp","В гостях у сказки":"./v-gostah-u-skazki-43956d56b2.webp","viju TV 1000 HD":"./viju-tv-1000-hd-40386e18ec.webp","viju TV 1000 Action HD":"./viju-tv-1000-action-hd-997c2d58c8.webp","НСТ (НСТВ)":"./nst-nstv-fd0fa315bc.webp","Black":"./black-3625f31da0.webp","Red":"./red-0efcb13fcc.webp","Sci-Fi":"./sci-fi-0d026fd671.webp","Любимое Кино (Наше Любимое Кино)":"./lubimoe-kino-nase-lubimoe-kino-b7d64395d3.webp","Мосфильм. Золотая коллекция":"./mosfil-m-zolotaa-kollekcia-bf7354297c.webp","Дом кино":"./dom-kino-e60d846c20.webp","CINEMA (Cinema)":"./cinema-cinema-ab630b8b79.webp","Amedia Premium HD":"./amedia-premium-hd-18bf9b5497.webp","A1":"./a1-9dc5ec4e58.webp","A2":"./a2-30f8b06b11.webp","Amedia Hit HD":"./amedia-hit-hd-3036fc28a9.webp","Русский Иллюзион":"./russkiy-illuzion-64681946b8.webp","Иллюзион+ HD":"./illuzion-hd-fe9cb68522.webp","FOX HD":"./fox-hd-bb38fb37d7.webp","FOX Life HD":"./fox-life-hd-9b23e37b27.webp","Дорама HD":"./dorama-hd-bd104bf4ff.webp","FILMUADrama HD (FilmUADrama)":"./filmuadrama-hd-filmuadrama-058542e28a.webp","Bollywood HD":"./bollywood-hd-d4f35919c1.webp","КИНОДРАМА":"./kinodrama-88655e42d4.webp","КИНОСЕРИАЛ":"./kinoserial-ab98152c2a.webp","Start.Air HD":"./start-air-hd-b7ee8eedc2.webp","Start.World HD":"./start-world-hd-ea54d0d0b0.webp","Еврокино":"./evrokino-6164572d5c.webp","Hollywood":"./hollywood-5ed0dedf71.webp","Феникс+ Кино":"./feniks-kino-73ae62f496.webp","Plan B":"./plan-b-42ce488d9c.webp","Победа":"./pobeda-f6e51419fc.webp","Мир Сериала":"./mir-seriala-8095179a20.webp","viju+ Comedy HD":"./viju-comedy-hd-d4c55676e4.webp","viju+ Megahit HD":"./viju-megahit-hd-ca78a358b0.webp","viju+ Premiere HD":"./viju-premiere-hd-719a61206f.webp","VIP Serial HD":"./vip-serial-hd-e2406fb9df.webp","Кинеко HD":"./kineko-hd-86a89a3ebc.webp","Сапфир HD":"./sapfir-hd-90f7ee68e2.webp","НТВ Сериал":"./ntv-serial-0d531c7857.webp","Точка отрыва":"./tocka-otryva-a001abd666.webp","Eurosport 1 HD":"./eurosport-1-hd-3cc8004829.webp","Eurosport 2 HD":"./eurosport-2-hd-a952c044a7.webp","Setanta Qazaqstan HD (Setanta Казахстан HD RU)":"./setanta-qazaqstan-hd-setanta-kazahstan-hd-ru-0d2ae72197.webp","Q League HD":"./q-league-hd-97ecc32080.webp","viju+ Sport":"./viju-sport-20cff52a1f.webp","РТР-Планета":"./rtr-planeta-aeade487bf.webp","НТВ МИР":"./ntv-mir-310669f702.webp","Россия 24":"./rossia-24-135202aa03.webp","RTVi HD":"./rtvi-hd-114fb6c1ec.webp","ТНВ-Планета":"./tnv-planeta-7084d1e83c.webp","Sport plus":"./sport-plus-7297eeb01a.webp","Euronews":"./euronews-3591f6673b.webp","EuroNews English HD":"./euronews-english-hd-40e64c5787.webp","8 канал":"./8-kanal-893f6fd179.webp","РБК (РБК-ТВ)":"./rbk-rbk-tv-289d99b7f0.webp","CNN International":"./cnn-international-a3adceaba2.webp","СПАС":"./spas-59a8d2f43a.webp","Музыка Первого":"./muzyka-pervogo-20de2f3a47.webp","Шансон ТВ":"./sanson-tv-9e6a1ba413.webp","MCM Top":"./mcm-top-79009ce196.webp","Mezzo":"./mezzo-2546045c79.webp","1HD Music Television":"./muzyka-pervogo-20de2f3a47.webp","ТНТ MUSIC (TNT Music)":"./tnt-music-tnt-music-d0490d9187.webp","MUZZONE (Muzzone)":"./muzzone-muzzone-62e98d6c1a.webp","MTV 00s":"./mtv-00s-050a156626.webp","Big Planet HD":"./big-planet-hd-50b26c1866.webp","Поехали!":"./poehali-51486792a4.webp","Salem Alem":"./salem-alem-65ce5cef46.webp","Живая природа HD":"./jivaa-priroda-hd-481667bc77.webp","Вопросы и ответы":"./voprosy-i-otvety-12b3de084a.webp","English Club TV":"./english-club-tv-29c369a774.webp","History HD":"./history-hd-f5df12f9d5.webp","History 2 HD":"./history-2-hd-dcbf52032a.webp","Т24 (Техно 24)":"./t24-tehno-24-db231d87a2.webp","Планета HD":"./planeta-hd-4daebc165c.webp","Discovery Channel HD (Discovery HD)":"./discovery-channel-hd-discovery-hd-6aae908e19.webp","Animal Planet HD":"./animal-planet-hd-bee114b2bf.webp","Тайны галактики HD":"./tayny-galaktiki-hd-312e259eda.webp","Оружие":"./orujie-28860299e3.webp","viju History HD":"./viju-history-hd-231dc6d5c0.webp","viju Nature HD":"./viju-nature-hd-4f394804df.webp","Da Vinci Learning":"./da-vinci-learning-56cea5eab9.webp","Первый космический HD":"./pervyy-kosmiceskiy-hd-1b396da632.webp","Глазами Туриста HD":"./glazami-turista-hd-5655c8de9e.webp","National Geographic HD":"./national-geographic-hd-ad042839b3.webp","Nat Geo Wild HD":"./nat-geo-wild-hd-0ecb617ad2.webp","Загородная жизнь HD":"./zagorodnaa-jizn-hd-12116103f1.webp","Россия К":"./rossia-k-1a6a2ae0de.webp","Бобёр":"./bober-de82c5640e.webp","Рен ТВ":"./ren-tv-945fdabab5.webp","Здоровое ТВ":"./zdorovoe-tv-949c3f1184.webp","НТВ Право":"./ntv-pravo-280d7dacac.webp","Кто куда":"./kto-kuda-7a96362aa7.webp","Время":"./vrema-033da92a82.webp","Телекафе":"./telekafe-d476ec2bfd.webp","Fashion & LifeStyle HD (Fashion One HD)":"./fashion-lifestyle-hd-fashion-one-hd-359eaa64a6.webp","Домашний International":"./domasniy-international-fc0a9abd14.webp","Рыбалка и охота (Рыбалка и Охота Int.)":"./rybalka-i-ohota-rybalka-i-ohota-int-aeae0aee2a.webp","Мужской":"./mujskoy-b85b4ce576.webp","Домашние животные":"./domasnie-jivotnye-9ca5f92296.webp","АВТО24 (Авто 24)":"./avto24-avto-24-9b3341355c.webp","TLC HD":"./tlc-hd-bd85e7c0a7.webp","ТНТ4":"./tnt4-f01d559cbb.webp","Еда Премиум HD":"./eda-premium-hd-b434ee65c9.webp","Анекдот ТВ":"./anekdot-tv-ebdfad71f2.webp","НТВ Стиль":"./ntv-stil-731f841db2.webp","Ключ HD":"./kluc-hd-d21156a8af.webp","Terra HD":"./terra-hd-cbe7e5f658.webp","Jambyl (Казахстан-Тараз)":"./jambyl-kazahstan-taraz-3dbccce118.webp","РИКА-ТВ (Рика ТВ)":"./rika-tv-rika-tv-842d5d7648.webp","ТВК 6":"./tvk-6-dbb1ea3b6e.webp","ULYTAU  (Дидар)":"./ulytau-didar-5dc5175804.webp","Ertis":"./ertis-ce5ba3fe26.webp","Atyraý (Казахстан Атырау)":"./atyray-kazahstan-atyrau-47f3835f00.webp","Mańǵystaý (Казахстан Актау)":"./mangystay-kazahstan-aktau-ea2d904d00.webp","Ońtústik (Казахстан Шымкент)":"./ontustik-kazahstan-symkent-ba892514ce.webp","Qostanai (Казахстан Костанай)":"./qostanai-kazahstan-kostanay-eb28d48c5f.webp","Altai (Казахстан Оскемен)":"./altai-kazahstan-oskemen-1c5ea6334a.webp","Qyzyljar (Казахстан Петропавловск)":"./qyzyljar-kazahstan-petropavlovsk-37abe5b8df.webp","Saryarqa (Казахстан Караганда)":"./saryarqa-kazahstan-karaganda-c8a3e9dc85.webp","Kókshe (Казахстан Кокшетау)":"./kokshe-kazahstan-koksetau-1235c90121.webp","Qyzylorda (Казахстан Кызылорда)":"./qyzylorda-kazahstan-kyzylorda-111d1bab7a.webp","Semei":"./semei-71b467c652.webp","Премиум Кино HD":"./premium-kino-hd-8584554182.webp","Мировое Кино HD":"./mirovoe-kino-hd-263b0642c6.webp","Семейное кино HD":"./semeynoe-kino-hd-0646aa7ac6.webp","Кинобоевик HD":"./kinoboevik-hd-078fb5cc71.webp","Women's Magazine HD":"./women-s-magazine-hd-9931e40a7c.webp","Диалоги о Рыбалке":"./dialogi-o-rybalke-6af6395d3f.webp","Наша Тема":"./nasa-tema-35c5151b65.webp","Киноман":"./kinoman-e4111cf64c.webp","FlixSnip HD":"./flixsnip-hd-5f98c3e0ba.webp","Q Football":"./q-football-7ac0cffadf.webp","Зал суда":"./zal-suda-519eb3df82.webp","Gagsnetwork":"./gagsnetwork-5667559244.webp","Лёва":"./leva-6264d9ca69.webp","Мультиландия":"./mul-tilandia-593426d057.webp","Trace Sport Stars HD":"./trace-sport-stars-hd-bf23bb91bc.webp","Trace Urban HD":"./trace-urban-hd-7fcd794da3.webp","Лапки LIVE":"./lapki-live-e4e25844c3.webp","SHOW KZ":"./show-kz-171c9a5156.webp","Аппетитный":"./appetitnyy-2f1a588972.webp","Супергерой (малыш)":"./supergeroy-malys-bc67f6451a.webp","Cartoon Classics":"./cartoon-classics-b8f402fa6e.webp","AQTÓBE (Казахстан Актобе)":"./aqtobe-kazahstan-aktobe-1cd01e9f3b.webp","мама":"./mama-40ff0c2be8.webp","Киномульт":"./kinomul-t-4cc875fcb8.webp","АВТО 24":"./avto24-avto-24-9b3341355c.webp","Любимое Кино":"./lubimoe-kino-nase-lubimoe-kino-b7d64395d3.webp","МИР 24":"./mir-24-mir-24-0bd7c37e9b.webp","Мир сериала":"./mir-seriala-8095179a20.webp","Мир увлечений":"./mir-uvleceniy-5014c2e2e5.webp","НСТ":"./nst-nstv-fd0fa315bc.webp","О!":"./o-o-33808ca440.webp","Пятница International":"./patnica-international-9348170e40.webp","Пятый канал (5 канал int)":"./5-kanal-kazahstan-ea45b658a6.webp","РТР-Планета (Россия)":"./rtr-planeta-aeade487bf.webp","Рыбалка и охота":"./rybalka-i-ohota-rybalka-i-ohota-int-aeae0aee2a.webp","Супергерой":"./supergeroy-malys-bc67f6451a.webp","Т24":"./t24-tehno-24-db231d87a2.webp","ТВ 3 International":"./tv-3-international-5f1ef2d96c.webp","ТНТ MUSIC":"./tnt-music-tnt-music-d0490d9187.webp","Уникум":"./unikum-detskiy-2b2307d277.webp","Astana TV":"./astana-tv-astana-7449f1f09e.webp","Cartoon Network":"./cartoonnetwork-dfc3d1271a.webp","CINEMA":"./cinema-cinema-ab630b8b79.webp","Eurosport 1":"./eurosport-1-hd-3cc8004829.webp","Eurosport 2":"./eurosport-2-hd-a952c044a7.webp","Fashion & LifeStyle HD":"./fashion-lifestyle-hd-fashion-one-hd-359eaa64a6.webp","FILMUADrama":"./filmuadrama-hd-filmuadrama-058542e28a.webp","HIT TV":"./hit-tv-hittv-abb3a04698.webp","Jambyl":"./jambyl-kazahstan-taraz-3dbccce118.webp","MUZZONE":"./muzzone-muzzone-62e98d6c1a.webp","Setanta Qazaqstan HD":"./setanta-qazaqstan-hd-setanta-kazahstan-hd-ru-0d2ae72197.webp","Setanta Sports 1 HD":"./setanta-sports-1-hd-4e7a9fc5e8.webp","Setanta Sports 2 HD":"./setanta-sports-2-hd-3f661cf611.webp","TiJi":"./tiji-febc970427.webp","Turan TV":"./turan-tv-turan-tv-e6eca770e8.webp","viju TV1000 Action HD":"./viju-tv-1000-action-hd-997c2d58c8.webp","viju TV1000 HD":"./viju-tv-1000-hd-40386e18ec.webp","viju+ Serial HD":"./vip-serial-hd-e2406fb9df.webp","Zooпарк":"./zoopark-eda92a7e9b.webp","КТК HD":"./ktk-hd-38cc666f77.webp","Новое Телевидение HD":"./novoe-televidenie-hd-e4d915a08f.webp","Алау-ТВ (Алау)":"./alau-tv-alau-c443803d3c.webp","Алау ТВ":"./alau-tv-alau-c443803d3c.webp","Умка":"./umka-435d8e008e.webp","Nickelodeon RU":"./nickelodeon-ru-c081b79904.webp","TiJi RU":"./tiji-febc970427.webp","viju TV 1000 Русское кино HD":"./viju-tv-1000-russkoe-kino-hd-48f6298144.webp","viju TV1000 Русское кино HD":"./viju-tv-1000-russkoe-kino-hd-48f6298144.webp","Дом кино Premium HD":"./dom-kino-premium-hd-7b25bddf4a.webp","СТС International":"./sts-international-fd001ee80e.webp","Setanta Sports 1 HD RU(Сетанта Спорт HD)":"./setanta-sports-1-hd-4e7a9fc5e8.webp","Setanta Sports 2 HD RU (Сетанта Спорт 2 HD)":"./setanta-sports-2-hd-3f661cf611.webp","Extreme Sports":"./extreme-sports-1d4f2ec2e1.webp","Удар HD":"./udar-hd-5113de9346.webp","Atameken Business Channel HD":"./atameken-business-channel-hd-6a32d89a14.webp","Той Думан":"./toy-duman-5fdd32359b.webp","Zоопарк (Зоопарк)":"./zoopark-eda92a7e9b.webp","Перец":"./perec-da820d29af.webp","Туркестан":"./turkestan-30239f640b.webp","ТДК 42 (ТДК-42)":"./tdk-42-tdk-42-a5185e6336.webp","ТДК-42":"./tdk-42-tdk-42-a5185e6336.webp","Ирбис TV (Irbis)":"./irbis-tv-irbis-708454da8d.webp","Айғак (Айгак)":"./ayak-aygak-bfae182acb.webp","Отырар-TV (Отырар)":"./otyrar-tv-otyrar-1dbdb4a2df.webp","Жетісу (Жетысу)":"./jetsu-jetysu-6d59b51dff.webp","Жетiсу":"./jetsu-jetysu-6d59b51dff.webp","Aqjaıyq (Казахстан Орал)":"./aqjayq-kazahstan-oral-969eb4ec96.webp","Kөktem":"./kktem-f94c710900.webp","QAZAQSTAN HD int":"./qazaqstan-hd-int-e802be30ea.webp","Еда Premium HD":"./eda-premium-hd-95ced4a7f1.webp","Setanta Sport KZ+":"./setanta-sport-kz-56b3bc8288.webp","AQTOBE":"./aqtobe-48ec59a12c.webp","Dostyq TV":"./dostyq-tv-d3901a0d89.webp","Live 5":"./live-5-c56ff31cb2.webp","BeeTV Семейные мелодрамы":"./beetv-semeynye-melodramy-a91cafe277.webp","BeeTV Орел и Решка":"./beetv-orel-i-reska-1ffa3fa0b1.webp","BeeTV Вещдок":"./beetv-vesdok-85505a970a.webp","77 TV":"./77-tv-9b3b137e93.webp","Твоё Телевидение":"./tvoe-televidenie-87cd06f525.webp","Первый канал СНГ":"./pervyy-kanal-sng-d3f204299c.webp","5 канал int":"./5-kanal-int-863a75f3ab.webp","Центральные Телевидение (Центральное ТВ)":"./central-nye-televidenie-central-noe-tv-e15a38539b.webp","BBC World News HD (BBC World)":"./bbc-world-news-hd-bbc-world-0c2d57007a.webp","BBC World News HD":"./bbc-world-news-hd-bbc-world-0c2d57007a.webp","BeeTV Movies":"./beetv-movies-cf331149ca.webp","Dostyk Eurasia":"./dostyk-eurasia-22253acce5.webp","Dostyk Eurasian":"./dostyk-eurasia-22253acce5.webp","Curiosity HD":"./curiosity-hd-ff247905f5.webp","Среда":"./sreda-0c3d2ed78f.webp","Семейные мелодрамы":"./semeynye-melodramy-83bf6bb167.webp","Орел и Решка":"./orel-i-reska-5170dbcf0d.webp","Вещдок":"./vesdok-448d230176.webp","TB 3 International":"./tv-3-international-5f1ef2d96c.webp","ТВ21":"./tv21-f63e61a49f.webp","TV ХХI":"./tv21-f63e61a49f.webp","Comedy Central":"./comedy-central-564cd6b21b.webp","MTV Live HD":"./mtv-live-hd-82dcf0c60a.webp","viju Explorer HD":"./viju-explorer-hd-1165c54363.webp","Новый игровой канал":"./novyy-igrovoy-kanal-50dbd9a695.webp","Народ всё видит":"./narod-vse-vidit-9c3f3323f8.webp","Q ARENA HD":"./q-arena-hd-b8c5a13dc5.webp","Q Arena HD (Qsport international HD)":"./q-arena-hd-b8c5a13dc5.webp","Тараз 24":"./taraz-24-f64f7ed329.webp","Q Live 1":"./q-live-1-54b5e58802.webp","Q Live 2":"./q-live-2-d7a2781bed.webp","Q Live 3 (wimbledon)":"./q-live-3-wimbledon-028a124f64.webp","Q Live 4":"./q-live-4-0d0511af88.webp","Romance":"./romance-7f36e382cf.webp","RomanceChannel":"./romance-7f36e382cf.webp","Suspense":"./suspense-5f356787ac.webp","ТНТ HD RU":"./tnt-hd-5c0509eff7.webp"};
 const CHANNEL_LOGO_LIGHT={"QAZAQSTAN HD (Qazaqstan HD)":false,"Khabar HD":false,"24KZ HD":false,"Balapan HD":false,"ABAI TV (Абай ТВ)":false,"Qazsport HD":false,"Jibek Joly (Kazakh TV) (Bilim)":false,"МИР":false,"ASTANA TV (Астана)":false,"Almaty tv (Алматы)":false,"Первый Канал Евразия":true,"31 Канал":false,"Седьмой канал":true,"ТНТ HD":false,"Пятница International KZ":true,"НТК":false,"HIT TV (HitTV)":false,"Turan TV (Туран-ТВ)":false,"5 канал (Казахстан)":false,"МИР 24 (Мир 24)":false,"Nick Jr.":false,"Nicktoons":false,"CartoonNetwork":true,"Лева":false,"Gulli Girl":false,"Cartoonito":false,"О! (O)":false,"СТС Kids":false,"Мульт":false,"Карусель International":false,"Уникум (Детский)":false,"Детский мир":false,"В гостях у сказки":true,"viju TV 1000 HD":true,"viju TV 1000 Action HD":true,"НСТ (НСТВ)":true,"Black":true,"Red":true,"Sci-Fi":false,"Любимое Кино (Наше Любимое Кино)":false,"Мосфильм. Золотая коллекция":false,"Дом кино":true,"CINEMA (Cinema)":false,"Amedia Premium HD":true,"A1":true,"A2":true,"Amedia Hit HD":true,"Русский Иллюзион":true,"Иллюзион+ HD":false,"FOX HD":false,"FOX Life HD":true,"Дорама HD":false,"FILMUADrama HD (FilmUADrama)":false,"Bollywood HD":false,"КИНОДРАМА":false,"КИНОСЕРИАЛ":false,"Start.Air HD":true,"Start.World HD":true,"Еврокино":false,"Hollywood":false,"Феникс+ Кино":false,"Plan B":true,"Победа":true,"Мир Сериала":false,"viju+ Comedy HD":true,"viju+ Megahit HD":true,"viju+ Premiere HD":true,"VIP Serial HD":true,"Кинеко HD":true,"Сапфир HD":true,"НТВ Сериал":false,"Точка отрыва":true,"Eurosport 1 HD":true,"Eurosport 2 HD":true,"Setanta Qazaqstan HD (Setanta Казахстан HD RU)":false,"Q League HD":false,"viju+ Sport":true,"РТР-Планета":false,"НТВ МИР":false,"Россия 24":false,"RTVi HD":true,"ТНВ-Планета":false,"Sport plus":true,"Euronews":false,"EuroNews English HD":true,"8 канал":false,"РБК (РБК-ТВ)":true,"CNN International":true,"СПАС":false,"Музыка Первого":true,"Шансон ТВ":false,"MCM Top":true,"Mezzo":true,"1HD Music Television":true,"ТНТ MUSIC (TNT Music)":false,"MUZZONE (Muzzone)":false,"MTV 00s":false,"Big Planet HD":true,"Поехали!":false,"Salem Alem":true,"Живая природа HD":false,"Вопросы и ответы":true,"English Club TV":false,"History HD":false,"History 2 HD":false,"Т24 (Техно 24)":true,"Планета HD":true,"Discovery Channel HD (Discovery HD)":false,"Animal Planet HD":true,"Тайны галактики HD":false,"Оружие":true,"viju History HD":true,"viju Nature HD":false,"Da Vinci Learning":true,"Первый космический HD":true,"Глазами Туриста HD":false,"National Geographic HD":true,"Nat Geo Wild HD":true,"Загородная жизнь HD":false,"Россия К":true,"Бобёр":false,"Рен ТВ":false,"Здоровое ТВ":false,"НТВ Право":false,"Кто куда":true,"Время":true,"Телекафе":false,"Fashion & LifeStyle HD (Fashion One HD)":false,"Домашний International":false,"Рыбалка и охота (Рыбалка и Охота Int.)":false,"Мужской":false,"Домашние животные":false,"АВТО24 (Авто 24)":true,"TLC HD":false,"ТНТ4":false,"Еда Премиум HD":true,"Анекдот ТВ":true,"НТВ Стиль":false,"Ключ HD":true,"Terra HD":false,"Jambyl (Казахстан-Тараз)":false,"РИКА-ТВ (Рика ТВ)":false,"ТВК 6":false,"ULYTAU  (Дидар)":false,"Ertis":false,"Atyraý (Казахстан Атырау)":false,"Mańǵystaý (Казахстан Актау)":true,"Ońtústik (Казахстан Шымкент)":false,"Qostanai (Казахстан Костанай)":false,"Altai (Казахстан Оскемен)":false,"Qyzyljar (Казахстан Петропавловск)":false,"Saryarqa (Казахстан Караганда)":false,"Kókshe (Казахстан Кокшетау)":false,"Qyzylorda (Казахстан Кызылорда)":false,"Semei":false,"Премиум Кино HD":false,"Мировое Кино HD":false,"Семейное кино HD":false,"Кинобоевик HD":false,"Women's Magazine HD":true,"Диалоги о Рыбалке":false,"Наша Тема":false,"Киноман":false,"FlixSnip HD":false,"Q Football":false,"Зал суда":false,"Gagsnetwork":false,"Лёва":false,"Мультиландия":false,"Trace Sport Stars HD":false,"Trace Urban HD":true,"Лапки LIVE":false,"SHOW KZ":false,"Аппетитный":false,"Супергерой (малыш)":false,"Cartoon Classics":false,"AQTÓBE (Казахстан Актобе)":false,"мама":false,"Киномульт":false,"АВТО 24":true,"Любимое Кино":false,"МИР 24":false,"Мир сериала":false,"Мир увлечений":false,"НСТ":true,"О!":false,"Пятница International":true,"Пятый канал (5 канал int)":false,"РТР-Планета (Россия)":false,"Рыбалка и охота":false,"Супергерой":false,"Т24":true,"ТВ 3 International":true,"ТНТ MUSIC":false,"Уникум":false,"Astana TV":false,"Cartoon Network":true,"CINEMA":false,"Eurosport 1":true,"Eurosport 2":true,"Fashion & LifeStyle HD":false,"FILMUADrama":false,"HIT TV":false,"Jambyl":false,"MUZZONE":false,"Setanta Qazaqstan HD":false,"Setanta Sports 1 HD":false,"Setanta Sports 2 HD":false,"TiJi":false,"Turan TV":false,"viju TV1000 Action HD":true,"viju TV1000 HD":true,"viju+ Serial HD":true,"Zooпарк":false,"КТК HD":false,"Новое Телевидение HD":false,"Алау-ТВ (Алау)":false,"Алау ТВ":false,"Умка":false,"Nickelodeon RU":false,"TiJi RU":false,"viju TV 1000 Русское кино HD":true,"viju TV1000 Русское кино HD":true,"Дом кино Premium HD":false,"СТС International":false,"Setanta Sports 1 HD RU(Сетанта Спорт HD)":false,"Setanta Sports 2 HD RU (Сетанта Спорт 2 HD)":false,"Extreme Sports":true,"Удар HD":true,"Atameken Business Channel HD":true,"Той Думан":false,"Zоопарк (Зоопарк)":false,"Перец":true,"Туркестан":false,"ТДК 42 (ТДК-42)":false,"ТДК-42":false,"Ирбис TV (Irbis)":false,"Айғак (Айгак)":false,"Отырар-TV (Отырар)":false,"Жетісу (Жетысу)":true,"Жетiсу":true,"Aqjaıyq (Казахстан Орал)":false,"Kөktem":false,"QAZAQSTAN HD int":true,"Еда Premium HD":false,"Setanta Sport KZ+":true,"AQTOBE":true,"Dostyq TV":false,"Live 5":true,"BeeTV Семейные мелодрамы":true,"BeeTV Орел и Решка":true,"BeeTV Вещдок":true,"77 TV":false,"Твоё Телевидение":true,"Первый канал СНГ":true,"5 канал int":false,"Центральные Телевидение (Центральное ТВ)":true,"BBC World News HD (BBC World)":true,"BBC World News HD":true,"BeeTV Movies":true,"Dostyk Eurasia":false,"Dostyk Eurasian":false,"Curiosity HD":true,"Среда":false,"Семейные мелодрамы":true,"Орел и Решка":true,"Вещдок":true,"TB 3 International":true,"ТВ21":true,"TV ХХI":true,"Comedy Central":true,"MTV Live HD":true,"viju Explorer HD":true,"Новый игровой канал":true,"Народ всё видит":true,"Q ARENA HD":true,"Q Arena HD (Qsport international HD)":true,"Тараз 24":true,"Q Live 1":false,"Q Live 2":false,"Q Live 3 (wimbledon)":false,"Q Live 4":false,"Romance":true,"RomanceChannel":true,"Suspense":false,"ТНТ HD RU":false};
 function channelKey(name){return String(name).toLocaleLowerCase().replace(/\([^)]*\)/g,'').replace(/\bhd\b/g,'').replace(/[^\p{L}\p{N}]/gu,'');}
@@ -10973,7 +11004,7 @@ window.addEventListener('beforeunload',e=>{if(gsDirty()){e.preventDefault();e.re
 <script id="tmcRequestsScript">
 const TMR_UI_FIELDS=[['routers','Роутеры'],['stbs','Приставки'],['connectors','Коннектора'],['clips','Клипсы'],['ties','Хомуты'],['uy2','UY2'],['tape','Изолента']];
 let tmrUi={owner:'',data:null,busy:false,pending:null,manager:false};
-function tmrOwner(){return (currentUser?.city||'')+'|'+(currentUser?.dwLogin||'');}
+function tmrOwner(){return managementOwnerKey();}
 function tmrDayLabel(day){return String(day||'').split('-').reverse().join('.');}
 function tmrUiSummary(item){return [...item.cables,...TMR_UI_FIELDS.filter(([key])=>item.quantities[key]>0).map(([key,label])=>label+': '+item.quantities[key]+' шт.')].join('\n');}
 function tmrScreen(manager){return document.getElementById(manager?'screen-tmc-requests-management':'screen-tmc-request');}
