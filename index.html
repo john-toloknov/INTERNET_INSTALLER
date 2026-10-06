@@ -2373,6 +2373,23 @@ button, input, textarea, select { font:inherit; }
 .board-day:has(>button){padding:0}.board-day>button{min-height:44px;padding:6px 2px;box-sizing:border-box;flex:1}.board-day button:focus-visible{outline:2px solid #ffcc00;outline-offset:3px;border-radius:5px}.board-day button:hover strong{color:#ffcc00}.board-day-modal{text-align:left;max-height:55vh;max-height:55dvh;overflow-y:auto;padding:2px 6px 2px 2px;scrollbar-color:#ffcc00 #000;scrollbar-width:thin}.board-day-modal::-webkit-scrollbar{width:7px}.board-day-modal::-webkit-scrollbar-track{background:#000;border-radius:10px}.board-day-modal::-webkit-scrollbar-thumb{background:#ffcc00;border-radius:10px}.board-day-person{margin:0 0 12px;color:#ffcc00;font-weight:bold;overflow-wrap:anywhere}.board-day-reports{display:flex;flex-direction:column;gap:10px;margin-top:12px}.board-day-report{padding:12px;border:1px solid #665600;border-left:3px solid #ffcc00;border-radius:12px;background:#111;min-width:0}.board-day-report h4{color:#ffcc00;font-size:13px;line-height:1.5;margin:0 0 8px;overflow-wrap:anywhere}.board-day-report p{white-space:pre-wrap;overflow-wrap:anywhere;margin:0;font-size:13px;line-height:1.6}.board-day-empty{font-size:13px;color:#ccc}
 .board-city-days .board-day strong{font-size:11px;white-space:nowrap;line-height:1.3}.board-city-days .board-day small{font-size:clamp(8px,2.2vw,9px);white-space:nowrap;overflow-wrap:normal}
 .board-city-legend{font-size:11px;color:#ccc;margin:10px 0}
+
+.staff-board-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+.staff-board-tabs button{flex:1;min-width:150px;padding:10px 12px;border:1px solid #444;border-radius:12px;background:#202020;color:var(--text-primary);font:inherit;cursor:pointer}
+.staff-board-tabs button[aria-selected="true"]{background:var(--beeline-yellow);color:#111;border-color:var(--beeline-yellow);font-weight:700}
+#staffBoardResult [hidden]{display:none!important}
+.staff-board-scroll{max-height:65vh;overflow:auto;border:1px solid #444;border-radius:12px;margin:14px 0;scrollbar-color:var(--beeline-yellow) #171717;scrollbar-width:thin}
+.staff-board-scroll::-webkit-scrollbar{width:8px;height:8px}.staff-board-scroll::-webkit-scrollbar-track{background:#171717}.staff-board-scroll::-webkit-scrollbar-thumb{background:var(--beeline-yellow);border-radius:8px}
+.staff-board-table{border-collapse:separate;border-spacing:0;width:100%;font-size:13px;background:#171717}
+.staff-board-table th,.staff-board-table td{padding:9px 10px;border-right:1px solid #333;border-bottom:1px solid #333;text-align:center;min-width:75px}
+.staff-board-table thead th{position:sticky;top:0;z-index:2;background:#292616;color:var(--beeline-yellow);min-width:95px;max-width:160px;white-space:normal}
+.staff-board-table tr>:first-child{position:sticky;left:0;z-index:1;background:#202020;min-width:210px;max-width:260px;text-align:left;white-space:normal}
+.staff-board-table thead tr>:first-child{z-index:3;background:#292616}
+.staff-board-table tbody tr:nth-child(even) td{background:#1e1e1e}.staff-board-table tbody tr:hover td{background:#302c18}
+.staff-board-caption{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.staff-board-day{background:transparent;border:0;border-radius:6px;color:inherit;padding:6px;min-width:36px;cursor:pointer;font:inherit}.staff-board-day.worked{color:var(--beeline-yellow);font-weight:700}.staff-board-day:hover{background:#403918}
+html[data-app-layout=desktop] #screen-admin-board{max-width:none!important;width:100%}
+@media(max-width:600px){.staff-board-table{font-size:12px}.staff-board-table tr>:first-child{min-width:145px;max-width:180px}.staff-board-table th,.staff-board-table td{padding:7px 8px}.staff-board-tabs button{min-width:100px;font-size:12px}}
 </style>
 <style id="responsivePresentation">
 /* Адаптивное представление. Рабочие обработчики и данные не изменяются. */
@@ -3233,6 +3250,150 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
  html[data-app-layout=desktop] #cityTableEditor :is(.ct-hidden-two,.ct-hidden-three)>.ct-group-misc .ct-field[data-ct-field=comment],html[data-app-layout=desktop] #cityTableEditor :is(.ct-hidden-two,.ct-hidden-three)>.ct-group-misc .ct-field[data-ct-field=theme]{grid-column:1/-1}
  html[data-app-layout=desktop] #cityTableEditor .ct-hidden-two>.ct-group-equipment .ct-fields{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+</style>
+<style>
+/* Компактная общая доска сотрудников. */
+#screen-admin-board > .card{padding:16px!important}
+.staff-board-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#staffBoardPeriod{margin:0;font-size:13px}
+#screen-admin-board #staffBoardRefresh{width:auto!important;flex:0 0 auto;min-height:0;padding:7px 12px!important;margin:0!important;font-size:12px;border-radius:8px;line-height:1.3}
+#staffBoardResult{gap:8px}
+#screen-admin-board .board-metrics{display:flex;flex-wrap:wrap;gap:8px}
+#screen-admin-board .board-metric{flex:0 1 auto;flex-direction:row;align-items:center;gap:8px;padding:6px 10px;border-radius:8px}
+#screen-admin-board .board-metric strong{font-size:14px}
+#screen-admin-board .staff-board-tabs{gap:6px;margin:4px 0}
+#screen-admin-board .staff-board-tabs button{flex:0 1 auto;min-width:0;padding:7px 12px;font-size:12px;border-radius:8px}
+#screen-admin-board .staff-board-scroll{margin:4px 0;max-height:55vh;border-radius:8px}
+#screen-admin-board .staff-board-table{font-size:12px;width:100%}
+#screen-admin-board .staff-board-table th,#screen-admin-board .staff-board-table td{padding:6px;min-width:48px;line-height:1.3}
+#screen-admin-board .staff-board-table thead th{min-width:52px;max-width:80px}
+#screen-admin-board .staff-board-table tr>:first-child{min-width:180px;max-width:210px;font-weight:500}
+#screen-admin-board .staff-board-table thead tr>:first-child{font-weight:700}
+#screen-admin-board .staff-board-day{padding:2px;min-width:28px}
+#screen-admin-board .board-city-legend{font-size:11px;margin:4px 0}
+@media(max-width:600px){#screen-admin-board > .card{padding:12px!important}#screen-admin-board .staff-board-table tr>:first-child{min-width:140px;max-width:165px}#screen-admin-board .staff-board-tabs button{padding:7px 8px;font-size:11px}}
+</style>
+<style>
+/* Размеры календаря совпадают с таблицей рабочего графика. */
+#screen-admin-board{width:100%;max-width:none!important;min-width:0}
+#screen-admin-board>.card{width:100%;max-width:none!important;box-sizing:border-box;min-width:0}
+#screen-admin-board .staff-board-calendar{width:max-content;min-width:100%;table-layout:fixed;font-size:12px}
+#screen-admin-board .staff-board-calendar th,#screen-admin-board .staff-board-calendar td{padding:3px;min-width:34px;box-sizing:border-box}
+#screen-admin-board .staff-board-calendar tr>:first-child{width:220px;min-width:220px;max-width:220px}
+#screen-admin-board .staff-board-calendar thead th{max-width:none}
+#screen-admin-board .staff-board-calendar .staff-board-day{display:flex;align-items:center;justify-content:center;width:34px;min-width:34px;height:36px;padding:0;border:1px solid transparent;border-radius:6px;background:#222;font-size:12px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar{width:100%;min-width:0;table-layout:fixed}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar th,html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar td{min-width:0;padding:2px;font-size:11px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar tr>:first-child{width:156px;min-width:0;max-width:none}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar tr>:last-child{width:34px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar .staff-board-day{width:100%;min-width:0;height:34px}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-calendar tr>:first-child{width:150px;min-width:150px;max-width:150px}
+</style>
+
+<style>
+/* Полные подписи показателей вверх вправо на 45 градусов. */
+html[data-app-layout] #screen-admin-board{width:100%!important;max-width:none!important;margin:0 auto!important}
+html[data-app-layout] #screen-admin-board>.card{width:100%!important;max-width:100%!important;margin:0 auto!important;box-sizing:border-box}
+#screen-admin-board .staff-board-angled-scroll{padding-right:215px;box-sizing:border-box}
+#screen-admin-board .staff-board-angled{width:100%;min-width:1050px;table-layout:fixed}
+#screen-admin-board .staff-board-angled tr>:first-child{width:220px;min-width:220px;max-width:220px}
+#screen-admin-board .staff-board-angled thead th{height:250px;vertical-align:bottom;overflow:visible;position:sticky;padding:8px 4px;min-width:0;max-width:none}
+#screen-admin-board .staff-board-angled thead th:first-child{vertical-align:bottom}
+#screen-admin-board .staff-board-rotated-label{position:absolute;bottom:12px;left:50%;display:block;width:max-content;white-space:nowrap;transform:rotate(-45deg);transform-origin:left bottom;font-size:11px;line-height:1.3;text-align:left}
+#screen-admin-board .staff-board-angled tbody td{min-width:0}
+</style>
+<style>
+/* Ширина обоих экранов внутри исходного контейнера сайта. */
+html[data-app-layout] :is(#screen-admin-board,#screen-admin-work-schedule){width:100%!important;max-width:var(--view-width)!important;margin-inline:auto!important;box-sizing:border-box}
+html[data-app-layout] #screen-admin-board>.card{width:100%!important;max-width:100%!important;padding:24px!important;box-sizing:border-box}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar th,html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar td{width:auto!important;min-width:0!important;max-width:none!important;padding:1px;font-size:11px;overflow:hidden}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar tr>:first-child{font-size:13px;line-height:20px;padding:7px;overflow-wrap:break-word}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar .staff-board-day{width:100%;min-width:0;height:34px}
+@media(max-width:600px){html[data-app-layout] #screen-admin-board>.card{padding:12px!important}}
+</style>
+<style>
+/* Резервная граница совпадает с пределом шапки. Точная ширина измеряется при открытии. */
+html[data-app-layout] :is(#screen-admin-board,#screen-admin-work-schedule){width:100%;max-width:min(1600px,100%)!important;margin-left:auto!important;margin-right:auto!important;min-width:0;box-sizing:border-box}
+html[data-app-layout] :is(#screen-admin-board,#screen-admin-work-schedule)>.card{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box}
+</style>
+<style>
+/* Подписи не перекрываются фоном следующего заголовка. */
+#screen-admin-board .staff-board-angled thead th{height:270px}
+#screen-admin-board .staff-board-angled thead th:not(:first-child){overflow:visible}
+#screen-admin-board .staff-board-rotated-label{z-index:1}
+#screen-admin-board .staff-board-table tfoot th,#screen-admin-board .staff-board-table tfoot td{background:#292616;color:#ffcc00;font-weight:700;position:sticky;bottom:0;z-index:3}
+#screen-admin-board .staff-board-calendar .staff-board-day.board-hours-low{background:#d32f2f!important;color:#fff!important;font-weight:700}
+#screen-admin-board .staff-board-calendar .staff-board-day.board-hours-medium{background:#1565c0!important;color:#fff!important;font-weight:700}
+#screen-admin-board .staff-board-calendar .staff-board-day.board-hours-high{background:#fff!important;color:#111!important;font-weight:700}
+.board-month-total{display:flex;flex-direction:column;align-items:center;font-weight:700;line-height:1.25}.board-month-total small{font-size:10px;color:#bbb;font-weight:400}
+#screen-admin-board .staff-board-tabs{gap:8px}
+#screen-admin-board .staff-board-tabs button{padding:7px 12px;min-height:38px;font-size:13px;border-radius:8px;border:1px solid #665500;box-shadow:none}
+#beelineModalText .board-day-person{font-size:12px;line-height:1.5;margin:0 0 8px}
+#beelineModalText .board-day-report{padding:8px 10px;font-size:12px;line-height:1.6;margin:0}
+#beelineModalText .board-day-report strong{color:#ffcc00}
+#beelineModalText .board-day-report span{white-space:normal}
+</style>
+<style>
+#screen-admin-board .staff-board-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:8px}
+#screen-admin-board .staff-board-tabs button{width:100%;min-width:0;margin:0;min-height:38px;padding:7px 12px;font-size:13px}
+#screen-admin-board .board-employee-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:34px;padding:4px 7px;background:#111;border:1px solid #444;border-radius:6px;color:#fff;text-align:left;font:inherit;cursor:pointer}
+#screen-admin-board .board-employee-choice .gs-name-label{min-width:0;overflow-wrap:anywhere}
+#screen-admin-board .board-employee-choice .dropdown-arrow{color:#ffcc00;flex:none;font-size:18px}
+#screen-admin-board .board-employee-choice:disabled{opacity:.6;cursor:default}
+@media(max-width:600px){#screen-admin-board .staff-board-tabs button{padding:7px 4px;font-size:11px;overflow-wrap:anywhere}}
+</style>
+<style>
+#screen-admin-board .staff-board-calendar .staff-board-day.board-hours-rest{background:#34a853!important;color:#000!important;font-weight:700}
+</style>
+<style>
+/* На компьютере показатели используют всю строку без внутренней прокрутки. */
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled-scroll{padding-right:0;max-height:none;overflow:visible}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled{width:100%;min-width:0;table-layout:fixed}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled thead{background:linear-gradient(180deg,#211e12,#292616)}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled thead th{height:170px;position:relative;background:transparent!important;border-bottom:2px solid #665500;padding:6px 4px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled .staff-board-rotated-label{left:calc(100% - 113px);bottom:12px;width:148px;max-width:148px;white-space:normal;overflow-wrap:break-word;font-size:11px;line-height:14px;transform:rotate(-45deg);transform-origin:left bottom;box-sizing:border-box}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled tbody td{min-width:0;padding:4px 3px;font-size:11px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled tfoot th,html[data-app-layout=desktop] #screen-admin-board .staff-board-angled tfoot td{position:static;min-width:0;padding:6px 3px;font-size:11px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-angled tbody th{padding:4px 6px}
+</style>
+<style>
+/* Объединённые показатели: компактная цветная шапка. */
+#screen-admin-board .staff-board-consolidated thead th{height:58px;vertical-align:middle;background:var(--board-head,#ffcc00)!important;color:#111;font-family:inherit;font-weight:700;border-right:1px solid #555;border-bottom:2px solid #665500}
+#screen-admin-board .staff-board-consolidated thead th:first-child{text-align:center!important;vertical-align:middle;font-size:13px;white-space:normal}
+#screen-admin-board .staff-board-consolidated .staff-board-rotated-label{position:static;transform:none;left:auto;bottom:auto;width:auto;max-width:none;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 4px;white-space:normal;font-family:inherit;font-size:11px;line-height:14px;text-align:center;color:inherit}
+#screen-admin-board .board-column-unit{display:inline-block;font:inherit;font-size:10px;margin:0;white-space:nowrap}
+#screen-admin-board [data-board-tone=name]{--board-head:#ffcc00}
+#screen-admin-board [data-board-tone=inclusion]{--board-head:#34a853}
+#screen-admin-board [data-board-tone=move]{--board-head:#6d9eeb}
+#screen-admin-board [data-board-tone=service]{--board-head:#ffe45c}
+#screen-admin-board [data-board-tone=dismantle]{--board-head:#ea9999}
+#screen-admin-board [data-board-tone=ppr]{--board-head:#fff27a}
+#screen-admin-board [data-board-tone=total]{--board-head:#ffad33}
+#screen-admin-board [data-board-tone=remote]{--board-head:#4ddfe0}
+#screen-admin-board [data-board-tone=repeat]{--board-head:#ed8e8e}
+#screen-admin-board [data-board-tone=notConnected]{--board-head:#d9d9d9}
+#screen-admin-board [data-board-tone=kpi]{--board-head:#eaa0a0}
+#screen-admin-board [data-board-tone=days]{--board-head:#ffeb3b}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thead th{height:58px;vertical-align:middle;background:var(--board-head,#ffcc00)!important;color:#111}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated .staff-board-rotated-label{position:static;transform:none;left:auto;bottom:auto;width:auto;max-width:none;font-size:11px;line-height:14px}
+@media(max-width:1200px){html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thead th{height:58px;vertical-align:middle}html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated .staff-board-rotated-label{position:static;transform:none;width:auto;max-width:none;text-align:center;font-size:11px;line-height:14px}}
+</style>
+<style>
+/* Единая строка шапки; объединённая таблица не использует наклонные подписи. */
+#screen-admin-board .staff-board-consolidated thead th{height:42px;white-space:nowrap;font-size:11px;padding:4px 2px;min-width:0;max-width:none;position:static;text-align:center}
+#screen-admin-board .staff-board-consolidated tr>:first-child{width:220px;min-width:220px;max-width:220px}
+#screen-admin-board .staff-board-consolidated thead th:first-child{white-space:nowrap}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated-scroll{padding-right:0;max-height:none;overflow:visible}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated{width:100%;min-width:0;table-layout:fixed}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated td{min-width:0;max-width:none;padding:4px 3px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated tfoot th,html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated tfoot td{position:static}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thead th{height:42px;white-space:nowrap;font-size:clamp(8px,.65vw,11px);min-width:0;max-width:none}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thead th:first-child{font-size:13px}
+@media(max-width:1200px){html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated tr>:first-child{width:180px;min-width:180px;max-width:180px}}
+</style>
+<style>
+#screen-admin-board .staff-board-consolidated thead th:first-child{border-top-left-radius:8px}
+#screen-admin-board .staff-board-consolidated thead th:last-child{border-top-right-radius:8px}
 </style>
 </head>
 <body>
@@ -4740,7 +4901,7 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
 <!-- МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ -->
 <div id="screen-admin-board" class="app-screen uniform-screen">
  <h2>📊 Показатели сотрудников</h2><div class="card">
- <p id="staffBoardPeriod"></p><button id="staffBoardRefresh" class="btn main-btn" type="button" onclick="openStaffBoard()">🔄 Обновить показатели</button>
+ <div class="staff-board-toolbar"><p id="staffBoardPeriod"></p><button id="staffBoardRefresh" class="btn main-btn" type="button" onclick="openStaffBoard()">🔄 Обновить</button></div>
  <div id="staffBoardState" role="status" aria-live="polite"></div><div id="staffBoardResult"></div>
  <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
@@ -4879,15 +5040,7 @@ function normalizeEmployeeRole(value) {
     window.addEventListener('DOMContentLoaded', async () => {
         initCitiesDropdowns();
 
-        const rememberedLogin = localStorage.getItem('beeline_remembered_login');
-        // Старый сохранённый пароль удаляем: помнить можно только логин.
-        localStorage.removeItem('beeline_remembered_pass');
-        if (rememberedLogin) {
-            document.getElementById('loginUser').value = rememberedLogin;
-            document.getElementById('rememberMe').checked = true;
-        }
-
-        checkAuthSession();
+        if (!await restoreRememberedAuth()) checkAuthSession();
         handleSearchAccess();
         window.dispatchEvent(new Event('scroll'));
         // Камера теперь инициализируется только при открытии экрана ТМЦ
@@ -5115,6 +5268,7 @@ function normalizeEmployeeRole(value) {
         if (target) {
             target.style.display = 'block';
             target.classList.add('active');
+            if(screenId==='screen-admin-work-schedule'||screenId==='screen-admin-board')syncManagementScreenWidth();
         }
         window.scrollTo(0, 0);
         if (typeof updateSmartScrollButton === 'function') {
@@ -5628,8 +5782,23 @@ function normalizeEmployeeRole(value) {
         }
     }
 
+    // Восстанавливает выбранное пользователем запоминание входа с проверкой на сервере.
+    async function restoreRememberedAuth() {
+        let login, password;
+        try { login = localStorage.getItem('beeline_remembered_login'); password = localStorage.getItem('beeline_remembered_pass'); }
+        catch (_) { return false; }
+        if (!login) return false;
+        document.getElementById('loginUser').value = login;
+        document.getElementById('rememberMe').checked = true;
+        if (!password) return false;
+        currentUser = null;
+        document.getElementById('loginPass').value = password;
+        switchScreen('screen-login');
+        return await handleLogin({preventDefault(){}}, true);
+    }
+
     // Проверяет вход на сервере; справочник загружается после открытия меню.
-    async function handleLogin(e) {
+    async function handleLogin(e, automatic = false) {
         e.preventDefault();
         if (loginBusy) return;
         const loginInput = document.getElementById('loginUser').value.trim();
@@ -5645,7 +5814,10 @@ function normalizeEmployeeRole(value) {
         try {
             const result = await requestAuthJson({action:'authenticate',login:loginInput,password:passInput}, 20000, controller.signal);
             if (epoch !== authRequestEpoch) return;
-            if (result.status !== 'ok' || !result.user) throw new Error(result.message || 'Вход не подтверждён. Обновите опубликованную версию скрипта общей таблицы.');
+            if (result.status !== 'ok' || !result.user) {
+                if (automatic) { localStorage.removeItem('beeline_remembered_pass'); document.getElementById('loginPass').value = ''; }
+                throw new Error(result.message || 'Вход не подтверждён. Обновите опубликованную версию скрипта общей таблицы.');
+            }
             const found = {...result.user,role:normalizeEmployeeRole(result.user.role),password:passInput};
             const safeUser = {...result.user,role:found.role};
             delete safeUser.password;
@@ -5655,13 +5827,19 @@ function normalizeEmployeeRole(value) {
             currentUser = found;
             ownerCityChoiceRequired = found.role === 'Владелец';
             localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
-            if (rememberMe) localStorage.setItem('beeline_remembered_login', loginInput);
-            else localStorage.removeItem('beeline_remembered_login');
-            localStorage.removeItem('beeline_remembered_pass');
+            if (rememberMe) {
+                localStorage.setItem('beeline_remembered_login', loginInput);
+                localStorage.setItem('beeline_remembered_pass', passInput);
+            } else {
+                localStorage.removeItem('beeline_remembered_login');
+                localStorage.removeItem('beeline_remembered_pass');
+            }
             checkAuthSession();
             void loadUsersFromSheet();
+            return true;
         } catch (err) {
-            if (epoch === authRequestEpoch) showBeelineModal('Ошибка входа',String(err.message || err),'❌');
+            if (epoch === authRequestEpoch) showBeelineModal(automatic ? 'Автоматический вход' : 'Ошибка входа',String(err.message || err),'❌');
+            return false;
         } finally {
             if (epoch === authRequestEpoch) {
                 loginController = null;
@@ -5690,6 +5868,7 @@ function normalizeEmployeeRole(value) {
         ownerCityChoiceRequired = false;
         ownerCitySelected = '';
         localStorage.removeItem('beeline_current_user');
+        localStorage.removeItem('beeline_remembered_pass');
         document.getElementById('loginPass').value = '';
         checkAuthSession();
     }
@@ -7909,10 +8088,29 @@ document.addEventListener('blur', (e) => {
             : name;
 
         if (displayEl) displayEl.textContent = display;
-        if (hiddenEl) hiddenEl.value = formattedName;
+        const selectedReport=hiddenEl?.value,selectedPpr=pprHiddenEl?.value;
+        if (hiddenEl) hiddenEl.value = selectedReport||formattedName;
 
         if (pprDisplayEl) pprDisplayEl.textContent = display;
-        if (pprHiddenEl) pprHiddenEl.value = formattedName;
+        if (pprHiddenEl) pprHiddenEl.value = selectedPpr||formattedName;
+        initReportEmployeePicker(displayEl,hiddenEl,formattedName);
+        initReportEmployeePicker(pprDisplayEl,pprHiddenEl,formattedName);
+    }
+
+    // Руководитель выбирает исполнителя отчёта из сотрудников своего города.
+    function initReportEmployeePicker(display,hidden,fallback){
+        if(!display||!hidden)return;
+        const manager=['Супервайзер','Старший Техник'].includes(normalizeEmployeeRole(currentUser?.role));
+        if(!manager){hidden.value=fallback;return;}
+        const people=getReportInstallersFromDatabase();
+        if(!people.some(p=>formatReportInstallerValue(p)===hidden.value))hidden.value=fallback;
+        display.replaceChildren();const dropdown=document.createElement('div');dropdown.className='custom-dropdown ppr-staff-dropdown staff-dropdown';
+        const input=document.createElement('input');input.type='search';input.className='dropdown-select-btn staff-search-trigger';input.autocomplete='off';input.placeholder='🔍 Выберите сотрудника своего города';input.setAttribute('aria-label','Исполнитель отчёта');
+        const list=document.createElement('div');list.className='dropdown-list';
+        const restore=()=>input.value=String(hidden.value||'').split(',')[0].replace(/\s*\([^)]*\)\s*$/,'').trim();restore();
+        const fill=query=>{list.replaceChildren();const q=String(query||'').trim().toLocaleLowerCase('ru');people.filter(p=>[p.fullName,p.role,p.warehouse].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q))).forEach(p=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item';staffDropdownOption(option,p);option.onclick=()=>{hidden.value=formatReportInstallerValue(p);restore();setDropdownOpen(dropdown,false);if(hidden.id==='tr-pprInstaller1')updatePprInstallersLists();};list.append(option);});if(!list.children.length){const empty=document.createElement('div');empty.className='dropdown-item';empty.textContent='Сотрудники не найдены';list.append(empty);}};
+        const open=()=>{fill(input.value);setDropdownOpen(dropdown,true);};input.onfocus=()=>{input.select();fill('');setDropdownOpen(dropdown,true);};input.onclick=e=>{e.stopPropagation();fill('');setDropdownOpen(dropdown,true);};input.oninput=open;input.onblur=()=>setTimeout(()=>{if(!dropdown.contains(document.activeElement)){restore();setDropdownOpen(dropdown,false);}},170);input.onkeydown=e=>{if(e.key==='Escape'){restore();setDropdownOpen(dropdown,false);input.blur();}};
+        dropdown.append(input,list);display.append(dropdown);
     }
 
     // Обрабатывает монтажники списки выбора.
@@ -7927,7 +8125,7 @@ document.addEventListener('blur', (e) => {
         const hidden = document.getElementById('tr-pprInstaller2');
         const input = document.getElementById('tr-pprInstaller2-btn');
         if (!list) return;
-        const currentName = String(currentUser?.fullName || '').trim();
+        const currentName = String(document.getElementById('tr-pprInstaller1')?.value||currentUser?.fullName||'').split(',')[0].replace(/\s*\([^)]*\)\s*$/,'').trim();
         const people = getReportInstallersFromDatabase().filter(person => person.fullName !== currentName);
         const selected = people.find(person => formatReportInstallerValue(person) === hidden?.value);
         if (hidden?.value && !selected) { hidden.value = ''; if (input) input.value = ''; }
@@ -11154,6 +11352,8 @@ function renderAdminCompactChart(result){
 
 // Единый выбор времени без нативного всплывающего окна браузера.
 let appTimeInput=null,staffBoardVersion=0;
+let boardResizeObserver=null;
+let managementWidthObserver=null;
 // Очищает приложение время.
 function closeAppTime(restore=false){const old=appTimeInput;appTimeInput=null;document.getElementById('appTimePicker')?.setAttribute('hidden','');old?._appTimeButton?.setAttribute('aria-expanded','false');if(restore)old?._appTimeButton?.focus();}
 // Обрабатывает приложение время.
@@ -11182,17 +11382,92 @@ async function openStaffBoard(){if(!managementAllowed())return;switchScreen('scr
 function boardMetrics(items){const grid=document.createElement('div');grid.className='board-metrics';items.forEach(item=>{const cell=document.createElement('div');cell.className='board-metric'+(item.wide?' board-metric-wide':'');cell.append(adminToolsText('span',item.label),adminToolsText('strong',item.value==null||item.value===''?'—':String(item.value)));if(item.hint)cell.append(adminToolsText('small',item.hint,'board-metric-hint'));grid.append(cell);});return grid;}
 // Выполняет доска подробности.
 function boardDetails(title,body){const details=document.createElement('details');details.className='board-details';details.append(adminToolsText('summary',title),body);return details;}
+// Колонки объединённых показателей: количество/часы и количество/процент.
+function boardMetricColumns(){return [
+ {label:'ФИО монтажников',cols:['A'],tone:'name'},
+ {label:'Включение',subLabel:'Штук./🕐',cols:['I','B'],tone:'inclusion'},
+ {label:'Переезд',subLabel:'Штук./🕐',cols:['J','C'],tone:'move'},
+ {label:'Сервис',subLabel:'Штук./🕐',cols:['K','D'],tone:'service'},
+ {label:'Демонтаж',subLabel:'Штук./🕐',cols:['N','E'],tone:'dismantle'},
+ {label:'ППР 🕐',cols:['F'],tone:'ppr'},
+ {label:'Всего 🕐',cols:['G'],tone:'total'},
+ {label:'Удаленно',subLabel:'Штук./%',cols:['M','S'],tone:'remote'},
+ {label:'Повторный',subLabel:'сервис',cols:['O'],tone:'repeat'},
+ {label:'Не',subLabel:'включено',cols:['P'],tone:'notConnected'},
+ {label:'KPI',cols:['R'],tone:'kpi'},
+ {label:'Количество',subLabel:'дней',cols:['Q'],tone:'days'}
+ ].map(c=>({...c,metric:true,title:[c.label,c.subLabel].filter(Boolean).join(' · ')}));}
+// Сопоставляет исходные колонки по буквам; сохраняет готовые проценты и строку итогов.
+function boardMetricCells(columns,values,name){const byColumn=new Map(columns.map((c,i)=>[c.column,values?.[i]]));return boardMetricColumns().map(c=>c.cols[0]==='A'?name:c.cols.map(col=>{const value=byColumn.get(col);return value==null||value===''?'0':String(value);}).join(' / '));}
 // Показывает сотрудники доска.
-function renderStaffBoard(result){const root=document.getElementById('staffBoardResult');root.replaceChildren();document.getElementById('staffBoardPeriod').textContent=result.period?'Месяц: '+result.period.split('-').reverse().join('.'):'Месяц не указан';if(!result.employees.length){root.append(adminToolsText('p','На листе пока нет показателей сотрудников.'));return;}
- root.append(boardMetrics([{label:'Сотрудников',value:result.employees.length},{label:'🕐 Часов',value:result.totalHours},{label:'📋 Заявок',value:result.totalRequests}]));
- result.employees.forEach(employee=>{const card=document.createElement('article');card.className='board-employee';card.append(adminToolsText('h3','👤 '+employee.name));card.append(boardMetrics([{label:'🕐 Итог часов',value:employee.hoursDisplay||employee.totalHours},{label:'Удалённо / процент',value:(employee.remote||'0')+' / '+(employee.remotePercent||'0%')},{label:'📅 Отработано дней',value:employee.workedDays},{label:'Продуктивность',value:employee.productivity}]));
- const metrics=document.createElement('div');metrics.append(boardMetrics(employee.metrics));card.append(boardDetails('Часы и заявки · все показатели',metrics));
- const days=document.createElement('div');days.className='board-days';employee.days.forEach(day=>{const tile=document.createElement('div');tile.className='board-day'+(day.hours>0?' worked':'');tile.append(adminToolsText('span',day.date.slice(-2)),adminToolsText('strong',day.value||'—'));{const b=document.createElement('button');b.type='button';b.setAttribute('aria-label','Отчёты за '+day.date);b.append(...tile.childNodes);b.onclick=()=>openBoardDay(employee,day,b);tile.append(b);}days.append(tile);});
- const daily=document.createElement('div');daily.append(days);card.append(boardDetails('📅 Часы по дням',daily));
- const materials=document.createElement('div');if(employee.materials.length)materials.append(boardMaterials(employee.materials));else materials.append(adminToolsText('p','Нет данных об оборудовании и кабеле.'));card.append(boardDetails('📦 Оборудование и кабель',materials));root.append(card);
+function renderStaffBoard(result,activeTab=0){
+ if(boardResizeObserver){boardResizeObserver.disconnect();boardResizeObserver=null;}
+ const root=document.getElementById('staffBoardResult');root.replaceChildren();
+ document.getElementById('staffBoardPeriod').textContent=result.period?'Месяц: '+result.period.split('-').reverse().join('.'):'Месяц не указан';
+ const employees=result.employees||[];
+ if(!employees.length){root.append(adminToolsText('p','На листе пока нет показателей сотрудников.'));return;}
+ const tabs=document.createElement('div');tabs.className='staff-board-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Показатели сотрудников');
+ const panels=[],buttons=[];
+ function addTab(title,content){const index=panels.length,button=adminToolsText('button',title),panel=document.createElement('section');button.type='button';button.id='staffBoardTab'+index;button.setAttribute('role','tab');panel.id='staffBoardPanel'+index;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',button.id);button.setAttribute('aria-controls',panel.id);panel.hidden=index!==activeTab;button.setAttribute('aria-selected',String(index===activeTab));button.onclick=()=>{panels.forEach((p,i)=>{p.hidden=i!==index;buttons[i].setAttribute('aria-selected',String(i===index));});};panel.append(content);panels.push(panel);buttons.push(button);tabs.append(button);}
+ const columns=result.columns||[];
+ if(columns.length&&employees.every(e=>Array.isArray(e.boardValues))){addTab('📊 Показатели',boardTable(boardMetricColumns(),employees.map(e=>boardMetricCells(columns,e.boardValues,boardEmployeeCell(e,result,0))), 'Показатели сотрудников',false,result.boardTotals?boardMetricCells(columns,result.boardTotals.values,result.boardTotals.label):null));}
+ else{const labels=[...new Set(employees.flatMap(e=>(e.metrics||[]).map(m=>m.label)))];addTab('📊 Показатели',boardTable(['ФИО монтажника',...labels],employees.map(e=>[boardEmployeeCell(e,result,0),...labels.map(label=>(e.metrics||[]).find(m=>m.label===label)?.value??'—')]),'Показатели сотрудников'));}
+ const dates=[...new Set(employees.flatMap(e=>(e.days||[]).map(d=>d.date)))].sort();
+ const dailyRows=employees.map(e=>[boardEmployeeCell(e,result,1),...dates.map(date=>{const day=(e.days||[]).find(d=>d.date===date);if(!day)return '—';const button=adminToolsText('button',day.value||'—','staff-board-day '+boardHourClass(day.value));button.type='button';button.setAttribute('aria-label',e.name+', отчёты за '+date.split('-').reverse().join('.'));button.onclick=()=>openBoardDay(e,day,button);return button;}),boardMonthTotal(e)]);
+ const days=document.createElement('div');days.append(adminToolsText('p','Нажмите на часы за день, чтобы открыть отчёты.','board-city-legend'),boardTable(['ФИО монтажника',...dates.map(d=>d.slice(-2)), 'Итого / норма'],dailyRows,'Часы сотрудников по дням',true));
+ if(result.dailyTotals?.length){const byDate=new Map(result.dailyTotals.map(d=>[d.date,d]));days.append(boardTable(['Итоги города',...dates.map(d=>d.slice(-2))],[['Отработано часов',...dates.map(d=>byDate.get(d)?.hours??'—')],['Техников на линии',...dates.map(d=>byDate.get(d)?.technicians??'—')],['Нагрузка',...dates.map(d=>byDate.get(d)?.load??'—')]],'Итоги города по дням',true));}
+ addTab('🕐 Часы по дням',days);
+ const materialLabels=boardMaterialLabels(employees);const materials=document.createElement('div');
+ if(materialLabels.length)materials.append(boardTable(['ФИО монтажника',...materialLabels],employees.map(e=>[boardEmployeeCell(e,result,2),...materialLabels.map(label=>(e.materials||[]).find(m=>m.label===label)?.value??'0')]),'Оборудование и кабель сотрудников'));
+ else materials.append(adminToolsText('p','Нет данных об оборудовании и кабеле.'));
+ if(result.materialTotals?.length)materials.append(boardDetails('📦 Траты ТМЦ · итоги',boardMaterials(result.materialTotals)));
+ addTab('📦 Оборудование и кабель',materials);root.append(tabs,...panels);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
+}
+// Открывает существующий список графика для выбора ФИО в любой вкладке показателей.
+function boardEmployeeCell(employee,result,tab){
+ const button=adminToolsText('button','','board-employee-choice gs-choice gs-name gs-name-choice');button.type='button';button.append(adminToolsText('span',employee.name,'gs-name-label'),adminToolsText('span','▼','dropdown-arrow'));button.setAttribute('aria-label','Изменить сотрудника: '+employee.name);button.setAttribute('aria-haspopup','listbox');
+ button.disabled=!Array.isArray(employee.nameRefs)||!employee.nameRefs.length||employee.nameRefs.some(ref=>ref.readonly);
+ if(button.disabled)button.title='ФИО вычисляется формулой или требуется обновить городской скрипт';
+ button.onclick=()=>{const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');const staff=(result.staff||[]).filter(p=>city&&String(p.city||'').trim().toLocaleLowerCase('ru')===city&&!(result.employees||[]).some(e=>e.id!==employee.id&&String(e.name).trim().toLocaleLowerCase('ru')===String(p.name).trim().toLocaleLowerCase('ru')));if(!staff.length){document.getElementById('staffBoardState').textContent='Нет доступных сотрудников города. Обновите показатели.';return;}gsPick(button,staff.map(p=>[p.name,p.name,p]),employee.name,name=>boardSaveEmployee(employee,name,tab),true);};return button;
+}
+// Записывает ФИО в городскую таблицу и обновляет три вкладки только после успешного сохранения.
+async function boardSaveEmployee(employee,name,tab){
+ const owner=managementOwnerKey(),version=++staffBoardVersion,root=document.getElementById('staffBoardResult'),state=document.getElementById('staffBoardState'),refresh=document.getElementById('staffBoardRefresh');refresh.disabled=true;root.querySelectorAll('button').forEach(b=>{b.dataset.boardWasDisabled=String(b.disabled);b.disabled=true;});state.textContent='Сохраняем сотрудника…';
+ try{const reply=await adminToolsRequest('boardEmployee',{employeeId:employee.id,employeeName:name,nameRefs:employee.nameRefs});if(version!==staffBoardVersion||owner!==managementOwnerKey())return;renderStaffBoard(reply.result,tab);state.textContent='Сотрудник изменён во всех трёх вкладках';}catch(error){if(version===staffBoardVersion&&owner===managementOwnerKey())state.textContent=error.message||'Не удалось сохранить сотрудника';}finally{if(version===staffBoardVersion&&owner===managementOwnerKey()){refresh.disabled=false;root.querySelectorAll('[data-board-was-disabled]').forEach(b=>{b.disabled=b.dataset.boardWasDisabled==='true';delete b.dataset.boardWasDisabled;});}}
+}
+// Цвет часов и зелёный выходной; пустые ячейки остаются нейтральными.
+function boardHourClass(value){const text=String(value??'').trim().replace(/\s+/g,'').replace(',','.');if(['В','ВЫХОДНОЙ','ОТДЫХ','ОТДЫХАЕТ'].includes(text.toUpperCase()))return 'board-hours-rest';if(!/^[+-]?\d+(?:\.\d+)?$/.test(text))return '';const hours=Number(text);return hours<8?'board-hours-low':hours<11?'board-hours-medium':'board-hours-high';}
+// Месячная норма из роли общей базы сотрудников.
+function boardEmployeeNorm(employee){if(employee.monthlyNorm===135||employee.monthlyNorm===165)return employee.monthlyNorm;let role=employee.role;if(!role&&typeof usersDb!=='undefined'){const city=typeof currentUser!=='undefined'?currentUser?.city:'';const matches=usersDb.filter(p=>p.fullName===employee.name&&p.city===city);if(matches.length===1)role=matches[0].role;}const key=String(role||'').toLowerCase().replace(/[^а-яё]/g,'');return key==='бригадир'?135:key==='техникуниверсал'?165:null;}
+// Показывает фактические часы и месячную норму без изменения расчётов листа.
+function boardMonthTotal(employee){const norm=boardEmployeeNorm(employee),hours=employee.hoursDisplay??employee.totalHours??'—';const cell=adminToolsText('span',String(hours),'board-month-total');if(norm){cell.append(adminToolsText('small','/ '+norm));cell.setAttribute('title','Отработано '+hours+' ч · норма '+norm+' ч/месяц');}return cell;}
+// Показывает только ТМЦ с ненулевыми тратами, в порядке столбцов CB–CX без CQ.
+function boardMaterialLabels(employees){
+ const order=["TP Link EC225-G5 (AC-1300)", "AC1200 - G12-B", "Basic (Модель F1O-D)", "TP-Link HC220-G5 (Ultimate White)", "ZXHN H3601P V7 (ZTE Router)", "TP-Link EX222 (AX-1800)", "AX3000 (Ultimate Black)", "Общее количество Роутеров", "БРАК Роутеры", "Приставка IPTV ZXV10 B860H", "Клипсы", "Коннектора", "Хомуты", "Изолента", "U2Y", "Кабель канал 40/25 (в метрах)", "Кабель канал 60/40 (в метрах)", "Дюбель гвозди 6*40", "Кабель U/UTP 2х2хAWG 24/1 PVC Cat.5e (0,503)", "Кабель F/UTP 2х2Хawg24/1 PE1 Cat. 5e", "Кабель U/UTP 4x2xAWG24/1 PVC Cat.5e (0.523)", "Кабель FTP 10х2х0,52 (Серийнный кабель)"];
+ const used=new Set();employees.forEach(e=>(e.materials||[]).forEach(m=>{const value=Number(String(m.value??'').replace(/[\s\u00a0]/g,'').replace(',','.'));if(Number.isFinite(value)&&value!==0)used.add(m.label);}));
+ return order.filter(label=>used.has(label));
+}
+// Ограничивает график и показатели фактической шириной шапки сайта.
+function syncManagementScreenWidth(){
+ const header=document.querySelector('.view-header');if(!header)return;const width=header.getBoundingClientRect().width;if(!width)return;
+ ['screen-admin-work-schedule','screen-admin-board'].forEach(id=>{const screen=document.getElementById(id);if(!screen)return;const value=width+'px';['width','max-width'].forEach(property=>{if(screen.style.getPropertyValue(property)!==value||screen.style.getPropertyPriority(property)!=='important')screen.style.setProperty(property,value,'important');});});
+ if(!managementWidthObserver&&typeof ResizeObserver!=='undefined'){managementWidthObserver=new ResizeObserver(()=>{syncManagementScreenWidth();if(typeof gsFitColumns==='function')gsFitColumns();boardFitCalendars();});managementWidthObserver.observe(header);}
+}
+// Подгоняет все дни под ширину экрана по тому же принципу, что рабочий график.
+function boardFitCalendars(){
+ const root=document.getElementById('staffBoardResult');if(!root?.querySelectorAll)return;
+ const desktop=document.documentElement.dataset.appLayout==='desktop';
+ root.querySelectorAll('.staff-board-calendar').forEach(table=>{const cols=[...table.querySelectorAll('col')],total=table.dataset.boardCalendarTotal==='true',days=cols.length-1-(total?1:0);if(days<1)return;
+ if(desktop){const width=table.parentElement.clientWidth||root.clientWidth||1200,name=width<950?210:260,sum=total?60:0,day=Math.max(1,(width-name-sum)/days);table.style.width=width+'px';table.style.minWidth='0';cols.forEach((col,i)=>col.style.width=(i===0?name:total&&i===cols.length-1?sum:day)+'px');}
+ else{table.style.removeProperty('width');table.style.removeProperty('min-width');cols.forEach(col=>col.style.removeProperty('width'));}
  });
- if(result.dailyTotals.length){const city=document.createElement('div');city.append(boardMetrics(result.citySummary||[]),adminToolsText('p','В ячейке: техников на линии · нагрузка, %','board-city-legend'));const calendar=document.createElement('div');calendar.className='board-days board-city-days';result.dailyTotals.forEach(day=>{const tile=document.createElement('div');tile.className='board-day'+(Number(String(day.hours).replace(',','.'))>0?' worked':'');tile.append(adminToolsText('span',day.date.slice(-2)),adminToolsText('strong',day.technicians+' · '),adminToolsText('small',day.load));const button=document.createElement('button');button.type='button';button.setAttribute('aria-label','Итоги города за '+day.date.split('-').reverse().join('.'));button.append(...tile.childNodes);button.onclick=()=>openBoardCityDay(day,button);tile.append(button);calendar.append(tile);});city.append(calendar);root.append(boardDetails('📈 Итоги по дням · весь город',city));}
- if(result.materialTotals?.length)root.append(boardDetails('📦 Траты ТМЦ · итоги',boardMaterials(result.materialTotals)));
+}
+// Создаёт общую таблицу с закреплёнными ФИО и заголовками.
+function boardTable(headers,rows,title,calendar = false,footer = null){
+ const wrap=document.createElement('div');const angled=!calendar&&headers.some(h=>typeof h==='object')&&!headers.some(h=>h.metric);wrap.className='staff-board-scroll'+(angled?' staff-board-angled-scroll':'')+(headers.some(h=>h.metric)?' staff-board-consolidated-scroll':'');wrap.tabIndex=0;wrap.setAttribute('role','region');wrap.setAttribute('aria-label',title);
+ const table=document.createElement('table');table.className='staff-board-table'+(calendar?' staff-board-calendar':'')+(angled?' staff-board-angled':'')+(headers.some(h=>h.metric)?' staff-board-consolidated':'');const caption=adminToolsText('caption',title);caption.className='staff-board-caption';table.append(caption);if(calendar){table.dataset.boardCalendarTotal=String(title==='Часы сотрудников по дням');const group=document.createElement('colgroup');headers.forEach(()=>group.append(document.createElement('col')));table.append(group);}
+ const head=document.createElement('thead'),header=document.createElement('tr');headers.forEach((label,index)=>{const text=typeof label==='object'?label.label:label,th=document.createElement('th');if(label.tone)th.dataset.boardTone=label.tone;if(angled)th.style.zIndex=String(headers.length-index+5);if(angled&&index>0){const span=adminToolsText('span',text,'staff-board-rotated-label');if(label.subLabel)span.append(adminToolsText('small',label.subLabel,'board-column-unit'));th.append(span);}else th.textContent=label.metric?[text,label.subLabel].filter(Boolean).join(' '):text;if(typeof label==='object'){th.setAttribute('title',label.title);th.setAttribute('aria-label',label.title);}th.setAttribute('scope','col');header.append(th);});head.append(header);table.append(head);
+ const body=document.createElement('tbody');rows.forEach(values=>{const row=document.createElement('tr');values.forEach((value,index)=>{const cell=document.createElement(index===0?'th':'td');if(index===0)cell.setAttribute('scope','row');if(value&&typeof value==='object'&&value.nodeType)cell.append(value);else cell.textContent=value==null||value===''?'—':String(value);row.append(cell);});body.append(row);});table.append(body);if(footer){const foot=document.createElement('tfoot'),row=document.createElement('tr');footer.forEach((value,index)=>{const cell=adminToolsText(index===0?'th':'td',value==null||value===''?'—':String(value));if(index===0)cell.setAttribute('scope','row');row.append(cell);});foot.append(row);table.append(foot);}wrap.append(table);return wrap;
 }
 
 // Выполняет доска Materials.
@@ -11204,10 +11479,10 @@ function showBoardDayModal(title,body,trigger){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('beelineModal').style.display==='flex'&&document.querySelector('#beelineModalText .board-day-modal')){e.preventDefault();document.querySelector('#beelineModalButtons button')?.click();}});
 // Показывает доска день.
 function openBoardDay(employee,day,trigger){
- const date=day.date.split('-').reverse().join('.'),body=document.createElement('div');body.className='board-day-modal';body.append(adminToolsText('p','👤 '+employee.name,'board-day-person'),boardMetrics([{label:'📅 Дата',value:date},{label:'🕐 Часы / отметка',value:day.value||'—'}]));
+ const date=day.date.split('-').reverse().join('.'),body=document.createElement('div');body.className='board-day-modal';body.append(adminToolsText('p','👤 '+employee.name+' · 📅 '+date+' · 🕐 '+(day.value||'—'),'board-day-person'));
  const list=document.createElement('div');list.className='board-day-reports';const blocks=String(day.note||'').replace(/\r/g,'').trim().split(/\n\s*\n/).filter(Boolean);
  if(blocks[0]===employee.name+' — '+date)blocks.shift();
- blocks.forEach(block=>{const lines=block.split('\n'),card=document.createElement('article');card.className='board-day-report';card.append(adminToolsText('h4',lines.shift()));if(lines.length)card.append(adminToolsText('p',lines.join('\n')));list.append(card);});
+ blocks.forEach(block=>{const lines=block.split('\n'),card=document.createElement('article');card.className='board-day-report';card.append(adminToolsText('strong',lines.shift()));if(lines.length)card.append(adminToolsText('span',' · '+lines.join(' · ')));list.append(card);});
  if(!list.children.length)list.append(adminToolsText('p','За этот день подробные отчёты не найдены.','board-day-empty'));body.append(list);showBoardDayModal('📅 Отчёты за '+date,body,trigger);
 }
 // Показывает доска город день.
@@ -11566,7 +11841,7 @@ async function gsRequest(operation,fields={}){
  const owner=managementOwnerKey(),url=shiftSwapUrl();if(!managementAllowed())throw new Error('Раздел доступен руководству');if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт графика города');
  const requestId=ctRequestId(),deadline=Date.now()+75000,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);let result,lastError;
  try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'workingSchedule',operation,requestId,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,...fields}),credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);result=await response.json();}catch(error){lastError=error;}finally{clearTimeout(timer);}
- // чтение the receipt for the same POST; never send a save twice after a redirect/network error.
+ // Read the receipt for the same POST; never send a save twice after a redirect/network error.
  while(!result||result.status==='pending'){
   if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
   if(Date.now()>=deadline)throw new Error('Не удалось получить ответ скрипта графика. Обновите его существующее развёртывание новой версией. Если создавали новое — нужен новый URL /exec. '+(lastError?.message||''));
