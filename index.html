@@ -3395,6 +3395,22 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 #screen-admin-board .staff-board-consolidated thead th:first-child{border-top-left-radius:8px}
 #screen-admin-board .staff-board-consolidated thead th:last-child{border-top-right-radius:8px}
 </style>
+
+<style id="district-performance-fixes">
+#beelineModal { z-index:200000; }
+#beelineModal.district-picker .beeline-modal-card { width:420px !important; max-width:calc(100vw - 32px) !important; padding:18px !important; box-sizing:border-box; }
+#beelineModal.district-picker .beeline-modal-icon:empty { display:none; }
+#beelineModal.district-picker .beeline-modal-title { font-size:17px; margin:0 0 14px; }
+#beelineModal.district-picker #beelineModalText { margin:0 0 14px; overflow:visible; max-height:none; }
+.owner-district-list { display:flex; flex-direction:column; gap:8px; max-height: min(310px,50dvh); overflow:auto; scrollbar-width:thin; scrollbar-color:#ffcc00 #111; }
+.owner-district-list .btn { margin:0 !important; min-height:44px; padding:10px 12px !important; font-size:14px; box-shadow:none; }
+.owner-district-list .btn:disabled { background:#292929; color:#999; border:1px solid #444; opacity:1; cursor:not-allowed; }
+.owner-district-list::-webkit-scrollbar { width:7px; }
+.owner-district-list::-webkit-scrollbar-thumb { background:#ffcc00; border-radius:8px; }
+#screen-admin-themes .admin-themes-actions { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:10px; margin:16px 0; }
+#screen-admin-themes .admin-themes-actions .btn { width:100%; margin:0 !important; min-width:0; padding:12px 8px; font-size:14px; }
+.read-refresh { margin:0 0 12px !important; width:auto; min-height:40px; padding:8px 14px !important; }
+</style>
 </head>
 <body>
 
@@ -3598,6 +3614,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
         <div class="card">
             <label for="pprPlansSearch">Поиск по адресу</label>
             <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
+            <button type="button" class="btn secondary-btn read-refresh" onclick="loadPprPlans(true)">🔄 Обновить планы</button>
             <div id="pprPlansHint"></div>
             <div id="pprPlansList" class="ppr-plan-list"></div>
             <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
@@ -4360,6 +4377,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
     <div id="screen-schedule" class="app-screen uniform-screen">
         <h2>📅 Рабочий график</h2>
         <div class="card">
+            <button type="button" class="btn secondary-btn read-refresh" onclick="openMySchedule(true)">🔄 Обновить график</button>
             <div id="scheduleContentContainer">
                 <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка графика смен...</span></div>
             </div>
@@ -4804,9 +4822,11 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 <div id="screen-admin-themes" class="app-screen uniform-screen admin-tools-screen">
  <h2>📊 Построить график</h2><div class="card">
  <p>Текущий месяц из таблицы «Подсчет часов»</p>
+ <div class="admin-themes-actions">
  <button type="button" class="btn main-btn" onclick="adminToolsStart('themesBuild')">📊 Построить график</button>
+ <button type="button" class="btn danger-btn" onclick="adminToolsConfirmClear('themes')">🗑️ Очистить</button>
+ </div>
  <div id="adminThemesState" role="status" aria-live="polite"></div><div id="adminThemesResult"></div>
- <button type="button" class="btn danger-btn" onclick="adminToolsConfirmClear('themes')">🗑️ Очистить график</button>
  <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
 
@@ -5131,18 +5151,16 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
             "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
         },
         "Темиртау": {
-            "1": {
-                enabled: true,
+            "1": { enabled: true,
                 scriptUrl: "https://script.google.com/macros/s/AKfycbwzA78v4H4SChuoTic5A9KTT_x918bEDaOZNMwXwQgOOezxpg0nXPEfPJ2pa1NXzuzwgw/exec",
                 reportsScriptUrl: "https://script.google.com/macros/s/AKfycbw_yI2oF5zXSY4KJNJTcolrrVj9-b-CzUauQR_W9N6oLotyV6Nv5m3m7V1F-6RM0lQsgQ/exec",
                 scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/15iggvcMnhwA10w7ei3ahmhpkoV-ZRLLVkKeLdN_QB5k/edit?gid=289566956#gid=289566956",
                 dailySheetUrl: "https://docs.google.com/spreadsheets/d/1H3lQJvJFw4yLsNw1lKTWlOB2Mg9U6Zzd9t6eTabdoF4/edit?gid=38396591#gid=38396591",
-                botUsername: "@Montazhnik_Beeline_bot"
-            },
+                botUsername: "Montazhnik_Beeline_bot" },
             "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
             "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
             "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" }
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
         },
         "Экибастуз": {
             "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
@@ -5456,6 +5474,7 @@ function normalizeEmployeeRole(value) {
 
     // Показывает Beeline модальное окно.
     function showBeelineModal(title, text, icon = '🐝', buttonsHtml = null) {
+        document.getElementById('beelineModal').classList.remove('district-picker');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
         document.getElementById('beelineModalIcon').textContent = icon;
@@ -5468,6 +5487,7 @@ function normalizeEmployeeRole(value) {
         }
         
         document.getElementById('beelineModal').style.display = 'flex';
+        document.querySelectorAll('[data-scroll-rail-ready]').forEach(list=>list.updateScrollRail?.());
     }
 
     // Интерактивное содержимое создаётся кодом приложения; текст сервера по-прежнему очищается.
@@ -5490,6 +5510,8 @@ function normalizeEmployeeRole(value) {
     function closeBeelineModal() {
         document.querySelectorAll('#beelineModal .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('beelineModal').style.display = 'none';
+        document.getElementById('beelineModal').classList.remove('district-picker');
+        document.querySelectorAll('[data-scroll-rail-ready]').forEach(list=>list.updateScrollRail?.());
     }
 
     // Выполняет смена экран.
@@ -5797,7 +5819,9 @@ function normalizeEmployeeRole(value) {
                 const parentBox = host.getBoundingClientRect();
                 const dropdown = list.closest('.custom-dropdown');
                 const style = getComputedStyle(list);
-                const visible = (!dropdown || dropdown.classList.contains('open')) &&
+                const modal=document.getElementById('beelineModal');
+                const covered=modal?.style.display==='flex'&&!list.closest('#beelineModal');
+                const visible = !covered && (!dropdown || dropdown.classList.contains('open')) &&
                     box.height > 8 && box.width > 0 && style.visibility !== 'hidden' && style.display !== 'none';
                 rail.hidden = !visible;
                 rail.style.display = visible ? 'block' : 'none';
@@ -6071,6 +6095,7 @@ function normalizeEmployeeRole(value) {
         ownerCityBusy = false;
         cancelUsersLoad();
         invalidateEquipmentSnapshots();
+        clearFastReads();
         currentUser = null;
         Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);verifiedDistrictConnections.clear();
         ownerCityChoiceRequired = false;
@@ -6519,13 +6544,19 @@ function normalizeEmployeeRole(value) {
     let scheduleRequestVersion = 0;
     let scheduleSourceByDate = new Map();
     const scheduleDayDetailsCache = new Map();
+    const scheduleReadCache = new Map(), scheduleReadPending = new Map();
+    let pprReadSnapshot = null;
+    function clearFastReads(){scheduleReadCache.clear();scheduleReadPending.clear();pprReadSnapshot=null;}
+
 
     // Показывает свои график.
-    async function openMySchedule() {
+    async function openMySchedule(force=false) {
         if (!currentUser) {
             showBeelineModal("Ошибка", "Необходимо авторизоваться в системе!", "❌");
             return;
         }
+        if(force){scheduleReadCache.clear();scheduleReadPending.clear();scheduleDayDetailsCache.clear();}
+        const owner=currentUser;
         const requestVersion = ++scheduleRequestVersion, city = currentUser.city, login = currentUser.dwLogin;
         switchScreen('screen-schedule');
         const container = document.getElementById('scheduleContentContainer');
@@ -6543,9 +6574,9 @@ function normalizeEmployeeRole(value) {
                 action: 'getSchedule', fullName,
                 months: '2', includeDayDetails:'1' // старый сервер проигнорирует дополнительные параметры
             });
-            return {res:await fetchScheduleJson(source, Object.fromEntries(params)), source};
+            return {res:await fastScheduleRead(source, Object.fromEntries(params),owner), source};
         }));
-        if (requestVersion !== scheduleRequestVersion || currentUser?.city !== city || currentUser?.dwLogin !== login || currentUser?.fullName !== fullName) return;
+        if (currentUser!==owner || requestVersion !== scheduleRequestVersion || currentUser?.city !== city || currentUser?.dwLogin !== login || currentUser?.fullName !== fullName) return;
         const days = new Map();
         const errors = [];
         results.forEach((result, index) => {
@@ -6609,30 +6640,43 @@ function normalizeEmployeeRole(value) {
             <div class="schedule-legend">${legend}</div>${monthsHtml}<button class="btn secondary-btn" onclick="openShiftSwapHistory()">🔄 Мои обмены сменами</button>${sheetLink}`;
     }
 
+    async function fastScheduleRead(source,params,owner=currentUser){
+        const key=JSON.stringify([owner.city,owner.district,owner.dwLogin,owner.fullName,source.scriptUrl,params]);
+        const cached=scheduleReadCache.get(key);
+        if(cached?.owner===owner&&Date.now()-cached.time<20000)return cached.value;
+        const pending=scheduleReadPending.get(key);
+        if(pending?.owner===owner)return pending.promise;
+        const entry={owner,promise:null};
+        entry.promise=fetchScheduleJson(source,params).then(value=>{
+            if(currentUser===owner&&value.status==='ok')scheduleReadCache.set(key,{owner,time:Date.now(),value});
+            return value;
+        }).finally(()=>{if(scheduleReadPending.get(key)===entry)scheduleReadPending.delete(key);});
+        scheduleReadPending.set(key,entry);return entry.promise;
+    }
     // Выполняет загрузка график JSON.
     async function fetchScheduleJson(source, params) {
         if (!isConfiguredCityUrl(source?.scriptUrl)) throw new Error('Источник графика не настроен');
         let lastError;
-        // Новый URL исключает повторное использование устаревшего перенаправления Apps Script.
-        for (let attempt = 0; attempt < 3; attempt++) {
-            const url = new URL(source.scriptUrl);
-            Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, String(value)));
-            url.searchParams.set('_request', Date.now() + '_' + attempt + '_' + Math.random().toString(36).slice(2));
+        // Один общий срок ожидания; повторяем только временные ошибки сервера.
+        const deadline=Date.now()+45000;
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),Math.max(1,deadline-Date.now()));
             try {
-                const response = await districtFetch(url.href, {cache:'no-store',credentials:'omit',redirect:'follow'});
+                const response = await districtFetch(source.scriptUrl, {method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(params),mode:'cors',cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
                 if (!response.ok) {
                     const error = new Error(response.status === 404
                         ? 'Скрипт графика недоступен (HTTP 404). Проверьте адрес /exec и действующее развёртывание скрипта графика.'
                         : 'Ошибка загрузки графика: HTTP ' + response.status);
-                    error.retryable = [404, 502, 503, 504].includes(response.status);
+                    error.retryable = [502, 503, 504].includes(response.status);
                     throw error;
                 }
                 return await response.json();
             } catch (error) {
                 lastError = error;
-                if (!error.retryable || attempt === 2) throw error;
+                if(error.name==='AbortError')throw new Error('Скрипт графика не ответил за 45 секунд. Повторите обновление.');
+                if (!error.retryable || attempt === 1 || Date.now()>=deadline) throw error;
                 await new Promise(resolve=>setTimeout(resolve,300*(attempt+1)));
-            }
+            } finally {clearTimeout(timer);}
         }
         throw lastError;
     }
@@ -9959,6 +10003,20 @@ function ctDetectStbModel(serial) {
         const requestId = 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
+        if(operation==='list'){
+            const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
+            let result;
+            try {
+                const response=await districtFetch(url,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,directRead:true,pageSize:200}),signal:controller.signal});
+                if(!response.ok)throw new Error('HTTP '+response.status);
+                result=await response.json();
+            } catch(error){
+                // Read-only fallback for environments blocking the readable response.
+                if(error.name==='AbortError')throw new Error('Скрипт ППР не ответил за 45 секунд. Повторите обновление.');
+                if(!(error instanceof TypeError)&&!(error instanceof SyntaxError))throw error;
+            } finally {clearTimeout(timer);}
+            if(result){if(result.status!=='success')throw new Error(result.message||'Не удалось загрузить планы');return result;}
+        }
         await districtFetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
         const deadline = Date.now() + 90000;
         while (Date.now() < deadline) {
@@ -9974,8 +10032,14 @@ function ctDetectStbModel(serial) {
         throw new Error('Не удалось подтвердить запись. Проверьте таблицу города перед повторной отправкой.');
     }
     // Получает ППР планы.
-    async function loadPprPlans() {
+    async function loadPprPlans(force=false) {
         if (pprPlanBusy) return;
+        const owner=currentUser;
+        if(!owner)return false;
+        if(!force&&pprReadSnapshot?.owner===owner&&Date.now()-pprReadSnapshot.time<15000){
+            pprPlanItems=pprReadSnapshot.items;pprPlanStaff=pprReadSnapshot.staff;filterPprPlans();return true;
+        }
+        if(force)pprReadSnapshot=null;
         pprPlanBusy = true;
         const hint = document.getElementById('pprPlansHint');
         pprPlanItems = [];
@@ -9985,6 +10049,7 @@ function ctDetectStbModel(serial) {
             let offset = 0, total = 0, staff = [];
             do {
                 const result = await requestPprPlans('list', {offset});
+                if(currentUser!==owner)return false;
                 const batch = result.items || [];
                 total = Number(result.total) || 0;
                 if (!offset) staff = result.staff || [];
@@ -9993,12 +10058,15 @@ function ctDetectStbModel(serial) {
                 offset += batch.length;
                 hint.innerHTML = liveLoading(`Загружено адресов: ${Math.min(offset,total)} из ${total}`);
             } while (offset < total);
+            if(currentUser!==owner)return false;
+            pprReadSnapshot={owner,time:Date.now(),items:all,staff};
             pprPlanItems = all;
             pprPlanStaff = staff;
             filterPprPlans();
             window.scrollTo(0, 0);
             return true;
         } catch (err) {
+            if(currentUser!==owner)return false;
             hint.textContent = 'Не удалось загрузить адреса.';
             showBeelineModal('Планы ППР', pprEsc(err.message), '❌');
             return false;
@@ -10156,7 +10224,7 @@ function ctDetectStbModel(serial) {
             closePprPlan();
             showBeelineModal('План ППР сохранён', `Адрес: ${pprEsc(item.address)} ${pprEsc(item.house)}. Статус: ${pprEsc(result.result)}.${result.warning ? '<br>⚠️ '+pprEsc(result.warning) : ''}`, result.warning ? '⚠️' : '✅');
         } catch (err) { showBeelineModal('Не удалось сохранить ППР', pprEsc(err.message), '❌'); }
-        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; loadPprPlans(); }
+        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; loadPprPlans(true); }
     }
 
     // ===== Навигация и сброс формы отчетов =====
@@ -11707,7 +11775,7 @@ function activateDistrict(config){
  if(!config||!config.configured||String(config.city)!==String(currentUser?.city)||String(config.district)!==String(currentUser?.district))throw new Error('Подключение участка не подтверждено');
  Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);
  CITIES_CONFIG[config.city]={...config,district:String(config.district)};
- cancelUsersLoad();usersDb=usersDb.filter(districtSameUser);usersDirectoryReady=false;usersLoadedAt=0;staffIndexSource=null;invalidateEquipmentSnapshots();scheduleDayDetailsCache.clear();scheduleSourceByDate.clear();scheduleRequestVersion++;scheduleDayRequest++;myEquipmentRequest++;myHoursRequest++;accessSearchVersion++;staffBoardVersion++;
+ clearFastReads();cancelUsersLoad();usersDb=usersDb.filter(districtSameUser);usersDirectoryReady=false;usersLoadedAt=0;staffIndexSource=null;invalidateEquipmentSnapshots();scheduleDayDetailsCache.clear();scheduleSourceByDate.clear();scheduleRequestVersion++;scheduleDayRequest++;myEquipmentRequest++;myHoursRequest++;accessSearchVersion++;staffBoardVersion++;
 }
 // Добавляет контекст участка только к его двум доверенным скриптам.
 function districtReadUrl(value){
@@ -11737,7 +11805,7 @@ async function confirmOwnerCity(){
  const city=ownerCitySelected,choices=appDistricts.filter(c=>c.city===city);
  if(!choices.length)return;
  if(choices.length===1){if(choices[0].configured)return confirmOwnerDistrict(city,choices[0].district);return;}
- const root=document.createElement('div');root.className='owner-city-list';for(const item of choices){const button=document.createElement('button');button.type='button';button.className='btn main-btn';button.disabled=!item.configured;button.textContent='Участок '+item.district+(item.configured?'':' — не подключён');button.onclick=()=>confirmOwnerDistrict(city,item.district);root.append(button);}showBeelineModalNode('🏙️ '+city+' — выберите участок',root,'');
+ const root=document.createElement('div');root.className='owner-district-list';for(const item of choices){const button=document.createElement('button');button.type='button';button.className='btn main-btn';button.disabled=!item.configured;button.textContent='Участок '+item.district+(item.configured?'':' — не подключён');button.onclick=()=>confirmOwnerDistrict(city,item.district);root.append(button);}showBeelineModalNode('🏙️ '+city+' — выберите участок',root,'');document.getElementById('beelineModal').classList.add('district-picker');
 }
 // Сервер сохраняет город и участок владельца одним подтверждённым действием.
 async function confirmOwnerDistrict(city,district){
