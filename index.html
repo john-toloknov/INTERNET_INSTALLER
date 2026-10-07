@@ -2699,7 +2699,7 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
   const controls=document.createElement('div');controls.className='view-mode';
   const label=document.createElement('label');label.htmlFor='appViewMode';label.textContent='Вид приложения';
   const select=document.createElement('select');select.id='appViewMode';select.setAttribute('aria-label','Вид приложения');
-  for(const [value,text] of [['auto','Автоматически'],['mobile','📱 Телефон'],['desktop','🖥 Компьютер']]){const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);}
+  for(const [value,text] of [['auto','Автоматически'],['mobile','📱 Телефон'],['desktop','💻 Компьютер']]){const option=document.createElement('option');option.value=value;option.textContent=text;select.append(option);}
   select.value=preference;
   select.addEventListener('change',()=>{preference=select.value;try{localStorage.setItem(key,preference);}catch(_){}applyLayout();});
   controls.append(label,select);header.append(brand,controls);document.body.prepend(header);
@@ -2921,7 +2921,7 @@ html[data-app-layout=desktop] #myEquipmentList{grid-template-columns:repeat(3,mi
 /* Salary: penalties stay immediately beneath additions, alongside KPI. */
 .salary-secondary-stack{display:flex;flex-direction:column;gap:16px;min-width:0}
 .salary-secondary-stack>details{margin:0!important}
-html[data-app-layout=desktop] #salaryContentContainer>.salary-secondary-stack{grid-column:2;grid-row:2}
+html[data-app-layout=desktop] #salaryContentContainer>.salary-secondary-stack{grid-column:2;grid-row:2;align-self:start}
 html[data-app-layout=mobile] .salary-secondary-stack{gap:10px}
 /* Loading is a full-width child of the two-column hours grid. */
 #myHoursContent>.live-loading{grid-column:1/-1;width:100%;box-sizing:border-box;justify-self:stretch}
@@ -2992,7 +2992,7 @@ html[data-app-layout] .view-home h1{display:none}
 html[data-app-layout] .view-home p{font-size:14px;line-height:1.5;color:#aaa}
 html[data-app-layout=mobile] .view-header{grid-template-columns:1fr 1fr;grid-template-rows:20px 26px;gap:3px!important;min-height:0!important;padding:2px 0 4px!important;margin-bottom:10px!important}
 html[data-app-layout=mobile] .view-brand{grid-column:1/-1;grid-row:1;font-size:13px}
-html[data-app-layout=mobile] .view-mode{grid-column:2;grid-row:2}
+html[data-app-layout=mobile] .view-mode{grid-column:2;grid-row:2;align-self:start}
 html[data-app-layout=mobile] .view-mode select{height:26px;min-height:26px;font-size:10px;width:120px;padding:3px 6px}
 html[data-app-layout=mobile] .menu-toggle{grid-column:1;grid-row:2;height:26px;min-width:28px;width:28px;font-size:19px}
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible{grid-template-columns:112px minmax(0,1fr) 112px minmax(0,1fr) 124px minmax(0,1fr);gap:7px}
@@ -3000,7 +3000,7 @@ html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-router
 @media(max-width:1250px){html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible{grid-template-columns:112px minmax(0,1fr)}html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record[data-ct-equipment=true] .ct-visible{grid-template-columns:112px minmax(0,1fr)}}
 @media(max-width:600px){html[data-app-layout] .view-header{grid-template-columns:1fr 1fr;grid-template-rows:20px 26px;gap:3px!important;min-height:0!important;padding:2px 0 4px!important;margin-bottom:10px!important}
 html[data-app-layout] .view-brand{grid-column:1/-1;grid-row:1;font-size:13px}
-html[data-app-layout] .view-mode{grid-column:2;grid-row:2}
+html[data-app-layout] .view-mode{grid-column:2;grid-row:2;align-self:start}
 html[data-app-layout] .view-mode select{height:26px;min-height:26px;font-size:10px;width:120px;padding:3px 6px}
 html[data-app-layout] .menu-toggle{grid-column:1;grid-row:2;height:26px;min-width:28px;width:28px;font-size:19px}
 }</style><style id="desktopAlignmentFinal">
@@ -3484,12 +3484,13 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
                 <label>Город</label>
                 <div class="custom-dropdown searchable-dropdown" id="regCityDropdown">
                     <div class="dropdown-trigger" onclick="openSearchDropdown(event, 'regCityDropdown')">
-                        <input type="search" class="dropdown-search-trigger" id="citySearchInput" placeholder="🔍 Выберите или найдите город" autocomplete="off" aria-label="Поиск города" onfocus="this.select(); filterCities('', 'regCityDropdown', 'regCity', 'citySearchInput')" oninput="document.getElementById('regCity').value=''; filterCities(this.value, 'regCityDropdown', 'regCity', 'citySearchInput'); openSearchDropdown(event, 'regCityDropdown')">
+                        <input type="search" class="dropdown-search-trigger" id="citySearchInput" placeholder="🔍 Выберите или найдите город" autocomplete="off" aria-label="Поиск города" onfocus="this.select(); filterCities('', 'regCityDropdown', 'regCity', 'citySearchInput')" oninput="document.getElementById('regCity').value=''; updateRegistrationDistrictOptions(); filterCities(this.value, 'regCityDropdown', 'regCity', 'citySearchInput'); openSearchDropdown(event, 'regCityDropdown')">
                         <span class="dropdown-arrow">▼</span>
                     </div>
                     <div class="dropdown-list"><div id="city-items-container"></div></div>
                 </div>
                 <input type="hidden" id="regCity" required>
+                <label for="regDistrict">Участок</label><select id="regDistrict" required disabled><option value="">Сначала выберите подключённый город</option></select><small id="regDistrictHint" class="text-muted" role="status"></small>
 
                 <label>Фамилия Имя Отчество</label>
                 <input type="text" id="regFullName" required placeholder="Введите ФИО">
@@ -4829,6 +4830,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
                 <label style="display: block; margin-bottom: 2px; font-size: 12px;">Город</label>
                 <input type="text" id="editCityDisplay" disabled style="color: var(--text-secondary); background: #0c0c0c; width: 100%; box-sizing: border-box;">
                 <input type="hidden" id="editCity">
+                <label for="editDistrict">Участок</label><input type="number" id="editDistrict" min="1" max="5" step="1" required>
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 2px; font-size: 12px;">Роль</label>
@@ -4955,61 +4957,299 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
     
     const GLOBAL_AUTH_SALARY_URL = "https://script.google.com/macros/s/AKfycbyFcYBp90UUg7koztArk61GASabeelnRSoRvVF2-crsXdToB4Y-3bfmoRzGohrXfYMiFw/exec";
 
-    const CITIES_CONFIG = {
-        "Темиртау": {
-            scriptUrl: "https://script.google.com/macros/s/AKfycbwzA78v4H4SChuoTic5A9KTT_x918bEDaOZNMwXwQgOOezxpg0nXPEfPJ2pa1NXzuzwgw/exec",
-            reportsScriptUrl: "https://script.google.com/macros/s/AKfycbw_yI2oF5zXSY4KJNJTcolrrVj9-b-CzUauQR_W9N6oLotyV6Nv5m3m7V1F-6RM0lQsgQ/exec",
-            scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/15iggvcMnhwA10w7ei3ahmhpkoV-ZRLLVkKeLdN_QB5k/edit?gid=636535801#gid=636535801",
-            reportsUrl: "https://john-toloknov.github.io/scaner-beeline/", 
-            tmcUrl: "https://john-toloknov.github.io/qr-cod-html/",        
-            tgGroupId: "-1001383444721"                         
+    // ===== СПРАВОЧНИК ПОДКЛЮЧЕНИЙ: редактировать только этот блок =====
+    // Каждый участок имеет СВОИ два URL /exec, две таблицы и бота.
+    // enabled:true включайте после заполнения URL. Токен бота сюда НЕ вставлять.
+    // Пустые/выключенные участки показываются как «не подключён».
+    const CITY_DISTRICTS = {
+        "Сатпаев": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Щучинск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Хромтау": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Кызылорда": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Рудный": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Балхаш": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Абай": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Лисаковск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
         },
         "Алматы": {
-            scriptUrl: "ТУТ_URL_СКРИПТА_ГРАФИКА_АЛМАТЫ",
-            reportsScriptUrl: "ТУТ_URL_СКРИПТА_ОТЧЕТОВ_АЛМАТЫ",
-            scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/almaty_sheet_id_here/edit",
-            reportsUrl: "https://john-toloknov.github.io/scaner-beeline/",
-            tmcUrl: "https://john-toloknov.github.io/qr-cod-html/",
-            tgGroupId: "-1000000000001"
-        },
-        "Астана": {
-            scriptUrl: "ТУТ_URL_СКРИПТА_ГРАФИКА_АСТАНА",
-            reportsScriptUrl: "ТУТ_URL_СКРИПТА_ОТЧЕТОВ_АСТАНА",
-            scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/astana_sheet_id_here/edit",
-            reportsUrl: "https://john-toloknov.github.io/scaner-beeline/",
-            tmcUrl: "https://john-toloknov.github.io/qr-cod-html/",
-            tgGroupId: "-1000000000002"
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
         },
         "Караганда": {
-            scriptUrl: "ТУТ_URL_СКРИПТА_ГРАФИКА_КАРАГАНДА",
-            reportsScriptUrl: "ТУТ_URL_СКРИПТА_ОТЧЕТОВ_КАРАГАНДА",
-            scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/karaganda_sheet_id_here/edit",
-            reportsUrl: "https://john-toloknov.github.io/scaner-beeline/",
-            tmcUrl: "https://john-toloknov.github.io/qr-cod-html/",
-            tgGroupId: "-1000000000003"
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Астана": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Жезказган": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Кокшетау": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Тараз": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Петропавловск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
         },
         "Шымкент": {
-            scriptUrl: "ТУТ_URL_СКРИПТА_ГРАФИКА_ШЫМКЕНТ",
-            reportsScriptUrl: "ТУТ_URL_СКРИПТА_ОТЧЕТОВ_ШЫМКЕНТ",
-            scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/shymkent_sheet_id_here/edit",
-            reportsUrl: "https://john-toloknov.github.io/scaner-beeline/",
-            tmcUrl: "https://john-toloknov.github.io/qr-cod-html/",
-            tgGroupId: "-1000000000004"
-        }
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Усть-Каменогорск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Семей": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Актобе": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Павлодар": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Уральск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Талдыкорган": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Атырау": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Актау": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Темиртау": {
+            "1": {
+                enabled: true,
+                scriptUrl: "https://script.google.com/macros/s/AKfycbwzA78v4H4SChuoTic5A9KTT_x918bEDaOZNMwXwQgOOezxpg0nXPEfPJ2pa1NXzuzwgw/exec",
+                reportsScriptUrl: "https://script.google.com/macros/s/AKfycbw_yI2oF5zXSY4KJNJTcolrrVj9-b-CzUauQR_W9N6oLotyV6Nv5m3m7V1F-6RM0lQsgQ/exec",
+                scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/15iggvcMnhwA10w7ei3ahmhpkoV-ZRLLVkKeLdN_QB5k/edit?gid=289566956#gid=289566956",
+                dailySheetUrl: "https://docs.google.com/spreadsheets/d/1H3lQJvJFw4yLsNw1lKTWlOB2Mg9U6Zzd9t6eTabdoF4/edit?gid=38396591#gid=38396591",
+                botUsername: "@Montazhnik_Beeline_bot"
+            },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" }
+        },
+        "Экибастуз": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Костанай": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Конаев": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Жанаозен": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Риддер": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Житикара": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Шахтинск": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
+        "Кандыагаш": {
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+        },
     };
+    const CITIES_LIST = Object.keys(CITY_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ru'));
+    // Активное подключение сеанса; вручную этот объект не заполнять.
+    const CITIES_CONFIG = {};
+    const DISTRICT_ROUTING_VERSION = "frontend-v1";
+    // ===== КОНЕЦ СПРАВОЧНИКА ПОДКЛЮЧЕНИЙ =====
 
-    // Проверяет настроенный город адрес.
     function isConfiguredCityUrl(url) {
-        return typeof url === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url);
+        return typeof url==='string' && /^https:\/\/script\.google\.com\/macros\/s\/[^/?#]+\/exec$/.test(url);
     }
-
-    const CITIES_LIST = [
-        "Сатпаев", "Щучинск", "Хромтау", "Кызылорда", "Рудный", "Балхаш", "Абай", 
-        "Лисаковск", "Алматы", "Караганда", "Астана", "Жезказган", "Кокшетау", "Тараз", 
-        "Петропавловск", "Шымкент", "Усть-Каменогорск", "Семей", "Актобе", "Павлодар", 
-        "Уральск", "Талдыкорган", "Атырау", "Актау", "Темиртау", "Экибастуз", 
-        "Костанай", "Конаев", "Жанаозен", "Риддер", "Житикара", "Шахтинск", "Кандыагаш"
-    ].sort((a, b) => a.localeCompare(b));
+    function frontendDistricts() {
+        const list=[];
+        for(const [city, districts] of Object.entries(CITY_DISTRICTS)) {
+            for(let n=1;n<=5;n++) {
+                const district=String(n),raw=districts[district]||{};
+                list.push({city,district,scriptUrl:String(raw.scriptUrl||'').trim(),reportsScriptUrl:String(raw.reportsScriptUrl||'').trim(),scheduleSheetUrl:String(raw.scheduleSheetUrl||'').trim(),dailySheetUrl:String(raw.dailySheetUrl||'').trim(),botUsername:String(raw.botUsername||'').trim(),configured:raw.enabled===true&&isConfiguredCityUrl(String(raw.scriptUrl||'').trim())&&isConfiguredCityUrl(String(raw.reportsScriptUrl||'').trim())});
+            }
+        }
+        // Один адрес не может обслуживать две таблицы/участка в этой архитектуре.
+        const counts=new Map();
+        list.filter(c=>c.configured).forEach(c=>[c.scriptUrl,c.reportsScriptUrl].forEach(u=>counts.set(u,(counts.get(u)||0)+1)));
+        return list.map(c=>({...c,configured:c.configured&&counts.get(c.scriptUrl)===1&&counts.get(c.reportsScriptUrl)===1}));
+    }
+    function getFrontendDistrictConfig(city,district) {
+        const found=frontendDistricts().find(c=>c.city===String(city||'').trim()&&c.district===String(district||'').trim());
+        if(!found||!found.configured)throw new Error('Город '+String(city||'')+' · участок '+String(district||'')+' пока не подключён. Обратитесь к администратору приложения.');
+        return found;
+    }
+    const verifiedDistrictConnections=new Map();
+    async function verifyDistrictConnection(config, externalSignal) {
+        const key=JSON.stringify([config.city,config.district,config.scriptUrl,config.reportsScriptUrl]);
+        if(Date.now()-(verifiedDistrictConnections.get(key)||0)<300000)return config;
+        const controller=new AbortController(),abort=()=>controller.abort();
+        if(externalSignal?.aborted)controller.abort();else externalSignal?.addEventListener('abort',abort,{once:true});
+        const timer=setTimeout(abort,15000);
+        try {
+            await Promise.all([[config.scriptUrl,'schedule'],[config.reportsScriptUrl,'daily']].map(async ([url,type])=>{
+                const target=new URL(url);target.searchParams.set('action','connectionInfo');
+                const response=await nativeDistrictFetch(target.href,{credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});
+                if(!response.ok)throw new Error('Проверка '+type+': HTTP '+response.status);
+                const info=await response.json();
+                if(info.status!=='ok'||info.type!==type||info.routingVersion!==DISTRICT_ROUTING_VERSION||info.city!==config.city||String(info.district)!==config.district)throw new Error('Скрипт '+type+' не подтверждает '+config.city+' / участок '+config.district+'. Проверьте настройки и опубликованную версию обоих скриптов.');
+            }));
+            verifiedDistrictConnections.set(key,Date.now());return config;
+        } catch(error) {
+            controller.abort();
+            if(error.name==='AbortError')throw new Error('Проверка подключения участка отменена или превысила 15 секунд.');
+            throw error;
+        } finally {clearTimeout(timer);externalSignal?.removeEventListener('abort',abort);}
+    }
 
 // Приводит роли к единому названию; принимает старое имя до миграции.
 function normalizeEmployeeRole(value) {
@@ -5071,6 +5311,8 @@ function normalizeEmployeeRole(value) {
     }
     // Загружает общий справочник с тайм-аутом и нормализацией ролей.
     async function loadUsersFromSheetOnce(epoch = usersLoadEpoch) {
+        if(!currentUser?.password||ownerCityChoiceRequired)return false;
+        const scope=managementOwnerKey(),user=currentUser;
         const controller = new AbortController();
         usersLoadController = controller;
         let timer;
@@ -5080,16 +5322,16 @@ function normalizeEmployeeRole(value) {
         });
         try {
             const request = (async () => {
-                const response = await fetch(`${GLOBAL_AUTH_SALARY_URL}?action=getUsers`, {signal:controller.signal});
+                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUsers',city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password}),signal:controller.signal});
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 return await response.json();
             })();
             const res = await Promise.race([request, expired]);
-            if (epoch !== usersLoadEpoch || controller.signal.aborted) return false;
+            if (epoch !== usersLoadEpoch || controller.signal.aborted || managementOwnerKey()!==scope) return false;
             if (res.status === 'ok' && Array.isArray(res.users)) {
                 let sheetUsers = res.users.filter(u => u && typeof u === 'object').map((u, index) => ({
                     id: u.id || ('user_' + index),
-                    city: u.city,
+                    city: u.city, district:String(u.district||""),
                     fullName: u.fullName,
                     warehouse: normalizeEmployeeRole(u.role) === 'Супервайзер' ? '' : (u.warehouse || ''),
                     role: normalizeEmployeeRole(u.role || 'Техник-Универсал'),
@@ -5286,12 +5528,12 @@ function normalizeEmployeeRole(value) {
             currentUser = {...freshUser,password:currentUser.password};
             localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
 
-            document.getElementById('userInfoHeader').innerHTML = `👤 <b>${escapeScheduleHtml(currentUser.fullName)}</b> (${escapeScheduleHtml(currentUser.role)}) | 🏢 ${escapeScheduleHtml(currentUser.city)}`;
+            document.getElementById('userInfoHeader').innerHTML = `👤 <b>${escapeScheduleHtml(currentUser.fullName)}</b> (${escapeScheduleHtml(currentUser.role)}) | 🏢 ${escapeScheduleHtml(currentUser.city)} · Участок ${escapeScheduleHtml(currentUser.district)}`;
             
             const cityConf = CITIES_CONFIG[currentUser.city] || {};
             document.getElementById('ownerChangeCityBtn').style.display = currentUser.role === 'Владелец' ? 'flex' : 'none';
             
-            document.getElementById('scannerAppBtn').href = cityConf.tmcUrl || '#';
+            
 
             // Получаем все кнопки главного меню
             const adminBtn = document.getElementById('adminPanelBtn');
@@ -5334,10 +5576,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Выполняет владелец город проверка настроенный.
-    function ownerCityIsConfigured(city) {
-        const config = CITIES_CONFIG[city];
-        return !!config && isConfiguredCityUrl(config.scriptUrl) && isConfiguredCityUrl(config.reportsScriptUrl);
-    }
+    function ownerCityIsConfigured(city){return appDistricts.some(c=>c.city===city&&c.configured);}
 
     // Показывает владелец город выбор.
     function showOwnerCityPicker() {
@@ -5346,7 +5585,7 @@ function normalizeEmployeeRole(value) {
         ownerCitySelected = CITIES_LIST.includes(savedCity) && ownerCityIsConfigured(savedCity) ? savedCity : '';
         document.getElementById('ownerRememberCity').checked = !!savedCity && !!ownerCitySelected;
         document.getElementById('ownerCitySearch').value = '';
-        document.getElementById('ownerCityStatus').textContent = 'Город в учётной записи изменится после подтверждения.';
+        document.getElementById('ownerCityStatus').textContent = 'Выберите город, затем подключённый участок. Изменение сохранится после подтверждения.';
         renderOwnerCityOptions();
         switchScreen('screen-owner-city');
     }
@@ -5383,7 +5622,8 @@ function normalizeEmployeeRole(value) {
             const label = document.createElement('strong');
             label.textContent = city;
             const sub = document.createElement('small');
-            sub.textContent = configured ? 'Скрипты города подключены' : 'Нужны адреса скриптов города';
+            const count=appDistricts.filter(c=>c.city===city&&c.configured).length;
+            sub.textContent = configured ? 'Подключено участков: '+count+' из 5' : 'Участки пока не подключены';
             label.appendChild(sub);
             button.append(icon,label);
             button.onclick = () => {
@@ -5399,49 +5639,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Подтверждает город Владельца одним запросом; текущий город открывает сразу.
-    async function confirmOwnerCity() {
-        if (ownerCityBusy || currentUser?.role !== 'Владелец' || !ownerCityIsConfigured(ownerCitySelected)) return;
-        const selected = ownerCitySelected;
-        const owner = currentUser;
-        const controller = new AbortController();
-        ownerCityController = controller;
-        ownerCityBusy = true;
-        const status = document.getElementById('ownerCityStatus');
-        status.textContent = owner.city === selected ? 'Открываем выбранный город...' : 'Сохраняем город в Списке сотрудников...';
-        renderOwnerCityOptions();
-        try {
-            if (owner.city !== selected) {
-                const result = await requestAuthJson({action:'ownerSwitchCity',city:selected,
-                    dwLogin:owner.dwLogin,password:owner.password}, 20000, controller.signal);
-                if (result.status !== 'ok' || result.city !== selected ||
-                    String(result.dwLogin || '').trim().toLowerCase() !== String(owner.dwLogin).trim().toLowerCase()) {
-                    throw new Error(result.message || 'Сервер не подтвердил выбранный город. Обновите опубликованную версию скрипта общей таблицы.');
-                }
-            }
-            if (currentUser !== owner) return;
-            if (document.getElementById('ownerRememberCity').checked)
-                localStorage.setItem(ownerCityPreferenceKey(), selected);
-            else localStorage.removeItem(ownerCityPreferenceKey());
-            currentUser = {...owner, city:selected,password:currentUser.password};
-            const index = usersDb.findIndex(u => u.dwLogin === owner.dwLogin);
-            if (index >= 0) usersDb[index] = {...usersDb[index],city:selected};
-            staffIndexSource = null;
-            invalidateEquipmentSnapshots();
-            localStorage.setItem('beeline_central_user',JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
-            localStorage.setItem('beeline_current_user',JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
-            ownerCityChoiceRequired = false;
-            status.textContent = '';
-            checkAuthSession();
-        } catch (error) {
-            if (currentUser === owner) status.textContent = error.message || 'Не удалось сохранить город.';
-        } finally {
-            if (ownerCityController === controller) {
-                ownerCityController = null;
-                ownerCityBusy = false;
-                renderOwnerCityOptions();
-            }
-        }
-    }
+    
 
     // Обрабатывает пароль видимость.
     function togglePasswordVisibility(fieldId, iconEl) {
@@ -5700,6 +5898,7 @@ function normalizeEmployeeRole(value) {
         if (hiddenInput) {
             hiddenInput.value = fullValue;
             if (hiddenInputId === 'editRole') syncEditWarehouseRole();
+            if (hiddenInputId === 'regCity') updateRegistrationDistrictOptions();
         }
 
         // 2. Меняем текст на кнопке выбора и возвращаем нормальный цвет текста
@@ -5720,21 +5919,22 @@ function normalizeEmployeeRole(value) {
     // Обрабатывает города списки выбора.
     function initCitiesDropdowns() {
         renderCitiesItems('city-items-container', CITIES_LIST, 'regCityDropdown', 'regCity', 'citySearchInput');
+        updateRegistrationDistrictOptions();
     }
 
     // Показывает города позиции.
     function renderCitiesItems(containerId, list, dropdownId, hiddenInputId, labelId) {
-        const container = document.getElementById(containerId);
-        if (!container) return;
-        let html = '';
-        if (list.length === 0) {
-            html = `<div class="dropdown-item" style="color: var(--text-secondary); pointer-events: none;">Город не найден</div>`;
-        } else {
-            list.forEach(city => {
-                html += `<div class="dropdown-item" onclick="selectDropdownOption('${dropdownId}', '${hiddenInputId}', '${labelId}', '${city}', '${city}')">${city}</div>`;
-            });
-        }
-        container.innerHTML = html;
+        const container=document.getElementById(containerId);if(!container)return;container.replaceChildren();
+        if(!list.length){const empty=document.createElement('div');empty.className='dropdown-item';empty.textContent='Город не найден';container.append(empty);return;}
+        for(const city of list){const item=document.createElement('div');item.className='dropdown-item';const configured=frontendDistricts().some(c=>c.city===city&&c.configured);item.textContent=city+(configured?'':' — не подключён');item.setAttribute('aria-disabled',String(!configured));if(configured)item.onclick=()=>selectDropdownOption(dropdownId,hiddenInputId,labelId,city,city);else{item.style.opacity='0.5';item.style.cursor='default';}container.append(item);}
+    }
+    function updateRegistrationDistrictOptions() {
+        const city=document.getElementById('regCity').value,select=document.getElementById('regDistrict'),hint=document.getElementById('regDistrictHint');
+        select.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent=city?'Выберите участок':'Сначала выберите подключённый город';select.append(empty);
+        const entries=frontendDistricts().filter(c=>c.city===city);
+        entries.forEach(c=>{const option=document.createElement('option');option.value=c.district;option.disabled=!c.configured;option.textContent='Участок '+c.district+(c.configured?'':' — не подключён');select.append(option);});
+        const active=entries.filter(c=>c.configured);select.disabled=!active.length;if(active.length===1)select.value=active[0].district;
+        hint.textContent=city?'Подключено участков: '+active.length+' из 5.':'';
     }
 
     // Выполняет фильтр города.
@@ -5763,7 +5963,7 @@ function normalizeEmployeeRole(value) {
         });
         try {
             const request = (async () => {
-                const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
+                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
                     method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
                     body:JSON.stringify(payload), signal:controller.signal,
                     credentials:'omit', redirect:'follow', cache:'no-store'
@@ -5818,13 +6018,20 @@ function normalizeEmployeeRole(value) {
                 if (automatic) { localStorage.removeItem('beeline_remembered_pass'); document.getElementById('loginPass').value = ''; }
                 throw new Error(result.message || 'Вход не подтверждён. Обновите опубликованную версию скрипта общей таблицы.');
             }
+            if(result.routingVersion!==DISTRICT_ROUTING_VERSION)throw new Error('Обновите опубликованную версию скрипта «Список сотрудников»: приложение ожидает справочник во фронтенде.');
             const found = {...result.user,role:normalizeEmployeeRole(result.user.role),password:passInput};
+            const selectedConfig=found.role==='Владелец'?null:getFrontendDistrictConfig(found.city,found.district);
+            if(selectedConfig)await verifyDistrictConnection(selectedConfig,controller.signal);
+            if(epoch!==authRequestEpoch)return;
             const safeUser = {...result.user,role:found.role};
             delete safeUser.password;
             const index = usersDb.findIndex(u => u.dwLogin === found.dwLogin);
             if (index >= 0) usersDb[index] = safeUser; else usersDb.push(safeUser);
             staffIndexSource = null;
+            appDistricts=frontendDistricts();
+            Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);
             currentUser = found;
+            if(selectedConfig)activateDistrict(selectedConfig);
             ownerCityChoiceRequired = found.role === 'Владелец';
             localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
             if (rememberMe) {
@@ -5865,6 +6072,7 @@ function normalizeEmployeeRole(value) {
         cancelUsersLoad();
         invalidateEquipmentSnapshots();
         currentUser = null;
+        Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);verifiedDistrictConnections.clear();
         ownerCityChoiceRequired = false;
         ownerCitySelected = '';
         localStorage.removeItem('beeline_current_user');
@@ -5912,7 +6120,7 @@ function normalizeEmployeeRole(value) {
         showBeelineModal("Проверка", "Запрос на отправку кода восстановления...", "⏳");
 
         try {
-            const response = await fetch(`${GLOBAL_AUTH_SALARY_URL}?action=sendRecoveryCode&login=${encodeURIComponent(login)}&email=${encodeURIComponent(email)}`);
+            const response = await districtFetch(`${GLOBAL_AUTH_SALARY_URL}?action=sendRecoveryCode&login=${encodeURIComponent(login)}&email=${encodeURIComponent(email)}`);
             const res = await response.json();
 
             if (res.status !== 'ok') {
@@ -5957,7 +6165,7 @@ function normalizeEmployeeRole(value) {
         try {
             showBeelineModal("Сохранение", "Обновление пароля...", "⏳");
             
-            const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
+            const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
@@ -6007,7 +6215,7 @@ function normalizeEmployeeRole(value) {
         container.innerHTML = liveLoading('Загружаем вашу зарплату...');
 
         try {
-            const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
+            const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
                 method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
                 body:JSON.stringify({action:'getSalary',fullName:currentUser.fullName,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password})
             });
@@ -6411,7 +6619,7 @@ function normalizeEmployeeRole(value) {
             Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, String(value)));
             url.searchParams.set('_request', Date.now() + '_' + attempt + '_' + Math.random().toString(36).slice(2));
             try {
-                const response = await fetch(url.href, {cache:'no-store',credentials:'omit',redirect:'follow'});
+                const response = await districtFetch(url.href, {cache:'no-store',credentials:'omit',redirect:'follow'});
                 if (!response.ok) {
                     const error = new Error(response.status === 404
                         ? 'Скрипт графика недоступен (HTTP 404). Проверьте адрес /exec и действующее развёртывание скрипта графика.'
@@ -6517,6 +6725,8 @@ function normalizeEmployeeRole(value) {
             return;
         }
 
+        try{const config=getFrontendDistrictConfig(city,document.getElementById('regDistrict').value);await verifyDistrictConnection(config);}catch(error){showBeelineModal('Участок не подключён',String(error.message||error),'⚠️');return;}
+
         const fullNameInput = document.getElementById('regFullName');
         const roleInput = document.getElementById('regRole');
         const workPhoneInput = document.getElementById('regWorkPhone');
@@ -6564,7 +6774,7 @@ function normalizeEmployeeRole(value) {
 
         const newUser = {
             action: 'register',
-            city: city,
+            city: city,district:document.getElementById("regDistrict").value.trim(),
             fullName: formattedFullName,
             warehouse: "",
             role: "Стажер", // Всегда регистрируем как Стажер (буферная зона)
@@ -6583,13 +6793,11 @@ function normalizeEmployeeRole(value) {
         }
 
         try {
-            showBeelineModal("Регистрация", "Отправка данных пользователя...", "⏳");
-            const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
-                method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(newUser)
-            });
-            if (!response.ok) throw new Error('HTTP ' + response.status);
-            const result = await response.json();
-            if (result.status !== 'ok') throw new Error(result.message || 'Регистрация не подтверждена');
+            showBeelineModal("Регистрация", "Сохранение пользователя...", "⏳");
+            let result;
+            try { result=await requestAuthJson(newUser,20000); }
+            catch (error) { result=await confirmRegistrationSaved(newUser,error); }
+            if(result.status!=='ok')result=await confirmRegistrationSaved(newUser,new Error(result.message||'Регистрация не подтверждена'));
         } catch (err) {
             showBeelineModal('Регистрация не подтверждена', String(err.message || err) + '. Перед повтором проверьте возможность входа.', '⚠️');
             return;
@@ -6652,7 +6860,7 @@ async function handleSaveAccess(e) {
     try {
         showBeelineModal("Сохранение", "Запись доступа в таблицу...", "⏳");
         
-        await fetch(scriptUrl, {
+        await districtFetch(scriptUrl, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -6720,7 +6928,7 @@ async function runSearchAccess(version) {
         const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
         accessSearchController = controller;
         try {
-            const response = await fetch(`${scriptUrl}?mode=equipment_search&query=${encodeURIComponent(query)}`, {signal:controller.signal});
+            const response = await districtFetch(`${scriptUrl}?mode=equipment_search&query=${encodeURIComponent(query)}`, {signal:controller.signal});
             if (!response.ok) throw new Error('HTTP ' + response.status);
             const res = await response.json();
             
@@ -6783,7 +6991,7 @@ async function runSearchAccess(version) {
             .some(value => String(value || '').toLowerCase().includes(search)));
 
         if (currentUser.role === 'Старший Техник' || currentUser.role === 'Супервайзер') {
-            filtered = filtered.filter(u => u.city === currentUser.city);
+            filtered = filtered.filter(u => districtSameUser(u));
         }
 
         document.getElementById('usersCount').textContent = filtered.length;
@@ -6791,8 +6999,8 @@ async function runSearchAccess(version) {
         let html = '';
         filtered.slice(0, limit).forEach(u => {
             const canModify = currentUser.role === 'Владелец' ||
-                (currentUser.role === 'Супервайзер' && u.city === currentUser.city && !['Владелец','Супервайзер'].includes(u.role)) ||
-                (currentUser.role === 'Старший Техник' && u.city === currentUser.city && ['Стажер','Техник-Универсал','Бригадир'].includes(u.role));
+                (currentUser.role === 'Супервайзер' && districtSameUser(u) && !['Владелец','Супервайзер'].includes(u.role)) ||
+                (currentUser.role === 'Старший Техник' && districtSameUser(u) && ['Стажер','Техник-Универсал','Бригадир'].includes(u.role));
             const canDelete = canDeleteEmployee(u);
 
             html += `
@@ -6827,12 +7035,12 @@ async function runSearchAccess(version) {
         const u = usersDb.find(item => item.id === userId);
         if (!u) return;
 
-        if (currentUser.role === 'Супервайзер' && (u.city !== currentUser.city || (u.id !== currentUser.id && ['Владелец','Супервайзер'].includes(u.role)))) {
+        if (currentUser.role === 'Супервайзер' && (!districtSameUser(u) || (u.id !== currentUser.id && ['Владелец','Супервайзер'].includes(u.role)))) {
             showBeelineModal("Доступ ограничен", "У вас нет прав на редактирование супервайзеров или владельца.", "⚠️");
             return;
         }
         if (currentUser.role === 'Старший Техник') {
-            if (u.city !== currentUser.city || !['Стажер','Техник-Универсал','Бригадир'].includes(u.role)) {
+            if (!districtSameUser(u) || !['Стажер','Техник-Универсал','Бригадир'].includes(u.role)) {
                 showBeelineModal("Доступ ограничен", "Старший техник может редактировать только Техников-Универсалов и Бригадиров.", "⚠️");
                 return;
             }
@@ -6840,6 +7048,7 @@ async function runSearchAccess(version) {
 
         document.getElementById('editUserId').value = u.id;
         document.getElementById('editFullName').value = u.fullName;
+        document.getElementById('editDistrict').value=String(u.district||'');document.getElementById('editDistrict').disabled=currentUser.role!=='Владелец';
         document.getElementById('editCity').value = u.city;
         document.getElementById('editCityDisplay').value = u.city;
         
@@ -6980,7 +7189,7 @@ async function runSearchAccess(version) {
             }
 
             const updatedUser = {
-                action: 'update',
+                action: 'update',district:document.getElementById('editDistrict').value.trim(),
                 actorLogin: currentUser.dwLogin, actorPassword: currentUser.password,
                 city: currentUser.role === 'Владелец' ? cityInput.value : usersDb[index].city,
                 fullName: formattedFullName,
@@ -6996,7 +7205,8 @@ async function runSearchAccess(version) {
             };
 
             try {
-                const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
+                if(currentUser.role==='Владелец')getFrontendDistrictConfig(updatedUser.city,updatedUser.district);
+                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(updatedUser)
@@ -7036,7 +7246,7 @@ async function runSearchAccess(version) {
     function canDeleteEmployee(user) {
         if (!currentUser || !user) return false;
         if (currentUser.role === 'Владелец') return true;
-        if (user.city !== currentUser.city) return false;
+        if (!districtSameUser(user)) return false;
         const role = String(user?.role || '').trim().toLowerCase().replace(/[-–—]/g,' ').replace(/\s+/g,' ');
         return currentUser.role === 'Супервайзер' &&
             ['стажер','стажёр','старший техник','бригадир','техник универсал'].includes(role);
@@ -7070,7 +7280,7 @@ async function runSearchAccess(version) {
         const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 45000);
         try {
             showBeelineModal('Удаление', 'Удаляем учётную запись…', '⏳');
-            const response = await fetch(GLOBAL_AUTH_SALARY_URL, {
+            const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
                 method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'},
                 body: JSON.stringify({action:'delete',dwLogin:target.dwLogin,city:target.city,
                     actorLogin:actor.dwLogin,actorPassword:actor.password,requestId}),
@@ -8010,11 +8220,11 @@ document.addEventListener('blur', (e) => {
 
         let cityUsers = allUsers.filter(u => {
             const uCity = String(u.city || '').trim().toLowerCase();
-            return !!userCity && uCity === userCity && isEligibleEquipmentEmployee(u);
+            return districtSameUser(u) && !!userCity && uCity === userCity && isEligibleEquipmentEmployee(u);
         });
 
         return cityUsers.map(u => ({
-            id: u.id || u.dwLogin || u.fullName,
+            district:u.district,id: u.id || u.dwLogin || u.fullName,
             fullName: u.fullName || u.name || 'Сотрудник',
             role: u.role || '',
             warehouse: u.warehouse || '',
@@ -9261,7 +9471,7 @@ function ctDetectStbModel(serial) {
             script.onerror = () => finish(new Error('Не удалось подключиться к скрипту вашего города.'));
             const target = new URL(url);
             Object.entries({...fields, callback}).forEach(([key, value]) => target.searchParams.set(key, value));
-            script.src = target.href;
+            script.src = districtReadUrl(target);
             document.head.appendChild(script);
         });
     }
@@ -9546,7 +9756,7 @@ function ctDetectStbModel(serial) {
             const timer = setTimeout(() => finish(new Error('Ответ о записи не получен')), 6000);
             window[callbackName] = value => finish(null, value);
             script.onerror = () => finish(new Error('Сервер статуса недоступен'));
-            script.src = `${url}?action=getReportStatus&requestId=${encodeURIComponent(requestId)}&callback=${callbackName}`;
+            script.src = districtReadUrl(`${url}?action=getReportStatus&requestId=${encodeURIComponent(requestId)}&callback=${callbackName}`);
             document.head.appendChild(script);
         });
     }
@@ -9641,7 +9851,7 @@ function ctDetectStbModel(serial) {
                 payload = {
                     action:"report", actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, reportType:type, rowValues:built.row, maxCol:built.maxCol,
                     city:currentUser.city, requestId:requestId,
-                    tgGroupId: currentUser.tgGroupPpr || cityConf.tgGroupPpr || '',
+                    
                     authorizedUser:document.getElementById('tr-pprInstaller1').value,
                     secondInstaller:document.getElementById('tr-pprInstaller2').value,
                     photosBefore:await filesToTelegramPhotos(pprPhotosBefore,20),
@@ -9653,12 +9863,12 @@ function ctDetectStbModel(serial) {
                 payload = {
                     action:"report", actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, reportType:type, rowValues:built.row, maxCol:built.maxCol,
                     city:currentUser.city, requestId:requestId,
-                    tgGroupId: currentUser.tgGroup,
+                    
                     authorizedUser:v.installer, photos:await filesToTelegramPhotos(photosList,10)
                 };
             }
 
-            await fetch(targetUrl,{
+            await districtFetch(targetUrl,{
                 method:'POST', mode:'no-cors',
                 headers:{'Content-Type':'text/plain;charset=utf-8'},
                 body:JSON.stringify(payload)
@@ -9738,7 +9948,7 @@ function ctDetectStbModel(serial) {
             const timer = setTimeout(() => finish(new Error('Нет ответа городского скрипта')), 7000);
             window[callback] = value => finish(null, value);
             script.onerror = () => finish(new Error('Городской скрипт недоступен'));
-            script.src = `${url}?action=pprPlansStatus&requestId=${encodeURIComponent(requestId)}&callback=${callback}`;
+            script.src = districtReadUrl(`${url}?action=pprPlansStatus&requestId=${encodeURIComponent(requestId)}&callback=${callback}`);
             document.head.appendChild(script);
         });
     }
@@ -9749,7 +9959,7 @@ function ctDetectStbModel(serial) {
         const requestId = 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
-        await fetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
+        await districtFetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
         const deadline = Date.now() + 90000;
         while (Date.now() < deadline) {
             try {
@@ -9828,7 +10038,7 @@ function ctDetectStbModel(serial) {
         const name = String(currentUser?.fullName || '').trim();
         const manager = pprPlanManagers.includes(role);
         return people.filter(person => {
-            if (person.city && person.city !== currentUser?.city) return false;
+            if (person.city && !districtSameUser(person)) return false;
             if (id === 'pprPlanBrigade')
                 return person.role === 'Бригадир' && (manager || (role === 'Бригадир' && person.name === name));
             if (id === 'pprPlanExecutor') {
@@ -10274,7 +10484,7 @@ async function handleReturnEquipment(e) {
     showBeelineModal("Запись", "Сохранение возврата оборудования...", "⏳");
 
     try {
-        const response = await fetch(targetUrl, {
+        const response = await districtFetch(targetUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(payload), signal:controller.signal
@@ -10334,7 +10544,7 @@ async function openCheckReturnScreen() {
     }
 
     try {
-        const response = await fetch(`${targetUrl}?action=getReturns&responsible=${encodeURIComponent(currentUser.fullName)}`, {
+        const response = await districtFetch(`${targetUrl}?action=getReturns&responsible=${encodeURIComponent(currentUser.fullName)}`, {
             method: 'GET'
         });
         const res = await response.json();
@@ -10687,8 +10897,8 @@ function showSoftwarePlatform(platform, button) {
             const timer = setTimeout(() => finish(new Error('Таблица города не ответила. Попробуйте обновить.')), 20000);
             window[callback] = result => finish(null, result);
             script.onerror = () => finish(new Error('Не удалось подключиться к скрипту города.'));
-            script.src = url + '?action=getMyHours&fullName=' + encodeURIComponent(fullName)
-                + '&city=' + encodeURIComponent(city) + '&callback=' + encodeURIComponent(callback);
+            script.src = districtReadUrl(url + '?action=getMyHours&fullName=' + encodeURIComponent(fullName)
+                + '&city=' + encodeURIComponent(city) + '&callback=' + encodeURIComponent(callback));
             document.head.appendChild(script);
         });
     }
@@ -10808,7 +11018,7 @@ function shiftSwapUrl(){return getScheduleSources(CITIES_CONFIG[currentUser?.cit
 async function shiftSwapFetchJson(url,options={},timeout=30000){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{
-  const response=await fetch(url,{...options,mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
+  const response=await districtFetch(url,{...options,mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
   if(!response.ok)throw new Error('HTTP '+response.status);
   const result=await response.json();
   if(!result||!['success','error','pending'].includes(result.status))throw new Error('Неверный ответ скрипта графика');
@@ -10971,7 +11181,7 @@ async function managementRequest(operation,fields={},requestId){
  const id=requestId||'mg_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);
  try{
-  const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'management',operation,requestId:id,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
+  const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'management',operation,requestId:id,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
   if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();
   if(currentUser?.dwLogin!==user.dwLogin||currentUser?.city!==user.city)throw new Error('Сеанс изменился');
   if(result.status!=='success')throw new Error(result.message||'Не удалось выполнить действие');return result;
@@ -11001,7 +11211,7 @@ async function openAdminEmployees(force = false){
  else status.textContent=usersDirectoryReady?'Не удалось обновить список. Показаны ранее загруженные данные.':'Не удалось загрузить полный список. Нажмите «Обновить».';
 }
 // Выполняет руководство владелец ключ.
-function managementOwnerKey(){return (currentUser?.city||'')+'|'+(currentUser?.dwLogin||'');}
+function managementOwnerKey(){return (currentUser?.city||'')+'|'+(currentUser?.district||'')+'|'+(currentUser?.dwLogin||'');}
 // Выполняет руководство модальное окно активный.
 function managementModalActive(){return !!document.getElementById('managementDeliveryBody')&&document.getElementById('beelineModal')?.style.display!=='none';}
 // Выполняет руководство количество.
@@ -11264,7 +11474,7 @@ function adminToolsStopPoll(){adminToolsVersion++;clearTimeout(adminToolsTimer);
 async function adminToolsRequest(operation,fields={},timeout=35000){
  if(!managementAllowed())throw new Error('Раздел доступен руководству');const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
- try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'adminTools',compactChart:true,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,operation,...fields}),credentials:'omit',redirect:'follow',mode:'cors',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Ошибка операции');return result;}finally{clearTimeout(timer);}
+ try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'adminTools',compactChart:true,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,operation,...fields}),credentials:'omit',redirect:'follow',mode:'cors',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Ошибка операции');return result;}finally{clearTimeout(timer);}
 }
 // Выполняет управление инструменты кнопки.
 function adminToolsButtons(busy){document.querySelectorAll('#screen-admin-archive button:not(.common-nav-row button),#screen-admin-themes button:not(.common-nav-row button)').forEach(b=>b.disabled=busy);adminToolsBusy=busy;}
@@ -11487,6 +11697,53 @@ function openBoardDay(employee,day,trigger){
 }
 // Показывает доска город день.
 function openBoardCityDay(day,trigger){const body=document.createElement('div');body.className='board-day-modal';body.append(boardMetrics([{label:'🕐 Часов',value:day.hours},{label:'👤 На линии',value:day.technicians},{label:'Нагрузка',value:day.load,wide:true}]));const list=document.createElement('div');list.className='board-day-reports';(day.workers||[]).forEach(worker=>{const row=document.createElement('div');row.className='board-material-line';row.append(adminToolsText('span','👤 '+worker.name),adminToolsText('strong',worker.hours+' ч'));list.append(row);});if(!list.children.length)list.append(adminToolsText('p','Сотрудники с положительными часами за этот день не найдены.'));body.append(list);showBoardDayModal('📅 Итоги за '+day.date.split('-').reverse().join('.'),body,trigger);}
+
+// Справочник подключений хранится в CITY_DISTRICTS. Сервер подтверждает учетную запись.
+let appDistricts=frontendDistricts();
+const nativeDistrictFetch=window.fetch.bind(window);
+function districtSameUser(person){return !!currentUser&&String(person.city||'').trim().toLowerCase()===String(currentUser.city||'').trim().toLowerCase()&&String(person.district||'')===String(currentUser.district||'');}
+// Подключает локальную конфигурацию после проверки города/участка у обоих скриптов.
+function activateDistrict(config){
+ if(!config||!config.configured||String(config.city)!==String(currentUser?.city)||String(config.district)!==String(currentUser?.district))throw new Error('Подключение участка не подтверждено');
+ Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);
+ CITIES_CONFIG[config.city]={...config,district:String(config.district)};
+ cancelUsersLoad();usersDb=usersDb.filter(districtSameUser);usersDirectoryReady=false;usersLoadedAt=0;staffIndexSource=null;invalidateEquipmentSnapshots();scheduleDayDetailsCache.clear();scheduleSourceByDate.clear();scheduleRequestVersion++;scheduleDayRequest++;myEquipmentRequest++;myHoursRequest++;accessSearchVersion++;staffBoardVersion++;
+}
+// Добавляет контекст участка только к его двум доверенным скриптам.
+function districtReadUrl(value){
+ const target=new URL(String(value)),config=CITIES_CONFIG[currentUser?.city]||{};
+ if(currentUser&&[config.scriptUrl,config.reportsScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname)){
+  if(!currentUser.district)throw new Error('Участок не определён. Войдите заново');
+  target.searchParams.set('city',currentUser.city);target.searchParams.set('district',currentUser.district);target.searchParams.set('actorLogin',currentUser.dwLogin);target.searchParams.set('actorPassword',currentUser.password);
+ }return target.href;
+}
+// Сохраняет исходный способ отправки; дополняет JSON и формы контекстом участка.
+function districtFetch(input,options={}){
+ const raw=String(input),target=new URL(raw,location.href),config=CITIES_CONFIG[currentUser?.city]||{};
+ const scoped=currentUser&&[config.scriptUrl,config.reportsScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname);
+ if(!scoped)return nativeDistrictFetch(input,options);
+ const context={city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password};
+ if(!/^[1-5]$/.test(String(context.district)))throw new Error('Участок не определён');
+ const next={...options};if(next.body){
+  if(typeof next.body==='string'){try{next.body=JSON.stringify({...JSON.parse(next.body),...context});}catch(error){const form=new URLSearchParams(next.body);Object.entries(context).forEach(([k,v])=>form.set(k,v));next.body=form.toString();}}
+  else if(next.body instanceof URLSearchParams){next.body=new URLSearchParams(next.body);Object.entries(context).forEach(([k,v])=>next.body.set(k,v));}
+  else if(typeof FormData!=='undefined'&&next.body instanceof FormData){Object.entries(context).forEach(([k,v])=>next.body.set(k,v));}
+ }else return nativeDistrictFetch(districtReadUrl(target),next);
+ return nativeDistrictFetch(target.href,next);
+}
+// При нескольких участках владелец выбирает один; единственный открывается сразу.
+async function confirmOwnerCity(){
+ if(ownerCityBusy||currentUser?.role!=='Владелец')return;
+ const city=ownerCitySelected,choices=appDistricts.filter(c=>c.city===city);
+ if(!choices.length)return;
+ if(choices.length===1){if(choices[0].configured)return confirmOwnerDistrict(city,choices[0].district);return;}
+ const root=document.createElement('div');root.className='owner-city-list';for(const item of choices){const button=document.createElement('button');button.type='button';button.className='btn main-btn';button.disabled=!item.configured;button.textContent='Участок '+item.district+(item.configured?'':' — не подключён');button.onclick=()=>confirmOwnerDistrict(city,item.district);root.append(button);}showBeelineModalNode('🏙️ '+city+' — выберите участок',root,'');
+}
+// Сервер сохраняет город и участок владельца одним подтверждённым действием.
+async function confirmOwnerDistrict(city,district){
+ if(ownerCityBusy||currentUser?.role!=='Владелец')return;const owner=currentUser,controller=new AbortController();ownerCityController=controller;ownerCityBusy=true;renderOwnerCityOptions();
+ try{const config=getFrontendDistrictConfig(city,district);await verifyDistrictConnection(config,controller.signal);if(currentUser!==owner||controller.signal.aborted)return;const result=await requestAuthJson({action:'ownerSwitchCity',city,district:String(district),dwLogin:owner.dwLogin,password:owner.password},20000,controller.signal);if(currentUser!==owner)return;if(result.routingVersion!==DISTRICT_ROUTING_VERSION||result.status!=='ok'||result.city!==city||String(result.district)!==String(district)||String(result.dwLogin).toLowerCase()!==String(owner.dwLogin).toLowerCase())throw new Error(result.message||'Участок не подтверждён');currentUser={...owner,city,district:String(district)};usersDb=[{...currentUser}];activateDistrict(config);if(document.getElementById('ownerRememberCity').checked)localStorage.setItem(ownerCityPreferenceKey(),city);else localStorage.removeItem(ownerCityPreferenceKey());ownerCityChoiceRequired=false;closeBeelineModal();localStorage.setItem('beeline_current_user',JSON.stringify(currentUser,(k,v)=>k==='password'?undefined:v));checkAuthSession();void loadUsersFromSheet(true);}catch(error){if(currentUser===owner)showBeelineModal('Выбор участка',String(error.message||error),'⚠️');}finally{ownerCityController=null;ownerCityBusy=false;renderOwnerCityOptions();}
+}
 </script>
 
 <script id="cityTableScript">
@@ -11506,7 +11763,7 @@ async function ctRequest(operation,fields={},timeout=45000){
  if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{
-  const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cityTable',city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,operation,...fields}),credentials:'omit',redirect:'follow',mode:'cors',cache:'no-store',signal:controller.signal});
+  const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'cityTable',city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,operation,...fields}),credentials:'omit',redirect:'follow',mode:'cors',cache:'no-store',signal:controller.signal});
   if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();
   if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
   if(result.status==='error'){const error=new Error(result.message||'Ошибка операции');error.confirmed=true;error.code=result.code||'';throw error;}return result;
@@ -11782,7 +12039,7 @@ function channelImageCandidates(url){const match=/^(?:\.\/)?(?:channel-logos\/)?
 // Выполняет channel безопасный картинка.
 function channelSafeImage(url){try{const u=new URL(url);return u.protocol==='https:'&&['imga.beetv.kz','images.beetv.kz'].includes(u.hostname)?u.href:'';}catch(_){return '';}}
 // Выполняет channel чтение лист.
-function channelReadSheet(sheet){return new Promise((resolve,reject)=>{const callback='beelineChannels_'+Date.now()+'_'+(++channelCatalogState.serial),script=document.createElement('script');let done=false;const cleanup=()=>{script.remove();clearTimeout(timer);delete window[callback];};const finish=(error,value)=>{if(done)return;done=true;cleanup();error?reject(error):resolve(value);};const timer=setTimeout(()=>finish(new Error('Таблица не ответила вовремя. Повторите загрузку.')),30000);window[callback]=result=>{if(result.status!=='ok'||!result.table)return finish(new Error('Не удалось прочитать лист «'+sheet+'». Проверьте доступ к исходной таблице.'));finish(null,result.table);};script.onerror=()=>finish(new Error('Не удалось загрузить таблицу. Проверьте подключение и повторите загрузку.'));script.src='https://docs.google.com/spreadsheets/d/1YB1xc289SKMpMcrI-Xr_oTEvGXIf2SroEWVaUeEY34o/gviz/tq?'+new URLSearchParams({sheet,headers:'0',tqx:'out:json;responseHandler:'+callback});document.head.append(script);});}
+function channelReadSheet(sheet){return new Promise((resolve,reject)=>{const callback='beelineChannels_'+Date.now()+'_'+(++channelCatalogState.serial),script=document.createElement('script');let done=false;const cleanup=()=>{script.remove();clearTimeout(timer);delete window[callback];};const finish=(error,value)=>{if(done)return;done=true;cleanup();error?reject(error):resolve(value);};const timer=setTimeout(()=>finish(new Error('Таблица не ответила вовремя. Повторите загрузку.')),30000);window[callback]=result=>{if(result.status!=='ok'||!result.table)return finish(new Error('Не удалось прочитать лист «'+sheet+'». Проверьте доступ к исходной таблице.'));finish(null,result.table);};script.onerror=()=>finish(new Error('Не удалось загрузить таблицу. Проверьте подключение и повторите загрузку.'));script.src=districtReadUrl('https://docs.google.com/spreadsheets/d/1YB1xc289SKMpMcrI-Xr_oTEvGXIf2SroEWVaUeEY34o/gviz/tq?'+new URLSearchParams({sheet,headers:'0',tqx:'out:json;responseHandler:'+callback}));document.head.append(script);});}
 // CSV export preserves mixed numeric/text values in TV package column F.
 function channelCsvRows(text){
  const rows=[];let row=[],field='',quoted=false;const source=String(text).replace(/^\uFEFF/,'');
@@ -11794,7 +12051,7 @@ function channelCsvRows(text){
 async function channelReadTvSheet(){
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
  try{const url='https://docs.google.com/spreadsheets/d/1YB1xc289SKMpMcrI-Xr_oTEvGXIf2SroEWVaUeEY34o/export?'+new URLSearchParams({format:'csv',gid:'1278118745',_ts:String(Date.now())});
- const response=await fetch(url,{credentials:'omit',mode:'cors',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const rows=channelCsvRows(await response.text());
+ const response=await districtFetch(url,{credentials:'omit',mode:'cors',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const rows=channelCsvRows(await response.text());
  if(!rows.some(row=>/^name\s+of\s+channel$/i.test(String(row[1]||'').trim())))throw new Error('Не удалось прочитать CSV телевизионных каналов. Проверьте доступ к исходной таблице.');
  const width=Math.max(10,...rows.map(row=>row.length));return {cols:Array.from({length:width},(_,index)=>({id:String.fromCharCode(65+index),label:'',type:'string'})),rows:rows.map(row=>({c:Array.from({length:width},(_,index)=>({v:row[index]||''}))}))};
  }catch(error){if(error.name==='AbortError')throw new Error('Таблица телевизионных каналов не ответила вовремя. Повторите загрузку.');throw error;}finally{clearTimeout(timer);}
@@ -11835,12 +12092,12 @@ function gsPickerPlacement(rect,viewport,size){const margin=12,gap=4,minLeft=vie
 function gsPick(trigger,choices,selected,accept,employeeChoice=false){gsClosePicker();const statusChoice=choices===GS_CODES,root=ctNode('div',statusChoice?'gs-picker gs-status-picker':'gs-picker'),list=ctNode('div','gs-picker-list');root.setAttribute('role','listbox');root.setAttribute('aria-label',trigger.getAttribute('aria-label')||'Выбор');choices.forEach(([value,label,person])=>{const button=ctNode('button','',value===label?label:value+' — '+label);button.type='button';if(statusChoice)button.dataset.status=value;if(employeeChoice){const details=staffDropdownPerson(person||{name:label});staffDropdownOption(button,person||{name:label});button.dataset.staffSearch=(label+' '+details.warehouse+' '+details.role).toLocaleLowerCase('ru');}button.setAttribute('role','option');button.setAttribute('aria-selected',String(value===selected));button.onclick=()=>{gsClosePicker();accept(value);trigger.focus();};list.append(button);});if(employeeChoice){const search=ctNode('input','staff-picker-search');search.type='search';search.placeholder='🔍 Найдите сотрудника по фамилии';search.setAttribute('aria-label','Поиск сотрудника');search.oninput=()=>{const q=search.value.trim().toLocaleLowerCase('ru');list.querySelectorAll('button').forEach(b=>b.hidden=!b.dataset.staffSearch.includes(q));};root.append(search);}root.append(list);document.body.append(root);gsPicker=root;const viewport=window.visualViewport,left=viewport?.offsetLeft||0,top=viewport?.offsetTop||0,width=viewport?.width||window.innerWidth,height=viewport?.height||window.innerHeight,rect=trigger.getBoundingClientRect();root.style.width=Math.min(statusChoice?160:employeeChoice?420:260,Math.max(0,width-24))+'px';root.style.maxHeight=Math.max(0,height-24)+'px';root.style.overflow='hidden';root.style.top=(top+12)+'px';root.style.left=(left+12)+'px';const chrome=Math.max(0,root.getBoundingClientRect().height-list.getBoundingClientRect().height);list.style.maxHeight=Math.max(0,Math.min(statusChoice?204:248,height-24-chrome))+'px';const size=root.getBoundingClientRect(),position=gsPickerPlacement(rect,{left,top,width,height},size);root.style.left=position.left+'px';root.style.top=position.top+'px';if(employeeChoice)root.querySelector('.staff-picker-search').focus({preventScroll:true});else root.querySelector('[aria-selected=true]')?.focus({preventScroll:true});}
 document.addEventListener('pointerdown',e=>{if(gsPicker&&!gsPicker.contains(e.target)&&!e.target.closest('.gs-choice'))gsClosePicker();});document.addEventListener('keydown',e=>{if(e.key==='Escape')gsClosePicker();if(gsPicker&&['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();const buttons=[...gsPicker.querySelectorAll('button')].filter(b=>!b.hidden),i=buttons.indexOf(document.activeElement);buttons[(i+(e.key==='ArrowDown'?1:-1)+buttons.length)%buttons.length]?.focus();}});window.addEventListener('resize',gsClosePicker);window.addEventListener('scroll',e=>{if(!gsPicker?.contains(e.target))gsClosePicker();},true);
 // Выполняет статус один раз — модуль редактора графика.
-function gsStatusOnce(url,requestId){return new Promise((resolve,reject)=>{const callback='__gs_'+Math.random().toString(36).slice(2)+'_'+Date.now(),script=document.createElement('script');let timer;function cleanup(){clearTimeout(timer);script.remove();delete window[callback];}window[callback]=result=>{cleanup();resolve(result);};script.onerror=()=>{cleanup();reject(new Error('Не удалось проверить ответ скрипта'));};timer=setTimeout(()=>{cleanup();reject(new Error('Проверка ответа заняла слишком много времени'));},12000);const target=new URL(url);target.searchParams.set('action','workingScheduleStatus');target.searchParams.set('requestId',requestId);target.searchParams.set('callback',callback);script.src=target.href;document.body.append(script);});}
+function gsStatusOnce(url,requestId){return new Promise((resolve,reject)=>{const callback='__gs_'+Math.random().toString(36).slice(2)+'_'+Date.now(),script=document.createElement('script');let timer;function cleanup(){clearTimeout(timer);script.remove();delete window[callback];}window[callback]=result=>{cleanup();resolve(result);};script.onerror=()=>{cleanup();reject(new Error('Не удалось проверить ответ скрипта'));};timer=setTimeout(()=>{cleanup();reject(new Error('Проверка ответа заняла слишком много времени'));},12000);const target=new URL(url);target.searchParams.set('action','workingScheduleStatus');target.searchParams.set('requestId',requestId);target.searchParams.set('callback',callback);script.src=districtReadUrl(target);document.body.append(script);});}
 // Выполняет запрос — модуль редактора графика.
 async function gsRequest(operation,fields={}){
  const owner=managementOwnerKey(),url=shiftSwapUrl();if(!managementAllowed())throw new Error('Раздел доступен руководству');if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт графика города');
  const requestId=ctRequestId(),deadline=Date.now()+75000,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);let result,lastError;
- try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'workingSchedule',operation,requestId,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,...fields}),credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);result=await response.json();}catch(error){lastError=error;}finally{clearTimeout(timer);}
+ try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'workingSchedule',operation,requestId,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,...fields}),credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);result=await response.json();}catch(error){lastError=error;}finally{clearTimeout(timer);}
  // Read the receipt for the same POST; never send a save twice after a redirect/network error.
  while(!result||result.status==='pending'){
   if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
@@ -11871,7 +12128,7 @@ function gsRender(){const tabs=document.getElementById('gsTabs');tabs.replaceChi
 // Выполняет fit Columns — модуль редактора графика.
 function gsFitColumns(){const root=document.getElementById('gsGrid'),table=root?.querySelector('.gs-table');if(!table)return;const cols=[...table.querySelectorAll('col')],days=cols.length-3,desktop=document.documentElement.dataset.appLayout==='desktop';if(desktop){const width=root.clientWidth||1200,role=width<950?76:90,name=width<950?210:260,total=32,day=(width-role-name-total)/days;table.style.width=width+'px';table.style.minWidth='0';cols.forEach((c,i)=>c.style.width=(i===0?role:i===1?name:i===cols.length-1?total:day)+'px');}else{table.style.removeProperty('width');table.style.removeProperty('min-width');cols.forEach(c=>c.style.removeProperty('width'));}root.querySelectorAll('.gs-name').forEach(n=>{n.style.height='auto';n.style.height=Math.max(40,n.scrollHeight)+'px';});}
 // Выполняет сотрудник варианты — модуль редактора графика.
-function gsEmployeeChoices(){const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');if(!city)return [];const source=Array.isArray(gsState.data?.staff)?gsState.data.staff:(Array.isArray(usersDb)?usersDb:[]);return source.filter(p=>String(p.city||'').trim().toLocaleLowerCase('ru')===city).map(p=>({...p,name:String(p.fullName||p.name||'').trim()})).filter(p=>p.name);}
+function gsEmployeeChoices(){const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');if(!city)return [];const source=Array.isArray(gsState.data?.staff)?gsState.data.staff:(Array.isArray(usersDb)?usersDb:[]);return source.filter(p=>String(p.city||'').trim().toLocaleLowerCase('ru')===city&&String(p.district||'')===String(currentUser.district||'')).map(p=>({...p,name:String(p.fullName||p.name||'').trim()})).filter(p=>p.name);}
 // Показывает Grid — модуль редактора графика.
 function gsRenderGrid(){const root=document.getElementById('gsGrid');if(!root)return;root.replaceChildren();const b=gsBlock();if(!b){root.append(ctNode('p','','Не найден текущий или следующий месяц. Проверьте заголовки дат в таблице.'));return;}const table=ctNode('table','gs-table'),head=ctNode('thead'),tr=ctNode('tr'),columns=ctNode('colgroup');for(let i=0;i<b.dates.length+3;i++)columns.append(ctNode('col'));table.append(columns);['Роль','ФИО монтажника',...b.dates.map(d=>d.slice(0,2)),'Смен'].forEach((s,i)=>{const th=ctNode('th','',s);th.scope='col';if(i>=2&&i<2+b.dates.length){const date=parseScheduleDate(b.dates[i-2]);th.title=b.dates[i-2]+(date?' · '+date.toLocaleDateString('ru-RU',{weekday:'long'}):'');th.tabIndex=0;if(date&&date<parseScheduleDate(gsState.data.today))th.classList.add('gs-past-date');if(date&&(date.getDay()===0||date.getDay()===6))th.classList.add('gs-weekend');}tr.append(th);});head.append(tr);table.append(head);const body=ctNode('tbody'),query=document.getElementById('gsSearch').value.trim().toLowerCase();b.rows.forEach(r=>{if(query&&!((gsValue(b,r,'name')+' '+gsValue(b,r,'role')).toLowerCase().includes(query)))return;const tr=ctNode('tr'),role=ctNode('td'),name=ctNode('td'),roleBtn=ctNode('button','gs-choice gs-role',gsValue(b,r,'role'));roleBtn.type='button';roleBtn.disabled=r.identityReadonly;roleBtn.setAttribute('aria-label','Роль '+r.name);roleBtn.onclick=()=>gsPick(roleBtn,['Монтажник','Техник-Универсал','Бригадир','Старший Техник','Стажер'].map(s=>[s,s]),gsValue(b,r,'role'),v=>{gsEdit(b,r,'role',v);roleBtn.textContent=v;});role.append(roleBtn);const input=ctNode('button','gs-choice gs-name gs-name-choice');input.type='button';input.append(ctNode('span','gs-name-label',gsValue(b,r,'name')),ctNode('span','dropdown-arrow','▼'));input.title=gsValue(b,r,'name');input.disabled=r.identityReadonly;input.setAttribute('aria-label','ФИО монтажника: '+gsValue(b,r,'name'));input.setAttribute('aria-haspopup','listbox');input.onclick=()=>{const staff=gsEmployeeChoices().filter(p=>!b.rows.some(other=>other!==r&&gsValue(b,other,'name').trim().toLocaleLowerCase('ru')===p.name.trim().toLocaleLowerCase('ru')));if(!staff.length){gsMessage('В городе нет доступных сотрудников для выбора. Обновите список сотрудников.');return;}gsPick(input,staff.map(p=>[p.name,p.name,p]),gsValue(b,r,'name'),value=>{const person=staff.find(p=>p.name===value);if(!person||!String(person.role||'').trim()){gsMessage('У сотрудника не заполнена роль в «Списке сотрудников».');return;}gsEdit(b,r,'name',person.name);gsEdit(b,r,'role',person.role);gsRenderGrid();},true);};name.append(input);tr.append(role,name);const count=ctNode('td','gs-total');function updateCount(){const n=b.dates.filter((_,d)=>gsValue(b,r,'shift',d)==='Р').length;count.textContent=String(n);count.classList.toggle('gs-over',n>15);}b.dates.forEach((date,d)=>{const td=ctNode('td'),value=gsValue(b,r,'shift',d),button=ctNode('button','gs-choice gs-shift',value||'·');button.type='button';button.dataset.status=value;button.dataset.past=String(parseScheduleDate(date)<parseScheduleDate(gsState.data.today));button.title=r.name+' · '+date+' · '+(GS_CODES.find(c=>c[0]===value)?.[1]||'Не задано');button.setAttribute('aria-label',button.title);button.disabled=r.readonly[d]||r.frozen[d];if(gsState.drafts.has(b.id+':'+r.row+':shift:'+d))button.classList.add('gs-changed');button.onclick=()=>gsPick(button,GS_CODES,gsValue(b,r,'shift',d),v=>{gsEdit(b,r,'shift',v,d);button.textContent=v;button.dataset.status=v;button.classList.toggle('gs-changed',gsState.drafts.has(b.id+':'+r.row+':shift:'+d));updateCount();const footer=table.querySelector('tfoot tr');if(footer)footer.children[2+d].textContent=String(b.rows.filter(x=>gsValue(b,x,'shift',d)==='Р').length);});td.append(button);tr.append(td);});updateCount();tr.append(count);body.append(tr);});table.append(body);const foot=ctNode('tfoot'),line=ctNode('tr');line.append(ctNode('th','','На линии'),ctNode('td','',''));b.dates.forEach((_,d)=>line.append(ctNode('td','',String(b.rows.filter(r=>gsValue(b,r,'shift',d)==='Р').length))));line.append(ctNode('td','',''));foot.append(line);table.append(foot);root.append(table);requestAnimationFrame(gsFitColumns);if(gsState.busy)root.querySelectorAll('button,input,textarea').forEach(n=>{n.dataset.gsDisabled=String(n.disabled);n.disabled=true;});}
 // Выполняет i SO — модуль редактора графика.
@@ -11926,7 +12183,7 @@ function tmrScreen(manager){return document.getElementById(manager?'screen-tmc-r
 // Выполняет интерфейс сообщение — модуль заявок ТМЦ.
 function tmrUiMessage(text,error=false,loading=false){const root=tmrScreen(tmrUi.manager)?.querySelector('.tmr-state');if(root){if(loading)root.innerHTML=liveLoading(text,'📦');else root.textContent=text;root.style.color=error?'var(--danger)':'';}}
 // Выполняет api — модуль заявок ТМЦ.
-async function tmrApi(operation,fields={}){const user=currentUser,owner=tmrOwner(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Войдите в систему и выберите настроенный город');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tmcRequests',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==tmrOwner())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось сохранить заявку');e.confirmed=true;throw e;}return data;}finally{clearTimeout(timer);}}
+async function tmrApi(operation,fields={}){const user=currentUser,owner=tmrOwner(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Войдите в систему и выберите настроенный город');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tmcRequests',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==tmrOwner())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось сохранить заявку');e.confirmed=true;throw e;}return data;}finally{clearTimeout(timer);}}
 // Сохраняет занятость — модуль заявок ТМЦ.
 function tmrSetBusy(value){tmrUi.busy=value;tmrScreen(tmrUi.manager).querySelectorAll('button,input').forEach(n=>{if(value){n.dataset.tmrDisabled=String(n.disabled);n.disabled=true;}else if(n.dataset.tmrDisabled!==undefined){n.disabled=n.dataset.tmrDisabled==='true';delete n.dataset.tmrDisabled;}});}
 // Выполняет кабель выбор — модуль заявок ТМЦ.
@@ -11940,7 +12197,7 @@ function tmrUiValidate(values){for(const [key,label] of TMR_UI_FIELDS){if(!Numbe
 // Выполняет сотрудники фильтр — модуль заявок ТМЦ.
 function tmrStaffFilter(onchange){
  const wrap=ctNode('div','custom-dropdown searchable-dropdown staff-dropdown tmr-staff-filter'),trigger=ctNode('div','dropdown-trigger'),input=ctNode('input','dropdown-search-trigger'),arrow=ctNode('span','dropdown-arrow','▼'),list=ctNode('div','dropdown-list');
- input.type='search';input.placeholder='🔍 Выберите сотрудника или найдите по фамилии';input.setAttribute('aria-label','Сотрудник города: поиск и выбор');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');list.id='tmrStaffFilterList';list.setAttribute('role','listbox');input.setAttribute('aria-controls',list.id);arrow.setAttribute('aria-hidden','true');trigger.append(input,arrow);wrap.append(trigger,list);let selected=null;
+ input.type='search';input.placeholder='🔍 Выберите сотрудника или найдите по фамилии';input.setAttribute('aria-label','Сотрудник города: поиск и выбор');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.id='tmrStaffFilterInput';list.id='tmrStaffFilterList';list.setAttribute('role','listbox');input.setAttribute('aria-controls',list.id);arrow.setAttribute('aria-hidden','true');trigger.append(input,arrow);wrap.append(trigger,list);let selected=null;
  const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');
  const people=(Array.isArray(usersDb)?usersDb:[]).filter(p=>city&&String(p.city||'').trim().toLocaleLowerCase('ru')===city&&String(p.fullName||p.name||'').trim()).sort((a,b)=>String(a.fullName||a.name).localeCompare(String(b.fullName||b.name),'ru'));
  function close(){setDropdownOpen(wrap,false);input.setAttribute('aria-expanded','false');}
@@ -11952,7 +12209,7 @@ function tmrStaffFilter(onchange){
  wrap.tmrReset=()=>{selected=null;input.value='';close();};fill();return wrap;
 }
 // Показывает операцию — модуль заявок ТМЦ.
-function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.append(search,date.wrap,clear);content.append(toolbar,list);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn'),label);button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
+function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;root.querySelector('.tmr-management-filters')?.remove();content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.classList.add('tmr-management-filters');const staffField=ctNode('div','tmr-field tmr-staff-label'),staffLabel=ctNode('span','','ФИО монтажника');staffLabel.id='tmrStaffFilterLabel';search.querySelector('input').setAttribute('aria-labelledby',staffLabel.id);staffField.append(staffLabel,search);toolbar.append(staffField,date.wrap,clear);content.append(toolbar,list);tmrPositionManagementFilters(root);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn'),label);button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
 // Выполняет статус Chips — модуль заявок ТМЦ.
 function tmrStatusChips(root,item){root.append(ctNode('span','tmr-chip'+(item.oneC?' done':''),item.oneC?'Оформлено в 1С':'В 1С не оформлено'),ctNode('span','tmr-chip'+(item.entered?' done':''),item.entered?'Оформил в таблицу: Да':'Оформил в таблицу: Нет'));if(item.oneCBy||item.enteredBy)root.append(ctNode('p','tmr-summary',[item.oneCBy?'1С: '+item.oneCBy:'',item.enteredBy?'Таблица: '+item.enteredBy:''].filter(Boolean).join(' · ')));}
 // Сохраняет операцию — модуль заявок ТМЦ.
@@ -12029,5 +12286,42 @@ html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-content>.tmr-t
 #screen-tmc-requests-management .tmr-staff-filter .dropdown-item:hover,#screen-tmc-requests-management .tmr-staff-filter .dropdown-item:focus-visible{background:#292410;color:var(--beeline-yellow)}
 </style>
 <style id="tmrStaffFocusStyle">#screen-tmc-requests-management .tmr-staff-filter .dropdown-item:focus-visible{outline:1px solid var(--beeline-yellow);outline-offset:-2px}</style>
+<style id="desktopManagementRowsStyle">
+/* Десктоп: фильтры ТМЦ на верхней строке, исходные размеры элементов сохранены. */
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar{display:flex;flex-wrap:nowrap;align-items:end;gap:12px}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters{display:flex;flex-wrap:nowrap;align-items:end;gap:12px;width:auto;margin:0;flex:none}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{flex:0 0 332px;width:332px;max-width:332px;margin:0;padding:0}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label){flex:0 0 160px;width:160px;max-width:160px;margin:0;padding:0}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{flex:0 0 160px;width:160px}
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.btn{margin-left:auto;flex:none}
+html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-staff-label{grid-column:1/-1;max-width:none;width:100%;margin:0;padding:0}
+html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-staff-label>span{display:none}
+/* Десктоп: построение и очистка графика расположены рядом. */
+html[data-app-layout=desktop] #screen-admin-themes>.card{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:16px}
+html[data-app-layout=desktop] #screen-admin-themes>.card>p,
+html[data-app-layout=desktop] #screen-admin-themes>.card>#adminThemesState,
+html[data-app-layout=desktop] #screen-admin-themes>.card>#adminThemesResult,
+html[data-app-layout=desktop] #screen-admin-themes>.card>.common-nav-row{grid-column:1/-1}
+html[data-app-layout=desktop] #screen-admin-themes>.card>button[onclick="adminToolsStart('themesBuild')"]{grid-column:1;grid-row:2;align-self:start}
+html[data-app-layout=desktop] #screen-admin-themes>.card>button[onclick="adminToolsConfirmClear('themes')"]{grid-column:2;grid-row:2;align-self:start}
+</style>
+<script id="desktopManagementRowsScript">
+// Перемещает существующие фильтры, сохраняя значения и обработчики при смене режима.
+function tmrPositionManagementFilters(root){
+ const toolbar=root.querySelector('.tmr-management-filters');if(!toolbar)return;
+ const header=root.querySelector('.card>.tmr-toolbar'),desktop=document.documentElement.dataset.appLayout==='desktop';
+ if(desktop)header.insertBefore(toolbar,header.querySelector('button'));
+ else root.querySelector('.tmr-info').after(toolbar);
+}
+new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('screen-tmc-requests-management'))).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
+</script>
 </body>
 </html>
+
+<script>
+// Проверяет запись после сбоя ответа; повторный запрос регистрации не отправляет.
+async function confirmRegistrationSaved(user,originalError){
+ try{const result=await requestAuthJson({action:'registrationStatus',dwLogin:user.dwLogin,password:user.password,email:user.email,fullName:user.fullName,city:user.city,district:user.district},10000);if(result.status==='ok')return result;}catch(error){}
+ throw originalError;
+}
+</script>
