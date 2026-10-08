@@ -26,7 +26,7 @@
             --status-v: #2ecc71; /* Выходной - зеленый */
             --status-p: #ffffff; /* Рабочий день - белый */
             --status-pr: #ff4d4d; /* Прогул - красный */
-            --status-o: #b7ed55; /* Отпуск - светло-серый */
+            --status-o: #ffee00; /* Отпуск - жёлтый */
             --status-b: #999999; /* Больничный - серый */
             --status-u: #666666; /* Учеба - тёмно-серый */
         }
@@ -3091,7 +3091,7 @@ html[data-app-layout=mobile] .gs-table th:nth-child(1),html[data-app-layout=mobi
 /* Exact status palette from the schedule sheet. */
 .gs-shift[data-status=Р],.gs-legend-chip[data-status=Р]{background:#ffffff;color:#000}
 .gs-shift[data-status=В],.gs-legend-chip[data-status=В]{background:#34a853;color:#000}
-.gs-shift[data-status=О],.gs-legend-chip[data-status=О]{background:#b7ed55;color:#000}
+.gs-shift[data-status=О],.gs-legend-chip[data-status=О]{background:var(--status-o);color:#000}
 .gs-shift[data-status=Б],.gs-legend-chip[data-status=Б]{background:#00ffff;color:#000}
 .gs-shift[data-status=П],.gs-legend-chip[data-status=П]{background:#ff0000;color:#000}
 .gs-shift[data-status=У],.gs-legend-chip[data-status=У]{background:#9900ff;color:#000}
@@ -3171,7 +3171,7 @@ html[data-app-layout=mobile] .app-screen .btn[data-view-main-menu]{width:100%!im
 .gs-status-picker button[data-status]{position:relative;display:flex;align-items:center;box-sizing:border-box;width:100%!important;height:30px!important;min-height:30px!important;max-height:30px!important;margin:0!important;padding:4px 26px 4px 8px!important;border:1px solid transparent;border-radius:5px;font-size:11px;line-height:20px;font-weight:600;white-space:nowrap;color:#000}
 .gs-status-picker button[data-status="Р"]{background:#ffffff;color:#000}
 .gs-status-picker button[data-status="В"]{background:#34a853;color:#000}
-.gs-status-picker button[data-status="О"]{background:#b7ed55;color:#000}
+.gs-status-picker button[data-status="О"]{background:var(--status-o);color:#000}
 .gs-status-picker button[data-status="Б"]{background:#00ffff;color:#000}
 .gs-status-picker button[data-status="П"]{background:#ff0000;color:#000}
 .gs-status-picker button[data-status="У"]{background:#9900ff;color:#000}
