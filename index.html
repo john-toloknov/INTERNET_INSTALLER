@@ -2708,7 +2708,7 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
   const softwareChoices=[];
   function softwareScreen(id,title){
    const screen=document.createElement('div');screen.id=id;screen.className='app-screen uniform-screen';screen.dataset.viewKind='data';
-   const heading=document.createElement('h2');heading.textContent=title;
+   const heading=document.createElement('h2');heading.textContent=id.startsWith('screen-software-device-')?'💿 Прошивки и оборудование':'📱 Приложения';
    const card=document.createElement('div');card.className='card view-software-page';const cardHeading=document.createElement('h3');cardHeading.className='view-software-card-heading';cardHeading.textContent=title;card.append(cardHeading);
    const nav=document.createElement('div');nav.className='common-nav-row';const back=document.createElement('button');back.type='button';back.className='btn danger-btn';back.textContent='🔙 Назад';back.onclick=()=>switchScreen('screen-software');nav.append(back);card.append(nav);screen.append(heading,card);document.querySelector('body > .container').append(screen);return card;
   }
