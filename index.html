@@ -3619,7 +3619,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
         <div class="card">
             <label for="pprPlansSearch">Поиск по адресу</label>
             <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
-            <button type="button" class="btn secondary-btn read-refresh" onclick="loadPprPlans(true)">🔄 Обновить планы</button>
+            <button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить планы</button>
             <div id="pprPlansHint"></div>
             <div id="pprPlansList" class="ppr-plan-list"></div>
             <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
@@ -4320,7 +4320,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
                 <span class="act-debts-icon" aria-hidden="true">📋</span>
             </div>
             <div class="act-debts-toolbar"><span id="actDebtsUser"></span>
-                <button type="button" class="btn action-btn" onclick="loadActDebts(true)">🔄 Обновить</button>
+                <button type="button" class="btn action-btn app-refresh-button" onclick="loadActDebts(true)">🔄 Обновить</button>
             </div>
             <div id="actDebtsList" aria-live="polite"></div>
             <div class="common-nav-row">
@@ -4339,7 +4339,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
                 <span class="act-debts-icon" aria-hidden="true">📦</span>
             </div>
             <div class="act-debts-toolbar"><span id="myEquipmentUser"></span>
-                <button type="button" class="btn action-btn" onclick="loadMyEquipment()">🔄 Обновить</button>
+                <button type="button" class="btn action-btn app-refresh-button" onclick="loadMyEquipment()">🔄 Обновить</button>
             </div>
             <div id="myEquipmentList" aria-live="polite"></div>
             <div class="common-nav-row">
@@ -4357,7 +4357,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
                 <strong id="myHoursTotal">—</strong><small id="myHoursPeriod">Загрузка из таблицы города...</small></div>
                 <span class="hours-hero-icon" aria-hidden="true">🕐</span></div>
             <div class="act-debts-toolbar"><span id="myHoursUser"></span>
-                <button type="button" class="btn action-btn" onclick="loadMyHours()">🔄 Обновить</button></div>
+                <button type="button" class="btn action-btn app-refresh-button" onclick="loadMyHours()">🔄 Обновить</button></div>
             <div id="myHoursContent" aria-live="polite"></div>
             <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
                 <button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
@@ -4382,7 +4382,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
     <div id="screen-schedule" class="app-screen uniform-screen">
         <h2>📅 Рабочий график</h2>
         <div class="card">
-            <button type="button" class="btn secondary-btn read-refresh" onclick="openMySchedule(true)">🔄 Обновить график</button>
+            <button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="openMySchedule(true)">🔄 Обновить график</button>
             <div id="scheduleContentContainer">
                 <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка графика смен...</span></div>
             </div>
@@ -4726,7 +4726,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
   <div id="cityTableTabs" class="ct-tabs" aria-label="Разделы таблицы"></div>
   <div class="ct-toolbar">
    <input id="cityTableSearch" type="search" placeholder="🔍 Адрес, логин, сотрудник…" aria-label="Поиск по актам" oninput="ctState.limit=50;ctRender()">
-   <button class="btn main-btn" type="button" onclick="ctReload()">🔄 Обновить</button>
+   <button class="btn main-btn app-refresh-button" type="button" onclick="ctReload()">🔄 Обновить</button>
    <button id="cityTableAdd" class="btn main-btn" type="button" onclick="ctStartAdd()" hidden>➕ Добавить и выдать</button>
    <button id="cityTableAckAll" class="btn main-btn" type="button" onclick="ctAckAll()">✅ Сдать все акты</button>
   </div>
@@ -4742,8 +4742,8 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
  </div>
 </div>
 
-<div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📦 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
-<div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📦 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
     <div id="screen-admin" class="app-screen uniform-screen">
       <h2>⚙️ Админ-панель</h2>
       <div class="card management-menu">
@@ -4928,7 +4928,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 <!-- МОДАЛЬНОЕ ОКНО УВЕДОМЛЕНИЙ -->
 <div id="screen-admin-board" class="app-screen uniform-screen">
  <h2>📊 Показатели сотрудников</h2><div class="card">
- <div class="staff-board-toolbar"><p id="staffBoardPeriod"></p><button id="staffBoardRefresh" class="btn main-btn" type="button" onclick="openStaffBoard()">🔄 Обновить</button></div>
+ <div class="staff-board-toolbar"><p id="staffBoardPeriod"></p><button id="staffBoardRefresh" class="btn main-btn app-refresh-button" type="button" onclick="openStaffBoard()">🔄 Обновить</button></div>
  <div id="staffBoardState" role="status" aria-live="polite"></div><div id="staffBoardResult"></div>
  <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
@@ -6649,7 +6649,7 @@ function normalizeEmployeeRole(value) {
     async function fastScheduleRead(source,params,owner=currentUser){
         const key=JSON.stringify([owner.city,owner.district,owner.dwLogin,owner.fullName,source.scriptUrl,params]);
         const cached=scheduleReadCache.get(key);
-        if(cached?.owner===owner&&Date.now()-cached.time<20000)return cached.value;
+        if(cached?.owner===owner&&Date.now()-cached.time<120000)return cached.value;
         const pending=scheduleReadPending.get(key);
         if(pending?.owner===owner)return pending.promise;
         const entry={owner,promise:null};
@@ -6668,7 +6668,8 @@ function normalizeEmployeeRole(value) {
         for (let attempt = 0; attempt < 2; attempt++) {
             const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),Math.max(1,deadline-Date.now()));
             try {
-                const response = await districtFetch(source.scriptUrl, {method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(params),mode:'cors',cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
+                const readUrl=new URL(source.scriptUrl);Object.entries({...params,city:currentUser.city,district:String(currentUser.district),actorLogin:currentUser.dwLogin,actorPassword:currentUser.password}).forEach(([key,value])=>readUrl.searchParams.set(key,value));
+                const response = await districtFetch(readUrl.href, {method:'GET',mode:'cors',cache:'no-store',credentials:'omit',redirect:'follow',signal:controller.signal});
                 if (!response.ok) {
                     const error = new Error(response.status === 404
                         ? 'Скрипт графика недоступен (HTTP 404). Проверьте адрес /exec и действующее развёртывание скрипта графика.'
@@ -10008,7 +10009,7 @@ function ctDetectStbModel(serial) {
         if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
         const requestId = 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
         const payload = {action:'pprPlans', operation, requestId,
-            city:currentUser.city, actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
+            city:currentUser.city, district:String(currentUser.district), actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
         if(operation==='list'){
             const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
             let result;
@@ -11378,7 +11379,7 @@ async function openCityDebtPreview(force = false){
   screen.append(ctNode('h2','','📋 Долги по актам'));
   const card=ctNode('div','card'),toolbar=ctNode('div','act-debts-toolbar');
   const status=ctNode('span','','Долги сотрудников выбранного города');status.id='cityDebtPreviewStatus';toolbar.append(status);
-  const refresh=ctNode('button','btn action-btn','🔄 Обновить');refresh.id='cityDebtPreviewRefresh';refresh.type='button';refresh.onclick=()=>openCityDebtPreview(true);toolbar.append(refresh);
+  const refresh=ctNode('button','btn action-btn app-refresh-button','🔄 Обновить');refresh.id='cityDebtPreviewRefresh';refresh.type='button';refresh.onclick=()=>openCityDebtPreview(true);toolbar.append(refresh);
   const body=ctNode('div','city-debt-preview');body.id='cityDebtPreviewBody';body.setAttribute('aria-live','polite');
   const send=ctNode('button','btn main-btn','📨 Отправить уведомления');send.id='cityDebtPreviewSend';send.type='button';send.onclick=sendCityActDebts;
   const nav=ctNode('div','common-nav-row');
@@ -12160,7 +12161,7 @@ function channelParse(table,tab){const labels=tab==='tv'?{A:'№',B:'Name of cha
 // Выполняет channel Style фильтр.
 function channelStyleFilter(id){const select=document.getElementById(id);select.hidden=true;const dropdown=ctNode('div','custom-dropdown channel-filter'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';button.setAttribute('aria-label',select.getAttribute('aria-label'));button.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');dropdown.append(button,list);select.after(dropdown);const sync=()=>{const label=ctNode('span','channel-filter-label',select.selectedOptions[0]?.textContent||'');button.replaceChildren(label);ensureDropdownArrow(dropdown);list.replaceChildren();[...select.options].forEach(o=>{const item=ctNode('button','dropdown-item',o.textContent);item.type='button';item.setAttribute('role','option');item.setAttribute('aria-selected',String(o.selected));item.onclick=e=>{e.stopPropagation();select.value=o.value;select.dispatchEvent(new Event('change'));setDropdownOpen(dropdown,false);button.focus();};list.append(item);});};select.channelSync=sync;select.addEventListener('change',sync);button.onclick=e=>{e.stopPropagation();const open=!dropdown.classList.contains('open');document.querySelectorAll('.custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));sync();setDropdownOpen(dropdown,open);};dropdown.onkeydown=e=>{if(e.key==='Escape'){setDropdownOpen(dropdown,false);button.focus();}if(e.key==='ArrowDown'){e.preventDefault();if(!dropdown.classList.contains('open'))setDropdownOpen(dropdown,true);const items=[...list.children],i=items.indexOf(document.activeElement);items[(i+1)%items.length]?.focus();}};document.addEventListener('click',e=>{if(!dropdown.contains(e.target))setDropdownOpen(dropdown,false);});sync();}
 // Выполняет channel Ensure экран.
-function channelEnsureScreen(){let screen=document.getElementById('screen-channel-catalog');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-channel-catalog';screen.dataset.viewKind='data';screen.innerHTML='<h2>📺 Актуальные каналы</h2><div class="card"><div class="channel-tabs"><button type="button" class="btn main-btn" data-channel-tab="tv">📺 Телевизор</button><button type="button" class="btn main-btn" data-channel-tab="mobile">📱 Смартфон</button></div><div class="channel-toolbar"><input id="channelSearch" type="search" placeholder="🔍 Название или номер канала" aria-label="Поиск каналов"><select id="channelTariff" aria-label="Тариф каналов"><option value="">Все тарифы</option></select><select id="channelGenre" aria-label="Жанр канала"><option value="">Все жанры</option></select><button id="channelReload" type="button" class="btn action-btn">🔄 Обновить</button></div><p class="channel-status" id="channelStatus" role="status"></p><p class="channel-note">Нажмите на канал, чтобы увидеть сведения и доступные пакеты.</p><div class="channel-grid" id="channelGrid"></div><div class="channel-footer common-nav-row"><button type="button" class="btn danger-btn" id="channelBack">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#channelBack').onclick=()=>{const target=channelCatalogState.returnScreen;if(target==='screen-software')openSoftwareScreen();else if(target)switchScreen(target);else openSoftwareScreen();};channelStyleFilter('channelTariff');channelStyleFilter('channelGenre');screen.querySelector('#channelSearch').oninput=channelRender;screen.querySelector('#channelGenre').onchange=channelRender;screen.querySelector('#channelTariff').onchange=channelRender;screen.querySelector('#channelReload').onclick=()=>channelLoad(true);screen.querySelectorAll('[data-channel-tab]').forEach(b=>b.onclick=()=>{channelCatalogState.tab=b.dataset.channelTab;document.getElementById('channelTariff').value='';channelSetTariffs();channelSetGenres();channelRender();});return screen;}
+function channelEnsureScreen(){let screen=document.getElementById('screen-channel-catalog');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-channel-catalog';screen.dataset.viewKind='data';screen.innerHTML='<h2>📺 Актуальные каналы</h2><div class="card"><div class="channel-tabs"><button type="button" class="btn main-btn" data-channel-tab="tv">📺 Телевизор</button><button type="button" class="btn main-btn" data-channel-tab="mobile">📱 Смартфон</button></div><div class="channel-toolbar"><input id="channelSearch" type="search" placeholder="🔍 Название или номер канала" aria-label="Поиск каналов"><select id="channelTariff" aria-label="Тариф каналов"><option value="">Все тарифы</option></select><select id="channelGenre" aria-label="Жанр канала"><option value="">Все жанры</option></select><button id="channelReload" type="button" class="btn action-btn app-refresh-button">🔄 Обновить</button></div><p class="channel-status" id="channelStatus" role="status"></p><p class="channel-note">Нажмите на канал, чтобы увидеть сведения и доступные пакеты.</p><div class="channel-grid" id="channelGrid"></div><div class="channel-footer common-nav-row"><button type="button" class="btn danger-btn" id="channelBack">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#channelBack').onclick=()=>{const target=channelCatalogState.returnScreen;if(target==='screen-software')openSoftwareScreen();else if(target)switchScreen(target);else openSoftwareScreen();};channelStyleFilter('channelTariff');channelStyleFilter('channelGenre');screen.querySelector('#channelSearch').oninput=channelRender;screen.querySelector('#channelGenre').onchange=channelRender;screen.querySelector('#channelTariff').onchange=channelRender;screen.querySelector('#channelReload').onclick=()=>channelLoad(true);screen.querySelectorAll('[data-channel-tab]').forEach(b=>b.onclick=()=>{channelCatalogState.tab=b.dataset.channelTab;document.getElementById('channelTariff').value='';channelSetTariffs();channelSetGenres();channelRender();});return screen;}
 // Выполняет channel Tariffs.
 function channelTariffs(row,tab){const fields=new Map(row.fields.map(f=>[f.label.toLocaleLowerCase(),f.value.trim()]));if(tab==='tv'){const value=channelTvPackage(fields.get('тв пакет'));return value?[value]:[];}return [['free','Free'],['премиум спорт','Премиум спорт'],['b2b','B2B'],['100new','100new']].filter(([key])=>{const value=fields.get(key);return value&&value!=='0'&&!/^(?:нет|no|false|-)$/i.test(value);}).map(([key,label])=>({key,label}));}
 // Выполняет channel установка Tariffs.
@@ -12205,7 +12206,7 @@ async function gsRequest(operation,fields={}){
  if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Не удалось выполнить операцию. Обновите скрипт графика.');return result;
 }
 // Проверяет операцию — модуль редактора графика.
-function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">＋ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
+function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn app-refresh-button" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">＋ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
 // Показывает Working график.
 async function openWorkingSchedule(){if(!managementAllowed())return;gsEnsure();const owner=managementOwnerKey();if(gsState.owner!==owner)gsState={data:null,blockId:'',busy:false,owner:owner,drafts:new Map(),vacations:new Map(),newVacations:[],preview:false,cycle:3,serial:gsState.serial+1};switchScreen('screen-admin-work-schedule');if(!gsState.data)await gsLoad();else gsRender();}
 // Выполняет занятость — модуль редактора графика.
@@ -12411,6 +12412,16 @@ function tmrPositionManagementFilters(root){
  else root.querySelector('.tmr-info').after(toolbar);
 }
 new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('screen-tmc-requests-management'))).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
+</script>
+<style id="sharedRefreshStyle">
+:is(#refreshStylePriority,.app-screen) button.app-refresh-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:fit-content!important;max-width:100%!important;min-width:0!important;min-height:36px!important;height:36px!important;padding:8px 12px!important;margin:0 0 12px auto!important;align-self:flex-end!important;justify-self:end!important;grid-column:auto!important;border:1px solid #ffcc00!important;border-radius:10px!important;background:#ffcc00!important;color:#111!important;font:600 13px/18px Arial,sans-serif!important;white-space:nowrap!important;box-sizing:border-box!important;box-shadow:none!important;cursor:pointer;}
+:is(#refreshStylePriority,.app-screen) button.app-refresh-button:disabled{opacity:.55;cursor:wait;}
+#screen-tmc-request .tmr-request-header{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;}
+#screen-tmc-request .tmr-request-header .tmr-form-date{order:0;flex:0 1 160px;margin:0!important;}
+#screen-tmc-request .tmr-request-header .app-refresh-button{order:1;margin:0!important;align-self:flex-end!important;}
+</style>
+<script id="sharedRefreshScript">
+(function(){function mark(root){root.querySelectorAll('button').forEach(button=>{if(/^🔄\s*Обновить/.test(button.textContent.trim())&&!button.classList.contains('app-refresh-button'))button.classList.add('app-refresh-button');});}mark(document);new MutationObserver(records=>{for(const record of records)if(record.type==='childList')mark(record.target.nodeType===1?record.target:document);}).observe(document.body,{childList:true,subtree:true});})();
 </script>
 </body>
 </html>
