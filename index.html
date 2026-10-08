@@ -2800,6 +2800,7 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
     section('reports','📝 Отчёты по заявкам',options,active.id==='screen-technician-reports',{allow:()=>visible(reports),before:()=>{if(document.querySelector('.app-screen.active')?.id!=='screen-technician-reports')reports.click();}});
     sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===document.getElementById('tr-reportType').value;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
    }
+   const digitalWindow=document.getElementById('digitalWindowBtn');if(visible(digitalWindow))addButton(digitalWindow,sidebar);
    if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
    const access=document.getElementById('equipmentAccessBtn');
    if(visible(access)){
@@ -3412,6 +3413,8 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 #screen-admin-themes .admin-themes-actions .btn { width:100%; margin:0 !important; min-width:0; padding:12px 8px; font-size:14px; }
 .read-refresh { margin:0 0 12px !important; width:auto; min-height:40px; padding:8px 14px !important; }
 </style>
+
+
 </head>
 <body>
 
@@ -3591,6 +3594,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
             <button class="btn action-btn" id="ownerChangeCityBtn" type="button" style="display:none;" onclick="openOwnerCityPicker()">🏙️ Сменить город</button>
             
             <button class="btn main-btn" id="technicianReportsBtn" onclick="openTechnicianReports()">📝 Отчеты по заявкам</button>
+            <button class="btn main-btn" id="digitalWindowBtn" type="button" onclick="openDigitalWindow()">🐝Digital Window</button>
             
             <!-- Меню монтажника -->
             <button class="btn main-btn" id="installerMenuBtn" style="display: none;" onclick="switchScreen('screen-installer-menu')">👤 Меню монтажника</button>
@@ -5251,9 +5255,10 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
     async function verifyDistrictConnection(config, externalSignal) {
         const key=JSON.stringify([config.city,config.district,config.scriptUrl,config.reportsScriptUrl]);
         if(Date.now()-(verifiedDistrictConnections.get(key)||0)<300000)return config;
+        let timedOut=false;
         const controller=new AbortController(),abort=()=>controller.abort();
         if(externalSignal?.aborted)controller.abort();else externalSignal?.addEventListener('abort',abort,{once:true});
-        const timer=setTimeout(abort,15000);
+        const timer=setTimeout(()=>{timedOut=true;abort();},45000);
         try {
             await Promise.all([[config.scriptUrl,'schedule'],[config.reportsScriptUrl,'daily']].map(async ([url,type])=>{
                 const target=new URL(url);target.searchParams.set('action','connectionInfo');
@@ -5265,7 +5270,7 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
             verifiedDistrictConnections.set(key,Date.now());return config;
         } catch(error) {
             controller.abort();
-            if(error.name==='AbortError')throw new Error('Проверка подключения участка отменена или превысила 15 секунд.');
+            if(error.name==='AbortError')throw new Error(timedOut?'Скрипты участка не ответили за 45 секунд. Выберите участок ещё раз.':'Проверка подключения участка отменена.');
             throw error;
         } finally {clearTimeout(timer);externalSignal?.removeEventListener('abort',abort);}
     }
@@ -6046,7 +6051,7 @@ function normalizeEmployeeRole(value) {
             if(result.routingVersion!==DISTRICT_ROUTING_VERSION)throw new Error('Обновите опубликованную версию скрипта «Список сотрудников»: приложение ожидает справочник во фронтенде.');
             const found = {...result.user,role:normalizeEmployeeRole(result.user.role),password:passInput};
             const selectedConfig=found.role==='Владелец'?null:getFrontendDistrictConfig(found.city,found.district);
-            if(selectedConfig)await verifyDistrictConnection(selectedConfig,controller.signal);
+            // Учётная запись подтверждена общей базой; скрипты разделов проверяются при обращении к ним.
             if(epoch!==authRequestEpoch)return;
             const safeUser = {...result.user,role:found.role};
             delete safeUser.password;
@@ -11801,18 +11806,41 @@ function districtFetch(input,options={}){
  return nativeDistrictFetch(target.href,next);
 }
 // При нескольких участках владелец выбирает один; единственный открывается сразу.
+function renderOwnerDistrictPicker(city,message='',busy=false){
+ const choices=appDistricts.filter(c=>c.city===city),root=document.createElement('div');root.className='owner-district-list';
+ for(const item of choices){const button=document.createElement('button');button.type='button';button.className='btn main-btn';button.disabled=busy||!item.configured;button.textContent='Участок '+item.district+(item.configured?'':' — не подключён');button.onclick=()=>confirmOwnerDistrict(city,item.district);root.append(button);}
+ if(message){const status=document.createElement('div');status.className='owner-city-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.textContent=message;root.append(status);}
+ // Пустой узел действий исключает стандартную кнопку «Понятно» только в выборе участка.
+ showBeelineModalNode('🏙️ '+city+' — выберите участок',root,'',document.createElement('div'));
+ document.getElementById('beelineModal').classList.add('district-picker');
+}
 async function confirmOwnerCity(){
  if(ownerCityBusy||currentUser?.role!=='Владелец')return;
- const city=ownerCitySelected,choices=appDistricts.filter(c=>c.city===city);
- if(!choices.length)return;
+ const city=ownerCitySelected,choices=appDistricts.filter(c=>c.city===city);if(!choices.length)return;
  if(choices.length===1){if(choices[0].configured)return confirmOwnerDistrict(city,choices[0].district);return;}
- const root=document.createElement('div');root.className='owner-district-list';for(const item of choices){const button=document.createElement('button');button.type='button';button.className='btn main-btn';button.disabled=!item.configured;button.textContent='Участок '+item.district+(item.configured?'':' — не подключён');button.onclick=()=>confirmOwnerDistrict(city,item.district);root.append(button);}showBeelineModalNode('🏙️ '+city+' — выберите участок',root,'');document.getElementById('beelineModal').classList.add('district-picker');
+ renderOwnerDistrictPicker(city);
 }
 // Сервер сохраняет город и участок владельца одним подтверждённым действием.
 async function confirmOwnerDistrict(city,district){
- if(ownerCityBusy||currentUser?.role!=='Владелец')return;const owner=currentUser,controller=new AbortController();ownerCityController=controller;ownerCityBusy=true;renderOwnerCityOptions();
- try{const config=getFrontendDistrictConfig(city,district);await verifyDistrictConnection(config,controller.signal);if(currentUser!==owner||controller.signal.aborted)return;const result=await requestAuthJson({action:'ownerSwitchCity',city,district:String(district),dwLogin:owner.dwLogin,password:owner.password},20000,controller.signal);if(currentUser!==owner)return;if(result.routingVersion!==DISTRICT_ROUTING_VERSION||result.status!=='ok'||result.city!==city||String(result.district)!==String(district)||String(result.dwLogin).toLowerCase()!==String(owner.dwLogin).toLowerCase())throw new Error(result.message||'Участок не подтверждён');currentUser={...owner,city,district:String(district)};usersDb=[{...currentUser}];activateDistrict(config);if(document.getElementById('ownerRememberCity').checked)localStorage.setItem(ownerCityPreferenceKey(),city);else localStorage.removeItem(ownerCityPreferenceKey());ownerCityChoiceRequired=false;closeBeelineModal();localStorage.setItem('beeline_current_user',JSON.stringify(currentUser,(k,v)=>k==='password'?undefined:v));checkAuthSession();void loadUsersFromSheet(true);}catch(error){if(currentUser===owner)showBeelineModal('Выбор участка',String(error.message||error),'⚠️');}finally{ownerCityController=null;ownerCityBusy=false;renderOwnerCityOptions();}
+ if(ownerCityBusy||currentUser?.role!=='Владелец')return;
+ const owner=currentUser,controller=new AbortController();ownerCityController=controller;ownerCityBusy=true;renderOwnerCityOptions();
+ try{
+  const config=getFrontendDistrictConfig(city,district);
+  // Повторный выбор участка из уже подтверждённой учётной записи не требует записи в таблицу.
+  if(owner.city!==city||String(owner.district)!==String(district)){
+   renderOwnerDistrictPicker(city,'⏳ Сохраняем выбранный участок…',true);
+   const result=await requestAuthJson({action:'ownerSwitchCity',city,district:String(district),dwLogin:owner.dwLogin,password:owner.password},20000,controller.signal);
+   if(currentUser!==owner||controller.signal.aborted)return;
+   if(result.routingVersion!==DISTRICT_ROUTING_VERSION||result.status!=='ok'||result.city!==city||String(result.district)!==String(district)||String(result.dwLogin).toLowerCase()!==String(owner.dwLogin).toLowerCase())throw new Error(result.message||'Участок не подтверждён');
+  }
+  if(currentUser!==owner||controller.signal.aborted)return;
+  currentUser={...owner,city,district:String(district)};usersDb=[{...currentUser}];activateDistrict(config);
+  if(document.getElementById('ownerRememberCity').checked)localStorage.setItem(ownerCityPreferenceKey(),city);else localStorage.removeItem(ownerCityPreferenceKey());
+  ownerCityChoiceRequired=false;closeBeelineModal();localStorage.setItem('beeline_current_user',JSON.stringify(currentUser,(k,v)=>k==='password'?undefined:v));checkAuthSession();void loadUsersFromSheet(true);
+ }catch(error){if(currentUser===owner)renderOwnerDistrictPicker(city,'⚠️ '+String(error.message||error));}
+ finally{ownerCityController=null;ownerCityBusy=false;renderOwnerCityOptions();}
 }
+
 </script>
 
 <script id="cityTableScript">
@@ -12392,5 +12420,13 @@ new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('s
 async function confirmRegistrationSaved(user,originalError){
  try{const result=await requestAuthJson({action:'registrationStatus',dwLogin:user.dwLogin,password:user.password,email:user.email,fullName:user.fullName,city:user.city,district:user.district},10000);if(result.status==='ok')return result;}catch(error){}
  throw originalError;
+}
+</script>
+
+
+<script id="digitalWindowScript">
+function openDigitalWindow(){
+ if(!currentUser){showBeelineModal('Требуется вход','Войдите в приложение для открытия раздела.','🔒');return;}
+ window.location.assign('https://dw.beeline.kz/');
 }
 </script>
