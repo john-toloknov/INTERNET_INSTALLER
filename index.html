@@ -11481,7 +11481,7 @@ function managementEventFields(){return {kind:document.getElementById('managemen
 function updateManagementPreview(){
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
- text.textContent=`🌐 INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
+ text.textContent=`🌐 INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nФИО получателя, ждём вас в назначенное время!`;
 }
 // Отправляет руководство мероприятие.
 async function sendManagementEvent(event){
@@ -11492,9 +11492,11 @@ async function sendManagementEvent(event){
  managementBusy=true;const button=document.getElementById('managementEventSend');button.disabled=true;
  const resultNode=document.getElementById('managementEventResult');resultNode.textContent='';managementRequestModal('📣 Мероприятие','Создаём мероприятие и рассылку…',true);
  try{const result=await managementRequest('event',fields,managementEventRequest);managementEventRequest='';managementEventFingerprint='';
-  document.getElementById('managementEventTopic').value='';openAdminPanel();
+  for(const id of ['managementEventDate','managementEventTime','managementEventTopic'])document.getElementById(id).value='';
+  document.getElementById('managementEventKind').value='Собрание';document.getElementById('managementEventKindLabel').textContent='Собрание';
+  syncAppTime(document.getElementById('managementEventTime'));syncAppDate(document.getElementById('managementEventDate'));updateManagementPreview();openAdminPanel();
   managementSetDelivery(result,`${result.kind||fields.kind} · ${currentUser.city}\nМероприятие создано. Получателей: ${result.recipients}. Напоминание — в день мероприятия в 08:30.`);
- }catch(error){managementRequestModal('📣 Проверка мероприятия','Не удалось подтвердить создание: '+error.message+'. При повторе без изменения полей дубликат не создаётся.');}
+ }catch(error){managementRequestModal('📣 Проверка мероприятия','Не удалось создать мероприятие: '+error.message);}
  finally{managementBusy=false;button.disabled=false;}
 }
 // Выполняет при необходимости открытие руководство прямая ссылка.
