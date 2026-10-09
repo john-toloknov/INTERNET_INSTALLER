@@ -3415,6 +3415,16 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 </style>
 
 
+<style>
+/* Компактный выбор времени: единая сетка полей и действий. */
+#appTimePicker{padding:12px;border-radius:14px}
+#appTimePicker>strong{margin:0 0 12px;font-size:15px;line-height:20px}
+#appTimePicker .app-time-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#appTimePicker .app-time-fields>label{display:block;margin:0;padding:0;width:auto;min-width:0;font-size:11px;line-height:16px;text-align:left}
+#appTimePicker .app-time-fields input{display:block;box-sizing:border-box;width:100%;height:44px;min-height:44px;margin:5px 0 0;padding:8px;font-size:18px;line-height:24px;border-radius:10px}
+#appTimePicker .common-nav-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%;max-width:none;margin:12px 0 0;padding:0;box-sizing:border-box}
+#appTimePicker .common-nav-row>.btn{box-sizing:border-box;width:100%!important;min-width:0!important;height:44px;min-height:44px;margin:0!important;padding:10px 8px!important;font-size:14px!important;line-height:20px;border-radius:10px}
+</style>
 </head>
 <body>
 
@@ -5479,7 +5489,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Показывает Beeline модальное окно.
-    function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
+    function showBeelineModal(title, text, icon = '🌐', buttonsHtml = null) {
         document.getElementById('beelineModal').classList.remove('district-picker');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
@@ -5497,7 +5507,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Интерактивное содержимое создаётся кодом приложения; текст сервера по-прежнему очищается.
-    function showBeelineModalNode(title, content, icon = '⚙️', actions = null) {
+    function showBeelineModalNode(title, content, icon = '🌐', actions = null) {
         if (!(content instanceof Node)) throw new TypeError('Ожидается DOM-узел модального окна');
         showBeelineModal(title, '', icon);
         document.getElementById('beelineModalText').replaceChildren(content);
@@ -11330,7 +11340,7 @@ function openManagementDelivery(){
  const actions=document.createElement('div');actions.className='management-delivery-actions';
  const refresh=document.createElement('button');refresh.type='button';refresh.className='btn main-btn';refresh.textContent='🔄 Проверить статус';refresh.onclick=()=>managementWatch(managementGroup);
  const close=document.createElement('button');close.type='button';close.className='btn danger-btn';close.textContent='✖️ Закрыть';close.onclick=()=>{stopManagementPoll();closeBeelineModal();};actions.append(refresh,close);
- showBeelineModalNode('📨 Статус рассылки',root,'⚙️',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
+ showBeelineModalNode('📨 Статус рассылки',root,'🌐',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
 }
 // Выполняет руководство установка доставка.
 function managementSetDelivery(result,summary){
@@ -11350,7 +11360,7 @@ function managementWatch(group){
 }
 // Выполняет руководство запрос модальное окно.
 function managementRequestModal(title,text,loading=false){
- showBeelineModal(title,text,loading?'⚙️':'⚠️');
+ showBeelineModal(title,text,loading?'🌐':'⚠️');
  if(loading)document.getElementById('beelineModalText').innerHTML=liveLoading(text);
 }
 // Сохраняем ID ручного действия при сетевой ошибке: повтор с тем же ID не дублирует рассылку.
@@ -11471,7 +11481,7 @@ function managementEventFields(){return {kind:document.getElementById('managemen
 function updateManagementPreview(){
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
- text.textContent=`⚙️ INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
+ text.textContent=`🌐 INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
 }
 // Отправляет руководство мероприятие.
 async function sendManagementEvent(event){
@@ -11655,7 +11665,7 @@ function closeAppTime(restore=false){const old=appTimeInput;appTimeInput=null;do
 // Обрабатывает приложение время.
 function syncAppTime(input){if(input._appTimeButton){input._appTimeButton.querySelector('span').textContent='⏰ '+(input.value||'Выберите время');input._appTimeButton.disabled=input.disabled;}}
 // Выполняет position приложение время.
-function positionAppTime(){const box=document.getElementById('appTimePicker'),button=appTimeInput?._appTimeButton;if(!box||!button||box.hidden)return;const r=button.getBoundingClientRect(),width=Math.min(300,innerWidth-24);box.style.width=width+'px';box.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';box.style.top=Math.max(12,Math.min(r.bottom+8+box.offsetHeight<innerHeight?r.bottom+8:r.top-box.offsetHeight-8,innerHeight-box.offsetHeight-12))+'px';}
+function positionAppTime(){const box=document.getElementById('appTimePicker'),button=appTimeInput?._appTimeButton;if(!box||!button||box.hidden)return;const r=button.getBoundingClientRect(),width=Math.min(280,innerWidth-24);box.style.width=width+'px';box.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';box.style.top=Math.max(12,Math.min(r.bottom+8+box.offsetHeight<innerHeight?r.bottom+8:r.top-box.offsetHeight-8,innerHeight-box.offsetHeight-12))+'px';}
 // Обрабатывает приложение время.
 function toggleAppTime(input){if(input.disabled)return;if(appTimeInput===input){closeAppTime();return;}closeAppCalendar();closeAppTime();appTimeInput=input;input._appTimeButton.setAttribute('aria-expanded','true');const box=document.getElementById('appTimePicker');box.replaceChildren();box.hidden=false;
  const title=document.createElement('strong');title.textContent='⏰ Выберите время';box.append(title);const fields=document.createElement('div');fields.className='app-time-fields';const parts=(input.value||'09:00').split(':');
