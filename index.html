@@ -3425,7 +3425,31 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 #appTimePicker .common-nav-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%;max-width:none;margin:12px 0 0;padding:0;box-sizing:border-box}
 #appTimePicker .common-nav-row>.btn{box-sizing:border-box;width:100%!important;min-width:0!important;height:44px;min-height:44px;margin:0!important;padding:10px 8px!important;font-size:14px!important;line-height:20px;border-radius:10px}
 </style>
-</head>
+<style>
+#managementEventForm .management-event-top{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:10px;align-items:start}
+#managementEventForm .management-event-top>div{min-width:0}
+#managementEventForm .management-event-top label{display:block;margin:0 0 6px;font-size:12px}
+#managementEventForm .management-event-top .custom-dropdown{margin:0}
+#managementEventForm .management-event-top .dropdown-trigger,#managementEventForm .management-event-top .app-date-trigger{min-height:44px;box-sizing:border-box;padding:10px;font-size:13px;margin:0;width:100%}
+#managementEventForm .management-event-content{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch}
+#managementEventForm .management-topic-column,#managementEventForm .management-preview-column{display:flex;flex-direction:column;min-width:0}
+#managementEventForm .management-event-content label{margin:0 0 8px}
+#managementEventForm #managementEventTopic{flex:1;width:100%;height:auto;min-height:280px;margin:0;resize:vertical}
+#managementEventForm .management-preview{margin:0;flex:1}
+#managementEventForm .management-preview img{max-height:150px}
+@media(max-width:600px){#managementEventForm .management-event-content{grid-template-columns:1fr}#managementEventForm #managementEventTopic{min-height:140px}#managementEventForm .management-event-top{gap:6px}#managementEventForm .management-event-top .dropdown-trigger,#managementEventForm .management-event-top .app-date-trigger{font-size:11px;padding:8px 5px}}
+</style><style>
+html[data-app-layout=desktop] #managementEventForm .management-event-top{display:grid!important;grid-template-columns:1.2fr 1fr .8fr!important}
+html[data-app-layout=desktop] #managementEventForm .management-event-content{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;align-items:stretch}
+html[data-app-layout=desktop] #managementEventForm .management-preview{display:grid;grid-template-columns:140px minmax(0,1fr)!important;align-items:center}
+html[data-app-layout=desktop] #managementEventForm .management-preview img{width:140px!important;max-height:160px!important}
+html[data-app-layout=desktop] #managementEventForm #managementEventTopic{min-height:220px}
+html[data-app-layout=mobile] #managementEventForm .management-event-top{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px}
+html[data-app-layout=mobile] #managementEventForm .management-event-top>div:first-child{grid-column:1/-1}
+html[data-app-layout=mobile] #managementEventForm .management-event-content{display:block!important}
+html[data-app-layout=mobile] #managementEventForm #managementEventTopic{min-height:90px;margin-bottom:14px}
+html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdown-trigger,html[data-app-layout=mobile] #managementEventForm .management-event-top .app-date-trigger{font-size:14px;padding:12px}
+</style></head>
 <body>
 
     <button id="smartScrollBtn" onclick="handleSmartScroll()" style="position: fixed; right: 20px; bottom: 80px; width: 45px; height: 45px; border-radius: 50%; background: #18181b; border: 1px solid #333; color: var(--accent); font-size: 20px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 999; transition: transform 0.2s;" title="Прокрутить">
@@ -4777,8 +4801,8 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
     <div id="screen-management-event" class="app-screen uniform-screen">
       <h2>📣 Мероприятие</h2>
       <div class="card">
-        <form onsubmit="sendManagementEvent(event)">
-          <label>Тип мероприятия</label>
+        <form id="managementEventForm" onsubmit="sendManagementEvent(event)">
+<div class="management-event-top"><div><label>Тип мероприятия</label>
           <div class="custom-dropdown" id="managementEventDropdown">
             <div class="dropdown-trigger" onclick="toggleDropdown('managementEventDropdown')"><span id="managementEventKindLabel">Собрание</span><span class="dropdown-arrow">▼</span></div>
             <div class="dropdown-list">
@@ -4788,17 +4812,16 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
             </div>
           </div>
           <input type="hidden" id="managementEventKind" value="Собрание">
-          <div class="management-event-dates">
+</div>
             <div><label for="managementEventDate">Дата</label><input type="date" id="managementEventDate" required oninput="updateManagementPreview()"></div>
             <div><label for="managementEventTime">Время</label><input type="time" id="managementEventTime" required oninput="updateManagementPreview()"></div>
-          </div>
-          <label>📍 Место проведения: офис</label>
-          <label for="managementEventTopic">Тема мероприятия</label>
+          </div><p class="management-hint">📍 Место проведения: офис</p><div class="management-event-content"><div class="management-topic-column">          <label for="managementEventTopic">Тема мероприятия</label>
           <textarea id="managementEventTopic" maxlength="350" rows="3" required placeholder="Что будем обсуждать или изучать?" oninput="updateManagementPreview()"></textarea>
-          <div class="management-preview">
+</div><div class="management-preview-column"><label>Предпросмотр сообщения</label>          <div class="management-preview">
             <img id="managementEventPreviewImage" alt="Иллюстрация мероприятия" loading="lazy">
             <div id="managementEventPreviewText"></div>
           </div>
+</div></div>
           <p class="management-hint">Уведомление получат сотрудники вашего города. Напоминание — в день мероприятия в 08:30.</p>
           <button class="btn main-btn" id="managementEventSend" type="submit">📨 Отправить уведомление</button>
           <div id="managementEventResult" class="management-status" role="status" aria-live="polite"></div>
@@ -5489,7 +5512,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Показывает Beeline модальное окно.
-    function showBeelineModal(title, text, icon = '🌐', buttonsHtml = null) {
+    function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
         document.getElementById('beelineModal').classList.remove('district-picker');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
@@ -5507,7 +5530,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Интерактивное содержимое создаётся кодом приложения; текст сервера по-прежнему очищается.
-    function showBeelineModalNode(title, content, icon = '🌐', actions = null) {
+    function showBeelineModalNode(title, content, icon = '⚙️', actions = null) {
         if (!(content instanceof Node)) throw new TypeError('Ожидается DOM-узел модального окна');
         showBeelineModal(title, '', icon);
         document.getElementById('beelineModalText').replaceChildren(content);
@@ -11275,7 +11298,7 @@ async function managementRequest(operation,fields={},requestId){
  const user=currentUser;if(!managementAllowed())throw new Error('Раздел доступен руководству');
  const url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Для города не настроен скрипт отчётов');
  const id=requestId||'mg_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);
  try{
   const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'management',operation,requestId:id,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
   if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();
@@ -11340,7 +11363,7 @@ function openManagementDelivery(){
  const actions=document.createElement('div');actions.className='management-delivery-actions';
  const refresh=document.createElement('button');refresh.type='button';refresh.className='btn main-btn';refresh.textContent='🔄 Проверить статус';refresh.onclick=()=>managementWatch(managementGroup);
  const close=document.createElement('button');close.type='button';close.className='btn danger-btn';close.textContent='✖️ Закрыть';close.onclick=()=>{stopManagementPoll();closeBeelineModal();};actions.append(refresh,close);
- showBeelineModalNode('📨 Статус рассылки',root,'🌐',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
+ showBeelineModalNode('📨 Статус рассылки',root,'⚙️',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
 }
 // Выполняет руководство установка доставка.
 function managementSetDelivery(result,summary){
@@ -11360,7 +11383,7 @@ function managementWatch(group){
 }
 // Выполняет руководство запрос модальное окно.
 function managementRequestModal(title,text,loading=false){
- showBeelineModal(title,text,loading?'🌐':'⚠️');
+ showBeelineModal(title,text,loading?'⚙️':'⚠️');
  if(loading)document.getElementById('beelineModalText').innerHTML=liveLoading(text);
 }
 // Сохраняем ID ручного действия при сетевой ошибке: повтор с тем же ID не дублирует рассылку.
@@ -11481,7 +11504,7 @@ function managementEventFields(){return {kind:document.getElementById('managemen
 function updateManagementPreview(){
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
- text.textContent=`🌐 INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nФИО получателя, ждём вас в назначенное время!`;
+ text.textContent=`⚙️ INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nФИО получателя, ждём вас в назначенное время!`;
 }
 // Отправляет руководство мероприятие.
 async function sendManagementEvent(event){
@@ -11496,7 +11519,7 @@ async function sendManagementEvent(event){
   document.getElementById('managementEventKind').value='Собрание';document.getElementById('managementEventKindLabel').textContent='Собрание';
   syncAppTime(document.getElementById('managementEventTime'));syncAppDate(document.getElementById('managementEventDate'));updateManagementPreview();openAdminPanel();
   managementSetDelivery(result,`${result.kind||fields.kind} · ${currentUser.city}\nМероприятие создано. Получателей: ${result.recipients}. Напоминание — в день мероприятия в 08:30.`);
- }catch(error){managementRequestModal('📣 Проверка мероприятия','Не удалось создать мероприятие: '+error.message);}
+ }catch(error){const networkError=/Failed to fetch|NetworkError|Load failed|aborted/i.test(String(error.message||error));managementRequestModal('📣 Проверка мероприятия',networkError?'Не получен ответ от скрипта. Мероприятие могло быть создано. Повторите отправку без изменения полей — сохранённый ID запроса защитит от дубликата.':'Не удалось создать мероприятие: '+error.message);}
  finally{managementBusy=false;button.disabled=false;}
 }
 // Выполняет при необходимости открытие руководство прямая ссылка.
