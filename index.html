@@ -5479,7 +5479,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Показывает Beeline модальное окно.
-    function showBeelineModal(title, text, icon = '🌐', buttonsHtml = null) {
+    function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
         document.getElementById('beelineModal').classList.remove('district-picker');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
@@ -5497,7 +5497,7 @@ function normalizeEmployeeRole(value) {
     }
 
     // Интерактивное содержимое создаётся кодом приложения; текст сервера по-прежнему очищается.
-    function showBeelineModalNode(title, content, icon = '🌐', actions = null) {
+    function showBeelineModalNode(title, content, icon = '⚙️', actions = null) {
         if (!(content instanceof Node)) throw new TypeError('Ожидается DOM-узел модального окна');
         showBeelineModal(title, '', icon);
         document.getElementById('beelineModalText').replaceChildren(content);
@@ -11330,7 +11330,7 @@ function openManagementDelivery(){
  const actions=document.createElement('div');actions.className='management-delivery-actions';
  const refresh=document.createElement('button');refresh.type='button';refresh.className='btn main-btn';refresh.textContent='🔄 Проверить статус';refresh.onclick=()=>managementWatch(managementGroup);
  const close=document.createElement('button');close.type='button';close.className='btn danger-btn';close.textContent='✖️ Закрыть';close.onclick=()=>{stopManagementPoll();closeBeelineModal();};actions.append(refresh,close);
- showBeelineModalNode('📨 Статус рассылки',root,'🌐',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
+ showBeelineModalNode('📨 Статус рассылки',root,'⚙️',actions);renderManagementDelivery(managementLastDelivery);managementWatch(managementGroup);
 }
 // Выполняет руководство установка доставка.
 function managementSetDelivery(result,summary){
@@ -11350,7 +11350,7 @@ function managementWatch(group){
 }
 // Выполняет руководство запрос модальное окно.
 function managementRequestModal(title,text,loading=false){
- showBeelineModal(title,text,loading?'🌐':'⚠️');
+ showBeelineModal(title,text,loading?'⚙️':'⚠️');
  if(loading)document.getElementById('beelineModalText').innerHTML=liveLoading(text);
 }
 // Сохраняем ID ручного действия при сетевой ошибке: повтор с тем же ID не дублирует рассылку.
@@ -11471,7 +11471,7 @@ function managementEventFields(){return {kind:document.getElementById('managemen
 function updateManagementPreview(){
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
- text.textContent=`🌐 INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
+ text.textContent=`⚙️ INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nКоллеги, ждём вас в назначенное время!`;
 }
 // Отправляет руководство мероприятие.
 async function sendManagementEvent(event){
