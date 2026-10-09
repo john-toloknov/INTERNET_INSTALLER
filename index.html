@@ -3544,7 +3544,13 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
                     <div class="dropdown-list"><div id="city-items-container"></div></div>
                 </div>
                 <input type="hidden" id="regCity" required>
-                <label for="regDistrict">Участок</label><select id="regDistrict" required disabled><option value="">Сначала выберите подключённый город</option></select><small id="regDistrictHint" class="text-muted" role="status"></small>
+                <label for="regDistrictTrigger">Участок</label>
+                <div class="custom-dropdown" id="regDistrictDropdown">
+                    <button type="button" class="dropdown-trigger" id="regDistrictTrigger" disabled aria-haspopup="listbox" aria-expanded="false" onclick="toggleDropdown(event, 'regDistrictDropdown')"><span id="regDistrictLabel">Сначала выберите подключённый город</span><span class="dropdown-arrow">▼</span></button>
+                    <div class="dropdown-list" id="regDistrictList" role="listbox" aria-label="Участки города"></div>
+                </div>
+                <select id="regDistrict" hidden disabled aria-hidden="true" tabindex="-1"><option value="">Сначала выберите подключённый город</option></select>
+                <small id="regDistrictHint" class="text-muted" role="status"></small>
 
                 <label>Фамилия Имя Отчество</label>
                 <input type="text" id="regFullName" required placeholder="Введите ФИО">
@@ -5613,8 +5619,13 @@ function normalizeEmployeeRole(value) {
             equipmentAccessBtn.style.display = trainee ? 'none' : 'flex';
             scannerBtn.style.display = manager ? 'flex' : 'none';
             adminBtn.style.display = manager ? 'flex' : 'none';
-            document.querySelectorAll('#screen-installer-menu .card button').forEach(btn => {
-                btn.style.display = trainee && !btn.textContent.includes('Рабочий график') && !btn.textContent.includes('Выдача ТМЦ') ? 'none' : '';
+            document.querySelectorAll('#screen-installer-menu .view-installer-grid > button').forEach(btn => {
+                const availableToTrainee = btn.textContent.includes('Рабочий график') || btn.textContent.includes('Выдача ТМЦ');
+                const pprAllowed = btn.id !== 'pprPlansMenuBtn' || ['Техник-Универсал','Бригадир','Старший Техник','Супервайзер','Владелец'].includes(role);
+                btn.style.display = (trainee && !availableToTrainee) || !pprAllowed ? 'none' : '';
+            });
+            document.querySelectorAll('#screen-installer-menu button').forEach(btn => {
+                if (btn.textContent.includes('Главное меню') || btn.textContent.includes('Назад')) { btn.hidden=false; btn.style.display=''; }
             });
             document.querySelectorAll('.report-finish-btn').forEach(btn => {
                 btn.style.display = trainee ? 'none' : '';
@@ -5993,11 +6004,22 @@ function normalizeEmployeeRole(value) {
     }
     function updateRegistrationDistrictOptions() {
         const city=document.getElementById('regCity').value,select=document.getElementById('regDistrict'),hint=document.getElementById('regDistrictHint');
-        select.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent=city?'Выберите участок':'Сначала выберите подключённый город';select.append(empty);
-        const entries=frontendDistricts().filter(c=>c.city===city);
-        entries.forEach(c=>{const option=document.createElement('option');option.value=c.district;option.disabled=!c.configured;option.textContent='Участок '+c.district+(c.configured?'':' — не подключён');select.append(option);});
-        const active=entries.filter(c=>c.configured);select.disabled=!active.length;if(active.length===1)select.value=active[0].district;
-        hint.textContent=city?'Подключено участков: '+active.length+' из 5.':'';
+        const dropdown=document.getElementById('regDistrictDropdown'),list=document.getElementById('regDistrictList'),trigger=document.getElementById('regDistrictTrigger'),label=document.getElementById('regDistrictLabel');
+        setDropdownOpen(dropdown,false);
+        select.replaceChildren();list.replaceChildren();
+        const placeholder=city?'Выберите участок':'Сначала выберите подключённый город';
+        const empty=document.createElement('option');empty.value='';empty.textContent=placeholder;select.append(empty);select.value='';label.textContent=placeholder;
+        const entries=frontendDistricts().filter(c=>c.city===city),active=entries.filter(c=>c.configured);
+        select.disabled=!active.length;trigger.disabled=!active.length;
+        entries.forEach(c=>{
+            const text='Участок '+c.district+(c.configured?'':' — не подключён');
+            const option=document.createElement('option');option.value=c.district;option.disabled=!c.configured;option.textContent=text;select.append(option);
+            const item=document.createElement('button');item.type='button';item.className='dropdown-item';item.textContent=text;item.disabled=!c.configured;item.dataset.district=c.district;item.setAttribute('role','option');item.setAttribute('aria-disabled',String(!c.configured));item.setAttribute('aria-selected','false');
+            item.onclick=()=>{select.value=c.district;label.textContent='Участок '+c.district;list.querySelectorAll('[role=option]').forEach(el=>el.setAttribute('aria-selected',String(el===item)));setDropdownOpen(dropdown,false);trigger.focus();select.dispatchEvent(new Event('change',{bubbles:true}));};
+            list.append(item);
+        });
+        if(active.length===1){select.value=active[0].district;label.textContent='Участок '+active[0].district;list.querySelectorAll('[role=option]').forEach(el=>el.setAttribute('aria-selected',String(el.dataset.district===String(active[0].district))));}
+        hint.textContent=city?'Подключено участков: '+active.length+' из '+entries.length+'.':'';
     }
 
     // Выполняет фильтр города.
@@ -12475,6 +12497,20 @@ new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('s
 <script id="sharedRefreshScript">
 (function(){function mark(root){root.querySelectorAll('button').forEach(button=>{if(/^🔄\s*Обновить/.test(button.textContent.trim())&&!button.classList.contains('app-refresh-button'))button.classList.add('app-refresh-button');});}mark(document);new MutationObserver(records=>{for(const record of records)if(record.type==='childList')mark(record.target.nodeType===1?record.target:document);}).observe(document.body,{childList:true,subtree:true});})();
 </script>
+<style id="registrationDistrictPolish">
+#screen-register #regDistrictDropdown{width:100%;min-width:0;margin:0}
+#screen-register #regDistrictTrigger{width:100%;min-height:52px;margin:0;padding:12px 16px;box-sizing:border-box;text-align:left;font:inherit;gap:12px}
+#screen-register #regDistrictTrigger>span:first-child{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}
+#screen-register #regDistrictTrigger:disabled{opacity:.65;cursor:not-allowed}
+#screen-register #regDistrictList{max-height:240px;overflow-y:auto;overscroll-behavior:contain;box-sizing:border-box}
+#screen-register #regDistrictList>.dropdown-item{display:block;width:100%;margin:0;background:transparent;border:0;border-bottom:1px solid #333;text-align:left;font:inherit;color:#fff;white-space:normal;box-sizing:border-box}
+#screen-register #regDistrictList>.dropdown-item:disabled{opacity:.45;cursor:not-allowed}
+#screen-register #regDistrictList>.dropdown-item:not(:disabled):hover,
+#screen-register #regDistrictList>.dropdown-item:not(:disabled):focus-visible,
+#screen-register #regDistrictList>.dropdown-item[aria-selected=true]{background:#273419;color:#b7ed55}
+#screen-register #regDistrictHint{display:block;width:100%;margin:6px 0 12px;font-size:12px;line-height:1.4;color:#aaa}
+html[data-app-layout=mobile] .app-screen [data-view-main-menu],html[data-app-layout=mobile] .app-screen [data-view-original-back]{visibility:visible}
+</style>
 </body>
 </html>
 
