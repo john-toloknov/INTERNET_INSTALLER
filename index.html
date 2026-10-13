@@ -12334,6 +12334,58 @@ window.addEventListener('beforeunload',e=>{if(gsDirty()){e.preventDefault();e.re
 <style id="tmcRequestsStyle">
 .tmr-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.tmr-field{display:flex;flex-direction:column;gap:7px;min-width:0}.tmr-field>span{padding-left:8px;color:var(--text-muted);font-size:12px}.tmr-field input{margin:0;width:100%;box-sizing:border-box}.tmr-wide{grid-column:span 2}.tmr-cable{grid-column:1/-1}.tmr-cable .dropdown-select-btn{width:100%;display:flex;align-items:center;gap:10px;text-align:left;min-height:44px;padding:10px 14px}.tmr-cable .dropdown-select-btn span:first-child{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere}.tmr-cable .dropdown-arrow{flex:none;margin-left:auto}.tmr-cable .dropdown-item{width:100%;display:flex;gap:10px;text-align:left;white-space:normal;background:#151515;color:var(--text-main);border:0;border-bottom:1px solid #303030;padding:12px;cursor:pointer}.tmr-cable .dropdown-item[aria-selected=true]{color:var(--accent);background:#212919}.tmr-cable .dropdown-list{max-height:280px!important}.tmr-info{padding:14px;border:1px solid var(--card-border);border-radius:14px;background:#171717;margin-bottom:18px;color:var(--text-muted);line-height:1.6}.tmr-info strong{color:var(--accent)}.tmr-toolbar{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin-bottom:18px}.tmr-toolbar .tmr-field{max-width:220px}.tmr-toolbar .btn,.tmr-actions .btn{width:auto;margin:0}.tmr-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.tmr-record{padding:18px;border:1px solid var(--card-border);border-radius:18px;margin-top:18px;background:#151515}.tmr-record h3{color:var(--accent);margin:0 0 12px}.tmr-record summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}.tmr-record summary::-webkit-details-marker{display:none}.tmr-record summary .dropdown-arrow{color:var(--accent)}.tmr-record[open] summary .dropdown-arrow{transform:rotate(180deg)}.tmr-summary{color:var(--text-muted);line-height:1.6;white-space:pre-wrap}.tmr-state{margin:16px 0;line-height:1.5}.tmr-record .tmr-grid{margin-top:18px}.tmr-history{margin-top:20px}.tmr-chip{display:inline-block;border-radius:8px;padding:6px 10px;border:1px solid var(--card-border);margin:4px 6px 4px 0;color:var(--accent)}.tmr-chip.done{background:var(--accent);color:#111}.tmr-empty{color:var(--text-muted)}
 @media(max-width:700px){.tmr-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.tmr-wide{grid-column:1/-1}.tmr-actions{display:grid;grid-template-columns:1fr}.tmr-actions .btn{width:100%}.tmr-toolbar{display:grid;grid-template-columns:1fr 1fr}.tmr-toolbar .tmr-field{max-width:none}.tmr-record{padding:12px}.tmr-toolbar .btn{width:100%}}
+
+/* Раскладка выдачи ТМЦ: одна система правил для обоих режимов. */
+#screen-tmc-requests-management .tmr-actions{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:12px!important;width:100%;box-sizing:border-box;align-items:stretch
+}
+#screen-tmc-requests-management .tmr-actions>.btn{
+ width:100%!important;min-width:0!important;max-width:100%;margin:0!important;
+ box-sizing:border-box;white-space:normal!important;overflow-wrap:break-word
+}
+#screen-tmc-requests-management .tmr-actions>.tmr-action-managerSave{grid-column:1;grid-row:1}
+#screen-tmc-requests-management .tmr-actions>.tmr-action-oneC{grid-column:2;grid-row:1}
+#screen-tmc-requests-management .tmr-actions>.tmr-action-entered{grid-column:3;grid-row:1}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important
+}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions>.tmr-action-oneC{grid-column:1!important;grid-row:1!important}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions>.tmr-action-entered{grid-column:2!important;grid-row:1!important}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions>.tmr-action-managerSave{grid-column:1/-1!important;grid-row:2!important}
+html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions>.btn{
+ padding:10px 5px!important;font-size:13px!important;line-height:18px!important
+}
+/* Вложенные фильтры участвуют в той же сетке, что и обновление. */
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar{
+ display:grid!important;grid-template-columns:minmax(200px,1fr) 160px 160px 128px!important;
+ align-items:end!important;gap:12px!important;flex-wrap:nowrap!important;width:100%;min-width:0;box-sizing:border-box
+}
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.tmr-management-filters{
+ display:contents!important
+}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field{
+ width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important
+}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{grid-column:1;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label){grid-column:2;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{grid-column:3;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{grid-column:4;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter,
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{
+ align-self:end!important;width:100%!important;height:44px!important;min-height:44px!important;
+ margin:0!important;padding:10px 8px!important;line-height:22px!important;white-space:nowrap!important;box-sizing:border-box
+}
+html[data-app-layout=mobile] #screen-tmc-requests-management .card>.tmr-toolbar{
+ display:flex!important;justify-content:flex-end!important;width:100%;box-sizing:border-box
+}
+html[data-app-layout=mobile] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{margin:0!important;width:auto!important}
+@media(max-width:999px){
+ html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-actions>.tmr-action-oneC{grid-column:1!important;grid-row:1!important}
+ html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-actions>.tmr-action-entered{grid-column:2!important;grid-row:1!important}
+ html:not([data-app-layout=desktop]) #screen-tmc-requests-management .tmr-actions>.tmr-action-managerSave{grid-column:1/-1!important;grid-row:2!important}
+}
 </style>
 <script id="tmcRequestsScript">
 const TMR_UI_FIELDS=[['routers','Роутеры'],['stbs','Приставки'],['connectors','Коннектора'],['clips','Клипсы'],['ties','Хомуты'],['uy2','UY2'],['tape','Изолента']];
@@ -12375,7 +12427,7 @@ function tmrStaffFilter(onchange){
  wrap.tmrReset=()=>{selected=null;input.value='';close();};fill();return wrap;
 }
 // Показывает операцию — модуль заявок ТМЦ.
-function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;root.querySelector('.tmr-management-filters')?.remove();content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.classList.add('tmr-management-filters');const staffField=ctNode('div','tmr-field tmr-staff-label'),staffLabel=ctNode('span','','ФИО монтажника');staffLabel.id='tmrStaffFilterLabel';search.querySelector('input').setAttribute('aria-labelledby',staffLabel.id);staffField.append(staffLabel,search);toolbar.append(staffField,date.wrap,clear);content.append(toolbar,list);tmrPositionManagementFilters(root);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn'),label);button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
+function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;root.querySelector('.tmr-management-filters')?.remove();content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.classList.add('tmr-management-filters');const staffField=ctNode('div','tmr-field tmr-staff-label'),staffLabel=ctNode('span','','ФИО монтажника');staffLabel.id='tmrStaffFilterLabel';search.querySelector('input').setAttribute('aria-labelledby',staffLabel.id);staffField.append(staffLabel,search);toolbar.append(staffField,date.wrap,clear);content.append(toolbar,list);tmrPositionManagementFilters(root);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn')+' tmr-action-'+op,label);button.dataset.tmrOperation=op;button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
 // Выполняет статус Chips — модуль заявок ТМЦ.
 function tmrStatusChips(root,item){root.append(ctNode('span','tmr-chip'+(item.oneC?' done':''),item.oneC?'Оформлено в 1С':'В 1С не оформлено'),ctNode('span','tmr-chip'+(item.entered?' done':''),item.entered?'Оформил в таблицу: Да':'Оформил в таблицу: Нет'));if(item.oneCBy||item.enteredBy)root.append(ctNode('p','tmr-summary',[item.oneCBy?'1С: '+item.oneCBy:'',item.enteredBy?'Таблица: '+item.enteredBy:''].filter(Boolean).join(' · ')));}
 // Сохраняет операцию — модуль заявок ТМЦ.
@@ -12474,9 +12526,10 @@ html[data-app-layout=desktop] #screen-admin-themes>.card>button[onclick="adminTo
 <script id="desktopManagementRowsScript">
 // Перемещает существующие фильтры, сохраняя значения и обработчики при смене режима.
 function tmrPositionManagementFilters(root){
+ if(!root)return;
  const toolbar=root.querySelector('.tmr-management-filters');if(!toolbar)return;
  const header=root.querySelector('.card>.tmr-toolbar'),desktop=document.documentElement.dataset.appLayout==='desktop';
- if(desktop)header.insertBefore(toolbar,header.querySelector('button'));
+ if(desktop)header.insertBefore(toolbar,header.querySelector(':scope > .app-refresh-button'));
  else root.querySelector('.tmr-info').after(toolbar);
 }
 new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('screen-tmc-requests-management'))).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
@@ -12510,39 +12563,6 @@ new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('s
 #screen-register #regDistrictList>.dropdown-item[aria-selected=true]{background:#273419;color:#b7ed55}
 #screen-register #regDistrictHint{display:block;width:100%;margin:6px 0 12px;font-size:12px;line-height:1.4;color:#aaa}
 html[data-app-layout=mobile] .app-screen [data-view-main-menu],html[data-app-layout=mobile] .app-screen [data-view-original-back]{visibility:visible}
-</style>
-<style id="tmcResponsiveButtonRows">
-/* Управленческие элементы выдачи ТМЦ: фильтры и обновление остаются в одной строке на компьютере. */
-html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar{
- display:flex;flex-wrap:nowrap;align-items:end;gap:12px;width:100%;min-width:0;box-sizing:border-box
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters{
- display:flex;flex:1 1 auto;flex-wrap:nowrap;align-items:end;gap:12px;width:auto;min-width:0;margin:0
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{
- flex:1 1 320px;width:auto;min-width:200px;max-width:none;margin:0;padding:0
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label){
- flex:0 1 160px;width:160px;min-width:130px;max-width:160px;margin:0;padding:0
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{
- flex:0 0 160px;width:160px;min-width:130px
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{
- flex:0 0 auto;margin:0 0 0 auto;white-space:nowrap
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-actions{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;width:100%;margin-top:18px
-}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-actions>.btn{
- width:100%;min-width:0;margin:0;padding:12px 8px;white-space:normal
-}
-html[data-app-layout=mobile] #screen-tmc-requests-management .card>.tmr-toolbar{
- display:flex;justify-content:flex-end;width:100%;box-sizing:border-box
-}
-html[data-app-layout=mobile] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{
- width:auto;margin:0 0 0 auto
-}
 </style>
 </body>
 </html>
