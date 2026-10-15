@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- РЕФАРБ · сборка 15.10.2026 · пачка SN/MAC/модель и история готовых работ из таблицы -->
 <html lang="ru">
 <head>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTUiIGZpbGw9IiMxNjE2MTYiLz48cmVjdCB4PSIxNyIgeT0iMTIiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyOCIgcng9IjIiIGZpbGw9IiNiN2VkNTUiLz48Y2lyY2xlIGN4PSIyMiIgY3k9IjQ4IiByPSI1IiBmaWxsPSIjYjdlZDU1Ii8+PGNpcmNsZSBjeD0iNDIiIGN5PSIxNyIgcj0iNSIgZmlsbD0iI2Y1ZjVmNSIvPjxyZWN0IHg9IjM3IiB5PSIyNSIgd2lkdGg9IjEwIiBoZWlnaHQ9IjI4IiByeD0iMiIgZmlsbD0iI2Y1ZjVmNSIvPjwvc3ZnPg==">
@@ -2801,7 +2802,7 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
     sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===document.getElementById('tr-reportType').value;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
    }
    const digitalWindow=document.getElementById('digitalWindowBtn');if(visible(digitalWindow))addButton(digitalWindow,sidebar);
-   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
+   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-refarb','screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
    const access=document.getElementById('equipmentAccessBtn');
    if(visible(access)){
     if(root.dataset.appLayout==='desktop')section('access','🔑 Доступ к оборудованию',
@@ -4335,6 +4336,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
                 <button class="btn action-btn" type="button" onclick="openTmcRequest()">📨 Выдача ТМЦ</button>
                 <button class="btn action-btn" onclick="openMySchedule()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📅 Рабочий график</button>
+                <button class="btn action-btn" id="refarbWorkerBtn" type="button" hidden onclick="openRefarb(false)">🛠️ Рефарб оборудования</button>
                 <button class="btn action-btn" id="pprPlansMenuBtn" onclick="openPprPlans()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
                 
                 <button class="btn action-btn" onclick="openActDebts()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📑 Долги по актам</button>
@@ -4789,6 +4791,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
       <div class="card management-menu">
         <p id="managementCity"></p>
         <button class="btn main-btn" type="button" onclick="openCityTable()">📋 Таблица</button>
+        <button class="btn main-btn" type="button" onclick="openRefarb(true)">🛠️ Рефарб оборудования</button>
         <button class="btn main-btn" type="button" onclick="openTmcRequestsManagement()">📦 Заявки на выдачу ТМЦ</button>
         <button class="btn main-btn" type="button" onclick="openWorkingSchedule()">📅 Рабочий график</button>
         <button class="btn main-btn" id="managementDebtsBtn" type="button" onclick="openCityDebtPreview()">📋 Долги по актам</button>
@@ -4894,7 +4897,6 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
                 <label style="display: block; margin-bottom: 2px; font-size: 12px;">Город</label>
                 <input type="text" id="editCityDisplay" disabled style="color: var(--text-secondary); background: #0c0c0c; width: 100%; box-sizing: border-box;">
                 <input type="hidden" id="editCity">
-                <label for="editDistrict">Участок</label><input type="number" id="editDistrict" min="1" max="5" step="1" required>
             </div>
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 2px; font-size: 12px;">Роль</label>
@@ -4917,6 +4919,20 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
             <div style="flex: 1;">
                 <label style="display: block; margin-bottom: 2px; font-size: 12px;">Номер склада</label>
                 <input type="text" id="editWarehouse" style="width: 100%; box-sizing: border-box;">
+            </div>
+        </div>
+
+        <div class="edit-user-fields edit-user-location" style="display:flex; gap:8px; margin-bottom:8px;">
+            <div style="flex:1;">
+                <label for="editDistrict">Участок</label>
+                <input type="number" id="editDistrict" min="1" max="5" step="1" required style="width:100%; box-sizing:border-box;">
+            </div>
+            <div id="editRefarbField" style="flex:2;" hidden>
+                <label for="editRefarbToggle">Рефарб оборудования</label>
+                <div class="edit-refarb-control">
+                    <span id="editRefarbStatus" role="status" aria-live="polite"></span>
+                    <button type="button" id="editRefarbToggle" class="btn main-btn">Назначить</button>
+                </div>
             </div>
         </div>
 
@@ -5022,177 +5038,178 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
     const GLOBAL_AUTH_SALARY_URL = "https://script.google.com/macros/s/AKfycbyFcYBp90UUg7koztArk61GASabeelnRSoRvVF2-crsXdToB4Y-3bfmoRzGohrXfYMiFw/exec";
 
     // ===== СПРАВОЧНИК ПОДКЛЮЧЕНИЙ: редактировать только этот блок =====
-    // Каждый участок имеет СВОИ два URL /exec, две таблицы и бота.
+    // Каждый участок имеет свои таблицы: ежедневный, график, рефарб, и отдельные URL /exec.
+    // refarbScriptUrl заполняется после публикации отдельного скрипта рефарба. Токены сюда не вставлять.
     // enabled:true включайте после заполнения URL. Токен бота сюда НЕ вставлять.
     // Пустые/выключенные участки показываются как «не подключён».
     const CITY_DISTRICTS = {
         "Сатпаев": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Щучинск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Хромтау": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Кызылорда": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Рудный": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Балхаш": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Абай": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Лисаковск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Алматы": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Караганда": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Астана": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Жезказган": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Кокшетау": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Тараз": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Петропавловск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Шымкент": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Усть-Каменогорск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Семей": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Актобе": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Павлодар": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Уральск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Талдыкорган": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Атырау": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Актау": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Темиртау": {
             "1": { enabled: true,
@@ -5200,67 +5217,67 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
                 reportsScriptUrl: "https://script.google.com/macros/s/AKfycbw_yI2oF5zXSY4KJNJTcolrrVj9-b-CzUauQR_W9N6oLotyV6Nv5m3m7V1F-6RM0lQsgQ/exec",
                 scheduleSheetUrl: "https://docs.google.com/spreadsheets/d/15iggvcMnhwA10w7ei3ahmhpkoV-ZRLLVkKeLdN_QB5k/edit?gid=289566956#gid=289566956",
                 dailySheetUrl: "https://docs.google.com/spreadsheets/d/1H3lQJvJFw4yLsNw1lKTWlOB2Mg9U6Zzd9t6eTabdoF4/edit?gid=38396591#gid=38396591",
-                botUsername: "Montazhnik_Beeline_bot" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+                refarbScriptUrl: "https://script.google.com/macros/s/AKfycbwtuDMfmfB22FcDlwLPMqrYJy6vrihjIPWac-06_SPfm02z-PHjoLMeoUtrQc4lOA2kzw/exec", botUsername: "Montazhnik_Beeline_bot" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Экибастуз": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Костанай": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Конаев": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Жанаозен": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Риддер": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Житикара": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Шахтинск": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
         "Кандыагаш": {
-            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
-            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", botUsername: "" },
+            "1": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "2": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "3": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "4": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
+            "5": { enabled: false, scriptUrl: "", reportsScriptUrl: "", scheduleSheetUrl: "", dailySheetUrl: "", refarbScriptUrl: "", botUsername: "" },
         },
     };
     const CITIES_LIST = Object.keys(CITY_DISTRICTS).sort((a,b)=>a.localeCompare(b,'ru'));
@@ -5277,7 +5294,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
         for(const [city, districts] of Object.entries(CITY_DISTRICTS)) {
             for(let n=1;n<=5;n++) {
                 const district=String(n),raw=districts[district]||{};
-                list.push({city,district,scriptUrl:String(raw.scriptUrl||'').trim(),reportsScriptUrl:String(raw.reportsScriptUrl||'').trim(),scheduleSheetUrl:String(raw.scheduleSheetUrl||'').trim(),dailySheetUrl:String(raw.dailySheetUrl||'').trim(),botUsername:String(raw.botUsername||'').trim(),configured:raw.enabled===true&&isConfiguredCityUrl(String(raw.scriptUrl||'').trim())&&isConfiguredCityUrl(String(raw.reportsScriptUrl||'').trim())});
+                list.push({city,district,scriptUrl:String(raw.scriptUrl||'').trim(),reportsScriptUrl:String(raw.reportsScriptUrl||'').trim(),scheduleSheetUrl:String(raw.scheduleSheetUrl||'').trim(),dailySheetUrl:String(raw.dailySheetUrl||'').trim(),refarbScriptUrl:String(raw.refarbScriptUrl||'').trim(),botUsername:String(raw.botUsername||'').trim(),configured:raw.enabled===true&&isConfiguredCityUrl(String(raw.scriptUrl||'').trim())&&isConfiguredCityUrl(String(raw.reportsScriptUrl||'').trim())});
             }
         }
         // Один адрес не может обслуживать две таблицы/участка в этой архитектуре.
@@ -5398,6 +5415,7 @@ function normalizeEmployeeRole(value) {
                     fullName: u.fullName,
                     warehouse: normalizeEmployeeRole(u.role) === 'Супервайзер' ? '' : (u.warehouse || ''),
                     role: normalizeEmployeeRole(u.role || 'Техник-Универсал'),
+                    refarbEnabled: u.refarbEnabled === true,
                     workPhone: u.workPhone,
                     dwLogin: u.dwLogin,
                     tgId: u.tgId,
@@ -5519,7 +5537,7 @@ function normalizeEmployeeRole(value) {
 
     // Показывает Beeline модальное окно.
     function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
-        document.getElementById('beelineModal').classList.remove('district-picker');
+        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
         document.getElementById('beelineModalIcon').textContent = icon;
@@ -5555,7 +5573,7 @@ function normalizeEmployeeRole(value) {
     function closeBeelineModal() {
         document.querySelectorAll('#beelineModal .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('beelineModal').style.display = 'none';
-        document.getElementById('beelineModal').classList.remove('district-picker');
+        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm');
         document.querySelectorAll('[data-scroll-rail-ready]').forEach(list=>list.updateScrollRail?.());
     }
 
@@ -5631,6 +5649,7 @@ function normalizeEmployeeRole(value) {
                 btn.style.display = trainee ? 'none' : '';
             });
 
+            if (typeof rfVisibility === 'function') rfVisibility();
             if (currentUser.role === 'Владелец' && ownerCityChoiceRequired) {
                 showOwnerCityPicker();
             } else {
@@ -7218,6 +7237,7 @@ async function runSearchAccess(version) {
         document.getElementById('editCityDisplay').disabled = !owner;
         document.getElementById('editCityDisplay').onchange = owner ? function() { document.getElementById('editCity').value = this.value; } : null;
         syncEditWarehouseRole();
+        if (typeof rfSyncEditWorker === 'function') rfSyncEditWorker();
         document.getElementById('editUserModal').style.display = 'flex';
     }
 
@@ -11135,7 +11155,7 @@ function showSoftwarePlatform(platform, button) {
             hoursLine(plan,'Отработано дней',data.workedDays || '0');
             hoursLine(plan,'Закрыто удалённо',data.remotePercent || '0%');
         }
-        const requests = hoursSection(root, '🛠 Заявки и часы');
+        const requests = hoursSection(root, '🛠️ Заявки и часы');
         for (const [name, count, hours] of [
             ['Включения',r.inclusion,h.inclusion], ['Переезды',r.move,h.move],
             ['Сервисы',r.service,h.service], ['Демонтажи',r.dismantle,h.dismantle]
@@ -11896,7 +11916,7 @@ function activateDistrict(config){
 // Добавляет контекст участка только к его двум доверенным скриптам.
 function districtReadUrl(value){
  const target=new URL(String(value)),config=CITIES_CONFIG[currentUser?.city]||{};
- if(currentUser&&[config.scriptUrl,config.reportsScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname)){
+ if(currentUser&&[config.scriptUrl,config.reportsScriptUrl,config.refarbScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname)){
   if(!currentUser.district)throw new Error('Участок не определён. Войдите заново');
   target.searchParams.set('city',currentUser.city);target.searchParams.set('district',currentUser.district);target.searchParams.set('actorLogin',currentUser.dwLogin);target.searchParams.set('actorPassword',currentUser.password);
  }return target.href;
@@ -11904,7 +11924,7 @@ function districtReadUrl(value){
 // Сохраняет исходный способ отправки; дополняет JSON и формы контекстом участка.
 function districtFetch(input,options={}){
  const raw=String(input),target=new URL(raw,location.href),config=CITIES_CONFIG[currentUser?.city]||{};
- const scoped=currentUser&&[config.scriptUrl,config.reportsScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname);
+ const scoped=currentUser&&[config.scriptUrl,config.reportsScriptUrl,config.refarbScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname);
  if(!scoped)return nativeDistrictFetch(input,options);
  const context={city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password};
  if(!/^[1-5]$/.test(String(context.district)))throw new Error('Участок не определён');
@@ -12678,6 +12698,348 @@ function vsWatchTmrCards(){for(const id of ['screen-tmc-requests-management','sc
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsWatchTmrCards);else vsWatchTmrCards();
 
 </script>
+<style id="refarbStyles">
+#editUserModal{z-index:150000!important}
+#editRefarbField[hidden]{display:none!important}
+#editUserModal .edit-user-location{align-items:flex-start}
+#editUserModal .edit-user-location label{display:block;margin:0 0 4px;font-size:12px}
+#editUserModal .edit-refarb-control{display:flex;align-items:center;gap:10px;min-height:46px}
+#editRefarbStatus{flex:1;min-width:0;font-size:12px;line-height:1.4;color:var(--text-secondary);overflow-wrap:anywhere}
+#editRefarbStatus[data-enabled=true]{color:var(--accent)}
+#editUserModal #editRefarbToggle{width:auto;flex-shrink:0;margin:0!important;min-height:46px;padding:10px 14px;font-size:13px}
+#beelineModal.rf-worker-confirm{animation:none}
+#beelineModal.rf-worker-confirm .beeline-modal-card{width:520px!important;max-width:100%!important;box-sizing:border-box;padding:24px!important;border-radius:16px;background:var(--card-bg);border:1px solid var(--accent)}
+#beelineModal.rf-worker-confirm .beeline-modal-icon{animation:none;font-size:32px;margin-bottom:12px}
+#beelineModal.rf-worker-confirm .beeline-modal-title{font-size:19px;line-height:1.35}
+#beelineModal.rf-worker-confirm .beeline-modal-text{margin:0 0 22px;overflow-wrap:anywhere}
+#beelineModal .rf-worker-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:360px;margin:0 auto}
+#beelineModal .rf-worker-actions>.btn{display:flex;align-items:center;justify-content:center;min-width:0;width:100%!important;height:46px;min-height:46px;margin:0!important;padding:10px 12px!important;font-size:14px!important;box-sizing:border-box}
+#beelineModal .rf-worker-actions>.btn:disabled{opacity:.55;cursor:wait}
+@media(max-width:600px){
+ #editUserModal .edit-user-location{flex-direction:column;gap:12px!important}
+ #editUserModal .edit-user-location>div{width:100%;flex:none!important}
+ #beelineModal.rf-worker-confirm{padding:12px}
+ #beelineModal.rf-worker-confirm .beeline-modal-card{padding:22px 18px!important}
+ #beelineModal .rf-worker-actions{gap:10px}
+}
+#refarbWorkerBtn[hidden],.rf-root [hidden]{display:none!important}
+.rf-root{gap:10px!important}.rf-root .rf-message:empty{display:none}.rf-root button:disabled{opacity:.45!important;cursor:not-allowed!important;filter:grayscale(.65)}
+.rf-root>.rf-toolbar,.rf-root>.rf-counters,.rf-root>.rf-scan,.rf-root>.rf-payment{margin-top:0;margin-bottom:0}.rf-grid label{margin:0!important}
+:is(#screen-refarb,#screen-admin-refarb)> .card{width:100%!important;max-width:100%!important;box-sizing:border-box}
+.rf-toolbar{display:flex;align-items:end;gap:10px;flex-wrap:wrap;margin-bottom:12px}.rf-toolbar label{flex:1;min-width:150px;margin:0!important}:is(#screen-refarb,#screen-admin-refarb) .rf-toolbar>.btn{align-self:flex-end!important}.rf-toolbar .btn{width:auto!important;margin:0!important;min-height:42px}.rf-toolbar .app-refresh-button{margin-left:auto!important}
+.rf-hint,.rf-message{font-size:12px;line-height:1.5;color:var(--text-secondary,#aaa);white-space:pre-line}.rf-message{margin:10px 0;color:var(--accent,#b7ed55)}.rf-warning{color:#ffb56b}
+.rf-counters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}.rf-counter{border:1px solid #333;border-radius:10px;padding:9px;background:#191919;font-size:12px}.rf-counter strong{display:block;color:var(--accent,#b7ed55);font-size:22px}
+.rf-scan,.rf-payment{padding:12px;border:1px solid #393939;border-left:3px solid var(--accent,#b7ed55);border-radius:10px;margin:12px 0;background:#191919}.rf-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:end}.rf-grid label{min-width:0;display:flex;flex-direction:column;gap:4px;font-size:11px;color:#bbb}.rf-grid input,.rf-grid select,.rf-grid textarea,.rf-toolbar input{box-sizing:border-box;width:100%;min-width:0;margin:0;padding:9px;background:#111;color:#fff;border:1px solid #414141;border-radius:8px;font:inherit;font-size:13px;min-height:38px}.rf-grid select{appearance:none;background:#111 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%23b7ed55' d='m3 6 7 8 7-8z'/%3E%3C/svg%3E") no-repeat right 8px center/14px;padding-right:26px}.rf-grid input:focus,.rf-grid select:focus,.rf-grid textarea:focus{outline:1px solid var(--accent,#b7ed55)}.rf-grid :disabled{opacity:.55}.rf-span2{grid-column:span 2}.rf-full{grid-column:1/-1}.rf-kit{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;grid-column:1/-1}.rf-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.rf-inline .btn{margin:0!important;width:auto!important;padding:8px 12px!important;font-size:12px!important}.rf-record{position:relative;border:1px solid #353535;border-radius:10px;background:#1b1b1b;padding:10px;margin:8px 0}.rf-record.rf-dirty{border-color:var(--accent,#b7ed55)}.rf-record-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;color:#aaa}.rf-record-head strong{color:#fff;overflow-wrap:anywhere}.rf-delete{margin:0 0 0 auto!important;width:30px!important;min-width:30px!important;height:30px;padding:0!important;border:1px solid #664444;border-radius:8px;background:#291c1c;color:#ff9191;font-size:22px;line-height:1;cursor:pointer}.rf-record-head input{width:17px;height:17px;accent-color:var(--accent,#b7ed55)}.rf-record summary{cursor:pointer;color:#aaa;font-size:12px}.rf-save{width:100%!important;margin:12px 0 0!important}.rf-model-summary{font-size:12px;color:#aaa;line-height:1.6}.rf-payment h3,.rf-scan h3{font-size:14px;margin:0 0 10px}.rf-approval-summary{font-size:13px;white-space:pre-line;margin:8px 0}.rf-search{min-width:200px;flex:2}.rf-section-title{font-size:15px;margin:16px 0 8px}.rf-empty{font-size:13px;color:#aaa;padding:12px 0}
+html[data-app-layout=mobile] .rf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}html[data-app-layout=mobile] .rf-toolbar label{min-width:120px}html[data-app-layout=mobile] .rf-toolbar .rf-download{flex:1;font-size:11px!important}html[data-app-layout=mobile] .rf-counters{gap:6px}html[data-app-layout=mobile] .rf-counter{font-size:10px;padding:8px}html[data-app-layout=mobile] .rf-record{padding:9px}html[data-app-layout=mobile] .rf-kit label{font-size:10px}
+@media(max-width:700px){html:not([data-app-layout=desktop]) .rf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.rf-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.rf-toolbar>.btn{min-height:46px}
+.rf-field>label{display:block!important;margin:0!important;font-size:11px;line-height:16px;color:#bbb}
+.rf-grid .rf-field{align-self:start}
+.rf-record>.rf-grid{align-items:start;gap:12px}
+.rf-grid .rf-field>input:not(.app-date-input),.rf-grid .rf-field>.app-date-control>.app-date-trigger,.rf-grid .rf-dropdown>.dropdown-trigger{height:46px;min-height:46px;box-sizing:border-box;margin:0;padding:10px 12px;font-size:13px;line-height:20px;border:1px solid #414141;border-radius:10px;background:var(--surface-dark);color:var(--text-main)}
+.rf-grid .rf-field>textarea{min-height:78px;resize:vertical}
+.rf-grid .app-date-chevron{font-size:11px}
+.rf-grid .rf-kit{align-items:start;gap:12px}
+.rf-grid>.btn{min-height:46px;margin:0!important}
+.rf-span4{grid-column:span 4}
+.rf-root .rf-select-native{display:none!important}
+.rf-root .rf-dropdown>.dropdown-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;font-family:inherit;font-weight:400;cursor:pointer}
+.rf-root .rf-selected{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rf-root .rf-dropdown .dropdown-arrow{margin-left:0}
+.rf-root .rf-kit .dropdown-trigger{padding:6px 10px}
+.rf-root .rf-kit .rf-selected{font-size:12px;line-height:16px;white-space:normal;overflow:visible;text-overflow:clip}
+.rf-root .rf-dropdown>.dropdown-list{border-color:var(--accent);background:var(--surface-dark);border-radius:10px}
+.rf-root .rf-dropdown .dropdown-item{display:block;width:100%;min-height:42px;margin:0;padding:10px 12px;box-sizing:border-box;border:0;border-bottom:1px solid #292929;border-radius:0;background:transparent;color:var(--text-main);font:13px/1.5 Arial,sans-serif;text-align:left;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
+.rf-root .rf-dropdown .dropdown-item:last-child{border-bottom:0}
+.rf-root .rf-dropdown .dropdown-item:hover,.rf-root .rf-dropdown .dropdown-item:focus-visible,.rf-root .rf-dropdown .dropdown-item[aria-selected=true]{background:#b7ed551a;color:var(--accent);outline:none}
+.rf-root .rf-dropdown>.dropdown-trigger:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rf-root .rf-model-dropdown>.dropdown-trigger{display:block;padding-right:38px;font-weight:400}
+.rf-root .rf-model-dropdown>.dropdown-arrow{position:absolute;right:10px;top:23px;transform:translateY(-50%);margin:0;pointer-events:none}
+.rf-root .rf-model-dropdown.open>.dropdown-arrow{transform:translateY(-50%) rotate(180deg)}
+.rf-record>.rf-inline{margin-top:12px;align-items:stretch}
+.rf-record>.rf-inline>.btn{min-height:44px}
+.rf-scan-queue{overflow:visible;border:1px solid #3b4730;border-radius:10px;padding:8px}
+.rf-scan-queued-row{display:grid;grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:8px;align-items:end;margin-bottom:10px}
+.rf-scan-queued-row:last-child{margin-bottom:0}
+.rf-scan-queued-row>span{color:var(--accent);font-size:12px;text-align:center}
+.rf-scan-queued-row .rf-model-missing>label{color:var(--danger)}
+.rf-scan-queued-row .rf-model-missing input{border-color:var(--danger)}
+.rf-scan-next{font-size:12px;color:var(--accent);font-weight:700;line-height:1.5}
+.rf-scan-message:empty{display:none}
+.rf-scan-message{margin:0;color:var(--accent);font-size:13px}
+.rf-save-batch{margin:0!important;min-height:46px}
+html[data-app-layout=mobile] .rf-span4{grid-column:1/-1}
+html[data-app-layout=mobile] .rf-record>.rf-grid,html[data-app-layout=mobile] .rf-grid .rf-kit{gap:10px}
+html[data-app-layout=mobile] .rf-kit{grid-template-columns:repeat(2,minmax(0,1fr))}
+html[data-app-layout=mobile] .rf-kit>.rf-field:first-child{grid-column:1/-1}
+html[data-app-layout=mobile] .rf-scan-queued-row{grid-template-columns:20px minmax(0,1fr)}
+html[data-app-layout=mobile] .rf-scan-queued-row>span{grid-row:span 3;align-self:center}
+html[data-app-layout=mobile] .rf-grid .rf-field>input:not(.app-date-input),html[data-app-layout=mobile] .rf-grid .rf-field>textarea{font-size:16px}
+html[data-app-layout=mobile] .rf-record>.rf-inline{display:grid;grid-template-columns:1fr}
+@media(max-width:700px){html:not([data-app-layout=desktop]) .rf-span4{grid-column:1/-1}}
+
+/* Свёрнутая карточка: серийный номер и модель в одной строке. */
+.rf-record>.rf-record-head{list-style:none;margin:0;min-height:32px;gap:10px;cursor:pointer;user-select:none}
+.rf-record>.rf-record-head::-webkit-details-marker{display:none}
+.rf-record>.rf-record-head::marker{content:''}
+.rf-record>.rf-record-head:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px}
+.rf-record[open]>.rf-record-head{margin-bottom:12px}
+.rf-record-head>.rf-record-serial{flex:0 1 auto;max-width:65%;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;font-size:13px}
+.rf-record>.rf-grid>.rf-field:nth-child(-n+2){align-self:end}
+.rf-record-head>.rf-record-model{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary);font-size:12px}
+.rf-record-head>.dropdown-arrow{flex:none;margin:0;color:var(--accent);transition:transform .2s}
+.rf-record[open]>.rf-record-head>.dropdown-arrow{transform:rotate(180deg)}
+.rf-record-head>.rf-delete{flex:none;margin:0!important;min-height:30px!important}
+.rf-record>.rf-record-meta{margin:0 0 10px;color:var(--text-secondary);font-size:12px}
+</style>
+<div id="screen-refarb" class="app-screen uniform-screen"><h2>🛠️ Рефарб оборудования</h2><div class="card rf-root"></div></div>
+<div id="screen-admin-refarb" class="app-screen uniform-screen"><h2>🛠️ Рефарб оборудования · руководство</h2><div class="card rf-root"></div></div>
+<script id="refarbScript">
+const RF_UI_VERSION='2026-10-15.6';
+let rfFieldSequence=0;
+let rfUi={owner:'',manager:false,data:null,drafts:new Map(),busy:false,version:0,month:'',pending:null,search:'',limit:100,scanTarget:null};
+function rfUiSerial(value){return String(value||'').trim().toUpperCase().replace(/^(?:S\/N\s*[:：]?\s*|SN\s*[:：]\s*)/i,'').replace(/\s+/g,'');}
+function rfUiMac(value){return String(value||'').trim().replace(/^MAC\s*[:：]?\s*/i,'').replace(/[^a-f0-9]/gi,'').toUpperCase();}
+function rfUiManager(){return ['Супервайзер','Старший Техник','Владелец'].includes(currentUser?.role);}
+function rfUiAssigned(){return currentUser?.refarbEnabled===true;}
+function rfVisibility(){const b=document.getElementById('refarbWorkerBtn');if(b){b.hidden=!rfUiAssigned();b.style.display=rfUiAssigned()?'':'none';}}
+function rfElement(tag,cls='',text=''){const n=document.createElement(tag);n.className=cls;if(text)n.textContent=text;return n;}
+function rfRoot(){return document.querySelector((rfUi.manager?'#screen-admin-refarb':'#screen-refarb')+' .rf-root');}
+function rfNote(message){rfRoot()?.querySelectorAll('.rf-message,.rf-scan-message').forEach(el=>el.textContent=message);}
+function rfId(){return 'rf_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));}
+function rfDraftKey(){return 'refarb_drafts_'+managementOwnerKey();}
+function rfRemember(){try{sessionStorage.setItem(rfDraftKey(),JSON.stringify([...rfUi.drafts]));sessionStorage.setItem('refarb_pending_'+managementOwnerKey(),JSON.stringify(rfUi.pending));}catch(e){}}
+function rfRestoreDrafts(){try{return new Map(JSON.parse(sessionStorage.getItem(rfDraftKey())||'[]'));}catch(e){return new Map();}}
+async function rfApi(operation,fields={},timeout=35000){
+ const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user?.city]?.refarbScriptUrl;
+ if(!user||!isConfiguredCityUrl(url))throw new Error('Для этого участка не заполнен refarbScriptUrl в карте городов');
+ if(frontendDistricts().filter(c=>c.refarbScriptUrl===url).length!==1)throw new Error('Адрес рефарба повторяется у нескольких участков. У каждого участка должен быть свой адрес');
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
+ try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('Сервер рефарба: HTTP '+response.status);const result=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success'){const e=new Error(result.message||'Операция не выполнена');e.code=result.code;e.confirmed=true;throw e;}return result;}catch(e){if(e.name==='AbortError')throw new Error('Ответ не получен вовремя. Повторите сохранение для проверки того же запроса');throw e;}finally{clearTimeout(timer);}
+}
+async function openRefarb(manager=false){
+ if(manager?!rfUiManager():!rfUiAssigned())return;
+ const owner=managementOwnerKey();if(rfUi.owner!==owner){let pending=null;try{pending=JSON.parse(sessionStorage.getItem('refarb_pending_'+owner)||'null');}catch(e){}rfUi={owner,manager,data:null,drafts:rfRestoreDrafts(),busy:false,version:rfUi.version+1,month:'',pending,search:'',limit:100,scanTarget:null};}
+ rfUi.manager=manager;switchScreen(manager?'screen-admin-refarb':'screen-refarb');rfBuild();await rfLoad(false);
+}
+function rfButton(text,fn,cls='btn action-btn'){const b=rfElement('button',cls,text);b.type='button';b.onclick=fn;return b;}
+function rfSyncDropdowns(root){
+ root?.querySelectorAll('.rf-select-native').forEach(input=>{
+  const dropdown=input.closest('.rf-dropdown'),trigger=dropdown.querySelector('.dropdown-trigger');
+  trigger.querySelector('.rf-selected').textContent=input.selectedOptions[0]?.textContent||'Выберите';trigger.disabled=input.disabled;
+  dropdown.querySelectorAll('[role=option]').forEach((item,i)=>{const selected=input.selectedIndex===i;item.setAttribute('aria-selected',String(selected));item.disabled=input.disabled;});
+  if(input.disabled)setDropdownOpen(dropdown,false);
+ });
+}
+function rfField(label,value,type='text',options=null){
+ const wrap=rfElement('div','rf-field'),caption=rfElement('label','',label),id='rf-field-'+(++rfFieldSequence);wrap.append(caption);let input;
+ if(options){
+  const dropdown=rfElement('div','custom-dropdown rf-dropdown'),trigger=rfElement('button','dropdown-trigger'),text=rfElement('span','rf-selected'),arrow=rfElement('span','dropdown-arrow','▼'),list=rfElement('div','dropdown-list');
+  dropdown.id=id;trigger.id=id+'-trigger';trigger.type='button';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls',id+'-list');caption.htmlFor=trigger.id;arrow.setAttribute('aria-hidden','true');trigger.append(text,arrow);
+  list.id=id+'-list';list.setAttribute('role','listbox');list.setAttribute('aria-label',label);
+  input=document.createElement('select');input.className='rf-select-native';input.hidden=true;input.tabIndex=-1;input.setAttribute('aria-hidden','true');
+  for(const [v,t] of options){
+   const option=document.createElement('option');option.value=String(v);option.textContent=t;input.append(option);
+   const item=rfElement('button','dropdown-item',t);item.type='button';item.tabIndex=-1;item.setAttribute('role','option');
+   item.onclick=e=>{e.stopPropagation();if(input.disabled)return;input.value=String(v);rfSyncDropdowns(dropdown);setDropdownOpen(dropdown,false);trigger.focus();input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));};list.append(item);
+  }
+  input.value=value==null?'':String(value);dropdown.append(input,trigger,list);wrap.append(dropdown);rfSyncDropdowns(dropdown);
+  trigger.onclick=e=>{if(input.disabled)return;toggleDropdown(e,id);};
+  const focusOption=step=>{const items=[...list.querySelectorAll('[role=option]')];const index=items.indexOf(document.activeElement);items[(index<0?Math.max(0,input.selectedIndex):(index+step+items.length)%items.length)]?.focus();};
+  dropdown.onkeydown=e=>{if(input.disabled)return;if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();e.stopPropagation();setDropdownOpen(dropdown,true);if(e.key==='Home')list.firstElementChild?.focus();else if(e.key==='End')list.lastElementChild?.focus();else focusOption(e.key==='ArrowDown'?1:-1);}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setDropdownOpen(dropdown,false);trigger.focus();}else if(e.key==='Tab')setDropdownOpen(dropdown,false);};
+  input.addEventListener('change',()=>rfSyncDropdowns(dropdown));
+ }else{
+  input=document.createElement(type==='textarea'?'textarea':'input');input.id=id;caption.htmlFor=id;if(type!=='textarea')input.type=type;else input.rows=2;input.value=value==null?'':String(value);wrap.append(input);
+ }
+ input.autocomplete='off';return {wrap,input};
+}
+function rfModelSuggestions(field){
+ const input=field.input,dropdown=rfElement('div','custom-dropdown rf-dropdown rf-model-dropdown'),list=rfElement('div','dropdown-list'),arrow=rfElement('span','dropdown-arrow','▼');
+ dropdown.id=input.id+'-models';list.id=dropdown.id+'-list';list.setAttribute('role','listbox');list.setAttribute('aria-label','Номенклатура');arrow.setAttribute('aria-hidden','true');
+ input.classList.add('dropdown-trigger','dropdown-search-trigger');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.setAttribute('aria-controls',list.id);input.before(dropdown);dropdown.append(input,arrow,list);
+ const render=()=>{if(input.disabled)return;const query=input.value.trim().toLowerCase(),names=(typeof NOMENCLATURE_LIST==='undefined'?[]:NOMENCLATURE_LIST).filter(name=>name.toLowerCase().includes(query)).slice(0,40);list.replaceChildren();
+  for(const name of names){const item=rfElement('button','dropdown-item',name);item.type='button';item.tabIndex=-1;item.setAttribute('role','option');item.onmousedown=e=>e.preventDefault();item.onclick=e=>{e.stopPropagation();if(input.disabled)return;input.value=name;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));input.focus();setDropdownOpen(dropdown,false);};list.append(item);}
+  if(!names.length)list.append(rfElement('div','rf-empty','Совпадений нет. Можно ввести модель вручную.'));
+  document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,true);
+ };
+ input.addEventListener('focus',render);input.addEventListener('click',e=>{e.stopPropagation();render();});input.addEventListener('input',render);
+ dropdown.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();if(!dropdown.classList.contains('open'))render();const current=[...list.querySelectorAll('[role=option]')],index=current.indexOf(document.activeElement);current[(index+(e.key==='ArrowDown'?1:-1)+current.length)%current.length]?.focus();}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();input.focus();setDropdownOpen(dropdown,false);}else if(e.key==='Tab')setDropdownOpen(dropdown,false);else if(e.key==='Enter'&&e.target!==input){e.stopPropagation();}});
+}
+function rfBuild(){
+ const root=rfRoot();root.replaceChildren();const toolbar=rfElement('div','rf-toolbar'),month=rfField('Месяц',rfUi.month,'month');month.input.onchange=()=>{if(rfUi.pending){month.input.value=rfUi.month;rfNote('Сначала проверьте результат предыдущего сохранения');return;}rfUi.month=month.input.value;rfLoad();};toolbar.append(month.wrap);
+ toolbar.append(rfButton('🔄 Обновить',()=>rfLoad(),'btn action-btn app-refresh-button'));
+ if(rfUi.manager){toolbar.append(rfButton('📥 Скачать Excel',()=>rfDownloadUi(false),'btn action-btn rf-download'));const archive=rfButton('📥 Excel закрытия',()=>rfDownloadUi(true),'btn action-btn rf-download');archive.dataset.rfArchive='true';toolbar.append(archive);}
+ const state=rfElement('div','rf-message');state.setAttribute('role','status');state.setAttribute('aria-live','polite');const counters=rfElement('div','rf-counters'),info=rfElement('div','rf-hint'),scan=rfElement('div','rf-scan'),payment=rfElement('div','rf-payment');
+ const search=rfField('Поиск по серийному номеру, MAC-адресу или модели',rfUi.search);search.wrap.classList.add('rf-search');search.input.oninput=()=>{rfUi.search=search.input.value;rfUi.limit=100;rfRenderRows();};
+ const lists=rfElement('div','rf-lists'),save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save'),nav=rfElement('div','common-nav-row');nav.append(rfButton('🔙 Назад',()=>rfUi.manager?openAdminPanel():switchScreen('screen-installer-menu'),'btn danger-btn'),rfButton('🔚 Главное меню',()=>switchScreen('screen-main'),'btn danger-btn'));
+ if(rfUi.manager)root.append(toolbar,state,counters,info,scan,payment,search.wrap,lists,save,nav);else root.append(toolbar,state,counters,info,scan,search.wrap,lists,save,payment,nav);rfRender();
+}
+async function rfLoad(force=true){
+ if(rfUi.busy)return;const owner=managementOwnerKey(),version=++rfUi.version;rfUi.busy=true;rfNote('Загружаем рефарб…');rfBusyControls();
+ try{const data=await rfApi('list',{month:rfUi.month,force});if(version!==rfUi.version||owner!==managementOwnerKey())return;rfUi.data=data;rfUi.month=data.month;rfRoot().querySelector('input[type=month]').value=data.month;rfUi.limit=100;rfRender();rfNote('');}
+ catch(e){if(owner===managementOwnerKey())rfNote('⚠️ '+e.message);}finally{if(owner===managementOwnerKey()&&version===rfUi.version){rfUi.busy=false;rfBusyControls();}}
+}
+function rfBusyControls(){
+ const root=rfRoot();if(!root)return;const locked=rfUi.busy||!!rfUi.pending;
+ root.querySelectorAll('button,input,select,textarea').forEach(b=>{if(b.dataset.rfRetry)return;if(locked){if(b.dataset.rfBeforeLock==null)b.dataset.rfBeforeLock=String(b.disabled);b.disabled=true;}else{if(b.dataset.rfBeforeLock!=null){b.disabled=b.dataset.rfBeforeLock==='true';delete b.dataset.rfBeforeLock;}if(b.dataset.rfPermanentDisabled!=null)b.disabled=b.dataset.rfPermanentDisabled==='true';}});
+ rfSyncDropdowns(root);
+ root.querySelector('[data-rf-retry]')?.remove();if(rfUi.pending&&!rfUi.busy){const retry=rfButton('🔄 Проверить сохранение',()=>rfMutate(rfUi.pending.operation,rfUi.pending.fields));retry.dataset.rfRetry='true';root.querySelector('.rf-message').after(retry);}
+}
+function rfRender(){
+ const root=rfRoot(),d=rfUi.data;if(!root||!d)return;root.querySelector('.rf-counters').replaceChildren(...[['Всего',d.stats.total],['Роутеры',d.stats.routers],['Приставки',d.stats.stbs]].map(([label,n])=>{const c=rfElement('div','rf-counter',label);c.append(rfElement('strong','',String(n)));return c;}));
+ root.querySelector('.rf-model-summary')?.remove();if(Object.keys(d.stats.models||{}).length){const details=rfElement('details','rf-model-summary'),summary=rfElement('summary','','Количество по моделям');details.append(summary);for(const [name,count] of Object.entries(d.stats.models))details.append(rfElement('div','',name+' — '+count));root.querySelector('.rf-counters').after(details);}
+ const info=root.querySelector('.rf-hint');info.textContent=[d.worker?'Рефарбщик: '+d.worker.name:d.workerError,d.closed?'Месяц закрыт. Руководство может исправлять записи.':'Закрытие: '+d.cutoff.replace('T',' ')+' · время участка',!d.workOpen?'Новые работы доступны с первого числа следующего месяца. Возвраты сохраняются в очереди.':'','0 — б/у в наличии; 1 — новое необходимо доложить для восстановления.',d.historyUnassigned?'Из таблицы: '+d.historyUnassigned+' выполненных работ без указанного исполнителя. Руководство может назначить его сразу всем таким строкам выбранного месяца.':''].filter(Boolean).join('\n');
+ const archive=root.querySelector('[data-rf-archive]');if(archive){archive.disabled=!d.archive;archive.dataset.rfPermanentDisabled=String(!d.archive);}
+ root.querySelector('[data-rf-legacy-assign]')?.remove();if(rfUi.manager&&d.worker&&d.rows.some(r=>!r.owner)){const assign=rfButton('Указать исполнителя для старых строк',()=>{if(rfUi.drafts.size){rfNote('Сначала сохраните или отмените текущие правки строк');return;}rfMutate('assignHistory',{month:d.month,owner:d.worker.login});});assign.dataset.rfLegacyAssign='true';info.after(assign);}
+ rfRenderScan();rfRenderPayment();rfRenderRows();rfBusyControls();
+}
+function rfRenderScan(){
+ const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;host.replaceChildren();host.hidden=!d.canAdd;if(!d.canAdd)return;
+ host.append(rfElement('h3','','Сканирование пачки'),rfElement('p','rf-hint','Серийный номер → Enter, затем MAC-адрес. После 12 символов MAC-адреса или Enter появится следующая пустая строка. В таблицу вся пачка записывается кнопкой «Сохранить всю пачку».'));
+ const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),psu=rfField('Блок питания',0,'text',[[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=rfField('Коробка',0,'text',[[0,'0 · б/у есть'],[1,'1 · нужна новая']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-span2');mac.wrap.classList.add('rf-span2');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
+ sn.input.placeholder='Сканируйте следующий серийный номер';mac.input.placeholder='Сканируйте MAC-адрес';
+ let autoTimer=null;const owner=managementOwnerKey(),add=rfButton('＋ Добавить',()=>accept(),'btn action-btn rf-span2');
+ const show=(r)=>{rfUi.lastAddedId=r.id;rfUi.search='';const search=rfRoot().querySelector('.rf-search input');if(search)search.value='';rfUi.limit=Math.max(100,rfUi.limit);rfRenderRows();};
+ const ready=()=>{sn.input.value=mac.input.value='';rfUi.scanTarget=null;sn.input.focus();};
+ const accept=()=>{clearTimeout(autoTimer);autoTimer=null;try{
+  if(owner!==managementOwnerKey()||rfUi.data!==d||!sn.input.isConnected)return false;
+  if(rfUi.busy||rfUi.pending)throw new Error('Сначала проверьте предыдущее сохранение');if(!d.canAdd)throw new Error('Добавление устройств сейчас закрыто');
+  const serial=rfUiSerial(sn.input.value),m=rfUiMac(mac.input.value);if(serial.length<3)throw new Error('Укажите серийный номер');if(m.length!==12)throw new Error('MAC-адрес должен содержать 12 символов');
+  if(d.rows.some(r=>rfUiSerial(r.sn)===serial))throw new Error('Серийный номер '+serial+' уже сохранён в таблице за этот месяц');
+  const old=d.pending.find(r=>r.id===rfUi.scanTarget)||d.pending.find(r=>rfUiSerial(r.sn)===serial),duplicate=[...rfUi.drafts.values()].find(r=>r.id!==old?.id&&(r.month||String(r.date||'').slice(0,7))===d.currentMonth&&rfUiSerial(r.sn)===serial);
+  if(duplicate){show(duplicate);if(rfUiMac(duplicate.mac)!==m)throw new Error('Серийный номер '+serial+' уже в пачке с другим MAC-адресом. Исправьте его карточку ниже');ready();rfNote('Серийный номер '+serial+' уже в пачке. Дубль не добавлен. Следующая строка готова к сканированию');return true;}
+  const previous=old&&(rfUi.drafts.get(old.id)||old),model=detectModelBySerial(serial).replace(/\|+$/,''),stb=ctDetectStbModel(serial);
+  const r={...(previous||{}),id:previous?.id||rfId(),version:previous?.version||0,sn:serial,mac:m,model:model||previous?.model||'',type:stb?'stb':previous?.type||'router',origin:previous?.origin||origin.input.value,psu:previous?previous.psu:Number(psu.input.value),box:previous?previous.box:Number(box.input.value),reason:previous?.reason||'',operation:previous?.operation||'Демонтаж',date:d.today,month:d.currentMonth,completed:true};
+  r.owner=r.owner||String(currentUser.dwLogin||'').trim().toLowerCase();r.ownerName=r.ownerName||currentUser.fullName;
+  rfUi.drafts.set(r.id,r);rfRemember();show(r);ready();rfNote('Добавлено: '+serial+' · MAC-адрес '+m+'. Следующая строка готова.'+(r.model?'':' Выберите модель в этой строке пачки.'));return true;
+ }catch(e){rfNote('⚠️ '+e.message);return false;}};host._rfAcceptScan=accept;
+ sn.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey&&rfUiSerial(sn.input.value).length>=3){e.preventDefault();e.stopPropagation();mac.input.focus();}};
+ mac.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab'&&rfUiMac(mac.input.value).length===12)&&!e.shiftKey){e.preventDefault();e.stopPropagation();if(sn.input.value||mac.input.value)accept();}};
+ mac.input.addEventListener('input',()=>{clearTimeout(autoTimer);if(rfUiMac(mac.input.value).length===12&&rfUiSerial(sn.input.value).length>=3){const serial=sn.input.value,address=mac.input.value;autoTimer=setTimeout(()=>{if(sn.input.value===serial&&mac.input.value===address)accept();},140);}});
+ const defaults=rfElement('div','rf-kit'),queue=rfElement('div','rf-scan-queue rf-full'),next=rfElement('div','rf-scan-next rf-full'),message=rfElement('div','rf-scan-message rf-hint rf-full');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
+ const save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save-batch rf-full');defaults.append(origin.wrap,psu.wrap,box.wrap);grid.append(defaults,queue,next,sn.wrap,mac.wrap,add,message,save);host.append(grid);rfRefreshScanQueue();
+}
+function rfExcludedReturns(){return new Set((rfUi.data?.excludedReturns||[]).map(r=>r.id));}
+function rfBatchDrafts(){const d=rfUi.data;if(!d)return [];const ids=new Set([...d.rows,...d.pending].map(r=>r.id)),excluded=rfExcludedReturns();return [...rfUi.drafts.values()].filter(r=>!excluded.has(r.id)&&(ids.has(r.id)||r.month===d.month));}
+function rfUpdateSaveButtons(){const count=rfBatchDrafts().length;rfRoot()?.querySelectorAll('.rf-save,.rf-save-batch').forEach(b=>{b.textContent='💾 Сохранить всю пачку'+(count?' · '+count:'');b.disabled=!count||rfUi.busy||!!rfUi.pending;b.dataset.rfPermanentDisabled=String(!count);});}
+function rfEditQueuedField(id,key,value,normalise=false){
+ const previous=rfUi.drafts.get(id);if(!previous||rfUi.busy||rfUi.pending||!rfEditable(previous))return;
+ const copy={...previous,[key]:normalise?(key==='sn'?rfUiSerial(value):key==='mac'?rfUiMac(value):value.trim()):value};
+ if(key==='sn'&&normalise){const model=detectModelBySerial(rfUiSerial(copy.sn)).replace(/\|+$/,'');if(model){copy.model=model;copy.type=ctDetectStbModel(copy.sn)?'stb':'router';}}
+ rfUi.drafts.set(id,copy);rfRemember();rfUpdateSaveButtons();
+ const card=[...rfRoot().querySelectorAll('.rf-record')].find(n=>n.dataset.rfId===id),queue=[...rfRoot().querySelectorAll('.rf-scan-queued-row')].find(n=>n.dataset.rfQueuedId===id);
+ if(card){card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);for(const name of ['sn','mac','model','type']){const input=card.querySelector('[data-rf-field='+name+']');if(input)input.value=copy[name]||'';}rfSyncDropdowns(card);}
+ if(queue){for(const name of ['sn','mac','model']){const input=queue.querySelector('[data-rf-queue-field='+name+']');if(input&&(name!==key||normalise))input.value=copy[name]||'';}queue.querySelector('.rf-queued-model')?.classList.toggle('rf-model-missing',!copy.model?.trim());}
+}
+function rfRefreshScanQueue(){
+ const host=rfRoot()?.querySelector('.rf-scan-queue');if(!host)return;const rows=rfBatchDrafts();host.replaceChildren();host.hidden=!rows.length;
+ for(const [i,r] of rows.entries()){
+  const row=rfElement('div','rf-scan-queued-row'),number=rfElement('span','',String(i+1)),fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id),conflict=!!r.createdAt&&(!fresh||fresh.version!==r.version),editable=rfEditable(r)&&!conflict;row.dataset.rfQueuedId=r.id;row.append(number);
+  for(const [key,title] of [['sn','Серийный номер'],['mac','MAC-адрес'],['model','Модель']]){
+   const field=rfField(title,r[key]||''),input=field.input;input.dataset.rfQueueField=key;input.spellcheck=false;input.setAttribute('aria-label',title+' устройства '+(i+1));input.disabled=!editable||rfUi.busy||!!rfUi.pending;input.dataset.rfPermanentDisabled=String(!editable);
+   input.oninput=()=>{input.classList.remove('input-error');rfEditQueuedField(r.id,key,input.value);};input.onchange=()=>rfEditQueuedField(r.id,key,input.value,true);
+   if(key==='model'){field.wrap.classList.add('rf-queued-model');field.wrap.classList.toggle('rf-model-missing',!r.model?.trim());input.placeholder='Выберите или введите модель';rfModelSuggestions(field);}row.append(field.wrap);
+  }host.append(row);
+ }
+ const next=rfRoot().querySelector('.rf-scan-next');if(next)next.textContent=rows.length?'В пачке '+rows.length+' · ещё не записано в таблицу. Устройство '+(rows.length+1)+':':'Устройство 1:';
+ host.scrollTop=host.scrollHeight;rfUpdateSaveButtons();
+}
+function rfEditable(r){if(!r.completed&&(rfUi.data.month!==rfUi.data.currentMonth||!rfUi.data.workOpen))return false;return rfUi.manager||rfUi.data.workOpen&&r.month===rfUi.data.currentMonth&&(r.owner===String(currentUser.dwLogin||'').trim().toLowerCase()||!r.createdAt&&rfUi.data.canAdd)||!r.completed&&rfUi.data.workOpen&&r.owner===String(currentUser.dwLogin||'').trim().toLowerCase();}
+function rfRenderRows(){
+ const root=rfRoot(),d=rfUi.data;if(!d)return;const host=root.querySelector('.rf-lists');rfUi.expanded||=new Map();host.querySelectorAll('details.rf-record').forEach(card=>rfUi.expanded.set(card.dataset.rfId,card.open));host.replaceChildren();let all=new Map([...d.pending,...d.rows].map(r=>[r.id,r]));
+ const excluded=rfExcludedReturns();for(const [id,r] of rfUi.drafts){if(!excluded.has(id)&&(all.has(id)||r.month===d.month))all.set(id,r);}
+ const query=rfUi.search.trim().toLowerCase(),rows=[...all.values()].filter(r=>[r.sn,r.mac,r.model,r.ownerName].some(v=>String(v||'').toLowerCase().includes(query))),pending=rows.filter(r=>!r.completed||rfUi.drafts.has(r.id)&&!d.rows.some(v=>v.id===r.id)),done=rows.filter(r=>!pending.includes(r));pending.sort((a,b)=>Number(b.id===rfUi.lastAddedId)-Number(a.id===rfUi.lastAddedId));
+ let shown=0;for(const [title,items] of [['Поступившие возвраты и новые строки',pending],['Выполненные устройства',done]]){host.append(rfElement('h3','rf-section-title',title+' · '+items.length));if(!items.length)host.append(rfElement('p','rf-empty','Нет устройств'));for(const item of items){if(shown++>=rfUi.limit)continue;host.append(rfRecordCard(item));}}
+ if(rows.length>rfUi.limit)host.append(rfButton('Показать ещё',()=>{rfUi.limit+=100;rfRenderRows();}));
+ rfUpdateSaveButtons();rfRefreshScanQueue();
+ rfSyncDropdowns(host);
+}
+function rfUpdateRecordHeading(card,r){
+ const serial=card.querySelector('.rf-record-serial'),model=card.querySelector('.rf-record-model');if(serial)serial.textContent=r.sn||'Новое устройство';if(model)model.textContent=r.model||'Укажите модель';card.querySelector('.rf-record-head').title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
+}
+function rfRecordCard(base){
+ const r=rfUi.drafts.get(base.id)||base,dirty=rfUi.drafts.has(r.id),fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id),conflict=dirty&&!!r.createdAt&&(!fresh||fresh.version!==r.version),editable=rfEditable(r)&&!conflict,card=rfElement('details','rf-record'+(dirty?' rf-dirty':'')),head=rfElement('summary','rf-record-head');card.dataset.rfId=r.id;
+ const expanded=rfUi.expanded||(rfUi.expanded=new Map());card.open=expanded.has(r.id)?expanded.get(r.id):conflict;card.ontoggle=()=>{if(card.isConnected)expanded.set(r.id,card.open);};head.onclick=()=>expanded.set(r.id,!card.open);
+ head.append(rfElement('strong','rf-record-serial',r.sn||'Новое устройство'),rfElement('span','rf-record-model',r.model||'Укажите модель'),rfElement('span','dropdown-arrow','▼'));head.title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
+ const remove=rfButton('×',e=>{e.preventDefault();e.stopPropagation();rfDeleteRow(rfUi.drafts.get(r.id)||r);},'rf-delete');remove.title=r.createdAt?'Удалить строку':'Убрать из списка';remove.setAttribute('aria-label','Удалить устройство '+r.sn);remove.hidden=!!r.createdAt&&!rfUi.manager;remove.disabled=conflict||(r.createdAt?!rfUi.manager:!editable);head.append(remove);card.append(head);if(r.legacy&&!r.owner&&!rfUi.manager)card.append(rfElement('p','rf-record-meta','Из таблицы · только просмотр'));if(rfUi.manager)card.append(rfElement('p','rf-record-meta',r.ownerName||(!r.createdAt?currentUser.fullName:'Без исполнителя')));
+ const grid=rfElement('div','rf-grid'),fields={};
+ const touch=(key,value)=>{if(rfUi.pending){rfNote('Сначала проверьте предыдущее сохранение');return;}const previous=rfUi.drafts.get(r.id)||r,copy={...previous,[key]:value};if(!previous.completed){copy.completed=true;copy.date=key==='date'?value:rfUi.data.today;copy.month=copy.date.slice(0,7);}rfUi.drafts.set(r.id,copy);card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);rfRemember();rfUpdateSaveButtons();rfRefreshScanQueue();};
+ const field=(key,label,type='text',options=null)=>{const f=rfField(label,r[key],type,options);f.input.disabled=!editable;f.input.dataset.rfField=key;f.input.oninput=()=>touch(key,['psu','box'].includes(key)?(f.input.value===''?null:Number(f.input.value)):f.input.value);fields[key]=f;return f;};
+ const sn=field('sn','Серийный номер'),mac=field('mac','MAC-адрес'),model=field('model','Модель');model.wrap.classList.add('rf-span2');rfModelSuggestions(model);model.input.title=r.model||'';
+ sn.input.addEventListener('change',()=>{const found=detectModelBySerial(sn.input.value).replace(/\|+$/,'');if(found){model.input.value=found;touch('model',found);const kind=ctDetectStbModel(sn.input.value)?'stb':'router';fields.type.input.value=kind;touch('type',kind);rfSyncDropdowns(card);}});
+ const type=field('type','Оборудование','text',[['router','Роутер'],['stb','Приставка']]),date=field('date','Дата','date');if(!r.completed&&!dirty)date.input.value=rfUi.data.today;grid.append(sn.wrap,mac.wrap,model.wrap,type.wrap,date.wrap);
+ const kit=rfElement('div','rf-kit'),origin=field('origin','Источник','text',[['ОПиО','ОПиО'],['Техник','Техник']]),psu=field('psu','Блок питания','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=field('box','Коробка','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужна новая']]);kit.append(origin.wrap,psu.wrap,box.wrap);grid.append(kit);
+ const operation=field('operation','Демонтаж / Замена','text',[['Демонтаж','Демонтаж'],['Замена','Замена']]),reason=field('reason','Причина возврата','textarea');operation.wrap.classList.add('rf-span2');reason.wrap.classList.add(rfUi.manager&&rfUi.data.worker?'rf-span2':'rf-span4');if(r.sourceKey){origin.input.disabled=true;operation.input.value='Демонтаж';operation.input.disabled=true;}
+ const toggleTech=()=>{const tech=origin.input.value==='Техник';operation.wrap.hidden=reason.wrap.hidden=!tech;};origin.input.addEventListener('change',toggleTech);toggleTech();grid.append(operation.wrap,reason.wrap);
+ if(rfUi.manager&&rfUi.data.worker){const opts=[['','Выберите исполнителя'],[rfUi.data.worker.login,rfUi.data.worker.name]];if(r.owner&&r.owner!==rfUi.data.worker.login)opts.push([r.owner,r.ownerName||r.owner]);const owner=rfField('Исполнитель',r.owner||'','text',opts);owner.wrap.classList.add('rf-span2');owner.input.disabled=!editable;owner.input.onchange=()=>touch('owner',owner.input.value);grid.append(owner.wrap);}
+ card.append(grid);
+ if(dirty&&r.createdAt){const actions=rfElement('div','rf-inline');if(conflict)actions.append(rfElement('p','rf-warning rf-hint',fresh?'Строка изменена другим пользователем. Ваш ввод сохранён локально.':'Строка удалена или больше недоступна. Ваш ввод сохранён локально.'));actions.append(rfButton('Отменить мою правку',()=>{rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();}));if(conflict&&fresh)actions.append(rfButton('Применить мой ввод к актуальной строке',()=>{rfUi.drafts.set(r.id,{...r,version:fresh.version,createdAt:fresh.createdAt,sourceKey:fresh.sourceKey,owner:rfUi.manager?r.owner:fresh.owner});rfRemember();rfRenderRows();rfNote('Правка подготовлена на основе актуальной версии. Проверьте данные и сохраните список.');}));card.append(actions);}
+ if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✓ В списке сохранения':'✓ Проверено, включить в сохранение',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable;actions.append(confirm);if(r.sourceKey){const scan=rfButton('⌨ Ввести фактические серийный номер и MAC-адрес',()=>{rfUi.scanTarget=r.id;rfRoot().querySelector('[data-rf-scan-sn]')?.focus();rfNote('Сканируйте фактические серийный номер и MAC-адрес для выбранного возврата');});scan.disabled=!editable||!rfUi.data.canAdd;actions.append(scan);}card.append(actions);}
+ return card;
+}
+async function rfSave(){
+ if(rfUi.busy||rfUi.pending)return;const scan=rfRoot()?.querySelector('.rf-scan');if((scan?.querySelector('[data-rf-scan-sn]')?.value||scan?.querySelector('[data-rf-scan-mac]')?.value)&&!scan._rfAcceptScan?.())return;
+ const rows=rfBatchDrafts();if(!rows.length)return;
+ const invalid=(r,key,message)=>{const queue=[...rfRoot().querySelectorAll('.rf-scan-queued-row')].find(n=>n.dataset.rfQueuedId===r.id),card=[...rfRoot().querySelectorAll('.rf-record')].find(n=>n.dataset.rfId===r.id),input=queue?.querySelector('[data-rf-queue-field='+key+']')||card?.querySelector('[data-rf-field='+key+']');if(card&&!queue?.querySelector('[data-rf-queue-field='+key+']')){card.open=true;rfUi.expanded.set(r.id,true);}const visible=input?.closest('.rf-dropdown')?.querySelector('.dropdown-trigger')||input;visible?.classList.add('input-error');visible?.focus();visible?.scrollIntoView?.({block:'center'});throw new Error(message);};
+ try{if(rows.length>500)throw new Error('В одном сохранении допускается до 500 устройств');const changed=new Set(rows.map(r=>r.id)),serials=new Set(rfUi.data.rows.filter(r=>!changed.has(r.id)).map(r=>rfUiSerial(r.sn)));for(const r of rows){const fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id);if(r.createdAt&&(!fresh||fresh.version!==r.version))throw new Error('Сначала разрешите конфликт в строке '+r.sn);r.sn=rfUiSerial(r.sn);r.mac=rfUiMac(r.mac);if(!/^[A-Z0-9._\/-]{3,100}$/.test(r.sn))invalid(r,'sn','Исправьте серийный номер: используйте латинские буквы и цифры');if(serials.has(r.sn))invalid(r,'sn','Серийный номер '+r.sn+' повторяется в выбранном месяце');serials.add(r.sn);if(r.mac.length!==12||!/[1-9A-F]/.test(r.mac))invalid(r,'mac','Исправьте MAC-адрес для '+r.sn+': нужны 12 шестнадцатеричных символов');if(!r.model?.trim())invalid(r,'model','Выберите или введите модель для '+r.sn+' в строке пачки');if(![0,1].includes(r.psu))invalid(r,'psu','Уточните блок питания для '+r.sn);if(![0,1].includes(r.box))invalid(r,'box','Уточните коробку для '+r.sn);}await rfMutate('save',{rows});}catch(e){rfNote('⚠️ '+e.message);}
+}
+async function rfMutate(operation,fields){
+ if(rfUi.busy)return;const owner=managementOwnerKey();if(rfUi.pending&&(rfUi.pending.operation!==operation||rfUi.pending.fields!==fields)){rfNote('Сначала проверьте предыдущее сохранение');return;}
+ if(!rfUi.pending)rfUi.pending={operation,fields:structuredClone(fields),requestId:'req_'+rfId()};const p=rfUi.pending;rfRemember();rfUi.busy=true;rfBusyControls();rfNote('Сохраняем…');
+ try{const reply=await rfApi(operation,{...p.fields,requestId:p.requestId});if(owner!==managementOwnerKey())return;rfUi.pending=null;if(operation==='save')p.fields.rows.forEach(r=>rfUi.drafts.delete(r.id));if(operation==='delete')rfUi.drafts.delete(p.fields.id);rfRemember();rfUi.busy=false;await rfLoad();rfNote('✅ '+reply.message);}
+ catch(e){if(owner===managementOwnerKey()){if(e.confirmed){rfUi.pending=null;rfRemember();}if(e.code==='CONFLICT'||e.code==='CLOSED'){rfUi.busy=false;await rfLoad(true);if(operation==='payment'){const count=rfRoot().querySelector('.rf-payment input[type=number]'),comment=rfRoot().querySelector('.rf-payment textarea');if(count)count.value=p.fields.count;if(comment)comment.value=p.fields.comment;}}rfNote('⚠️ '+e.message);}}
+ finally{if(owner===managementOwnerKey()){rfUi.busy=false;rfRenderRows();rfBusyControls();}}
+}
+function rfDeleteRow(r){
+ if(rfUi.busy||rfUi.pending)return;if(!r.createdAt){rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();return;}if(!rfUi.manager)return;
+ const body=rfElement('div','','Удалить устройство '+r.sn+' из списка за '+(r.month||'поступившие возвраты')+'?'),actions=rfElement('div','rf-inline');actions.append(rfButton('Удалить',()=>{closeBeelineModal();rfMutate('delete',{id:r.id,version:r.version});},'btn danger-btn'),rfButton('Отмена',closeBeelineModal));showBeelineModalNode('Удаление устройства',body,'🗑',actions);
+}
+function rfRenderPayment(){
+ const host=rfRoot().querySelector('.rf-payment'),d=rfUi.data,p=d.payment;host.replaceChildren(rfElement('h3','','Допущено к оплате'));
+ host.append(rfElement('div','rf-approval-summary',p.confirmed?'Устройств: '+p.count+' из '+d.stats.total+'\nКомментарий: '+(p.comment||'—'):'Количество ещё не подтверждено'));
+ if(p.needsReview)host.append(rfElement('p','rf-warning rf-hint','Список устройств изменён после согласования. Супервайзеру нужно повторно проверить количество к оплате.'));
+ if(d.canPay){const grid=rfElement('div','rf-grid'),count=rfField('Общее количество устройств',p.confirmed?p.count:'','number'),comment=rfField('Комментарий: серийные номера устройств, которые не прошли в оплату',p.comment||'','textarea');count.input.min='0';count.input.max=String(d.stats.total);count.input.step='1';count.input.required=true;comment.input.maxLength=1500;comment.wrap.classList.add('rf-span2');const save=rfButton('💾 Подтвердить к оплате',()=>{if(count.input.value===''||!count.input.checkValidity()){rfNote('Укажите целое количество от 0 до '+d.stats.total);return;}rfMutate('payment',{month:d.month,count:Number(count.input.value),comment:comment.input.value,version:p.version});});grid.append(count.wrap,comment.wrap,save);host.append(grid);}
+ if(rfUi.manager){const issues=d.delivery.filter(j=>['blocked','review'].includes(j.state));if(issues.length)host.append(rfElement('p','rf-warning rf-hint','Доставка уведомлений: '+issues.map(j=>(j.recipient||'получатель')+' — '+j.error).join('\n')));}
+}
+async function rfDownloadUi(original){
+ if(rfUi.busy)return;const owner=managementOwnerKey();rfUi.busy=true;rfBusyControls();rfNote('Готовим Excel…');
+ try{const r=await rfApi('export',{month:rfUi.month,original},120000);if(owner!==managementOwnerKey())return;const bytes=Uint8Array.from(atob(r.file.base64),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([bytes],{type:r.file.mime})),a=document.createElement('a');a.href=url;a.download=r.file.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);rfNote('Excel сформирован');}catch(e){rfNote('⚠️ '+e.message);}finally{if(owner===managementOwnerKey()){rfUi.busy=false;rfBusyControls();}}
+}
+function rfSyncEditWorker(){
+ const field=document.getElementById('editRefarbField'),button=document.getElementById('editRefarbToggle'),status=document.getElementById('editRefarbStatus');
+ const user=usersDb.find(u=>String(u.id)===document.getElementById('editUserId').value);
+ field.hidden=!user||!rfUiManager()||!districtSameUser(user)||!['Техник-Универсал','Бригадир','Старший Техник'].includes(user.role);
+ button.onclick=null;if(field.hidden)return;
+ const enabled=user.refarbEnabled===true;
+ status.textContent=enabled?'Назначен рефарбщиком':'Не назначен';status.dataset.enabled=String(enabled);
+ button.textContent=enabled?'Снять назначение':'Назначить';button.className=enabled?'btn danger-btn':'btn main-btn';button.onclick=()=>rfSetWorker(user.id);
+}
+async function rfSetWorker(userId){
+ const user=usersDb.find(u=>u.id===userId);if(!user||!rfUiManager()||!districtSameUser(user)||!['Техник-Универсал','Бригадир','Старший Техник'].includes(user.role))return;
+ const enabled=user.refarbEnabled!==true,owner=managementOwnerKey();
+ const body=rfElement('div','',enabled?'Назначить '+user.fullName+' рефарбщиком своего участка? Предыдущее назначение будет снято.':'Снять назначение с '+user.fullName+'?');
+ const actions=rfElement('div','rf-worker-actions'),returnFocus=()=>{if(document.getElementById('editUserModal').style.display!=='none'&&document.getElementById('editUserId').value===String(user.id))document.getElementById('editRefarbToggle').focus();};
+ const cancel=rfButton('Отмена',()=>{closeBeelineModal();returnFocus();},'btn danger-btn');
+ const save=rfButton('Сохранить',async()=>{
+  if(save.disabled)return;save.disabled=true;cancel.disabled=true;
+  try{
+   const reply=await requestAuthJson({action:'setRefarbWorker',city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,targetLogin:user.dwLogin,enabled},25000);
+   if(owner!==managementOwnerKey())return;
+   if(reply.status!=='ok')throw new Error(reply.message||'Назначение не сохранено');
+   for(const employee of usersDb)if(districtSameUser(employee)&&(enabled||employee.dwLogin===user.dwLogin))employee.refarbEnabled=enabled&&employee.dwLogin===user.dwLogin;
+   const self=usersDb.find(u=>u.dwLogin===currentUser.dwLogin);if(self)currentUser={...currentUser,refarbEnabled:self.refarbEnabled===true};
+   closeBeelineModal();rfSyncEditWorker();rfVisibility();renderUsersList();returnFocus();
+   await loadUsersFromSheet(true);if(owner!==managementOwnerKey())return;
+   rfSyncEditWorker();rfVisibility();renderUsersList();
+  }catch(e){if(owner!==managementOwnerKey())return;save.disabled=false;cancel.disabled=false;body.textContent=e.message;body.setAttribute('role','alert');}
+ },'btn main-btn');
+ actions.append(cancel,save);showBeelineModalNode('Назначение рефарбщика',body,'🛠️',actions);document.getElementById('beelineModal').classList.add('rf-worker-confirm');cancel.focus();
+}
+function rfInit(){const data=document.createElement('datalist');data.id='refarbNomenclature';if(typeof NOMENCLATURE_LIST!=='undefined')for(const name of NOMENCLATURE_LIST){const o=document.createElement('option');o.value=name;data.append(o);}document.body.append(data);rfVisibility();}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',rfInit);else rfInit();
+</script>
+
 </body>
 </html>
 
