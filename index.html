@@ -4333,12 +4333,12 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
         <h2>👤 Меню монтажника</h2>
         <div class="card">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
-                <button class="btn action-btn" type="button" onclick="openTmcRequest()">📦 Выдача ТМЦ</button>
+                <button class="btn action-btn" type="button" onclick="openTmcRequest()">📨 Выдача ТМЦ</button>
                 <button class="btn action-btn" onclick="openMySchedule()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📅 Рабочий график</button>
                 <button class="btn action-btn" id="pprPlansMenuBtn" onclick="openPprPlans()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
                 
                 <button class="btn action-btn" onclick="openActDebts()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📑 Долги по актам</button>
-                <button class="btn action-btn" onclick="openMyEquipment()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔌 Оборудование и кабель</button>
+                <button class="btn action-btn" onclick="openMyEquipment()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📦 Мой виртуальный склад</button>
                 
                 <button class="btn action-btn" onclick="openMySalary()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">💰 Моя зарплата</button>
                 <button class="btn action-btn" onclick="openMyHours()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🕐 Часы и дни</button>
@@ -4370,9 +4370,9 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
         </div>
     </div>
 
-    <!-- Оборудование и кабель авторизованного монтажника -->
+    <!-- Мой виртуальный склад авторизованного монтажника -->
     <div id="screen-my-equipment" class="app-screen uniform-screen">
-        <h2>🔌 Оборудование и кабель</h2>
+        <h2>📦 Мой виртуальный склад</h2>
         <div class="card">
             <div class="act-debts-hero">
                 <div><strong id="myEquipmentCount">—</strong><small id="myEquipmentSubtitle">Загружаем остатки...</small><div id="myEquipmentBreakdown" class="act-debts-breakdown" aria-live="polite"></div></div>
@@ -4782,7 +4782,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
  </div>
 </div>
 
-<div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📦 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📨 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
 <div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
     <div id="screen-admin" class="app-screen uniform-screen">
       <h2>⚙️ Админ-панель</h2>
@@ -8651,8 +8651,7 @@ document.addEventListener('blur', (e) => {
         'tr-cc2010','tr-extCorner','tr-intCorner','tr-ftthTurnCorner','tr-ftthTail','tr-dowels',
         'tr-ftthClip','tr-ftthWallIn','tr-optPatchMeters','tr-optPatchCount','tr-socConnector',
         'tr-fastConnector','tr-kdzs','tr-adapter'];
-    const reportDecimalIds = new Set(['tr-cableQty','tr-patchCableQty','tr-cc1015','tr-cc2010',
-        'tr-extCorner','tr-intCorner','tr-ftthTurnCorner','tr-optPatchMeters','tr-pprRate1','tr-pprRate2']);
+    const reportDecimalIds = new Set(['tr-cableQty','tr-patchCableQty','tr-pprRate1','tr-pprRate2']);
     const reportCableSerialIds = new Set(['tr-cableNum','tr-patchCableNum']);
     const reportDigitIds = new Set(['tr-appNumber','tr-login',
         ...reportMaterialIds.filter(id => !['tr-cableNum','tr-patchCableNum'].includes(id)),
@@ -9131,13 +9130,13 @@ document.addEventListener('blur', (e) => {
         const url = CITIES_CONFIG[city]?.reportsScriptUrl;
         if (!name || !city || !isConfiguredCityUrl(url)) return [];
         try {
-            const response = await requestMyEquipment(url, name, city);
+            const response = await requestMyEquipment(url, name, city, {equipmentOnly:true});
             if (currentUser?.city !== city || currentUser?.fullName !== name || currentUser?.dwLogin !== login) return [];
             return response.items.filter(item => ['Роутеры','Приставки'].includes(String(item.type || '')) &&
                 !String(item.login ?? item.subscriberLogin ?? '').trim());
         } catch (error) {
             console.warn('Поиск оборудования недоступен:', error);
-            return [];
+            throw error;
         }
     }
 
@@ -9197,8 +9196,11 @@ document.addEventListener('blur', (e) => {
     }
 
     // Показывает оборудование поиск.
+    const equipmentSearchSequences = new WeakMap(), equipmentSearchTimers = new WeakMap();
     async function showEquipmentSearch(input) {
         if (!input || !reportEquipmentSerialIds.has(input.id)) return;
+        const sequence = (equipmentSearchSequences.get(input) || 0) + 1;
+        equipmentSearchSequences.set(input, sequence);
         const query = normalizeEquipmentValue(input, input.value).toUpperCase();
         const box = equipmentSearchContainer(input);
         if (!box) return;
@@ -9206,8 +9208,17 @@ document.addEventListener('blur', (e) => {
         if (!query) { box.classList.remove('open'); box.replaceChildren(); return; }
         box.innerHTML = '<div class="equipment-search-empty">⏳ Ищем в таблице города…</div>';
         box.classList.add('open');
-        const items = await loadReportEquipmentLookup();
-        if (document.activeElement !== input && !input.matches(':focus')) return;
+        let items;
+        try { items = await loadReportEquipmentLookup(); }
+        catch(error) {
+            if(equipmentSearchSequences.get(input)!==sequence)return;
+            box.replaceChildren();
+            const message=document.createElement('div');message.className='equipment-search-empty';
+            message.textContent='Не удалось загрузить оборудование: '+String(error.message||error)+'. Повторите поиск.';
+            box.appendChild(message);return;
+        }
+        if(equipmentSearchSequences.get(input)!==sequence)return;
+        if (document.activeElement !== input && !input.matches(':focus')) {box.classList.remove('open');box.replaceChildren();return;}
         const type = input.id.startsWith('tr-r') ? 'Роутеры' : 'Приставки';
         const matches = items.filter(item => {
             if (String(item.type || '') !== type) return false;
@@ -9253,7 +9264,10 @@ document.addEventListener('blur', (e) => {
     document.addEventListener('input', event => {
         if (!reportEquipmentSerialIds.has(event.target.id)) return;
         closeReportModelDropdowns();
-        showEquipmentSearch(event.target);
+        const input=event.target;
+        clearTimeout(equipmentSearchTimers.get(input));
+        equipmentSearchSequences.set(input,(equipmentSearchSequences.get(input)||0)+1);
+        equipmentSearchTimers.set(input,setTimeout(()=>showEquipmentSearch(input),180));
     });
     document.addEventListener('click', event => {
         if (!event.target.closest('#tr-step-equipment .input-group')) closeEquipmentSearch();
@@ -9333,7 +9347,7 @@ function ctDetectStbModel(serial) {
     function handlePhotoUpload(event, limit) {
         const files = Array.from(event.target.files);
         files.forEach(file => {
-            if (photosList.length < limit) photosList.push(file);
+            if (photosList.length < limit) {photosList.push(file);prepareReportPhoto(file);}
         });
         renderPhotos();
         event.target.value = ''; 
@@ -9368,8 +9382,8 @@ function ctDetectStbModel(serial) {
     function handlePprPhotoUpload(event, type, limit) {
         const files = Array.from(event.target.files);
         files.forEach(file => {
-            if (type === 'before' && pprPhotosBefore.length < limit) pprPhotosBefore.push(file);
-            if (type === 'after' && pprPhotosAfter.length < limit) pprPhotosAfter.push(file);
+            if (type === 'before' && pprPhotosBefore.length < limit) {pprPhotosBefore.push(file);prepareReportPhoto(file);}
+            if (type === 'after' && pprPhotosAfter.length < limit) {pprPhotosAfter.push(file);prepareReportPhoto(file);}
         });
         renderPprPhotos(type);
         event.target.value = '';
@@ -9431,17 +9445,24 @@ function ctDetectStbModel(serial) {
     }
 
     // Выполняет files в Telegram фото.
-    async function filesToTelegramPhotos(files, limit = 20) {
-        const result = [];
-        for (const file of (files || []).slice(0, limit)) {
-            try {
-                const dataUrl = await fileToCompressedDataUrl(file);
-                if (dataUrl) result.push(dataUrl);
-            } catch (err) {
-                console.warn('Фото пропущено:', err);
-            }
+    const reportPhotoCache = new WeakMap(), reportPhotoQueue = [];
+    let reportPhotoWorkers = 0;
+    function prepareReportPhoto(file) {
+        if(reportPhotoCache.has(file))return reportPhotoCache.get(file);
+        const promise=new Promise((resolve,reject)=>reportPhotoQueue.push({file,resolve,reject}));
+        reportPhotoCache.set(file,promise);promise.catch(()=>{});
+        runReportPhotoQueue();return promise;
+    }
+    function runReportPhotoQueue() {
+        while(reportPhotoWorkers<2&&reportPhotoQueue.length) {
+            const task=reportPhotoQueue.shift();reportPhotoWorkers++;
+            fileToCompressedDataUrl(task.file).then(task.resolve,task.reject).finally(()=>{reportPhotoWorkers--;runReportPhotoQueue();});
         }
-        return result;
+    }
+    async function filesToTelegramPhotos(files, limit = 20) {
+        const photos=await Promise.all((files||[]).slice(0,limit).map(prepareReportPhoto));
+        if(photos.some(p=>!p))throw new Error('Не удалось подготовить фото. Удалите повреждённое фото и добавьте его заново.');
+        return photos;
     }
 
     // Преобразует буквенный адрес колонки в индекс массива.
@@ -9739,14 +9760,14 @@ function ctDetectStbModel(serial) {
         reportCableSearchSeq++;
     }
     // Выполняет запрос свои оборудование.
-    function requestMyEquipment(url, fullName, city, {fresh = false} = {}) {
-        const key = JSON.stringify([url, city, fullName, currentUser?.dwLogin || '']);
+    function requestMyEquipment(url, fullName, city, {fresh = false, equipmentOnly = false} = {}) {
+        const key = JSON.stringify([url, city, fullName, currentUser?.dwLogin || '', equipmentOnly]);
         const cached = equipmentSnapshots.get(key);
         if (cached?.promise) return cached.promise;
         if (!fresh && cached?.value && Date.now() - cached.time < EQUIPMENT_CACHE_MS) return Promise.resolve(cached.value);
         const entry = {time:0, value:null, promise:null};
         equipmentSnapshots.set(key, entry);
-        entry.promise = requestMyEquipmentOnce(url, fullName, city).then(response => {
+        entry.promise = requestMyEquipmentOnce(url, fullName, city, equipmentOnly).then(response => {
             if (response?.status !== 'success' || !Array.isArray(response.items) || response.city !== city) {
                 throw new Error(response?.message || 'Некорректный ответ оборудования для выбранного города.');
             }
@@ -9759,8 +9780,8 @@ function ctDetectStbModel(serial) {
         return entry.promise;
     }
     // Выполняет запрос свои оборудование один раз.
-    function requestMyEquipmentOnce(url, fullName, city) {
-        return requestCityReadJsonp(url, {action:'getMyEquipment', fullName, city}, '__beelineMyEquipmentCallback_');
+    function requestMyEquipmentOnce(url, fullName, city, equipmentOnly = false) {
+        return requestCityReadJsonp(url, {action:'getMyEquipment', fullName, city, ...(equipmentOnly ? {self:'1',equipmentOnly:'1'} : {})}, '__beelineMyEquipmentCallback_');
     }
     // Выполняет свои оборудование состояние.
     function myEquipmentState(icon, message) {
@@ -9771,7 +9792,7 @@ function ctDetectStbModel(serial) {
         list.appendChild(state);
     }
     // Показывает свои оборудование.
-    function renderMyEquipment(items) {
+    function renderMyEquipmentBeforeWarehouse(items) {
         const list = document.getElementById('myEquipmentList');
         list.replaceChildren();
         for (const type of ['Роутеры', 'Приставки', 'Кабель']) {
@@ -9833,8 +9854,8 @@ function ctDetectStbModel(serial) {
             if (request !== myEquipmentRequest || currentUser?.fullName !== name || currentUser?.city !== city) return;
             if (response?.status !== 'success' || !Array.isArray(response.items) || response.city !== city)
                 throw new Error(response?.message || 'Не удалось прочитать остатки оборудования.');
-            document.getElementById('myEquipmentCount').textContent = response.items.length;
-            document.getElementById('myEquipmentSubtitle').textContent = response.items.length ? 'Позиций в наличии' : 'Остатков нет';
+            document.getElementById('myEquipmentCount').textContent = response.items.length+(response.consumables?.length||0);
+            document.getElementById('myEquipmentSubtitle').textContent = response.items.length||response.consumables?.length ? 'Позиций в наличии' : 'Остатков нет';
             const counts = { 'Кабель': 0, 'Роутеры': 0, 'Приставки': 0 };
             let cableMeters = 0;
             for (const item of response.items) {
@@ -9847,8 +9868,8 @@ function ctDetectStbModel(serial) {
             breakdown.appendChild(actDebtsNode('span', '', 'Метраж: ' + new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 }).format(cableMeters) + ' м'));
             breakdown.appendChild(actDebtsNode('span', '', 'Роутеры: ' + counts['Роутеры']));
             breakdown.appendChild(actDebtsNode('span', '', 'Приставки: ' + counts['Приставки']));
-            if (response.items.length) renderMyEquipment(response.items);
-            else myEquipmentState('📦', 'Оборудование и кабель в наличии не найдены.');
+            if (response.items.length || response.consumables?.length) renderMyEquipment(response.items,response.consumables||[]);
+            else renderMyEquipment([],[]);
         } catch (error) {
             if (request !== myEquipmentRequest) return;
             document.getElementById('myEquipmentSubtitle').textContent = 'Не удалось загрузить';
@@ -9909,9 +9930,30 @@ function ctDetectStbModel(serial) {
         const sheetName = safe(receipt.spreadsheetName || '');
         const reportName = safe(receipt.reportType || type);
         const cityName = safe(city);
-        const message = `Отчёт <b>${reportName}</b> записан в таблицу <b>${sheetName}</b> (г. ${cityName}), строка <b>${rowNumber}</b>.`;
+        const queued = receipt.telegram==='queued';
+        const message = `Отчёт <b>${reportName}</b> записан в таблицу <b>${sheetName}</b> (г. ${cityName}), строка <b>${rowNumber}</b>.` +
+            (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : '');
         const buttons = '<button type="button" class="btn main-btn" onclick="finishReportAndStartNext()">📝 Следующий отчёт</button>';
         showBeelineModal('Отчёт сохранён', message, '✅', buttons);
+    }
+
+    async function sendReportForReceipt(url,payload) {
+        let receipt;
+        try {
+            const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+            receipt=await response.json();
+        }catch(networkError){
+            // A lost response can follow a successful write: poll the same ID, never resend here.
+            return await waitForReportReceipt(url,payload.requestId);
+        }
+        if(receipt?.status==='error')throw new Error(receipt.message||'Отчёт не сохранён');
+        if(receipt?.status!=='success')return await waitForReportReceipt(url,payload.requestId);
+        if(receipt.reportType!==payload.reportType||!Number.isInteger(Number(receipt.rowNumber))||Number(receipt.rowNumber)<2)throw new Error('Некорректное подтверждение записи отчёта');
+        return receipt;
+    }
+    function kickReportDelivery(url,requestId) {
+        districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'reportProcess',requestId}),keepalive:true})
+            .catch(error=>console.warn('Доставка продолжится фоновым обработчиком:',error.message));
     }
 
     // Проверяет форму, отправляет отчёт и ждёт подтверждения записи.
@@ -9960,7 +10002,9 @@ function ctDetectStbModel(serial) {
             const cityConf = CITIES_CONFIG[currentUser?.city] || {};
             const targetUrl = cityConf.reportsScriptUrl;
             if (!isConfiguredCityUrl(targetUrl)) throw new Error("Не настроен URL скрипта отчетов для города.");
-            const requestId = 'report_' + (window.crypto?.randomUUID?.() || (Date.now() + '_' + Math.random().toString(36).slice(2)));
+            const stockCheck = await vsBeforeReport(type,targetUrl);
+            if(stockCheck.receipt){if(stockCheck.receipt.telegram==='queued')kickReportDelivery(targetUrl,stockCheck.requestId);invalidateEquipmentSnapshots();showVerifiedReportResult(type,currentUser.city,stockCheck.receipt);return;}
+            const requestId = stockCheck.requestId;
 
             let payload;
             if (type.includes("ППР")) {
@@ -9985,13 +10029,10 @@ function ctDetectStbModel(serial) {
                 };
             }
 
-            await districtFetch(targetUrl,{
-                method:'POST', mode:'no-cors',
-                headers:{'Content-Type':'text/plain;charset=utf-8'},
-                body:JSON.stringify(payload)
-            });
-
-            const receipt = await waitForReportReceipt(targetUrl, requestId);
+            payload.deferTelegram = true;
+            const receipt = await sendReportForReceipt(targetUrl,payload);
+            if(receipt.telegram==='queued')kickReportDelivery(targetUrl,requestId);
+            vsPendingClear();
             invalidateEquipmentSnapshots();
             if (receipt.reportType !== type || !Number.isInteger(Number(receipt.rowNumber))) {
                 throw new Error('Сервер вернул некорректное подтверждение отчёта.');
@@ -9999,7 +10040,7 @@ function ctDetectStbModel(serial) {
             if (receipt.telegram === 'error') {
                 const detail = String(receipt.telegramMessage || 'Проверьте журнал выполнения скрипта.').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
                 showBeelineModal('Отчёт записан, Telegram не доставлен',
-                    `Строка ${Number(receipt.rowNumber)} в таблице ${String(receipt.spreadsheetName || '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]))}. Ошибка: ${detail}`, '⚠️');
+                    `Отчёт записан в таблицу, строка ${Number(receipt.rowNumber)}. Остаток зарезервирован; доставка в Telegram повторится автоматически. Ошибка: ${detail}`, '⚠️');
             } else {
                 showVerifiedReportResult(type, currentUser.city, receipt);
             }
@@ -12388,14 +12429,14 @@ html[data-app-layout=mobile] #screen-tmc-requests-management .card>.tmr-toolbar>
 }
 </style>
 <script id="tmcRequestsScript">
-const TMR_UI_FIELDS=[['routers','Роутеры'],['stbs','Приставки'],['connectors','Коннектора'],['clips','Клипсы'],['ties','Хомуты'],['uy2','UY2'],['tape','Изолента']];
+const TMR_UI_FIELDS=[['routers','Роутеры'],['stbs','Приставки'],['connectors','Коннекторы'],['clips','Клипсы'],['ties','Хомуты'],['uy2','UY2'],['tape','Изолента'],['cc2010','Кабель-канал 20/10'],['cc1015','Кабель-канал 10/15'],['extCorner','Внешний угол'],['intCorner','Внутренний угол'],['turnCorner','Поворотный угол FTTH'],['tail','Хвостовик FTTH'],['dowels','Дюбель-гвозди 6*40'],['ftthClip','Клипса FTTH'],['wallIn','Настенный ввод FTTH'],['optMeters','Оптические патчкорды'],['soc','Коннектор SOC SC/APC'],['fast','Fast-коннектор FTTH'],['kdzs','Гильза КДЗС 60мм'],['adapter','Адаптер'],['cc4025','Кабель-канал 40/25'],['cc6040','Кабель-канал 60/40']];
 let tmrUi={owner:'',data:null,busy:false,pending:null,manager:false};
 // Выполняет владелец — модуль заявок ТМЦ.
 function tmrOwner(){return managementOwnerKey();}
 // Выполняет день подпись — модуль заявок ТМЦ.
 function tmrDayLabel(day){return String(day||'').split('-').reverse().join('.');}
 // Выполняет интерфейс Summary — модуль заявок ТМЦ.
-function tmrUiSummary(item){return [...item.cables,...TMR_UI_FIELDS.filter(([key])=>item.quantities[key]>0).map(([key,label])=>label+': '+item.quantities[key]+' шт.')].join('\n');}
+function tmrUiSummary(item){return [...item.cables,...TMR_UI_FIELDS.filter(([key])=>item.quantities[key]>0).map(([key,label])=>label+': '+item.quantities[key]+' '+(VS_UI_FIELDS.find(f=>f[0]===key)?.[2]||'шт.'))].join('\n');}
 // Выполняет экран — модуль заявок ТМЦ.
 function tmrScreen(manager){return document.getElementById(manager?'screen-tmc-requests-management':'screen-tmc-request');}
 // Выполняет интерфейс сообщение — модуль заявок ТМЦ.
@@ -12409,7 +12450,7 @@ function tmrCablePicker(options,selected,disabled){const wrap=ctNode('div','cust
 // Выполняет поле — модуль заявок ТМЦ.
 function tmrField(label,value,readonly=false){const wrap=ctNode('label','tmr-field'),input=ctNode('input');input.value=value||'';input.readOnly=readonly;wrap.append(ctNode('span','',label),input);return {wrap,input};}
 // Выполняет интерфейс форма — модуль заявок ТМЦ.
-function tmrUiForm(item,disabled){const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,name=tmrField('ФИО Монтажника',item?.name||data.actorName,true),date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);name.wrap.classList.add('tmr-person');date.wrap.classList.add('tmr-form-date');grid.append(date.wrap);const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const field=tmrField(label,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.append(name.wrap);grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
+function tmrUiFormBeforeWarehouse(item,disabled){const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,name=tmrField('ФИО Монтажника',item?.name||data.actorName,true),date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);name.wrap.classList.add('tmr-person');date.wrap.classList.add('tmr-form-date');grid.append(date.wrap);const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const field=tmrField(label,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.append(name.wrap);grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
 // Выполняет интерфейс проверка — модуль заявок ТМЦ.
 function tmrUiValidate(values){for(const [key,label] of TMR_UI_FIELDS){if(!Number.isSafeInteger(values.quantities[key])||values.quantities[key]<0||values.quantities[key]>999999)throw new Error(label+': укажите целое количество от 0 до 999999');}if(!values.cables.length&&!TMR_UI_FIELDS.some(([key])=>values.quantities[key]>0))throw new Error('Выберите кабель или укажите количество ТМЦ');return values;}
 // Выполняет сотрудники фильтр — модуль заявок ТМЦ.
@@ -12427,7 +12468,7 @@ function tmrStaffFilter(onchange){
  wrap.tmrReset=()=>{selected=null;input.value='';close();};fill();return wrap;
 }
 // Показывает операцию — модуль заявок ТМЦ.
-function tmrRender(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;root.querySelector('.tmr-management-filters')?.remove();content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.classList.add('tmr-management-filters');const staffField=ctNode('div','tmr-field tmr-staff-label'),staffLabel=ctNode('span','','ФИО монтажника');staffLabel.id='tmrStaffFilterLabel';search.querySelector('input').setAttribute('aria-labelledby',staffLabel.id);staffField.append(staffLabel,search);toolbar.append(staffField,date.wrap,clear);content.append(toolbar,list);tmrPositionManagementFilters(root);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn')+' tmr-action-'+op,label);button.dataset.tmrOperation=op;button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
+function tmrRenderBeforeWarehouse(){const root=tmrScreen(tmrUi.manager),content=root.querySelector('.tmr-content'),data=tmrUi.data;root.querySelector('.tmr-management-filters')?.remove();content.replaceChildren();if(!data)return;const info=ctNode('div','tmr-info');info.append(ctNode('strong','',data.city),ctNode('p','','Заявки: понедельник и четверг, 09:00–21:00. Выдача: вторник и пятница. Кабель выбирается по наименованию, без количества. Оборудование и расходные материалы укажите в нужном вам количестве.'));content.append(info);if(!tmrUi.manager){const form=tmrUiForm(data.current,!data.editable),actions=ctNode('div','tmr-request-actions'),historyButton=ctNode('button','btn main-btn','Мои заявки ▼'),save=ctNode('button','btn main-btn',data.current?'💾 Сохранить изменения':'📨 Подать заявку');const header=root.querySelector('.tmr-toolbar');header.classList.add('tmr-request-header');header.querySelector('.tmr-form-date')?.remove();header.append(form.tmrDate);save.type='button';save.disabled=!data.editable;save.onclick=()=>{try{tmrSave('save',{version:data.current?.version||0,values:tmrUiValidate(form.tmrValues())});}catch(e){tmrUiMessage(e.message,true);}};content.append(form,ctNode('p','tmr-summary',data.editable?'До 21:00 изменения сохраняются в этой же заявке. После сохранения руководство получит уведомление.':'Приём заявок закрыт. Форма доступна по понедельникам и четвергам с 09:00 до 21:00 по времени города.'),actions);actions.append(save,historyButton);if(data.current){content.append(ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(data.current.issueDate)));tmrStatusChips(content,data.current);}const history=ctNode('div','tmr-history');history.id='tmrRequestHistory';history.hidden=true;historyButton.type='button';historyButton.setAttribute('aria-controls',history.id);historyButton.setAttribute('aria-expanded','false');historyButton.onclick=()=>{history.hidden=!history.hidden;historyButton.setAttribute('aria-expanded',String(!history.hidden));historyButton.textContent=history.hidden?'Мои заявки ▼':'Мои заявки ▲';};for(const item of data.items.filter(item=>item.login===currentUser.dwLogin.toLowerCase())){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',tmrDayLabel(item.date)+' · Выдача '+tmrDayLabel(item.issueDate)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);history.append(card);}if(!data.items.length)history.append(ctNode('p','tmr-empty','Заявок пока нет.'));content.append(history);}else{const toolbar=ctNode('div','tmr-toolbar'),search=tmrStaffFilter(()=>draw()),date=tmrField('Дата заявки',''),clear=ctNode('button','btn danger-btn tmr-reset-filter','Сбросить фильтры'),list=ctNode('div');date.input.type='date';date.input.value=data.current?.date||data.items[0]?.date||data.today;clear.type='button';toolbar.classList.add('tmr-management-filters');const staffField=ctNode('div','tmr-field tmr-staff-label'),staffLabel=ctNode('span','','ФИО монтажника');staffLabel.id='tmrStaffFilterLabel';search.querySelector('input').setAttribute('aria-labelledby',staffLabel.id);staffField.append(staffLabel,search);toolbar.append(staffField,date.wrap,clear);content.append(toolbar,list);tmrPositionManagementFilters(root);function draw(){list.replaceChildren();const rows=data.items.filter(item=>(!date.input.value||item.date===date.input.value)&&search.tmrMatches(item));if(!rows.length)list.append(ctNode('p','tmr-empty','Заявки не найдены. Измените фильтры.'));for(const item of rows){const card=ctNode('details','tmr-record'),summary=ctNode('summary');summary.append(ctNode('strong','',item.name+' · '+tmrDayLabel(item.date)),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary',tmrUiSummary(item)));tmrStatusChips(card,item);const form=tmrUiForm(item,false),actions=ctNode('div','tmr-actions');for(const [op,label,done] of [['managerSave','💾 Сохранить состав',false],['oneC','✅ Оформлено в 1С',item.oneC],['entered','✅ Оформил в таблицу: Да',item.entered]]){const button=ctNode('button','btn '+(done?'action-btn':'main-btn')+' tmr-action-'+op,label);button.dataset.tmrOperation=op;button.type='button';button.disabled=done;button.onclick=()=>{try{const values=tmrUiValidate(form.tmrValues());if(op!=='managerSave'&&JSON.stringify(values)!==JSON.stringify({cables:item.cables,quantities:item.quantities})){tmrUiMessage('Сначала сохраните изменённый состав заявки, затем отметьте оформление.',true);return;}tmrSave(op,{id:item.id,version:item.version,...(op==='managerSave'?{values}: {})});}catch(e){tmrUiMessage(e.message,true);}};actions.append(button);}card.append(form,actions,ctNode('p','tmr-summary','Выдача: '+tmrDayLabel(item.issueDate)));list.append(card);}}date.input.onchange=draw;clear.onclick=()=>{search.tmrReset();date.input.value='';draw();};draw();if(typeof mountAppCalendars==='function')mountAppCalendars();}tmrUiMessage('Данные загружены');}
 // Выполняет статус Chips — модуль заявок ТМЦ.
 function tmrStatusChips(root,item){root.append(ctNode('span','tmr-chip'+(item.oneC?' done':''),item.oneC?'Оформлено в 1С':'В 1С не оформлено'),ctNode('span','tmr-chip'+(item.entered?' done':''),item.entered?'Оформил в таблицу: Да':'Оформил в таблицу: Нет'));if(item.oneCBy||item.enteredBy)root.append(ctNode('p','tmr-summary',[item.oneCBy?'1С: '+item.oneCBy:'',item.enteredBy?'Таблица: '+item.enteredBy:''].filter(Boolean).join(' · ')));}
 // Сохраняет операцию — модуль заявок ТМЦ.
@@ -12564,6 +12605,79 @@ new MutationObserver(()=>tmrPositionManagementFilters(document.getElementById('s
 #screen-register #regDistrictHint{display:block;width:100%;margin:6px 0 12px;font-size:12px;line-height:1.4;color:#aaa}
 html[data-app-layout=mobile] .app-screen [data-view-main-menu],html[data-app-layout=mobile] .app-screen [data-view-original-back]{visibility:visible}
 </style>
+<style id="virtualWarehouseStyles">
+html[data-app-layout=desktop] #myEquipmentList{grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:start}
+html[data-app-layout=mobile] #myEquipmentList{grid-template-columns:minmax(0,1fr)!important}
+#myEquipmentUser{display:none}
+.vs-consumables{gap:6px}
+.vs-consumables .act-debts-group-title{margin-bottom:4px}
+.vs-material-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 8px;min-width:0;min-height:36px;box-sizing:border-box;padding:7px 10px;background:var(--card-bg,#1e1e1e);border:1px solid var(--card-border,#333);border-left:3px solid var(--accent,#b7ed55);border-radius:10px;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+.vs-material-card>span{min-width:0;color:var(--text-main,#fff)}
+.vs-material-card strong{justify-self:end;white-space:nowrap;padding:3px 7px;border-radius:7px;background:rgba(183,237,85,.1);color:var(--accent,#b7ed55);font-size:12px;line-height:1.25;font-variant-numeric:tabular-nums}
+.vs-material-card small{grid-column:1/-1;color:var(--text-secondary,#aaa);font-size:11px;line-height:1.35}
+.vs-material-card.vs-low{border-left-color:#ffb56b}
+.vs-material-card.vs-low small{color:#ffb56b}
+.vs-toolbar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:12px}
+.vs-toolbar input{flex:1;min-width:180px}.vs-toolbar .app-refresh-button{margin-left:auto!important;width:auto!important}
+.vs-stock-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+.vs-stock-grid input{width:100%;box-sizing:border-box}.vs-stock-grid .tmr-field{min-width:0}
+.vs-available{display:block;font-size:11px;color:var(--text-secondary,#aaa);margin-top:4px}
+.vs-cancelled{color:var(--danger,#ef5350)}.vs-cancel-issue{margin-top:12px!important;width:auto!important;font-size:12px!important}
+:is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid.tmr-request-grid{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:10px!important}
+:is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid>.tmr-cable{grid-column:1/-1!important}
+:is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid .tmr-field>span{white-space:normal;line-height:1.35;min-height:32px;display:flex;align-items:end;font-size:12px}
+#screen-tmc-requests-management .tmr-action-oneC.vs-confirmed,#screen-tmc-requests-management .tmr-action-entered.vs-confirmed{background:#737373!important;color:#eee!important;opacity:.65!important;cursor:default!important;box-shadow:none!important;transform:none!important}
+html[data-app-layout=mobile] :is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid.tmr-request-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+html[data-app-layout=mobile] :is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid .tmr-field>span{font-size:10px;min-height:42px}
+html[data-app-layout=mobile] .vs-stock-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#vsWarehouseMenuButton[hidden]{display:none!important}
+@media(max-width:999px){html:not([data-app-layout=desktop]) .vs-stock-grid{grid-template-columns:repeat(3,minmax(0,1fr))}html:not([data-app-layout=desktop]) :is(#screen-tmc-requests-management,#screen-tmc-request) .tmr-grid.tmr-request-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+
+#myEquipmentBreakdown{display:none}
+</style>
+<script>
+// Виртуальный склад · интерфейс 13.10.2026.
+const VS_UI_FIELDS=[['clips','Клипсы','шт.'],['connectors','Коннекторы','шт.'],['ties','Хомуты','шт.'],['tape','Изолента','шт.'],['uy2','UY2','шт.'],['cc2010','Кабель-канал 20/10','м'],['cc1015','Кабель-канал 10/15','м'],['extCorner','Внешний угол','шт.'],['intCorner','Внутренний угол','шт.'],['turnCorner','Поворотный угол FTTH','шт.'],['tail','Хвостовик FTTH','шт.'],['dowels','Дюбель-гвозди 6*40','шт.'],['ftthClip','Клипса FTTH','шт.'],['wallIn','Настенный ввод FTTH','шт.'],['optMeters','Оптические патчкорды','м'],['soc','Коннектор SOC SC/APC','шт.'],['fast','Fast-коннектор FTTH','шт.'],['kdzs','Гильза КДЗС 60мм','шт.'],['adapter','Адаптер','шт.'],['cc4025','Кабель-канал 40/25','м'],['cc6040','Кабель-канал 60/40','м']];
+const VS_FORM_IDS={clips:'tr-clipsQty',connectors:'tr-connectorsQty',ties:'tr-clampsQty',tape:'tr-tapeQty',uy2:'tr-uy2Qty',cc2010:'tr-cc2010',cc1015:'tr-cc1015',extCorner:'tr-extCorner',intCorner:'tr-intCorner',turnCorner:'tr-ftthTurnCorner',tail:'tr-ftthTail',dowels:'tr-dowels',ftthClip:'tr-ftthClip',wallIn:'tr-ftthWallIn',optMeters:'tr-optPatchMeters',soc:'tr-socConnector',fast:'tr-fastConnector',kdzs:'tr-kdzs',adapter:'tr-adapter'};
+const VS_PPR_IDS={clips:'tr-pprClipsQty',connectors:'tr-pprConnectorsQty',ties:'tr-pprClampsQty',tape:'tr-pprTapeQty',uy2:'tr-pprUy2',cc4025:'tr-pprCc4025',cc6040:'tr-pprCc6040',dowels:'tr-pprDowels'};
+let vsScreenState={busy:false,warehouses:[],manager:false,owner:'',requestId:null},vsReportStock=null;
+function vsManagerAllowed(){return ['Супервайзер','Старший Техник'].includes(currentUser?.role);}
+async function vsApi(operation,fields={}){const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт участка');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'virtualWarehouse',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось прочитать склад');e.confirmed=true;throw e;}return data;}finally{clearTimeout(timer);}}
+function vsRenderConsumables(list,materials){const positive=(materials||[]).filter(m=>m.quantity>0),group=actDebtsNode('section','act-debts-group vs-consumables'),title=actDebtsNode('div','act-debts-group-title','Расходные материалы');title.append(actDebtsNode('span','',positive.length));group.append(title);for(const m of positive){const card=actDebtsNode('div','vs-material-card'),name=actDebtsNode('span','',m.name),amount=actDebtsNode('strong','',m.quantity+' '+m.unit);card.append(name,amount);if(m.min&&m.available<m.min){card.classList.add('vs-low');card.append(actDebtsNode('small','','На исходе · минимум '+m.min+' '+m.unit));}if(m.reserved)card.append(actDebtsNode('small','','Доступно '+m.available+' · ожидает списания '+m.reserved));group.append(card);}if(!positive.length)group.append(actDebtsNode('div','hours-empty','Расходных материалов в наличии нет'));list.append(group);}
+function vsMountScreen(){if(document.getElementById('screen-virtual-warehouse'))return;const screen=ctNode('div','app-screen uniform-screen');screen.id='screen-virtual-warehouse';screen.append(ctNode('h2','','📦 Виртуальные склады участка'));const card=ctNode('div','card'),toolbar=ctNode('div','vs-toolbar'),search=ctNode('input');search.type='search';search.placeholder='Поиск по сотруднику или номеру склада';search.id='vsWarehouseSearch';search.oninput=vsRenderWarehouses;const refresh=ctNode('button','btn action-btn app-refresh-button','🔄 Обновить');refresh.type='button';refresh.onclick=vsLoadWarehouses;toolbar.append(search,refresh);const state=ctNode('p');state.id='vsWarehouseState';state.setAttribute('aria-live','polite');const list=ctNode('div');list.id='vsWarehouseList';const nav=ctNode('div','common-nav-row'),back=ctNode('button','btn danger-btn','🔙 Назад'),home=ctNode('button','btn danger-btn','🔚 Главное меню');back.onclick=()=>switchScreen('screen-admin-table-home');home.onclick=()=>switchScreen('screen-main');nav.append(back,home);card.append(toolbar,state,list,nav);screen.append(card);document.getElementById('screen-admin-table-home').parentNode.append(screen);}
+async function openVirtualWarehouse(){if(!vsManagerAllowed()){showBeelineModal('Доступ ограничен','Раздел доступен супервайзеру и старшему технику своего участка.','🔒');return;}vsMountScreen();switchScreen('screen-virtual-warehouse');await vsLoadWarehouses();}
+function vsMessage(text){const el=document.getElementById('vsWarehouseState');if(el)el.textContent=text;}
+async function vsLoadWarehouses(){if(vsScreenState.busy)return;vsScreenState.busy=true;vsMessage('Загружаем остатки участка…');try{const data=await vsApi('list');vsScreenState.warehouses=data.warehouses;vsScreenState.manager=data.manager;vsScreenState.owner=managementOwnerKey();vsRenderWarehouses();vsMessage('Складов: '+data.warehouses.length+' · нулевые позиции доступны при редактировании');}catch(e){vsMessage('⚠️ '+e.message);}finally{vsScreenState.busy=false;}}
+function vsRenderWarehouses(){const list=document.getElementById('vsWarehouseList');if(!list)return;list.replaceChildren();const query=(document.getElementById('vsWarehouseSearch').value||'').toLocaleLowerCase('ru');for(const w of vsScreenState.warehouses.filter(w=>(w.name+' '+w.warehouse).toLocaleLowerCase('ru').includes(query))){const card=ctNode('details','tmr-record vs-warehouse'),summary=ctNode('summary');summary.append(ctNode('strong','',w.name),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary','Состояние: '+w.state));const positive=ctNode('div','vs-stock-lines');for(const m of w.materials.filter(m=>m.quantity>0))positive.append(ctNode('p','',m.name+': '+m.quantity+' '+m.unit+(m.reserved?' · резерв '+m.reserved:'')));if(!positive.children.length)positive.append(ctNode('p','tmr-empty','Положительных остатков нет'));card.append(positive);const edit=ctNode('button','btn main-btn','✏️ Изменить остатки');edit.type='button';edit.disabled=w.state!=='Активен';edit.onclick=()=>vsEditWarehouse(card,w,edit);card.append(edit);list.append(card);}if(!list.children.length)list.append(ctNode('p','tmr-empty','Склады не найдены'));}
+function vsEditWarehouse(card,w,edit){edit.hidden=true;const form=ctNode('form','vs-stock-edit'),grid=ctNode('div','vs-stock-grid'),inputs={};for(const m of w.materials){const field=tmrField(m.name+' · '+m.unit,m.quantity),input=field.input;input.type='number';input.inputMode='numeric';input.min=String(m.reserved||0);input.step='1';input.required=true;inputs[m.key]=input;grid.append(field.wrap);}const actions=ctNode('div','vs-toolbar'),save=ctNode('button','btn main-btn','💾 Сохранить остатки'),cancel=ctNode('button','btn danger-btn','Отмена');save.type='submit';cancel.type='button';cancel.onclick=()=>{form.remove();edit.hidden=false;};actions.append(save,cancel);form.append(grid,actions);let pending=null;form.onsubmit=async e=>{e.preventDefault();if(vsScreenState.busy)return;try{const quantities=Object.fromEntries(w.materials.map(m=>[m.key,Number(inputs[m.key].value)]));for(const m of w.materials)if(!Number.isSafeInteger(quantities[m.key])||quantities[m.key]<m.reserved)throw new Error(m.name+': целое количество, не меньше резерва '+m.reserved);if(!pending)pending={login:w.login,version:w.version,quantities,requestId:ctRequestId()};vsScreenState.busy=true;save.disabled=cancel.disabled=true;vsMessage('Сохраняем остатки…');const data=await vsApi('adjust',pending);pending=null;vsScreenState.warehouses=vsScreenState.warehouses.map(old=>old.login===w.login?data.warehouse:old);invalidateEquipmentSnapshots();vsRenderWarehouses();vsMessage('✅ Остатки сохранены');}catch(e){if(e.confirmed)pending=null;vsMessage('⚠️ '+e.message);save.disabled=cancel.disabled=false;}finally{vsScreenState.busy=false;}};card.append(form);}
+function vsClientMap(type){if(type.startsWith('Демонтаж'))return {};const map={},base=type.startsWith('ППР')?8:9;['clips','connectors','ties','tape','uy2'].forEach((k,i)=>map[k]=base+i);if(type.startsWith('ППР'))Object.assign(map,{cc4025:13,cc6040:14,dowels:15});else if(type.endsWith('GPON')){const start=type.startsWith('Переезд')?17:35;['cc2010','cc1015','extCorner','intCorner','turnCorner','tail','dowels','ftthClip','wallIn','optMeters','optCount','soc','fast','kdzs','adapter'].forEach((k,i)=>{if(k!=='optCount')map[k]=start+i;});}return map;}
+function vsReportBuilt(type){return type.includes('ППР')?buildPprReportRow():buildStandardReportRow(type,getReportFormValues());}
+function vsPendingKey(){return 'vs_report_pending_'+managementOwnerKey();}
+function vsPendingRead(){try{return JSON.parse(sessionStorage.getItem(vsPendingKey())||'null');}catch{return null;}}
+function vsPendingClear(){sessionStorage.removeItem(vsPendingKey());}
+async function vsBeforeReport(type,url){
+  const built=vsReportBuilt(type),fingerprint=JSON.stringify([type,built.row]),pending=vsPendingRead();
+  if(pending){
+    if(pending.fingerprint!==fingerprint)throw new Error('Предыдущая отправка ещё не подтверждена. Верните её данные и повторите отправку, чтобы проверить тот же отчёт.');
+    try{const receipt=await getReportStatusOnce(url,pending.id);if(receipt.status==='success'){vsPendingClear();return {receipt,requestId:pending.id};}if(receipt.status!=='error')return {requestId:pending.id};vsPendingClear();}
+    catch(e){if(e.message==='Ответ о записи не получен'||e.message==='Сервер статуса недоступен')return {requestId:pending.id};throw e;}
+  }
+  for(const [k,i] of Object.entries(vsClientMap(type))){const n=Number(built.row[i]||0);if(!Number.isSafeInteger(n)||n<0)throw new Error((VS_UI_FIELDS.find(f=>f[0]===k)?.[1]||k)+': допустимы только целые количества');}
+  const requestId='report_'+(window.crypto?.randomUUID?.()||(Date.now()+'_'+Math.random().toString(36).slice(2)));
+  sessionStorage.setItem(vsPendingKey(),JSON.stringify({id:requestId,fingerprint}));return {requestId};
+}
+async function vsRefreshReportLimits(){if(!currentUser)return;const owner=managementOwnerKey(),type=document.getElementById('tr-reportType')?.value;if(!type||type.startsWith('Демонтаж'))return;const fullName=document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value;if(!fullName)return;try{const data=await vsApi('list',{fullName});if(owner!==managementOwnerKey())return;const w=data.warehouses[0];vsReportStock=w;for(const [key,id] of Object.entries(type.startsWith('ППР')?VS_PPR_IDS:VS_FORM_IDS)){const input=document.getElementById(id),m=w?.materials.find(m=>m.key===key);if(!input)continue;input.setAttribute('max',String(m?.available||0));input.setAttribute('step','1');input.title='Доступно: '+(m?.available||0)+' '+(m?.unit||'');let note=input.parentNode.querySelector('.vs-available');if(!note){note=ctNode('small','vs-available');input.parentNode.append(note);}note.textContent='Остаток: '+(m?.available||0)+' '+(m?.unit||'');}}catch(e){console.warn('Остатки для формы:',e.message);}}
+function vsAfterTmrRender(){const root=tmrScreen(tmrUi.manager);root.querySelectorAll('.tmr-action-oneC,.tmr-action-entered').forEach(b=>b.classList.toggle('vs-confirmed',b.disabled));if(!tmrUi.manager)return;const items=tmrUi.data?.items||[];root.querySelectorAll('.tmr-record').forEach(card=>{if(card.dataset.vsEnhanced)return;const actions=card.querySelector('.tmr-actions');if(!actions)return;const item=items.find(item=>card.querySelector('summary strong')?.textContent===item.name+' · '+tmrDayLabel(item.date));if(!item)return;card.dataset.vsEnhanced='true';if(item.oneC||item.entered||item.cancelled){card.querySelectorAll('input,.tmr-cable button,.tmr-action-managerSave').forEach(el=>el.disabled=true);}if(item.cancelled){card.append(ctNode('p','vs-cancelled','❌ Выдача отменена'));actions.querySelectorAll('button').forEach(b=>b.disabled=true);return;}const cancel=ctNode('button','btn danger-btn vs-cancel-issue','❌ Отменить выдачу');cancel.type='button';cancel.onclick=()=>{showBeelineModal('Отменить выдачу','Подтверждённые расходники будут возвращены из склада сотрудника. Если их уже потратили, система не позволит получить отрицательный остаток.','📦','<button type="button" class="btn danger-btn" id="vsConfirmCancelIssue">Отменить выдачу</button>');document.getElementById('vsConfirmCancelIssue').onclick=()=>{closeBeelineModal();tmrSave('cancel',{id:item.id,version:item.version});};};card.append(cancel);});}
+function vsInitUi(){const menu=document.querySelector('#screen-admin-table-home .management-menu');if(menu&&!document.getElementById('vsWarehouseMenuButton')){const b=ctNode('button','btn main-btn','📦 Виртуальные склады');b.id='vsWarehouseMenuButton';b.onclick=openVirtualWarehouse;menu.insertBefore(b,menu.querySelector('.common-nav-row'));}const updateVisibility=()=>{const b=document.getElementById('vsWarehouseMenuButton');if(b)b.hidden=!vsManagerAllowed();};updateVisibility();const menuScreen=document.getElementById('screen-admin-table-home');if(menuScreen)new MutationObserver(updateVisibility).observe(menuScreen,{attributes:true,attributeFilter:['class','style']});document.getElementById('tr-reportType')?.addEventListener('change',()=>setTimeout(vsRefreshReportLimits,150));for(const id of ['tr-installerName','tr-pprInstaller1'])document.getElementById(id)?.addEventListener('change',vsRefreshReportLimits);const reportScreen=document.getElementById('screen-technician-reports');if(reportScreen)new MutationObserver(()=>{if(reportScreen.classList.contains('active'))setTimeout(vsRefreshReportLimits,100);}).observe(reportScreen,{attributes:true,attributeFilter:['class']});}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsInitUi);else vsInitUi();
+
+function renderMyEquipment(items,consumables=[]){renderMyEquipmentBeforeWarehouse(items);vsRenderConsumables(document.getElementById('myEquipmentList'),consumables);}
+function tmrUiForm(item,disabled){disabled=disabled||!!(item?.oneC||item?.entered||item?.cancelled);const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);date.wrap.classList.add('tmr-form-date');grid.append(date.wrap);const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const unit=VS_UI_FIELDS.find(f=>f[0]===key)?.[2]||'шт.',field=tmrField(label+' · '+unit,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
+function tmrRender(){tmrRenderBeforeWarehouse();vsAfterTmrRender();}
+function vsWatchTmrCards(){for(const id of ['screen-tmc-requests-management','screen-tmc-request']){const root=document.getElementById(id);if(root)new MutationObserver(()=>{if(tmrUi.manager&&root.id==='screen-tmc-requests-management')vsAfterTmrRender();}).observe(root,{childList:true,subtree:true});}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsWatchTmrCards);else vsWatchTmrCards();
+
+</script>
 </body>
 </html>
 
