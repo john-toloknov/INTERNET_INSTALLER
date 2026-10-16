@@ -11769,11 +11769,11 @@ async function sendManagementEvent(event){
 function maybeOpenManagementDeepLink(){
  const params=new URLSearchParams(location.search),section=params.get('appSection'),city=params.get('appCity');
  if(!section||!currentUser)return false;
- if(!['debts','hours','main','tmcRequest','tmcManage'].includes(section))return false;
+ if(!['debts','hours','main','tmcRequest','tmcManage','schedule'].includes(section))return false;
  if(city&&city!==currentUser.city){showBeelineModal('Другой город','Ссылка относится к городу '+city+'. Войдите в учётную запись этого города.','🔒');return true;}
- if(currentUser.role==='Стажер'&&!['main','tmcRequest'].includes(section)){showBeelineModal('Доступ ограничен','Раздел недоступен для роли Стажер.','🔒');return true;}
+ if(currentUser.role==='Стажер'&&!['main','tmcRequest','schedule'].includes(section)){showBeelineModal('Доступ ограничен','Раздел недоступен для роли Стажер.','🔒');return true;}
  params.delete('appSection');params.delete('appCity');history.replaceState(null,'',location.pathname+(params.toString()?'?'+params.toString():'')+location.hash);
- if(section==='tmcRequest')openTmcRequest();else if(section==='tmcManage')openTmcRequestsManagement();else if(section==='debts')openActDebts();else if(section==='hours')openMyHours();else switchScreen('screen-main');return true;
+ if(section==='schedule')openMySchedule(true);else if(section==='tmcRequest')openTmcRequest();else if(section==='tmcManage')openTmcRequestsManagement();else if(section==='debts')openActDebts();else if(section==='hours')openMyHours();else switchScreen('screen-main');return true;
 }
 
 // Один календарь для всех полей даты, с сохранением существующих input и их проверки.
@@ -13161,14 +13161,30 @@ function rfRender(){
  root.querySelector('[data-rf-legacy-assign]')?.remove();if(rfUi.manager&&d.worker&&d.rows.some(r=>!r.owner)){const assign=rfButton('Указать исполнителя для старых строк',()=>{if(rfUi.drafts.size){rfNote('Сначала сохраните или отмените текущие правки строк');return;}rfMutate('assignHistory',{month:d.month,owner:d.worker.login});});assign.dataset.rfLegacyAssign='true';info.after(assign);}
  rfRenderScan();rfRenderPayment();rfRenderRows();rfBusyControls();
 }
+// Общие правила с ручной выдачей оборудования в ежедневном.
+function rfSerialInfo(value){const sn=rfUiSerial(value),router=ctDetectRouterModel(sn),stb=router?'':ctDetectStbModel(sn);return {sn,model:detectModelBySerial(sn).replace(/\|+$/,''),type:stb?'stb':'router'};}
+function rfWorkDate(){return ctIssueToday();}
+function rfApplySerialHints(record){
+ const copy={...record},info=rfSerialInfo(copy.sn);
+ if(info.model){copy.model=info.model;copy.type=info.type;copy._rfAutoModel=info.model;}
+ else if(copy._rfAutoModel){if(copy.model===copy._rfAutoModel)copy.model='';delete copy._rfAutoModel;}
+ if(info.sn.length>=3&&!copy.date){copy.date=rfWorkDate();copy.month=copy.date.slice(0,7);}
+ return copy;
+}
 function rfRenderScan(){
  const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;host.replaceChildren();host.hidden=!d.canAdd;if(!d.canAdd)return;
  host.append(rfElement('h3','','Сканирование пачки'),rfElement('p','rf-hint','Серийный номер → Enter, затем MAC-адрес. После 12 символов MAC-адреса или Enter появится следующая пустая строка. В таблицу вся пачка записывается кнопкой «Сохранить всю пачку».'));
  const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),psu=rfField('Блок питания',0,'text',[[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=rfField('Коробка',0,'text',[[0,'0 · б/у есть'],[1,'1 · нужна новая']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-span2');mac.wrap.classList.add('rf-span2');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
  sn.input.placeholder='Сканируйте следующий серийный номер';mac.input.placeholder='Сканируйте MAC-адрес';
+ const detectedModel=rfField('Модель по серийному номеру',''),detectedDate=rfField('Дата работы','');detectedModel.wrap.classList.add('rf-span4');detectedDate.wrap.classList.add('rf-span2');
+ detectedModel.input.readOnly=detectedDate.input.readOnly=true;detectedModel.input.tabIndex=detectedDate.input.tabIndex=-1;detectedModel.input.dataset.rfDetectedModel='true';detectedDate.input.dataset.rfDetectedDate='true';
+ detectedModel.input.placeholder='Определится по серийному номеру';detectedDate.input.placeholder='Сегодня';
+ const updateScanDetails=()=>{const info=rfSerialInfo(sn.input.value);detectedModel.input.value=info.model;detectedModel.input.title=info.model||'Если модель не определилась, укажите её вручную в строке пачки';detectedDate.input.value=info.sn.length>=3?rfWorkDate().split('-').reverse().join('.'):'';};
+ sn.input.addEventListener('input',updateScanDetails);sn.input.addEventListener('change',updateScanDetails);
+
  let autoTimer=null;const owner=managementOwnerKey(),add=rfButton('＋ Добавить',()=>accept(),'btn action-btn rf-span2');
  const show=(r)=>{rfUi.lastAddedId=r.id;rfUi.search='';const search=rfRoot().querySelector('.rf-search input');if(search)search.value='';rfUi.limit=Math.max(100,rfUi.limit);rfRenderRows();};
- const ready=()=>{sn.input.value=mac.input.value='';rfUi.scanTarget=null;sn.input.focus();};
+ const ready=()=>{sn.input.value=mac.input.value='';rfUi.scanTarget=null;updateScanDetails();sn.input.focus();};
  const accept=()=>{clearTimeout(autoTimer);autoTimer=null;try{
   if(owner!==managementOwnerKey()||rfUi.data!==d||!sn.input.isConnected)return false;
   if(rfUi.busy||rfUi.pending)throw new Error('Сначала проверьте предыдущее сохранение');if(!d.canAdd)throw new Error('Добавление устройств сейчас закрыто');
@@ -13176,27 +13192,27 @@ function rfRenderScan(){
   if(d.rows.some(r=>rfUiSerial(r.sn)===serial))throw new Error('Серийный номер '+serial+' уже сохранён в таблице за этот месяц');
   const old=d.pending.find(r=>r.id===rfUi.scanTarget)||d.pending.find(r=>rfUiSerial(r.sn)===serial),duplicate=[...rfUi.drafts.values()].find(r=>r.id!==old?.id&&(r.month||String(r.date||'').slice(0,7))===d.currentMonth&&rfUiSerial(r.sn)===serial);
   if(duplicate){show(duplicate);if(rfUiMac(duplicate.mac)!==m)throw new Error('Серийный номер '+serial+' уже в пачке с другим MAC-адресом. Исправьте его карточку ниже');ready();rfNote('Серийный номер '+serial+' уже в пачке. Дубль не добавлен. Следующая строка готова к сканированию');return true;}
-  const previous=old&&(rfUi.drafts.get(old.id)||old),model=detectModelBySerial(serial).replace(/\|+$/,''),stb=ctDetectStbModel(serial);
-  const r={...(previous||{}),id:previous?.id||rfId(),version:previous?.version||0,sn:serial,mac:m,model:model||previous?.model||'',type:stb?'stb':previous?.type||'router',origin:previous?.origin||origin.input.value,psu:previous?previous.psu:Number(psu.input.value),box:previous?previous.box:Number(box.input.value),reason:previous?.reason||'',operation:previous?.operation||'Демонтаж',date:d.today,month:d.currentMonth,completed:true};
-  r.owner=r.owner||String(currentUser.dwLogin||'').trim().toLowerCase();r.ownerName=r.ownerName||currentUser.fullName;
+  const previous=old&&(rfUi.drafts.get(old.id)||old),detected=rfSerialInfo(serial),model=detected.model,day=rfWorkDate();
+  const r={...(previous||{}),id:previous?.id||rfId(),version:previous?.version||0,sn:serial,mac:m,model:model||previous?.model||'',type:model?detected.type:previous?.type||'router',origin:previous?.origin||origin.input.value,psu:previous?previous.psu:Number(psu.input.value),box:previous?previous.box:Number(box.input.value),reason:previous?.reason||'',operation:previous?.operation||'Демонтаж',date:day,month:day.slice(0,7),completed:true};
+  if(model)r._rfAutoModel=model;r.owner=r.owner||String(currentUser.dwLogin||'').trim().toLowerCase();r.ownerName=r.ownerName||currentUser.fullName;
   rfUi.drafts.set(r.id,r);rfRemember();show(r);ready();rfNote('Добавлено: '+serial+' · MAC-адрес '+m+'. Следующая строка готова.'+(r.model?'':' Выберите модель в этой строке пачки.'));return true;
  }catch(e){rfNote('⚠️ '+e.message);return false;}};host._rfAcceptScan=accept;
- sn.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey&&rfUiSerial(sn.input.value).length>=3){e.preventDefault();e.stopPropagation();mac.input.focus();}};
+ sn.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey&&rfUiSerial(sn.input.value).length>=3){e.preventDefault();e.stopPropagation();sn.input.value=rfUiSerial(sn.input.value);updateScanDetails();mac.input.focus();}};
  mac.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab'&&rfUiMac(mac.input.value).length===12)&&!e.shiftKey){e.preventDefault();e.stopPropagation();if(sn.input.value||mac.input.value)accept();}};
  mac.input.addEventListener('input',()=>{clearTimeout(autoTimer);if(rfUiMac(mac.input.value).length===12&&rfUiSerial(sn.input.value).length>=3){const serial=sn.input.value,address=mac.input.value;autoTimer=setTimeout(()=>{if(sn.input.value===serial&&mac.input.value===address)accept();},140);}});
  const defaults=rfElement('div','rf-kit'),queue=rfElement('div','rf-scan-queue rf-full'),next=rfElement('div','rf-scan-next rf-full'),message=rfElement('div','rf-scan-message rf-hint rf-full');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
- const save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save-batch rf-full');defaults.append(origin.wrap,psu.wrap,box.wrap);grid.append(defaults,queue,next,sn.wrap,mac.wrap,add,message,save);host.append(grid);rfRefreshScanQueue();
+ const save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save-batch rf-full');defaults.append(origin.wrap,psu.wrap,box.wrap);grid.append(defaults,queue,next,sn.wrap,mac.wrap,add,detectedModel.wrap,detectedDate.wrap,message,save);host.append(grid);rfRefreshScanQueue();
 }
 function rfExcludedReturns(){return new Set((rfUi.data?.excludedReturns||[]).map(r=>r.id));}
 function rfBatchDrafts(){const d=rfUi.data;if(!d)return [];const ids=new Set([...d.rows,...d.pending].map(r=>r.id)),excluded=rfExcludedReturns();return [...rfUi.drafts.values()].filter(r=>!excluded.has(r.id)&&(ids.has(r.id)||r.month===d.month));}
 function rfUpdateSaveButtons(){const count=rfBatchDrafts().length;rfRoot()?.querySelectorAll('.rf-save,.rf-save-batch').forEach(b=>{b.textContent='💾 Сохранить всю пачку'+(count?' · '+count:'');b.disabled=!count||rfUi.busy||!!rfUi.pending;b.dataset.rfPermanentDisabled=String(!count);});}
 function rfEditQueuedField(id,key,value,normalise=false){
  const previous=rfUi.drafts.get(id);if(!previous||rfUi.busy||rfUi.pending||!rfEditable(previous))return;
- const copy={...previous,[key]:normalise?(key==='sn'?rfUiSerial(value):key==='mac'?rfUiMac(value):value.trim()):value};
- if(key==='sn'&&normalise){const model=detectModelBySerial(rfUiSerial(copy.sn)).replace(/\|+$/,'');if(model){copy.model=model;copy.type=ctDetectStbModel(copy.sn)?'stb':'router';}}
+ let copy={...previous,[key]:normalise?(key==='sn'?rfUiSerial(value):key==='mac'?rfUiMac(value):value.trim()):value};
+ if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model')delete copy._rfAutoModel;
  rfUi.drafts.set(id,copy);rfRemember();rfUpdateSaveButtons();
  const card=[...rfRoot().querySelectorAll('.rf-record')].find(n=>n.dataset.rfId===id),queue=[...rfRoot().querySelectorAll('.rf-scan-queued-row')].find(n=>n.dataset.rfQueuedId===id);
- if(card){card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);for(const name of ['sn','mac','model','type']){const input=card.querySelector('[data-rf-field='+name+']');if(input)input.value=copy[name]||'';}rfSyncDropdowns(card);}
+ if(card){card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);for(const name of ['sn','mac','model','type','date']){const input=card.querySelector('[data-rf-field='+name+']');if(input)input.value=copy[name]||'';}rfSyncDropdowns(card);}
  if(queue){for(const name of ['sn','mac','model']){const input=queue.querySelector('[data-rf-queue-field='+name+']');if(input&&(name!==key||normalise))input.value=copy[name]||'';}queue.querySelector('.rf-queued-model')?.classList.toggle('rf-model-missing',!copy.model?.trim());}
 }
 function rfRefreshScanQueue(){
@@ -13233,11 +13249,20 @@ function rfRecordCard(base){
  if(rfUi.manager&&r.createdAt){rfUi.selected||=new Map();const pick=rfElement('label','rf-record-select'),check=rfElement('input');check.type='checkbox';check.dataset.rfSelect=r.id;check.dataset.rfVersion=String(fresh?.version||r.version);check.checked=rfUi.selected.has(r.id);check.disabled=!rfSelectable(r);check.dataset.rfPermanentDisabled=String(check.disabled);check.setAttribute('aria-label','Выбрать устройство '+r.sn);pick.append(check,rfElement('span','rf-record-select-text','Выбрать устройство'));pick.onclick=e=>e.stopPropagation();pick.onkeydown=e=>e.stopPropagation();check.onchange=()=>{if(check.checked)rfUi.selected.set(r.id,Number(check.dataset.rfVersion));else rfUi.selected.delete(r.id);card.classList.toggle('rf-selected',check.checked);rfRenderBulk();rfBusyControls();};head.append(pick);card.classList.toggle('rf-selected',check.checked);}head.append(rfElement('strong','rf-record-serial',r.sn||'Новое устройство'),rfElement('span','rf-record-model',r.model||'Укажите модель'),rfArrow());head.title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
  const remove=rfButton('×',e=>{e.preventDefault();e.stopPropagation();rfDeleteRow(rfUi.drafts.get(r.id)||r);},'rf-delete');remove.title=r.createdAt?'Удалить строку':'Убрать из списка';remove.setAttribute('aria-label','Удалить устройство '+r.sn);remove.hidden=!!r.createdAt&&!rfUi.manager;remove.disabled=conflict||(r.createdAt?!rfUi.manager:!editable);head.append(remove);card.append(head);if(r.legacy&&!r.owner&&!rfUi.manager)card.append(rfElement('p','rf-record-meta','Из таблицы · только просмотр'));if(rfUi.manager)card.append(rfElement('p','rf-record-meta',r.ownerName||(!r.createdAt?currentUser.fullName:'Без исполнителя')));
  const grid=rfElement('div','rf-grid'),fields={};
- const touch=(key,value)=>{if(rfUi.pending){rfNote('Сначала проверьте предыдущее сохранение');return;}const previous=rfUi.drafts.get(r.id)||r,copy={...previous,[key]:value};if(!previous.completed){copy.completed=true;copy.date=key==='date'?value:rfUi.data.today;copy.month=copy.date.slice(0,7);}rfUi.drafts.set(r.id,copy);card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);rfRemember();rfUpdateSaveButtons();rfRefreshScanQueue();};
+ const touch=(key,value)=>{
+  if(rfUi.busy||rfUi.pending){rfNote('Сначала проверьте предыдущее сохранение');return;}
+  const previous=rfUi.drafts.get(r.id)||r;let copy={...previous,[key]:value};
+  if(!previous.completed){copy.completed=true;copy.date=key==='date'?value:rfWorkDate();copy.month=copy.date.slice(0,7);}
+  if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model')delete copy._rfAutoModel;
+  rfUi.drafts.set(r.id,copy);card.classList.add('rf-dirty');
+  if(key==='sn'){for(const name of ['model','type','date'])if(fields[name])fields[name].input.value=copy[name]||'';if(fields.model)fields.model.input.title=copy.model||'';rfSyncDropdowns(card);}
+  rfUpdateRecordHeading(card,copy);rfRemember();rfUpdateSaveButtons();rfRefreshScanQueue();
+ };
  const field=(key,label,type='text',options=null)=>{const f=rfField(label,r[key],type,options);f.input.disabled=!editable;f.input.dataset.rfField=key;f.input.oninput=()=>touch(key,['psu','box'].includes(key)?(f.input.value===''?null:Number(f.input.value)):f.input.value);fields[key]=f;return f;};
  const sn=field('sn','Серийный номер'),mac=field('mac','MAC-адрес'),model=field('model','Модель');model.wrap.classList.add('rf-span2');rfModelSuggestions(model);model.input.title=r.model||'';
- sn.input.addEventListener('change',()=>{const found=detectModelBySerial(sn.input.value).replace(/\|+$/,'');if(found){model.input.value=found;touch('model',found);const kind=ctDetectStbModel(sn.input.value)?'stb':'router';fields.type.input.value=kind;touch('type',kind);rfSyncDropdowns(card);}});
- const type=field('type','Оборудование','text',[['router','Роутер'],['stb','Приставка']]),date=field('date','Дата','date');if(!r.completed&&!dirty)date.input.value=rfUi.data.today;grid.append(sn.wrap,mac.wrap,model.wrap,type.wrap,date.wrap);
+ sn.input.addEventListener('change',()=>{sn.input.value=rfUiSerial(sn.input.value);touch('sn',sn.input.value);});
+ sn.input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sn.input.value=rfUiSerial(sn.input.value);touch('sn',sn.input.value);mac.input.focus();}});
+ const type=field('type','Оборудование','text',[['router','Роутер'],['stb','Приставка']]),date=field('date','Дата','date');if(!r.completed&&!dirty)date.input.value=rfWorkDate();grid.append(sn.wrap,mac.wrap,model.wrap,type.wrap,date.wrap);
  const kit=rfElement('div','rf-kit'),origin=field('origin','Источник','text',[['ОПиО','ОПиО'],['Техник','Техник']]),psu=field('psu','Блок питания','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=field('box','Коробка','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужна новая']]);kit.append(origin.wrap,psu.wrap,box.wrap);grid.append(kit);
  const operation=field('operation','Демонтаж / Замена','text',[['Демонтаж','Демонтаж'],['Замена','Замена']]),reason=field('reason','Причина возврата','textarea');operation.wrap.classList.add('rf-span2');reason.wrap.classList.add(rfUi.manager&&rfUi.data.worker?'rf-span2':'rf-span4');if(r.sourceKey){origin.input.disabled=true;operation.input.value='Демонтаж';operation.input.disabled=true;}
  const toggleTech=()=>{const tech=origin.input.value==='Техник';operation.wrap.hidden=reason.wrap.hidden=!tech;};origin.input.addEventListener('change',toggleTech);toggleTech();grid.append(operation.wrap,reason.wrap);
