@@ -5490,6 +5490,7 @@ function normalizeEmployeeRole(value) {
   return roles[key]||text;
 }
 function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|refurb)$/i.test(String(value==null?'':value).trim());}
+function employeeLoginKey(value){return String(value==null?'':value).trim().toLowerCase();}
     let usersDb = []; // Учётные записи загружаются только из листа сотрудников.
 
     function readStoredJson(key, fallback) {
@@ -5555,7 +5556,7 @@ function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|ref
         });
         try {
             const request = (async () => {
-                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUsers',city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password}),signal:controller.signal});
+                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getUsers',city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password,refreshAssignments:true}),signal:controller.signal});
                 if (!response.ok) throw new Error('HTTP ' + response.status);
                 return await response.json();
             })();
@@ -5579,7 +5580,7 @@ function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|ref
                 if (currentUser?.password) {
                     const safeCurrent = {...currentUser};
                     delete safeCurrent.password;
-                    const index = sheetUsers.findIndex(u => u.dwLogin === currentUser.dwLogin);
+                    const index = sheetUsers.findIndex(u => employeeLoginKey(u.dwLogin) === employeeLoginKey(currentUser.dwLogin));
                     if (index >= 0) {
                         // Свежий ответ справочника важнее старого снимка текущего пользователя.
                         sheetUsers[index] = {...safeCurrent, ...sheetUsers[index]};
@@ -5764,7 +5765,7 @@ function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|ref
     // Обновляет профиль и доступные разделы текущего пользователя.
     function checkAuthSession() {
         if (currentUser) {
-            const freshUser = usersDb.find(u => currentUser.dwLogin && u.dwLogin === currentUser.dwLogin)
+            const freshUser = usersDb.find(u => currentUser.dwLogin && employeeLoginKey(u.dwLogin) === employeeLoginKey(currentUser.dwLogin))
                 || usersDb.find(u => u.id === currentUser.id);
             if (!freshUser) { currentUser = null; localStorage.removeItem('beeline_current_user'); switchScreen('screen-login'); return; }
             if (!currentUser.password) { currentUser=null; localStorage.removeItem('beeline_current_user'); switchScreen('screen-login'); return; }
@@ -6279,13 +6280,13 @@ function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|ref
                 throw new Error(result.message || 'Вход не подтверждён. Обновите опубликованную версию скрипта общей таблицы.');
             }
             if(result.routingVersion!==DISTRICT_ROUTING_VERSION)throw new Error('Обновите опубликованную версию скрипта «Список сотрудников»: приложение ожидает справочник во фронтенде.');
-            const found = {...result.user,role:normalizeEmployeeRole(result.user.role),password:passInput};
+            const found = {...result.user,role:normalizeEmployeeRole(result.user.role),refarbEnabled:normalizeRefarbAssignment(result.user.refarbEnabled),password:passInput};
             const selectedConfig=found.role==='Владелец'?null:getFrontendDistrictConfig(found.city,found.district);
             // Учётная запись подтверждена общей базой; скрипты разделов проверяются при обращении к ним.
             if(epoch!==authRequestEpoch)return;
-            const safeUser = {...result.user,role:found.role};
+            const safeUser = {...result.user,role:found.role,refarbEnabled:found.refarbEnabled};
             delete safeUser.password;
-            const index = usersDb.findIndex(u => u.dwLogin === found.dwLogin);
+            const index = usersDb.findIndex(u => employeeLoginKey(u.dwLogin) === employeeLoginKey(found.dwLogin));
             if (index >= 0) usersDb[index] = safeUser; else usersDb.push(safeUser);
             staffIndexSource = null;
             appDistricts=frontendDistricts();
@@ -7286,15 +7287,18 @@ async function runSearchAccess(version) {
 
             html += `
                 <div class="user-row">
-                    <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})${u.refarbEnabled === true ? ' <span class="employee-refurb-badge" title="Назначен рефарбщиком">REFURB</span>' : ''}</div>
+                    <div class="employee-card-header">
+                        <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})${u.refarbEnabled === true ? ' <span class="employee-refurb-badge" title="Назначен рефарбщиком">REFURB</span>' : ''}</div>
+                        ${(canModify || currentUser.id === u.id) ? `<button class="btn action-btn employee-card-edit" title="Редактировать" aria-label="Редактировать учётную запись" onclick="openEditModal('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')" ${canModify || currentUser.id === u.id ? '' : 'hidden'}><span aria-hidden="true">✏️</span><span class="employee-edit-label">Редактировать</span></button>` : ''}
+                    </div>
                     <div class="user-info">Город: ${escapeScheduleHtml(u.city)} | Склад: ${u.warehouse}</div>
                     <div class="user-info">Рабочий номер: <span>${u.workPhone || 'Не указан'}</span></div>
                     <div class="user-info">Почта: ${escapeScheduleHtml(u.email)}</div>
                     <div class="user-info">Логин DW: ${escapeScheduleHtml(u.dwLogin)} | Пароль: ••••••••</div>
                     <div class="user-info">Telegram ID: ${escapeScheduleHtml(u.tgId)} | Группа ID: ${escapeScheduleHtml(u.tgGroup)} | ППР ID: ${escapeScheduleHtml(u.tgGroupPpr || "—")}</div>
-                    ${(canModify || canDelete || currentUser.id === u.id) ? `
+                    ${canDelete ? `
                         <div class="user-actions">
-                            <button class="btn action-btn" onclick="openEditModal('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')" ${canModify || currentUser.id === u.id ? '' : 'hidden'}>✏️ Редактировать</button>
+                            
                             ${canDelete ? `<button class="btn danger-btn" onclick="confirmDeleteUser('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')">🗑️ Удалить</button>` : ''}
                         </div>
                     ` : ''}
@@ -13381,8 +13385,8 @@ async function rfSetWorker(userId){
    const reply=await requestAuthJson({action:'setRefarbWorker',city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,targetLogin:user.dwLogin,enabled},25000);
    if(owner!==managementOwnerKey())return;
    if(reply.status!=='ok')throw new Error(reply.message||'Назначение не сохранено');
-   for(const employee of usersDb)if(districtSameUser(employee)&&(enabled||employee.dwLogin===user.dwLogin))employee.refarbEnabled=enabled&&employee.dwLogin===user.dwLogin;
-   const self=usersDb.find(u=>u.dwLogin===currentUser.dwLogin);if(self)currentUser={...currentUser,refarbEnabled:self.refarbEnabled===true};
+   for(const employee of usersDb)if(districtSameUser(employee)&&(enabled||employeeLoginKey(employee.dwLogin)===employeeLoginKey(user.dwLogin)))employee.refarbEnabled=enabled&&employeeLoginKey(employee.dwLogin)===employeeLoginKey(user.dwLogin);
+   const self=usersDb.find(u=>employeeLoginKey(u.dwLogin)===employeeLoginKey(currentUser.dwLogin));if(self)currentUser={...currentUser,refarbEnabled:self.refarbEnabled===true};
    closeBeelineModal();rfSyncEditWorker();rfVisibility();renderUsersList();returnFocus();
    await loadUsersFromSheet(true);if(owner!==managementOwnerKey())return;
    rfSyncEditWorker();rfVisibility();renderUsersList();
@@ -13584,4 +13588,15 @@ html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-psu{grid-column:2;gr
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-box{grid-column:3;grid-row:2}
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-model{grid-column:2/-1;grid-row:3}
 @media(max-width:1100px){html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr) 116px 116px minmax(0,1.8fr);gap:6px}}
+</style>
+
+<style id="compactEmployeeEditStyles">
+#usersListContainer .employee-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
+#usersListContainer .employee-card-header>.user-info{flex:1;min-width:0;overflow-wrap:anywhere;line-height:1.5}
+#usersListContainer .employee-card-header>.employee-card-edit{display:inline-flex;align-items:center;justify-content:center;gap:6px;flex:none;width:auto!important;min-height:36px!important;margin:0!important;padding:7px 10px!important;font-size:12px!important;line-height:1.3;white-space:nowrap;border-radius:9px}
+#usersListContainer .employee-card-edit[hidden]{display:none!important}
+#usersListContainer .user-actions:empty{display:none}
+html[data-app-layout=mobile] #usersListContainer .employee-card-header{gap:8px}
+html[data-app-layout=mobile] #usersListContainer .employee-card-header>.employee-card-edit{width:40px!important;height:40px;min-height:40px!important;padding:8px!important;font-size:17px!important}
+html[data-app-layout=mobile] #usersListContainer .employee-edit-label{display:none}
 </style>
