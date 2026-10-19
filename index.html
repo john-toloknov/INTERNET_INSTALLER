@@ -5007,7 +5007,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
         <div class="card" style="position: relative;">
             <label>Поиск сотрудников</label>
             <p id="employeesLoadStatus" role="status" aria-live="polite"></p>
-            <input type="text" id="adminSearch" placeholder="🔍 Введите ФИО, город или логин..." oninput="renderUsersList()">
+            <input type="text" id="adminSearch" placeholder="🔍 ФИО, город, логин или REFURB..." oninput="renderUsersList()">
 
             <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
                 <label style="margin:0;">Список пользователей (<span id="usersCount">0</span>)</label>
@@ -7272,7 +7272,7 @@ async function runSearchAccess(version) {
         const search = document.getElementById('adminSearch').value.toLowerCase();
         const container = document.getElementById('usersListContainer');
         
-        let filtered = usersDb.filter(u => u && [u.fullName, u.city, u.email, u.role]
+        let filtered = usersDb.filter(u => u && [u.fullName, u.city, u.email, u.role, u.dwLogin, u.refarbEnabled === true ? 'REFURB рефарб рефарбщик' : '']
             .some(value => String(value || '').toLowerCase().includes(search)));
 
         if (currentUser.role === 'Старший Техник' || currentUser.role === 'Супервайзер') {
@@ -7290,7 +7290,7 @@ async function runSearchAccess(version) {
 
             html += `
                 <div class="user-row">
-                    <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})</div>
+                    <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})${u.refarbEnabled === true ? ' <span class="employee-refurb-badge" title="Назначен рефарбщиком">REFURB</span>' : ''}</div>
                     <div class="user-info">Город: ${escapeScheduleHtml(u.city)} | Склад: ${u.warehouse}</div>
                     <div class="user-info">Рабочий номер: <span>${u.workPhone || 'Не указан'}</span></div>
                     <div class="user-info">Почта: ${escapeScheduleHtml(u.email)}</div>
@@ -13496,3 +13496,8 @@ function openDigitalWindow(){
  window.location.assign('https://dw.beeline.kz/');
 }
 </script>
+
+<style id="employeeRefurbBadgeStyles">
+.employee-refurb-badge{display:inline-flex;align-items:center;vertical-align:middle;max-width:100%;padding:3px 8px;margin:3px 0 3px 6px;border:1px solid #789b3d;border-radius:6px;background:#28381b;color:#d0f6a1!important;font-size:11px;font-weight:800;line-height:1.4;letter-spacing:.6px;white-space:nowrap}
+html[data-app-theme=light] .employee-refurb-badge{background:#dce8cf;border-color:#93ad73;color:#304c1c!important}
+</style>
