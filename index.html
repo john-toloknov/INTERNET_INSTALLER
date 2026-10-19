@@ -2747,23 +2747,14 @@ html[data-app-layout=mobile] .view-router-image { max-height:220px; }
 html[data-app-layout=mobile] .view-app-catalog { grid-template-columns:repeat(2,minmax(0,1fr)); }
 
 
-/* Роли: раскрытие вниз в прокручиваемой карточке на телефоне и компьютере. */
-#editRoleDropdown > .dropdown-list {
-    position:relative !important;
-    top:auto !important;
-    bottom:auto !important;
-    left:auto;
-    transform:none !important;
-    margin-top:0;
-    display:none !important;
+/* Роли раскрываются поверх формы и не меняют высоту карточки. */
+#editRoleDropdown{position:relative;overflow:visible}
+#editRoleDropdown > .dropdown-list{
+ position:absolute!important;top:calc(100% + 4px)!important;bottom:auto!important;left:0;right:0;width:100%;box-sizing:border-box;transform:none!important;margin:0!important;display:none!important;z-index:30;
+ max-height:min(240px,var(--dropdown-space,240px))!important;overflow-y:auto!important;
 }
-#editRoleDropdown.open > .dropdown-list,
-#editRoleDropdown > .dropdown-list.open {
-    display:block !important;
-    margin-top:4px;
-    max-height:min(240px, 40dvh) !important;
-    overflow-y:auto !important;
-}
+#editRoleDropdown.drop-up > .dropdown-list{top:auto!important;bottom:calc(100% + 4px)!important}
+#editRoleDropdown.open > .dropdown-list,#editRoleDropdown > .dropdown-list.open{display:block!important}
 
 /* Долги города: общие карточки, компактные группы и адаптивная сетка. */
 .city-debt-preview { display:flex; flex-direction:column; gap:16px; min-width:0; }
@@ -5498,6 +5489,7 @@ function normalizeEmployeeRole(value) {
   var roles={'администратор':'Супервайзер','супервайзер':'Супервайзер','старший техник':'Старший Техник','техник универсал':'Техник-Универсал','стажер':'Стажер','бригадир':'Бригадир','владелец':'Владелец'};
   return roles[key]||text;
 }
+function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|refurb)$/i.test(String(value==null?'':value).trim());}
     let usersDb = []; // Учётные записи загружаются только из листа сотрудников.
 
     function readStoredJson(key, fallback) {
@@ -5576,7 +5568,7 @@ function normalizeEmployeeRole(value) {
                     fullName: u.fullName,
                     warehouse: normalizeEmployeeRole(u.role) === 'Супервайзер' ? '' : (u.warehouse || ''),
                     role: normalizeEmployeeRole(u.role || 'Техник-Универсал'),
-                    refarbEnabled: u.refarbEnabled === true,
+                    refarbEnabled: normalizeRefarbAssignment(u.refarbEnabled),
                     workPhone: u.workPhone,
                     dwLogin: u.dwLogin,
                     tgId: u.tgId,
@@ -5588,10 +5580,15 @@ function normalizeEmployeeRole(value) {
                     const safeCurrent = {...currentUser};
                     delete safeCurrent.password;
                     const index = sheetUsers.findIndex(u => u.dwLogin === currentUser.dwLogin);
-                    if (index >= 0) sheetUsers[index] = safeCurrent;
-                    else sheetUsers.push(safeCurrent);
+                    if (index >= 0) {
+                        // Свежий ответ справочника важнее старого снимка текущего пользователя.
+                        sheetUsers[index] = {...safeCurrent, ...sheetUsers[index]};
+                        currentUser = {...currentUser, refarbEnabled: sheetUsers[index].refarbEnabled};
+                        localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
+                    } else sheetUsers.push(safeCurrent);
                 }
                 usersDb = sheetUsers;
+                if(typeof rfVisibility==='function')rfVisibility();
                 usersDirectoryReady = true;
                 usersLoadedAt = Date.now();
                 staffIndexSource = null;
@@ -5952,16 +5949,14 @@ function normalizeEmployeeRole(value) {
     // Выполняет position список выбора панель.
     function positionDropdownPanel(dropdown) {
         if (!dropdown) return;
-        // В форме сотрудника список остаётся в потоке карточки и всегда раскрывается вниз.
-        if (dropdown.id === 'editRoleDropdown') {
-            dropdown.classList.remove('drop-up');
-            dropdown.style.setProperty('--dropdown-space', '240px');
-            return;
-        }
         const rect = dropdown.getBoundingClientRect();
         const viewportHeight = window.visualViewport?.height || window.innerHeight;
-        const below = Math.max(0, viewportHeight - rect.bottom - 12);
-        const above = Math.max(0, rect.top - 12);
+        const card = dropdown.id === 'editRoleDropdown' ? dropdown.closest('.edit-user-card') : null;
+        const bounds = card?.getBoundingClientRect();
+        const top = Math.max(12, bounds ? bounds.top + 12 : 12);
+        const bottom = Math.min(viewportHeight - 12, bounds ? bounds.bottom - 12 : viewportHeight - 12);
+        const below = Math.max(0, bottom - rect.bottom);
+        const above = Math.max(0, rect.top - top);
         const openUp = below < 180 && above > below;
         dropdown.classList.toggle('drop-up', openUp);
         dropdown.style.setProperty('--dropdown-space', `${Math.max(60, (openUp ? above : below) - 8)}px`);
