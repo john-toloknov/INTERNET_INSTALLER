@@ -13515,41 +13515,79 @@ html[data-app-theme=light] .employee-refurb-badge{background:#dce8cf;border-colo
 
 <style id="persistentAppNavigationStyles">
 html[data-app-layout=desktop]{scroll-padding-top:calc(var(--app-navigation-height,90px) + 12px)}
-html[data-app-layout=mobile]{scroll-padding-top:64px}
+html[data-app-layout=mobile]{scroll-padding-top:var(--app-mobile-nav-offset,12px)}
 html[data-app-layout=desktop] body:not([data-view-auth=true]) .view-header{position:sticky;top:0;z-index:900;background:var(--bg-color);box-shadow:0 8px 12px -12px rgba(0,0,0,.5)}
 html[data-app-layout=desktop] body[data-menu-open=true] .view-header{z-index:100011}
 .app-mobile-navigation[hidden]{display:none!important}
 .app-mobile-navigation{display:none}
-html[data-app-layout=mobile] .app-mobile-navigation{position:sticky;top:0;z-index:900;display:flex;align-items:center;gap:10px;width:100%;max-width:var(--view-width);min-height:48px;box-sizing:border-box;margin:0 auto 12px;padding:6px 0;background:var(--bg-color);border-bottom:1px solid var(--card-border);box-shadow:0 8px 12px -12px rgba(0,0,0,.5)}
+html[data-app-layout=mobile] .app-mobile-navigation{position:fixed;top:0;left:16px;right:16px;z-index:900;display:flex;align-items:center;gap:10px;width:auto;max-width:var(--view-width);min-height:48px;box-sizing:border-box;margin:0 auto;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;background:var(--bg-color);border:1px solid var(--card-border);border-top:0;border-radius:0 0 12px 12px;box-shadow:0 6px 14px rgba(0,0,0,.12)}
 .app-mobile-home{display:inline-flex;align-items:center;justify-content:center;width:auto!important;min-height:40px;margin:0!important;padding:8px 13px;font-size:13px;line-height:1.3;flex:none}
 .app-mobile-navigation-title{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--text-secondary)}
 </style>
 <script id="persistentAppNavigation">
+// Дополнительная навигация нужна только в середине действительно длинного экрана.
+function appShouldShowMobileHome(state){
+ if(!state.mobile||state.blocked||state.mainMenuVisible||state.viewportHeight<=0)return false;
+ const longScreen=state.screenHeight-state.viewportHeight>Math.max(180,state.viewportHeight*.35);
+ const awayFromStart=state.screenTop<state.viewportTop-Math.min(160,state.viewportHeight*.2);
+ return longScreen&&awayFromStart&&state.headerBottom<=state.viewportTop;
+}
 function initPersistentAppNavigation(){
  const header=document.querySelector('.view-header'),container=document.querySelector('body > .container');
  if(!header||!container||document.getElementById('appMobileNavigation'))return;
  const mobile=document.createElement('nav');mobile.id='appMobileNavigation';mobile.className='app-mobile-navigation';mobile.hidden=true;mobile.setAttribute('aria-label','Быстрая навигация');
  const home=document.createElement('button');home.type='button';home.className='btn danger-btn app-mobile-home';home.textContent='🔚 Главное меню';home.setAttribute('aria-label','Перейти в главное меню');
  const title=document.createElement('span');title.className='app-mobile-navigation-title';mobile.append(home,title);header.after(mobile);
- function goHome(){
+ home.addEventListener('click',()=>{
   if(typeof currentUser==='undefined'||!currentUser)return;
   if(document.body.dataset.menuOpen==='true')document.querySelector('.menu-toggle')?.click();
   switchScreen('screen-main');
+ });
+ let observedScreen=null,targets=[],targetsDirty=true,scheduled=false;
+ let viewportWidth=window.innerWidth,baseViewportHeight=window.innerHeight;
+ const resize=typeof ResizeObserver==='undefined'?null:new ResizeObserver(()=>schedule());
+ resize?.observe(header);
+ function rendered(element){
+  if(!element||element.hidden)return false;const rect=element.getBoundingClientRect();if(rect.width<=0||rect.height<=0)return false;
+  const style=getComputedStyle(element);return style.display!=='none'&&style.visibility!=='hidden'&&style.visibility!=='collapse'&&style.opacity!=='0';
  }
- home.addEventListener('click',goHome);
+ function menuVisible(button,top,bottom){
+  if(button.disabled||!rendered(button))return false;
+  const rect=button.getBoundingClientRect(),part=Math.min(bottom,rect.bottom)-Math.max(top,rect.top);
+  return rect.right>0&&rect.left<window.innerWidth&&part>=Math.min(28,rect.height*.55);
+ }
  function sync(){
-  const active=document.querySelector('.app-screen.active'),auth=document.body.dataset.viewAuth==='true'||!active||active.dataset.viewKind==='auth';
-  const hidden=auth||active?.id==='screen-main';
-  if(mobile.hidden!==hidden)mobile.hidden=hidden;
-  const heading=active?.querySelector('h2,h1');const text=heading?.textContent.trim()||'';if(title.textContent!==text)title.textContent=text;
-  const value=Math.ceil(header.getBoundingClientRect().height)+'px';if(document.documentElement.style.getPropertyValue('--app-navigation-height')!==value)document.documentElement.style.setProperty('--app-navigation-height',value);
+  const active=document.querySelector('.app-screen.active'),viewport=window.visualViewport;
+  const viewportTop=viewport?.offsetTop||0,viewportHeight=viewport?.height||window.innerHeight,viewportBottom=viewportTop+viewportHeight;
+  if(Math.abs(window.innerWidth-viewportWidth)>80){viewportWidth=window.innerWidth;baseViewportHeight=window.innerHeight;}
+  baseViewportHeight=Math.max(baseViewportHeight,window.innerHeight,viewportHeight);
+  if(active!==observedScreen){if(observedScreen)resize?.unobserve(observedScreen);observedScreen=active;if(active)resize?.observe(active);targetsDirty=true;}
+  if(targetsDirty){
+   targets=active?[...active.querySelectorAll('button,a,[role="button"]')].filter(button=>/главное\s+меню|^\s*главная\s*$/i.test(button.textContent)||button.dataset.viewMainMenu==='true'):[];
+   targetsDirty=false;
+  }
+  const focused=document.activeElement,editing=!!focused?.matches('input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]),textarea,[contenteditable="true"]');
+  const keyboard=editing&&baseViewportHeight-viewportHeight>Math.max(140,baseViewportHeight*.22);
+  const auth=!active||document.body.dataset.viewAuth==='true'||active.dataset.viewKind==='auth'||active.id==='screen-main';
+  const loading=!!active&&[...active.querySelectorAll('.live-loading,[aria-busy="true"]')].some(rendered);
+  const modal=[...document.querySelectorAll('[aria-modal="true"],.ppr-plan-overlay,.universal-scanner-modal,#beelineModal,.app-calendar,.app-time-picker')].some(rendered);
+  const rect=active?.getBoundingClientRect(),headerRect=header.getBoundingClientRect();
+  const show=appShouldShowMobileHome({mobile:document.documentElement.dataset.appLayout==='mobile',blocked:auth||loading||keyboard||modal,mainMenuVisible:targets.some(button=>menuVisible(button,viewportTop,viewportBottom)),viewportHeight,viewportTop,screenHeight:rect?.height||0,screenTop:rect?.top||0,headerBottom:headerRect.bottom});
+  if(mobile.hidden===show)mobile.hidden=!show;
+  const text=show?(active?.querySelector('h2,h1')?.textContent.trim()||''):'';if(title.textContent!==text)title.textContent=text;
+  const rootStyle=document.documentElement.style;
+  const desktopOffset=Math.ceil(headerRect.height)+'px';if(rootStyle.getPropertyValue('--app-navigation-height')!==desktopOffset)rootStyle.setProperty('--app-navigation-height',desktopOffset);
+  const mobileOffset=show?Math.ceil(mobile.getBoundingClientRect().height+12)+'px':'12px';if(rootStyle.getPropertyValue('--app-mobile-nav-offset')!==mobileOffset)rootStyle.setProperty('--app-mobile-nav-offset',mobileOffset);
  }
- let scheduled=false;function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;sync();});}
- new MutationObserver(schedule).observe(container,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style']});
- new MutationObserver(schedule).observe(document.body,{attributes:true,attributeFilter:['data-view-auth']});
- new MutationObserver(schedule).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
- if(typeof ResizeObserver!=='undefined')new ResizeObserver(schedule).observe(header);
- window.addEventListener('resize',schedule);sync();
+ function schedule(changed=false){if(changed===true)targetsDirty=true;if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;sync();});}
+ new MutationObserver(()=>schedule(true)).observe(container,{subtree:true,childList:true,attributes:true,attributeFilter:['class','style','hidden','aria-busy']});
+ new MutationObserver(()=>schedule()).observe(document.body,{subtree:true,attributes:true,attributeFilter:['data-view-auth','style','hidden','open']});
+ new MutationObserver(()=>schedule()).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
+ document.addEventListener('scroll',()=>schedule(),{passive:true,capture:true});
+ document.addEventListener('focusin',()=>schedule());document.addEventListener('focusout',()=>schedule());
+ window.addEventListener('resize',()=>schedule());window.addEventListener('orientationchange',()=>schedule());
+ viewportEvents(window.visualViewport);function viewportEvents(viewport){viewport?.addEventListener('resize',()=>schedule());viewport?.addEventListener('scroll',()=>schedule());}
+ sync();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPersistentAppNavigation);else initPersistentAppNavigation();
 </script>
