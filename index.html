@@ -135,6 +135,48 @@ html[data-app-theme=light]{color-scheme:light;--bg-color:#cfd5dd;--card-bg:#e7eb
 --ui-shadow-_9:rgba(15,23,42,.10);
 }
 </style>
+<style id="tmcUnifiedSectionTabsStyle">
+.tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
+.tmc-section-tabs.ct-tabs>.btn{width:100%!important;min-width:0;min-height:44px;white-space:normal;line-height:1.35;padding:10px 8px!important;border:1px solid var(--ui-border-53663d,#53663d);border-radius:8px;box-shadow:none!important;transform:none!important}
+.tmc-section-tabs.ct-tabs>.btn[aria-pressed=true]{background:#b7ed55;color:#000}
+.tmc-section-tabs.ct-tabs>.btn:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;padding:9px 5px!important}
+</style>
+<script id="tmcUnifiedSectionTabs">
+var tmcSectionSession={owner:'',scannerScreen:null};
+function tmcHubAllowed(){return ['Старший Техник','Супервайзер','Владелец'].includes(currentUser?.role);}
+function tmcSectionKey(screenId){return {'screen-tmc-requests-management':'requests','screen-scanner':'record','screen-form':'record','screen-virtual-warehouse':'warehouses'}[screenId];}
+function tmcMountSectionTabs(screen){
+ const key=tmcSectionKey(screen.id);if(!key||!tmcHubAllowed())return;
+ const owner=managementOwnerKey();if(tmcSectionSession.owner!==owner)tmcSectionSession={owner,scannerScreen:null};
+ if(key==='record')tmcSectionSession.scannerScreen=screen.id;
+ let tabs=screen.querySelector(':scope > .tmc-section-tabs');
+ if(!tabs){tabs=ctNode('nav','ct-tabs tmc-section-tabs');tabs.setAttribute('aria-label','Разделы выдачи ТМЦ');const heading=screen.querySelector(':scope > h2');if(heading)heading.after(tabs);else screen.prepend(tabs);}
+ tabs.replaceChildren();
+ for(const [value,label] of [['requests','📦 Заявки на выдачу ТМЦ'],['record','📝 Записать ТМЦ'],['warehouses','📦 Виртуальные склады']]){
+  if(value==='warehouses'&&!vsManagerAllowed())continue;
+  const button=ctNode('button','btn main-btn',label);button.type='button';button.setAttribute('aria-pressed',String(key===value));button.onclick=()=>openTmcSection(value);tabs.append(button);
+ }
+}
+function openTmcHub(){if(!tmcHubAllowed())return;return openTmcRequestsManagement();}
+function openTmcSection(key){
+ if(!tmcHubAllowed()||!['requests','record','warehouses'].includes(key))return;
+ if(key==='warehouses'&&!vsManagerAllowed())return;
+ const active=document.querySelector('.app-screen.active');if(tmcSectionKey(active?.id)===key)return;
+ if(active?.id==='screen-scanner')stopScanner();
+ const owner=managementOwnerKey();
+ if(key==='requests'){
+  if(tmrUi.owner===tmrOwner()&&tmrUi.manager&&tmrUi.data){switchScreen('screen-tmc-requests-management');return;}
+  return openTmcRequestsManagement();
+ }
+ if(key==='record'){
+  if(tmcSectionSession.owner===owner&&tmcSectionSession.scannerScreen){const id=tmcSectionSession.scannerScreen;switchScreen(id);if(id==='screen-scanner'&&document.getElementById('manual-box')?.style.display==='none')startScanner();return;}
+  return openScannerScreen();
+ }
+ if(vsScreenState.owner===owner){switchScreen('screen-virtual-warehouse');return;}
+ return openVirtualWarehouse();
+}
+</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>INTERNET INSTALLER</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -2920,6 +2962,7 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
    const visible=button=>!!button&&!button.hidden&&button.style.display!=='none';
    const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
    function matches(original){
+    if(original.id==='scannerAppBtn')return ['screen-tmc-requests-management','screen-scanner','screen-form','screen-virtual-warehouse'].includes(active.id);
     if(original.dataset.viewTarget)return original.dataset.viewTarget===active.id;
     const action=original.getAttribute('onclick')||'';
     if(action.includes("'"+active.id+"'")||Object.entries(map).some(([fn,id])=>id===active.id&&action.includes(fn+'(')))return true;
@@ -3800,7 +3843,7 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
             <button class="btn main-btn" id="softwareBtn" type="button" onclick="openSoftwareScreen()">💿 Программное обеспечение</button>
             
             <!-- Кнопки ТМЦ и Админ-панель -->
-            <button class="btn main-btn" id="scannerAppBtn" style="display: none;" onclick="openScannerScreen()">📦 Записать ТМЦ</button>
+            <button class="btn main-btn" id="scannerAppBtn" style="display: none;" onclick="openTmcHub()">📦 Заявки на Выдачу ТМЦ</button>
             <button class="btn main-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">⚙️ Админ-панель</button>
             
             <button class="btn danger-btn" onclick="logout()" style="margin-top: 20px;">🔚 Выйти</button>
@@ -4937,14 +4980,13 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
 </div>
 
 <div id="screen-tmc-request" class="app-screen uniform-screen"><h2>📨 Выдача ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
-<div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
+<div id="screen-tmc-requests-management" class="app-screen uniform-screen"><h2>📦 Заявки на выдачу ТМЦ</h2><div class="card"><div class="tmr-toolbar"><button type="button" class="btn action-btn app-refresh-button" onclick="tmrLoad()">🔄 Обновить</button></div><div class="tmr-state" role="status" aria-live="polite"></div><div class="tmr-content"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
     <div id="screen-admin" class="app-screen uniform-screen">
       <h2>⚙️ Админ-панель</h2>
       <div class="card management-menu">
         <p id="managementCity"></p>
         <button class="btn main-btn" type="button" onclick="openCityTable()">📋 Таблица</button>
         <button class="btn main-btn" type="button" onclick="openRefarb(true)">🛠️ Рефарб оборудования</button>
-        <button class="btn main-btn" type="button" onclick="openTmcRequestsManagement()">📦 Заявки на выдачу ТМЦ</button>
         <button class="btn main-btn" type="button" onclick="openWorkingSchedule()">📅 Рабочий график</button>
         <button class="btn main-btn" id="managementDebtsBtn" type="button" onclick="openCityDebtPreview()">📋 Долги по актам</button>
         <button class="btn main-btn" type="button" onclick="openAdminTools('archive')">📦 Архивация</button>
@@ -5752,6 +5794,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
         });
         const target = document.getElementById(screenId);
         if (target) {
+            if(typeof tmcMountSectionTabs==='function')tmcMountSectionTabs(target);
             target.style.display = 'block';
             target.classList.add('active');
             if(screenId==='screen-admin-work-schedule'||screenId==='screen-admin-board')syncManagementScreenWidth();
@@ -7678,6 +7721,7 @@ async function runSearchAccess(version) {
 
         // Небольшая задержка гарантирует, что элемент #reader успел отрисоваться и не скрыт display: none
         setTimeout(() => {
+            if(!document.getElementById('screen-scanner')?.classList.contains('active')||isCameraRunning)return;
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("reader");
             }
@@ -7704,6 +7748,7 @@ async function runSearchAccess(version) {
                 (errorMessage) => {}
             ).then(() => {
                 isCameraRunning = true;
+                if(!document.getElementById('screen-scanner')?.classList.contains('active'))stopScanner();
             }).catch(err => {
                 console.error("Ошибка запуска камеры:", err);
                 isCameraRunning = false;
@@ -12876,7 +12921,7 @@ let vsScreenState={busy:false,warehouses:[],manager:false,owner:'',requestId:nul
 function vsManagerAllowed(){return ['Супервайзер','Старший Техник'].includes(currentUser?.role);}
 async function vsApi(operation,fields={}){const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт участка');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'virtualWarehouse',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось прочитать склад');e.confirmed=true;throw e;}return data;}finally{clearTimeout(timer);}}
 function vsRenderConsumables(list,materials){const positive=(materials||[]).filter(m=>m.quantity>0),group=actDebtsNode('section','act-debts-group vs-consumables'),title=actDebtsNode('div','act-debts-group-title','Расходные материалы');title.append(actDebtsNode('span','',positive.length));group.append(title);for(const m of positive){const card=actDebtsNode('div','vs-material-card'),name=actDebtsNode('span','',m.name),amount=actDebtsNode('strong','',m.quantity+' '+m.unit);card.append(name,amount);if(m.min&&m.available<m.min){card.classList.add('vs-low');card.append(actDebtsNode('small','','На исходе · минимум '+m.min+' '+m.unit));}if(m.reserved)card.append(actDebtsNode('small','','Доступно '+m.available+' · ожидает списания '+m.reserved));group.append(card);}if(!positive.length)group.append(actDebtsNode('div','hours-empty','Расходных материалов в наличии нет'));list.append(group);}
-function vsMountScreen(){if(document.getElementById('screen-virtual-warehouse'))return;const screen=ctNode('div','app-screen uniform-screen');screen.id='screen-virtual-warehouse';screen.append(ctNode('h2','','📦 Виртуальные склады участка'));const card=ctNode('div','card'),toolbar=ctNode('div','vs-toolbar'),search=ctNode('input');search.type='search';search.placeholder='Поиск по сотруднику или номеру склада';search.id='vsWarehouseSearch';search.oninput=vsRenderWarehouses;const refresh=ctNode('button','btn action-btn app-refresh-button','🔄 Обновить');refresh.type='button';refresh.onclick=vsLoadWarehouses;toolbar.append(search,refresh);const state=ctNode('p');state.id='vsWarehouseState';state.setAttribute('aria-live','polite');const list=ctNode('div');list.id='vsWarehouseList';const nav=ctNode('div','common-nav-row'),back=ctNode('button','btn danger-btn','🔙 Назад'),home=ctNode('button','btn danger-btn','🔚 Главное меню');back.onclick=()=>switchScreen('screen-admin-table-home');home.onclick=()=>switchScreen('screen-main');nav.append(back,home);card.append(toolbar,state,list,nav);screen.append(card);document.getElementById('screen-admin-table-home').parentNode.append(screen);}
+function vsMountScreen(){if(document.getElementById('screen-virtual-warehouse'))return;const screen=ctNode('div','app-screen uniform-screen');screen.id='screen-virtual-warehouse';screen.append(ctNode('h2','','📦 Виртуальные склады участка'));const card=ctNode('div','card'),toolbar=ctNode('div','vs-toolbar'),search=ctNode('input');search.type='search';search.placeholder='Поиск по сотруднику или номеру склада';search.id='vsWarehouseSearch';search.oninput=vsRenderWarehouses;const refresh=ctNode('button','btn action-btn app-refresh-button','🔄 Обновить');refresh.type='button';refresh.onclick=vsLoadWarehouses;toolbar.append(search,refresh);const state=ctNode('p');state.id='vsWarehouseState';state.setAttribute('aria-live','polite');const list=ctNode('div');list.id='vsWarehouseList';const nav=ctNode('div','common-nav-row'),back=ctNode('button','btn danger-btn','🔙 Назад'),home=ctNode('button','btn danger-btn','🔚 Главное меню');back.onclick=()=>switchScreen('screen-main');home.onclick=()=>switchScreen('screen-main');nav.append(back,home);card.append(toolbar,state,list,nav);screen.append(card);document.getElementById('screen-admin-table-home').parentNode.append(screen);}
 async function openVirtualWarehouse(){if(!vsManagerAllowed()){showBeelineModal('Доступ ограничен','Раздел доступен супервайзеру и старшему технику своего участка.','🔒');return;}vsMountScreen();switchScreen('screen-virtual-warehouse');await vsLoadWarehouses();}
 function vsMessage(text){const el=document.getElementById('vsWarehouseState');if(el)el.textContent=text;}
 async function vsLoadWarehouses(){if(vsScreenState.busy)return;vsScreenState.busy=true;vsMessage('Загружаем остатки участка…');try{const data=await vsApi('list');vsScreenState.warehouses=data.warehouses;vsScreenState.manager=data.manager;vsScreenState.owner=managementOwnerKey();vsRenderWarehouses();vsMessage('Складов: '+data.warehouses.length+' · нулевые позиции доступны при редактировании');}catch(e){vsMessage('⚠️ '+e.message);}finally{vsScreenState.busy=false;}}
@@ -12900,7 +12945,7 @@ async function vsBeforeReport(type,url){
 }
 async function vsRefreshReportLimits(){if(!currentUser)return;const owner=managementOwnerKey(),type=document.getElementById('tr-reportType')?.value;if(!type||type.startsWith('Демонтаж'))return;const fullName=document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value;if(!fullName)return;try{const data=await vsApi('list',{fullName});if(owner!==managementOwnerKey())return;const w=data.warehouses[0];vsReportStock=w;for(const [key,id] of Object.entries(type.startsWith('ППР')?VS_PPR_IDS:VS_FORM_IDS)){const input=document.getElementById(id),m=w?.materials.find(m=>m.key===key);if(!input)continue;input.setAttribute('max',String(m?.available||0));input.setAttribute('step','1');input.title='Доступно: '+(m?.available||0)+' '+(m?.unit||'');let note=input.parentNode.querySelector('.vs-available');if(!note){note=ctNode('small','vs-available');input.parentNode.append(note);}note.textContent='Остаток: '+(m?.available||0)+' '+(m?.unit||'');}}catch(e){console.warn('Остатки для формы:',e.message);}}
 function vsAfterTmrRender(){const root=tmrScreen(tmrUi.manager);root.querySelectorAll('.tmr-action-oneC,.tmr-action-entered').forEach(b=>b.classList.toggle('vs-confirmed',b.disabled));if(!tmrUi.manager)return;const items=tmrUi.data?.items||[];root.querySelectorAll('.tmr-record').forEach(card=>{if(card.dataset.vsEnhanced)return;const actions=card.querySelector('.tmr-actions');if(!actions)return;const item=items.find(item=>card.dataset.tmrId===String(item.id));if(!item)return;card.dataset.vsEnhanced='true';if(item.oneC||item.entered||item.cancelled){card.querySelectorAll('input,.tmr-cable button,.tmr-action-managerSave').forEach(el=>el.disabled=true);}if(item.cancelled){card.append(ctNode('p','vs-cancelled','❌ Выдача отменена'));actions.querySelectorAll('button').forEach(b=>b.disabled=true);return;}const cancel=ctNode('button','btn danger-btn vs-cancel-issue','❌ Отменить выдачу');cancel.type='button';cancel.onclick=()=>{showBeelineModal('Отменить выдачу','Подтверждённые расходники будут возвращены из склада сотрудника. Если их уже потратили, система не позволит получить отрицательный остаток.','📦','<button type="button" class="btn danger-btn" id="vsConfirmCancelIssue">Отменить выдачу</button>');document.getElementById('vsConfirmCancelIssue').onclick=()=>{closeBeelineModal();tmrSave('cancel',{id:item.id,version:item.version});};};card.append(cancel);});}
-function vsInitUi(){const menu=document.querySelector('#screen-admin-table-home .management-menu');if(menu&&!document.getElementById('vsWarehouseMenuButton')){const b=ctNode('button','btn main-btn','📦 Виртуальные склады');b.id='vsWarehouseMenuButton';b.onclick=openVirtualWarehouse;menu.insertBefore(b,menu.querySelector('.common-nav-row'));}const updateVisibility=()=>{const b=document.getElementById('vsWarehouseMenuButton');if(b)b.hidden=!vsManagerAllowed();};updateVisibility();const menuScreen=document.getElementById('screen-admin-table-home');if(menuScreen)new MutationObserver(updateVisibility).observe(menuScreen,{attributes:true,attributeFilter:['class','style']});document.getElementById('tr-reportType')?.addEventListener('change',()=>setTimeout(vsRefreshReportLimits,150));for(const id of ['tr-installerName','tr-pprInstaller1'])document.getElementById(id)?.addEventListener('change',vsRefreshReportLimits);const reportScreen=document.getElementById('screen-technician-reports');if(reportScreen)new MutationObserver(()=>{if(reportScreen.classList.contains('active'))setTimeout(vsRefreshReportLimits,100);}).observe(reportScreen,{attributes:true,attributeFilter:['class']});}
+function vsInitUi(){document.getElementById('tr-reportType')?.addEventListener('change',()=>setTimeout(vsRefreshReportLimits,150));for(const id of ['tr-installerName','tr-pprInstaller1'])document.getElementById(id)?.addEventListener('change',vsRefreshReportLimits);const reportScreen=document.getElementById('screen-technician-reports');if(reportScreen)new MutationObserver(()=>{if(reportScreen.classList.contains('active'))setTimeout(vsRefreshReportLimits,100);}).observe(reportScreen,{attributes:true,attributeFilter:['class']});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsInitUi);else vsInitUi();
 
 function renderMyEquipment(items,consumables=[]){renderMyEquipmentBeforeWarehouse(items);vsRenderConsumables(document.getElementById('myEquipmentList'),consumables);}
