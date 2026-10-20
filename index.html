@@ -12616,7 +12616,7 @@ html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-actions>.btn{
 }
 /* Вложенные фильтры участвуют в той же сетке, что и обновление. */
 html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar{
- display:grid!important;grid-template-columns:minmax(200px,1fr) 160px 160px 128px!important;
+ display:grid!important;grid-template-columns:minmax(180px,360px) 160px 180px 160px 128px!important;
  align-items:end!important;gap:12px!important;flex-wrap:nowrap!important;width:100%;min-width:0;box-sizing:border-box
 }
 html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.tmr-management-filters{
@@ -12626,9 +12626,10 @@ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-fi
  width:100%!important;min-width:0!important;max-width:none!important;margin:0!important;padding:0!important
 }
 html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{grid-column:1;grid-row:1}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label){grid-column:2;grid-row:1}
-html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{grid-column:3;grid-row:1}
-html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{grid-column:4;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label):not(.tmr-issue-filter){grid-column:2;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-issue-filter{grid-column:3;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{grid-column:4;grid-row:1}
+html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{grid-column:5;grid-row:1}
 html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter,
 html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{
  align-self:end!important;width:100%!important;height:44px!important;min-height:44px!important;
@@ -12673,7 +12674,7 @@ function tmrUiValidate(values){for(const [key,label] of TMR_UI_FIELDS){if(!Numbe
 // Выполняет сотрудники фильтр — модуль заявок ТМЦ.
 function tmrStaffFilter(onchange){
  const wrap=ctNode('div','custom-dropdown searchable-dropdown staff-dropdown tmr-staff-filter'),trigger=ctNode('div','dropdown-trigger'),input=ctNode('input','dropdown-search-trigger'),arrow=ctNode('span','dropdown-arrow','▼'),list=ctNode('div','dropdown-list');
- input.type='search';input.placeholder='🔍 Выберите сотрудника или найдите по фамилии';input.setAttribute('aria-label','Сотрудник города: поиск и выбор');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.id='tmrStaffFilterInput';list.id='tmrStaffFilterList';list.setAttribute('role','listbox');input.setAttribute('aria-controls',list.id);arrow.setAttribute('aria-hidden','true');trigger.append(input,arrow);wrap.append(trigger,list);let selected=null;
+ input.type='search';input.placeholder='🔍 Поиск по ФИО';input.setAttribute('aria-label','Сотрудник города: поиск и выбор');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.id='tmrStaffFilterInput';list.id='tmrStaffFilterList';list.setAttribute('role','listbox');input.setAttribute('aria-controls',list.id);arrow.setAttribute('aria-hidden','true');trigger.append(input,arrow);wrap.append(trigger,list);let selected=null;
  const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');
  const people=(Array.isArray(usersDb)?usersDb:[]).filter(p=>city&&String(p.city||'').trim().toLocaleLowerCase('ru')===city&&String(p.fullName||p.name||'').trim()).sort((a,b)=>String(a.fullName||a.name).localeCompare(String(b.fullName||b.name),'ru'));
  function close(){setDropdownOpen(wrap,false);input.setAttribute('aria-expanded','false');}
@@ -13697,4 +13698,12 @@ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-fi
 html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{flex:1 1 240px;width:auto;max-width:none}
 html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-issue-filter{flex:0 1 160px;width:160px;max-width:100%}
 html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-management-filters>.tmr-issue-filter{min-width:0;width:100%;grid-column:auto}
+@media(max-width:1000px){
+ html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-staff-label{grid-column:1/-1;grid-row:1}
+ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-field:not(.tmr-staff-label):not(.tmr-issue-filter){grid-column:1;grid-row:2}
+ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-issue-filter{grid-column:2;grid-row:2}
+ html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{grid-column:1;grid-row:3}
+ html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{grid-column:2;grid-row:3}
+}
 </style>
