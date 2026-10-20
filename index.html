@@ -4622,8 +4622,8 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
                 <label>1. Адрес (Улица / микрорайон, дом, квартира)</label>
                 <input type="text" id="accAddress" required placeholder="ул. Ленина, д. 10, кв. 25">
 
-                <label>2. Контактный номер 1</label>
-                <input type="text" id="accPhone1" required placeholder="+7 (700)-000-00-00" oninput="applyPhoneMask(this)" onkeydown="handlePhoneKeydown(event)" onpaste="setTimeout(() => applyPhoneMask(this), 0)">
+                <label>2. Контактный номер 1 (необязательно)</label>
+                <input type="text" id="accPhone1" placeholder="+7 (700)-000-00-00" oninput="applyPhoneMask(this)" onkeydown="handlePhoneKeydown(event)" onpaste="setTimeout(() => applyPhoneMask(this), 0)">
 
                 <label>3. Контактный номер 2 (необязательно)</label>
                 <input type="text" id="accPhone2" placeholder="+7 (700)-000-00-00" oninput="applyPhoneMask(this)" onkeydown="handlePhoneKeydown(event)" onpaste="setTimeout(() => applyPhoneMask(this), 0)">
@@ -7107,9 +7107,9 @@ async function handleSaveAccess(e) {
     // Функция подсчета цифр в номере
     const getDigitsCount = (str) => (str.match(/\d/g) || []).length;
 
-    // Проверяем первый номер (обязательный)
+    // Пустой номер допустим; начатый номер проверяем на полноту.
     const digitsCount1 = getDigitsCount(phone1Input);
-    if (digitsCount1 > 0 && digitsCount1 < 11) {
+    if (phone1Input !== "" && digitsCount1 < 11) {
         showBeelineModal("Внимание", "Первый телефонный номер введен не полностью!", "⚠️");
         return;
     }
@@ -7132,8 +7132,8 @@ async function handleSaveAccess(e) {
     const payload = {
         mode: "equipment_access",
         address: document.getElementById('accAddress').value.trim(),
-        phone1: "'" + phone1Input,
-        phone2: "'" + (phone2Input || ""),
+        phone1: phone1Input ? "'" + phone1Input : "",
+        phone2: phone2Input ? "'" + phone2Input : "",
         kskKeys: document.getElementById('accKsk').value.trim(),     
         roofOpen: document.getElementById('accRoof').value.trim(),   
         intercomCode: document.getElementById('accIntercom').value.trim() 
