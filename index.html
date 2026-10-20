@@ -4732,9 +4732,12 @@ html[data-app-layout=mobile] #managementEventForm .management-event-top .dropdow
 
         <!-- Блок ручного ввода -->
         <div class="card manual-input-box" id="manual-box" style="display: none; flex-direction: column; gap: 10px; background: var(--card-bg); padding: 16px; border-radius: 16px; border: 1px solid var(--card-border);">
+            <div id="manual-scanned-rows" aria-label="Добавленные позиции ТМЦ" hidden></div>
+            <div id="manual-scanned-columns" aria-label="ТМЦ по видам оборудования" hidden></div>
             <label id="manual-label" style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Введите серийный номер вручную</label>
-            <input type="text" id="manual-serial-input" class="text-input" placeholder="Серийный номер" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--ui-bg-0a0a0a,#0a0a0a); color: var(--ui-fg-ffffff,#fff); box-sizing: border-box;">
-            <button class="btn main-btn" onclick="submitManualCode()">Добавить в список ➕</button>
+            <input type="text" id="manual-serial-input" class="text-input" placeholder="Серийный номер" aria-labelledby="manual-label" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="handleManualCodeKey(event)" style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--card-border); background: var(--ui-bg-0a0a0a,#0a0a0a); color: var(--ui-fg-ffffff,#fff); box-sizing: border-box;">
+            <small style="color:var(--text-secondary)">Сканер: завершение Enter или Tab. Вручную: Enter или «Добавить в список».</small>
+            <button type="button" class="btn main-btn" onclick="submitManualCode()">Добавить в список ➕</button>
         </div>
 
         <!-- Секция камеры -->
@@ -7721,7 +7724,7 @@ async function runSearchAccess(version) {
 
         // Небольшая задержка гарантирует, что элемент #reader успел отрисоваться и не скрыт display: none
         setTimeout(() => {
-            if(!document.getElementById('screen-scanner')?.classList.contains('active')||isCameraRunning)return;
+            if(!document.getElementById('screen-scanner')?.classList.contains('active')||document.getElementById('camera-section')?.style.display==='none'||isCameraRunning)return;
             if (!html5QrCode) {
                 html5QrCode = new Html5Qrcode("reader");
             }
@@ -7748,7 +7751,7 @@ async function runSearchAccess(version) {
                 (errorMessage) => {}
             ).then(() => {
                 isCameraRunning = true;
-                if(!document.getElementById('screen-scanner')?.classList.contains('active'))stopScanner();
+                if(!document.getElementById('screen-scanner')?.classList.contains('active')||document.getElementById('camera-section')?.style.display==='none')stopScanner();
             }).catch(err => {
                 console.error("Ошибка запуска камеры:", err);
                 isCameraRunning = false;
@@ -7863,8 +7866,60 @@ async function runSearchAccess(version) {
     function submitManualCode() {
         const input = document.getElementById('manual-serial-input');
         if (input && input.value.trim()) {
-            addItemToBatch(input.value);
-            input.value = '';
+            if(addItemToBatch(input.value)){
+                input.value = '';
+                input.focus();
+            }
+        }
+    }
+
+    function handleManualCodeKey(event){
+        if(event.isComposing||event.ctrlKey||event.altKey||event.metaKey)return;
+        if(event.key==='Enter'||(event.key==='Tab'&& !event.shiftKey&&event.target.value.trim())){
+            event.preventDefault();
+            if(!event.repeat)submitManualCode();
+        }
+    }
+
+    function renderManualScannedRows(){
+        const list=document.getElementById('manual-scanned-rows');if(!list)return;
+        list.replaceChildren();list.hidden=!scannedBatch.length;
+        for(const [index,item] of scannedBatch.entries()){
+            const row=document.createElement('div');row.className='manual-scanned-row';
+            const label=document.createElement('label'),input=document.createElement('input'),remove=document.createElement('button');
+            label.textContent=(index+1)+'. '+({router:'🛜 Роутер',stb:'📺 Приставка',cable:'🔌 Кабель'}[item.type]||'ТМЦ');
+            input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',label.textContent+' · серийный номер');input.title=item.fullText;label.append(input);
+            remove.type='button';remove.className='btn danger-btn';remove.textContent='✕';remove.setAttribute('aria-label','Удалить '+item.code+' из списка');
+            remove.onclick=()=>removeManualScannedItem(index);
+            row.append(label,remove);list.append(row);
+        }
+        renderManualScannedColumns();
+    }
+
+    function removeManualScannedItem(index){
+        scannedBatch.splice(index,1);lastScannedCode='';lastScanTime=0;updateBatchUI();
+        const box=document.getElementById('last-scanned-box');if(box)box.style.display='none';
+        document.getElementById('manual-serial-input')?.focus();
+    }
+
+    function renderManualScannedColumns(){
+        const root=document.getElementById('manual-scanned-columns');if(!root)return;
+        root.replaceChildren();root.hidden=!scannedBatch.length;
+        for(const [type,title] of [['router','🛜 Роутеры'],['stb','📺 Приставки'],['cable','🔌 Кабель']]){
+            const entries=scannedBatch.map((item,index)=>({item,index})).filter(entry=>entry.item.type===type);if(!entries.length)continue;
+            const column=document.createElement('section');column.className='manual-scan-column manual-scan-column-'+type;
+            const heading=document.createElement('h3'),count=document.createElement('span');heading.textContent=title;count.textContent=String(entries.length);heading.append(count);column.append(heading);
+            entries.forEach(({item,index},number)=>{
+                const row=document.createElement('div'),body=document.createElement('div'),label=document.createElement('label'),input=document.createElement('input'),remove=document.createElement('button');
+                row.className='manual-scanned-row';body.className='manual-scan-item';label.textContent=(number+1)+'. '+(type==='cable'?'Номер кабеля':'Серийный номер');
+                input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',title+' · '+label.textContent);label.append(input);body.append(label);
+                if(type==='cable'){
+                    const name=document.createElement('p'),meters=document.createElement('span');name.className='manual-scan-cable-name';name.textContent=item.cableName;meters.className='manual-scan-cable-meters';meters.textContent=item.meters+' м';body.append(name,meters);
+                }
+                remove.type='button';remove.className='btn danger-btn';remove.textContent='✕';remove.setAttribute('aria-label','Удалить '+item.code+' из списка');remove.onclick=()=>removeManualScannedItem(index);
+                row.append(body,remove);column.append(row);
+            });
+            root.append(column);
         }
     }
 
@@ -7872,6 +7927,7 @@ async function runSearchAccess(version) {
     function addItemToBatch(code) {
         if (!code) return;
         code = code.trim();
+        if(!code)return false;
 
         const now = Date.now();
         if (code === lastScannedCode && (now - lastScanTime < SCAN_COOLDOWN)) {
@@ -7922,6 +7978,7 @@ async function runSearchAccess(version) {
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
         }
+        return true;
     }
 
     // Выполняет повторное сканирование Last позиция.
@@ -7938,6 +7995,7 @@ async function runSearchAccess(version) {
     // Обрабатывает пакет интерфейс.
     function updateBatchUI() {
         const totalCount = scannedBatch.length;
+        renderManualScannedRows();
         
         const scanHint = document.getElementById('scan-hint');
         if (scanHint) scanHint.innerText = `Наведите камеру на штрих-код (В списке: ${totalCount} шт.)`;
@@ -13751,4 +13809,31 @@ html[data-app-layout=mobile] #screen-tmc-requests-management .tmr-management-fil
  html[data-app-layout=desktop] #screen-tmc-requests-management .tmr-management-filters>.tmr-reset-filter{grid-column:1;grid-row:3}
  html[data-app-layout=desktop] #screen-tmc-requests-management .card>.tmr-toolbar>.app-refresh-button{grid-column:2;grid-row:3}
 }
+</style>
+
+<style id="manualBatchScanRowsStyle">
+#manual-scanned-rows:not([hidden]){display:flex;flex-direction:column;gap:10px}
+#manual-box .manual-scanned-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:10px;align-items:end;min-width:0}
+#manual-box .manual-scanned-row label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0;font-size:12px;color:var(--text-secondary)}
+#manual-box .manual-scanned-row input{width:100%;min-width:0;height:44px;box-sizing:border-box;margin:0;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px}
+#manual-box .manual-scanned-row>.btn{width:44px!important;height:44px;min-height:44px;margin:0!important;padding:0!important}
+</style>
+
+<style id="desktopManualScanColumnsStyle">
+#manual-scanned-columns{display:none}
+html[data-app-layout=desktop] #screen-scanner #manual-box{grid-column:1/-1;min-width:0;box-sizing:border-box}
+html[data-app-layout=desktop] #manual-scanned-rows{display:none!important}
+html[data-app-layout=desktop] #manual-scanned-columns:not([hidden]){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start;order:5;margin-top:10px}
+html[data-app-layout=desktop] .manual-scan-column{min-width:0;padding:14px;border:1px solid var(--card-border);border-radius:12px;background:var(--surface-dark)}
+html[data-app-layout=desktop] .manual-scan-column-router{grid-column:1}
+html[data-app-layout=desktop] .manual-scan-column-stb{grid-column:2}
+html[data-app-layout=desktop] .manual-scan-column-cable{grid-column:3}
+html[data-app-layout=desktop] .manual-scan-column>h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px;font-size:15px;color:var(--accent-ink)}
+html[data-app-layout=desktop] .manual-scan-column>h3>span{padding:3px 8px;border-radius:7px;background:rgba(183,237,85,.18);font-size:12px}
+html[data-app-layout=desktop] #manual-box .manual-scan-column>.manual-scanned-row{align-items:start;margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
+html[data-app-layout=desktop] #manual-box .manual-scan-column>.manual-scanned-row:nth-child(2){margin-top:0;padding-top:0;border-top:0}
+html[data-app-layout=desktop] #manual-box .manual-scan-column .manual-scan-item{min-width:0}
+html[data-app-layout=desktop] #manual-box .manual-scan-column .manual-scanned-row>.btn{margin-top:22px!important}
+html[data-app-layout=desktop] .manual-scan-cable-name{margin:7px 0 5px;font-size:12px;line-height:1.45;overflow-wrap:anywhere;color:var(--text-main)}
+html[data-app-layout=desktop] .manual-scan-cable-meters{display:inline-block;font-size:12px;font-weight:700;color:var(--accent-ink)}
 </style>
