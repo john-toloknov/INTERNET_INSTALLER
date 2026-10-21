@@ -410,7 +410,15 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
         .ppr-plan-item.is-active .ppr-plan-arrow { transform:rotate(180deg); }
         @media(max-width:380px) { .ppr-plan-item { font-size:12px; gap:6px; padding:7px 8px; }
             .ppr-plan-status { font-size:10px; } }
-        .ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: var(--ui-bg-rgba-0-0-0-0_86,rgba(0,0,0,.86)); display: none; align-items: flex-start; justify-content: center; padding: 16px; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+        
+.ppr-plans-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:12px 0; }
+.ppr-plans-toolbar > .btn { width:auto; flex:1 1 200px; margin:0; min-height:48px; }
+.engineer-district-control { width:100%; max-width:360px; margin:0 0 18px; }
+.engineer-district-control .dropdown-select-btn { display:flex; align-items:center; justify-content:space-between; width:100%; }
+.engineer-district-control .dropdown-item, #pprCreateOverlay .dropdown-item { width:100%; text-align:left; font:inherit; background:transparent; border:0; color:var(--text-main); }
+#screen-admin-work-schedule.engineer-readonly .gs-shift:disabled { opacity:1; cursor:default; }
+#screen-admin-work-schedule.engineer-readonly .gs-name-choice .dropdown-arrow { visibility:hidden; }
+.ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: var(--ui-bg-rgba-0-0-0-0_86,rgba(0,0,0,.86)); display: none; align-items: flex-start; justify-content: center; padding: 16px; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
         .ppr-plan-overlay::-webkit-scrollbar { display: none; }
         .ppr-plan-dialog { width: min(100%, 520px); max-height: none; overflow: visible; flex-shrink: 0; margin: auto; scrollbar-width: none; background: var(--card-bg); border: 1px solid var(--accent); border-radius: 15px; padding: 20px; box-sizing: border-box; }
         .ppr-plan-dialog::-webkit-scrollbar { display: none; }
@@ -4174,6 +4182,7 @@ function openTmcSection(key){
     section('reports','📝 Отчёты по заявкам',options,active.id==='screen-technician-reports',{allow:()=>visible(reports),before:()=>{if(document.querySelector('.app-screen.active')?.id!=='screen-technician-reports')reports.click();}});
     sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===document.getElementById('tr-reportType').value;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
    }
+   for(const id of ['engineerPprBtn','engineerScheduleBtn','engineerEventsBtn','engineerDeliveryBtn']){const b=document.getElementById(id);if(visible(b))addButton(b,sidebar);}
    const digitalWindow=document.getElementById('digitalWindowBtn');if(visible(digitalWindow))addButton(digitalWindow,sidebar);
    const refarbWorker=document.getElementById('refarbWorkerBtn');if(visible(refarbWorker))addButton(refarbWorker,sidebar);
    if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
@@ -4650,6 +4659,10 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
             <!-- Программное обеспечение: встроенный экран -->
             <button class="btn main-btn" id="softwareBtn" type="button" onclick="openSoftwareScreen()">💿 Программное обеспечение</button>
             
+            <button class="btn main-btn" id="engineerPprBtn" type="button" hidden onclick="openPprPlans()">📈 Планы по ППР</button>
+            <button class="btn main-btn" id="engineerScheduleBtn" type="button" hidden onclick="openWorkingSchedule()">📅 Рабочий график</button>
+            <button class="btn main-btn" id="engineerEventsBtn" type="button" hidden onclick="openManagementEvent()">📣 Мероприятия</button>
+            <button class="btn main-btn" id="engineerDeliveryBtn" type="button" hidden onclick="openManagementDelivery()">📨 Статус рассылки</button>
             <!-- Кнопки ТМЦ и Админ-панель -->
             <button class="btn main-btn" id="scannerAppBtn" style="display: none;" onclick="openTmcHub()">📦 Заявки на Выдачу ТМЦ</button>
             <button class="btn main-btn" id="adminPanelBtn" style="display: none;" onclick="openAdminPanel()">⚙️ Админ-панель</button>
@@ -4664,7 +4677,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
         <div class="card">
             <label for="pprPlansSearch">Поиск по адресу</label>
             <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
-            <button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить планы</button>
+            <div class="ppr-plans-toolbar"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить планы</button><button id="pprAddAddressBtn" type="button" class="btn main-btn" hidden onclick="openPprCreate()">➕ Добавить адрес</button></div>
             <div id="pprPlansHint"></div>
             <div id="pprPlansList" class="ppr-plan-list"></div>
             <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
@@ -5837,7 +5850,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
             <div id="managementEventPreviewText"></div>
           </div>
 </div></div>
-          <p class="management-hint">Уведомление получат сотрудники вашего города. Напоминание — в день мероприятия в 08:30.</p>
+          <p id="managementEventScopeHint" class="management-hint">Уведомление получат сотрудники вашего участка. Напоминание — в день мероприятия в 08:30.</p>
           <button class="btn main-btn" id="managementEventSend" type="submit">📨 Отправить уведомление</button>
           <div id="managementEventResult" class="management-status" role="status" aria-live="polite"></div>
         </form>
@@ -5916,6 +5929,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
                         <div class="dropdown-item" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Техник-Универсал', 'Техник-Универсал')">Техник-Универсал</div>
                         <div class="dropdown-item" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Бригадир', 'Бригадир')">Бригадир</div>
                         <div class="dropdown-item" id="optSenior" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Старший Техник', 'Старший Техник')">Старший Техник</div>
+                        <div class="dropdown-item" id="optEngineer" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Инженер', 'Инженер')">Инженер</div>
                         <div class="dropdown-item" id="optAdmin" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Супервайзер', 'Супервайзер')">Супервайзер</div>
                         <div class="dropdown-item" id="optOwner" style="display:none; color: var(--text-secondary); pointer-events: none;" onclick="selectDropdownOption('editRoleDropdown', 'editRole', 'editRoleLabel', 'Владелец', 'Владелец')">Владелец</div>
                     </div>
@@ -6340,7 +6354,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
 // Приводит роли к единому названию; принимает старое имя до миграции.
 function normalizeEmployeeRole(value) {
   var text=String(value||'').trim(), key=text.toLowerCase().replace(/ё/g,'е').replace(/[—–-]/g,' ').replace(/\s+/g,' ');
-  var roles={'администратор':'Супервайзер','супервайзер':'Супервайзер','старший техник':'Старший Техник','техник универсал':'Техник-Универсал','стажер':'Стажер','бригадир':'Бригадир','владелец':'Владелец'};
+  var roles={'администратор':'Супервайзер','супервайзер':'Супервайзер','старший техник':'Старший Техник','техник универсал':'Техник-Универсал','стажер':'Стажер','бригадир':'Бригадир','инженер':'Инженер','владелец':'Владелец'};
   return roles[key]||text;
 }
 function normalizeRefarbAssignment(value){return /^(true|1|да|рефарб|refurb)$/i.test(String(value==null?'':value).trim());}
@@ -6590,8 +6604,121 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
         document.querySelectorAll('[data-scroll-rail-ready]').forEach(list=>list.updateScrollRail?.());
     }
 
+// Инженер: отдельные полномочия и подключения. Учётный участок сотрудника не меняется.
+const engineerDistrictSelections = {};
+let engineerSelectionOwner = '';
+let managementDeliveryDistrict = '';
+function engineerAllowed(){return normalizeEmployeeRole(currentUser?.role)==='Инженер';}
+function engineerEventAllowed(){return managementAllowed()||engineerAllowed();}
+function engineerScheduleAllowed(){return managementAllowed()||engineerAllowed();}
+function engineerDistrictChoices(){return frontendDistricts().filter(c=>c.city===currentUser?.city&&c.configured);}
+function engineerDistrict(section){
+    const owner=managementOwnerKey();
+    if(engineerSelectionOwner!==owner){const draft=document.getElementById('pprCreateForm');draft?.reset();pprCreateRequest='';pprCreateFingerprint='';for(const k of Object.keys(engineerDistrictSelections))delete engineerDistrictSelections[k];engineerSelectionOwner=owner;}
+    const choices=engineerDistrictChoices();
+    const value=engineerDistrictSelections[section]||String(currentUser?.district||'');
+    const config=choices.find(c=>c.district===value)||choices[0];
+    if(!config)throw new Error('В городе нет подключённых участков');
+    engineerDistrictSelections[section]=config.district;return config;
+}
+function engineerRequestSection(action){
+    if(['pprPlans','pprPlansStatus'].includes(action))return 'ppr';
+    if(['equipment_access','equipment_search'].includes(action))return 'access';
+    if(action==='management')return 'event';
+    if(['workingSchedule','workingScheduleStatus'].includes(action))return 'schedule';
+    return '';
+}
+function engineerRoute(input,options={}){
+    if(!engineerAllowed())return null;
+    const original=new URL(String(input),location.href);
+    // Никогда не прикладываем пароль к произвольному URL.
+    if(!engineerDistrictChoices().some(c=>[c.scriptUrl,c.reportsScriptUrl].some(u=>u&&new URL(u).origin+new URL(u).pathname===original.origin+original.pathname)))return null;
+    let body=null;
+    if(options.body){try{body=JSON.parse(options.body);}catch(e){return null;}}
+    const action=String(body?.action||body?.mode||original.searchParams.get('action')||original.searchParams.get('mode')||'');
+    const section=engineerRequestSection(action);if(!section)return null;
+    if(action==='management'&&!['event','status','list'].includes(body?.operation))throw new Error('Раздел недоступен Инженеру');
+    const config=body?.engineerDistrict?getFrontendDistrictConfig(currentUser.city,body.engineerDistrict):engineerDistrict(section);
+    const target=new URL(section==='schedule'?config.scriptUrl:config.reportsScriptUrl);target.search=original.search;
+    const context={city:currentUser.city,district:config.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password};
+    const next={...options};
+    if(body){delete body.engineerDistrict;next.body=JSON.stringify({...body,...context});}
+    else Object.entries(context).forEach(([k,v])=>target.searchParams.set(k,v));
+    return {url:target.href,options:next};
+}
+function engineerDistrictPicker(section,screenId){
+    const config=engineerDistrict(section),wrap=document.createElement('div');wrap.className='engineer-district-control';
+    const label=document.createElement('label');label.textContent='Участок города';
+    const dropdown=document.createElement('div');dropdown.className='custom-dropdown';dropdown.id='engineerDistrict_'+section+'_'+screenId;
+    const trigger=document.createElement('button');trigger.type='button';trigger.className='dropdown-select-btn';trigger.setAttribute('aria-haspopup','listbox');
+    trigger.append(document.createTextNode('Участок '+config.district+' '));const arrow=document.createElement('span');arrow.className='dropdown-arrow';arrow.textContent='▼';trigger.append(arrow);
+    trigger.onclick=()=>{if(!pprPlanBusy&&!managementBusy&&!gsState.busy)toggleDropdown(dropdown.id);};
+    const list=document.createElement('div');list.className='dropdown-list';list.setAttribute('role','listbox');
+    engineerDistrictChoices().forEach(c=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item'+(c.district===config.district?' selected':'');option.textContent='Участок '+c.district;option.setAttribute('role','option');option.setAttribute('aria-selected',String(c.district===config.district));option.onclick=()=>engineerSelectDistrict(section,c.district);list.append(option);});
+    dropdown.append(trigger,list);label.append(dropdown);wrap.append(label);return wrap;
+}
+function engineerMountDistrict(screenId,section){
+    const screen=document.getElementById(screenId),card=screen?.querySelector('.card');if(!card)return;
+    card.querySelector(':scope > .engineer-district-control')?.remove();
+    if(engineerAllowed())card.prepend(engineerDistrictPicker(section,screenId));
+}
+function engineerSelectDistrict(section,value){
+    if(!engineerAllowed()||pprPlanBusy||managementBusy||gsState.busy)return;
+    getFrontendDistrictConfig(currentUser.city,value);engineerDistrictSelections[section]=String(value);
+    document.querySelectorAll('.custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));
+    if(section==='ppr'){closePprPlan();pprReadSnapshot=null;engineerMountDistrict('screen-ppr-plans','ppr');void loadPprPlans(true);}
+    if(section==='schedule'){gsState.data=null;gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];document.getElementById('gsGrid').replaceChildren();engineerMountDistrict('screen-admin-work-schedule','schedule');void gsLoad();}
+    if(section==='access'){for(const id of ['screen-equipment-access','screen-access-search','screen-access-record'])engineerMountDistrict(id,'access');accessSearchController?.abort();++accessSearchVersion;document.getElementById('accessSearchResultsContainer').replaceChildren();handleSearchAccess();}
+    if(section==='event'){managementEventRequest='';managementEventFingerprint='';engineerMountDistrict('screen-management-event','event');updateManagementPreview();}
+}
+function engineerScreenAllowed(id){return id.startsWith('screen-software')||id==='screen-channel-catalog'||['screen-main','screen-login','screen-forgot','screen-reset','screen-software','screen-ppr-plans','screen-equipment-access','screen-access-search','screen-access-record','screen-admin-work-schedule','screen-management-event'].includes(id);}
+function engineerApplyMenu(){
+    const active=engineerAllowed();
+    document.getElementById('engineerDeliveryBtn').hidden=!(active&&managementGroup&&managementDeliveryOwner===managementOwnerKey());
+    for(const id of ['engineerPprBtn','engineerScheduleBtn','engineerEventsBtn'])document.getElementById(id).hidden=!active;
+    if(active)for(const id of ['technicianReportsBtn','digitalWindowBtn','installerMenuBtn','scannerAppBtn','adminPanelBtn'])document.getElementById(id).style.display='none';
+}
+
+// Новый адрес ППР: один запрос сохраняется при повторе после сетевой ошибки.
+let pprCreateRequest='',pprCreateFingerprint='',pprCreateOwner='';
+function openPprCreate(){
+    if(!pprPlanManagers.includes(currentUser?.role)||pprPlanBusy)return;
+    let overlay=document.getElementById('pprCreateOverlay');
+    if(!overlay){
+        overlay=document.createElement('div');overlay.id='pprCreateOverlay';overlay.className='ppr-plan-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','pprCreateTitle');
+        overlay.innerHTML=`<div class="ppr-plan-dialog"><h3 id="pprCreateTitle">➕ Добавить адрес ППР</h3><form id="pprCreateForm"><label for="pprCreateStreet">Улица</label><input id="pprCreateStreet" maxlength="160" required autocomplete="off"><label for="pprCreateHouse">Номер дома</label><input id="pprCreateHouse" maxlength="40" required autocomplete="off"><label>Технология</label><div class="custom-dropdown" id="pprCreateTechnologyDropdown"><button class="dropdown-select-btn" type="button" onclick="toggleDropdown('pprCreateTechnologyDropdown')"><span id="pprCreateTechnologyLabel">FTTB</span><span class="dropdown-arrow">▼</span></button><div class="dropdown-list"><button type="button" class="dropdown-item" onclick="selectDropdownOption('pprCreateTechnologyDropdown','pprCreateTechnology','pprCreateTechnologyLabel','FTTB','FTTB')">FTTB</button><button type="button" class="dropdown-item" onclick="selectDropdownOption('pprCreateTechnologyDropdown','pprCreateTechnology','pprCreateTechnologyLabel','GPON','GPON')">GPON</button></div></div><input id="pprCreateTechnology" type="hidden" value="FTTB"><label for="pprCreateHouseId">ID дома</label><input id="pprCreateHouseId" maxlength="80" required autocomplete="off"><p id="pprCreateStatus" role="status" aria-live="polite"></p><div class="common-nav-row"><button id="pprCreateSave" class="btn main-btn" type="submit">💾 Добавить адрес</button><button class="btn danger-btn" type="button" onclick="closePprCreate()">Отмена</button></div></form></div>`;
+        overlay.onscroll=()=>overlay.querySelectorAll('.custom-dropdown.open').forEach(positionDropdownPanel);document.body.append(overlay);overlay.querySelector('form').onsubmit=savePprCreate;
+    }
+    if(pprCreateOwner!==managementOwnerKey()){document.getElementById('pprCreateForm').reset();document.getElementById('pprCreateTechnologyLabel').textContent='FTTB';pprCreateRequest='';pprCreateFingerprint='';pprCreateOwner=managementOwnerKey();}
+    document.getElementById('pprCreateStatus').textContent=currentUser.city+' · Участок '+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
+    overlay.style.display='flex';document.getElementById('pprCreateStreet').focus();
+}
+function closePprCreate(){if(pprPlanBusy)return;document.getElementById('pprCreateOverlay')?.querySelectorAll('.custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));const n=document.getElementById('pprCreateOverlay');if(n)n.style.display='none';}
+async function savePprCreate(event){
+    event.preventDefault();if(pprPlanBusy||!pprPlanManagers.includes(currentUser?.role))return;
+    const fields={address:document.getElementById('pprCreateStreet').value.trim(),house:document.getElementById('pprCreateHouse').value.trim(),technology:document.getElementById('pprCreateTechnology').value,houseId:document.getElementById('pprCreateHouseId').value.trim()};
+    const fingerprint=JSON.stringify([managementOwnerKey(),engineerAllowed()?engineerDistrict('ppr').district:currentUser.district,fields]);
+    if(fingerprint!==pprCreateFingerprint){pprCreateRequest='ppr_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));pprCreateFingerprint=fingerprint;}
+    const owner=managementOwnerKey(),status=document.getElementById('pprCreateStatus'),button=document.getElementById('pprCreateSave');pprPlanBusy=true;document.querySelectorAll('#pprCreateForm input,#pprCreateForm button').forEach(n=>n.disabled=true);button.disabled=true;status.textContent='⏳ Проверяем дубли и сохраняем адрес…';let saved=false;
+    try{await requestPprPlans('create',fields,pprCreateRequest);if(owner!==managementOwnerKey())return;saved=true;pprCreateRequest='';pprCreateFingerprint='';status.textContent='✅ Адрес сохранён · Не начат';document.getElementById('pprCreateForm').reset();document.getElementById('pprCreateTechnologyLabel').textContent='FTTB';}
+    catch(error){if(owner===managementOwnerKey())status.textContent='⚠️ '+error.message;}
+    finally{pprPlanBusy=false;document.querySelectorAll('#pprCreateForm input,#pprCreateForm button').forEach(n=>n.disabled=false);button.disabled=false;}
+    if(saved&&owner===managementOwnerKey()){closePprCreate();pprReadSnapshot=null;await loadPprPlans(true);}
+}
+
+function engineerScheduleReadOnly(){return engineerAllowed()||gsState.data?.readOnly===true;}
+function engineerSchedulePresentation(){
+    const screen=document.getElementById('screen-admin-work-schedule');if(!screen)return;
+    const readOnly=engineerScheduleReadOnly();screen.classList.toggle('engineer-readonly',readOnly);
+    for(const id of ['gsCycle','gsPreview','gsSave'])document.getElementById(id).hidden=readOnly;
+    screen.querySelector('.gs-vacation').hidden=readOnly;
+    screen.querySelector('.gs-legend-note').textContent=readOnly?'Только просмотр · цвета обозначают статусы сотрудников.':'Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.';
+}
+
     // Выполняет смена экран.
     function switchScreen(screenId) {
+        if(engineerAllowed()&&!engineerScreenAllowed(screenId))screenId="screen-main";
+        if(typeof closePprCreate==="function")closePprCreate();
         if(typeof gsClosePicker==='function')gsClosePicker();
         if(typeof closeAppCalendar==='function')closeAppCalendar();
         if(typeof closeAppTime==='function')closeAppTime();
@@ -6605,6 +6732,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
             el.classList.remove('active');
         });
         const target = document.getElementById(screenId);
+        if(engineerAllowed()){const section=screenId==='screen-ppr-plans'?'ppr':screenId==='screen-admin-work-schedule'?'schedule':screenId==='screen-management-event'?'event':screenId.startsWith('screen-access-')||screenId==='screen-equipment-access'?'access':'';if(section)engineerMountDistrict(screenId,section);}
         if (target) {
             if(typeof tmcMountSectionTabs==='function')tmcMountSectionTabs(target);
             target.style.display = 'block';
@@ -6663,6 +6791,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                 btn.style.display = trainee ? 'none' : '';
             });
 
+            engineerApplyMenu();
             if (typeof rfVisibility === 'function') rfVisibility();
             if (currentUser.role === 'Владелец' && ownerCityChoiceRequired) {
                 showOwnerCityPicker();
@@ -8076,15 +8205,12 @@ async function handleSaveAccess(e) {
     try {
         showBeelineModal("Сохранение", "Запись доступа в таблицу...", "⏳");
         
-        await districtFetch(scriptUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payload)
-        });
+        const savedResponse=await districtFetch(scriptUrl, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+        if(!savedResponse.ok)throw new Error('HTTP '+savedResponse.status);const savedResult=await savedResponse.json();if(savedResult.status!=='success')throw new Error(savedResult.message||'Запись не подтверждена');
 
         accessDb.push({ 
-            id: 'acc_' + Date.now(), 
+            id: 'acc_' + Date.now(),
+            district:engineerAllowed()?engineerDistrict('access').district:String(currentUser?.district||''),
             city: currentUser?.city || '',
             address: payload.address,
             phone1: payload.phone1,
@@ -8107,7 +8233,7 @@ async function handleSaveAccess(e) {
 
     } catch (err) {
         console.error("Ошибка сохранения доступа:", err);
-        showBeelineModal("Ошибка", "Не удалось записать данные в Google Таблицу.", "❌");
+        showBeelineModal("Ошибка", "Не удалось подтвердить запись: "+err.message, "❌");
     }
 }
 
@@ -8159,7 +8285,7 @@ async function runSearchAccess(version) {
 
     let localResults = accessDb.filter(item => {
         const addr = (item.address || '').toLowerCase();
-        return !!userCity && item.city === userCity && addr.includes(query);
+        return !!userCity && item.city === userCity && (!engineerAllowed()||String(item.district||'')===engineerDistrict('access').district) && addr.includes(query);
     });
 
     const map = new Map();
@@ -8288,6 +8414,7 @@ async function runSearchAccess(version) {
         const roleLabel = document.getElementById('editRoleLabel');
         const optAdmin = document.getElementById('optAdmin');
         const optSenior = document.getElementById('optSenior');
+        document.getElementById('optEngineer').style.display=['Супервайзер','Владелец'].includes(currentUser.role)?'block':'none';
         const optOwner = document.getElementById('optOwner');
         const roleDropdown = document.getElementById('editRoleDropdown');
 
@@ -11248,8 +11375,8 @@ function ctDetectStbModel(serial) {
     let pprPlanItems = [], pprPlanStaff = [], pprPlanSelected = null, pprPlanBusy = false;
     let pprDeepLinkOpening = false;
     const pprPlanChoices = {};
-    const pprPlanRoles = ['Техник-Универсал','Бригадир','Старший Техник','Супервайзер','Владелец'];
-    const pprPlanManagers = ['Старший Техник','Супервайзер','Владелец'];
+    const pprPlanRoles = ['Техник-Универсал','Бригадир','Старший Техник','Супервайзер','Владелец','Инженер'];
+    const pprPlanManagers = ['Старший Техник','Супервайзер','Владелец','Инженер'];
     const pprEsc = v => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     // Показывает ППР планы.
     async function openPprPlans() {
@@ -11257,6 +11384,7 @@ function ctDetectStbModel(serial) {
             showBeelineModal('Доступ ограничен', 'Ваша роль не может просматривать планы ППР.', '🔒'); return;
         }
         switchScreen('screen-ppr-plans');
+        document.getElementById('pprAddAddressBtn').hidden=!pprPlanManagers.includes(currentUser.role);
         document.getElementById('pprPlansSearch').value = '';
         return await loadPprPlans();
     }
@@ -11300,10 +11428,10 @@ function ctDetectStbModel(serial) {
         });
     }
     // Выполняет запрос ППР планы.
-    async function requestPprPlans(operation, fields = {}) {
+    async function requestPprPlans(operation, fields = {}, stableRequestId = "") {
         const url = CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;
         if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
-        const requestId = 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        const requestId = stableRequestId || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, district:String(currentUser.district), actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
         if(operation==='list'){
@@ -11337,9 +11465,9 @@ function ctDetectStbModel(serial) {
     // Получает ППР планы.
     async function loadPprPlans(force=false) {
         if (pprPlanBusy) return;
-        const owner=currentUser;
+        const owner=currentUser,selectedDistrict=engineerAllowed()?engineerDistrict('ppr').district:String(currentUser?.district||'');
         if(!owner)return false;
-        if(!force&&pprReadSnapshot?.owner===owner&&Date.now()-pprReadSnapshot.time<15000){
+        if(!force&&pprReadSnapshot?.owner===owner&&pprReadSnapshot.district===selectedDistrict&&Date.now()-pprReadSnapshot.time<15000){
             pprPlanItems=pprReadSnapshot.items;pprPlanStaff=pprReadSnapshot.staff;filterPprPlans();return true;
         }
         if(force)pprReadSnapshot=null;
@@ -11362,7 +11490,7 @@ function ctDetectStbModel(serial) {
                 hint.innerHTML = liveLoading(`Загружено адресов: ${Math.min(offset,total)} из ${total}`);
             } while (offset < total);
             if(currentUser!==owner)return false;
-            pprReadSnapshot={owner,time:Date.now(),items:all,staff};
+            pprReadSnapshot={owner,district:selectedDistrict,time:Date.now(),items:all,staff};
             pprPlanItems = all;
             pprPlanStaff = staff;
             filterPprPlans();
@@ -11382,7 +11510,7 @@ function ctDetectStbModel(serial) {
             `${item.address} ${item.house}`.toLocaleLowerCase('ru').includes(query));
         document.getElementById('pprPlansHint').textContent = pprPlanItems.length
             ? (query ? `Найдено: ${visible.length} из ${pprPlanItems.length}` : `Адреса: ${pprPlanItems.length}`)
-            : 'Нет адресов без статуса или со статусом «В работе».';
+            : 'Нет адресов со статусом «Не начат» или «В работе».';
         document.getElementById('pprPlansList').innerHTML = visible.length
             ? visible.map(({item,index}) => {
                 const inWork = item.status === 'В работе';
@@ -11409,7 +11537,7 @@ function ctDetectStbModel(serial) {
         const name = String(currentUser?.fullName || '').trim();
         const manager = pprPlanManagers.includes(role);
         return people.filter(person => {
-            if (person.city && !districtSameUser(person)) return false;
+            if (person.city && (engineerAllowed()?String(person.city).trim()!==String(currentUser.city).trim():!districtSameUser(person))) return false;
             if (id === 'pprPlanBrigade')
                 return person.role === 'Бригадир' && (manager || (role === 'Бригадир' && person.name === name));
             if (id === 'pprPlanExecutor') {
@@ -12566,12 +12694,12 @@ function stopManagementPoll(){managementPollVersion++;if(managementPoll){clearTi
 function managementState(text,loading=false){const node=document.getElementById('managementStatus');if(node){if(loading)node.innerHTML=liveLoading(text);else node.textContent=text;}}
 // Выполняет руководство запрос.
 async function managementRequest(operation,fields={},requestId){
- const user=currentUser;if(!managementAllowed())throw new Error('Раздел доступен руководству');
+ const user=currentUser;if(!managementAllowed()&&!(engineerAllowed()&&['event','status','list'].includes(operation)))throw new Error('Раздел доступен руководству');
  const url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Для города не настроен скрипт отчётов');
  const id=requestId||'mg_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),90000);
  try{
-  const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'management',operation,requestId:id,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
+  const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'management',operation,requestId:id,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields,...(engineerAllowed()&&operation==='status'?{engineerDistrict:managementDeliveryDistrict}:{})}),mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});
   if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();
   if(currentUser?.dwLogin!==user.dwLogin||currentUser?.city!==user.city)throw new Error('Сеанс изменился');
   if(result.status!=='success')throw new Error(result.message||'Не удалось выполнить действие');return result;
@@ -12579,6 +12707,7 @@ async function managementRequest(operation,fields={},requestId){
 }
 // Показывает управление панель.
 function openAdminPanel(){
+ if(engineerAllowed()){switchScreen('screen-main');return;}
  if(!managementAllowed())return;switchScreen('screen-admin');
  document.getElementById('managementCity').textContent='🏢 '+currentUser.city;
  if(managementDeliveryOwner!==managementOwnerKey()){managementGroup='';managementLastDelivery=null;managementDeliverySummary='';}
@@ -12629,7 +12758,7 @@ function renderManagementDelivery(delivery,error=''){
 }
 // Показывает руководство доставка.
 function openManagementDelivery(){
- if(!managementAllowed()||!managementGroup||managementDeliveryOwner!==managementOwnerKey())return;
+ if(!engineerEventAllowed()||!managementGroup||managementDeliveryOwner!==managementOwnerKey())return;
  const root=document.createElement('div');root.id='managementDeliveryBody';
  const actions=document.createElement('div');actions.className='management-delivery-actions';
  const refresh=document.createElement('button');refresh.type='button';refresh.className='btn main-btn';refresh.textContent='🔄 Проверить статус';refresh.onclick=()=>managementWatch(managementGroup);
@@ -12638,13 +12767,13 @@ function openManagementDelivery(){
 }
 // Выполняет руководство установка доставка.
 function managementSetDelivery(result,summary){
- managementGroup=result.group;managementLastDelivery=result.delivery||null;managementDeliverySummary=summary;managementDeliveryOwner=managementOwnerKey();
- managementState('');document.getElementById('managementDeliveryReopen').hidden=false;openManagementDelivery();
+ managementDeliveryDistrict=engineerAllowed()?engineerDistrict('event').district:String(currentUser?.district||'');managementGroup=result.group;managementLastDelivery=result.delivery||null;managementDeliverySummary=summary;managementDeliveryOwner=managementOwnerKey();
+ managementState('');document.getElementById('managementDeliveryReopen').hidden=false;document.getElementById('engineerDeliveryBtn').hidden=!engineerAllowed();openManagementDelivery();
 }
 // Выполняет руководство наблюдение.
 function managementWatch(group){
  stopManagementPoll();const version=managementPollVersion,owner=managementOwnerKey();
- const valid=()=>version===managementPollVersion&&managementAllowed()&&owner===managementOwnerKey()&&group===managementGroup&&managementModalActive();
+ const valid=()=>version===managementPollVersion&&engineerEventAllowed()&&owner===managementOwnerKey()&&group===managementGroup&&managementModalActive();
  const tick=async()=>{
   if(!valid())return;
   if(document.hidden){managementPoll=setTimeout(tick,10000);return;}
@@ -12764,7 +12893,7 @@ async function sendCityActDebts(){
 }
 // Показывает руководство мероприятие.
 function openManagementEvent(){
- if(!managementAllowed())return;switchScreen('screen-management-event');
+ if(!engineerEventAllowed())return;switchScreen('screen-management-event');
  const now=new Date();const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Almaty',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
  document.getElementById('managementEventDate').min=today;
  document.getElementById('managementEventResult').textContent='';updateManagementPreview();
@@ -12773,13 +12902,14 @@ function openManagementEvent(){
 function managementEventFields(){return {kind:document.getElementById('managementEventKind').value,date:document.getElementById('managementEventDate').value,time:document.getElementById('managementEventTime').value,topic:document.getElementById('managementEventTopic').value.trim()};}
 // Обрабатывает руководство предпросмотр.
 function updateManagementPreview(){
+ document.getElementById('managementEventScopeHint').textContent='Уведомление получат сотрудники участка '+(engineerAllowed()?engineerDistrict('event').district:currentUser?.district)+'. Напоминание — в день мероприятия в 08:30.';
  const f=managementEventFields(),text=document.getElementById('managementEventPreviewText'),image=document.getElementById('managementEventPreviewImage');
  const src=MANAGEMENT_PREVIEWS[f.kind];if(src){image.src=src;image.hidden=false;}else image.hidden=true;
  text.textContent=`⚙️ INTERNET INSTALLER\n📣 ${f.kind}\n📅 ${f.date?f.date.split('-').reverse().join('.'): 'Выберите дату'}  🕐 ${f.time||'Выберите время'}\n📍 Место: офис\n\n💬 Тема\n${f.topic||'Введите тему мероприятия'}\n\nФИО получателя, ждём вас в назначенное время!`;
 }
 // Отправляет руководство мероприятие.
 async function sendManagementEvent(event){
- event.preventDefault();if(managementBusy||!managementAllowed())return;
+ event.preventDefault();if(managementBusy||!engineerEventAllowed())return;
  const fields=managementEventFields(),fingerprint=JSON.stringify(fields);if(!fields.date||!fields.time||!fields.topic){showBeelineModal('Проверьте поля','Укажите дату, время и тему.','⚠️');return;}
  if(managementEventFingerprint!==fingerprint){managementEventRequest='';managementEventFingerprint=fingerprint;}
  if(!managementEventRequest)managementEventRequest='mg_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));
@@ -13106,6 +13236,7 @@ function activateDistrict(config){
 }
 // Добавляет контекст участка только к его двум доверенным скриптам.
 function districtReadUrl(value){
+ const engineer=engineerRoute(value);if(engineer)return engineer.url;
  const target=new URL(String(value)),config=CITIES_CONFIG[currentUser?.city]||{};
  if(currentUser&&[config.scriptUrl,config.reportsScriptUrl,config.refarbScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname)){
   if(!currentUser.district)throw new Error('Участок не определён. Войдите заново');
@@ -13114,6 +13245,7 @@ function districtReadUrl(value){
 }
 // Сохраняет исходный способ отправки; дополняет JSON и формы контекстом участка.
 function districtFetch(input,options={}){
+ const engineer=engineerRoute(input,options);if(engineer)return nativeDistrictFetch(engineer.url,engineer.options);
  const raw=String(input),target=new URL(raw,location.href),config=CITIES_CONFIG[currentUser?.city]||{};
  const scoped=currentUser&&[config.scriptUrl,config.reportsScriptUrl,config.refarbScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname);
  if(!scoped)return nativeDistrictFetch(input,options);
@@ -13547,7 +13679,7 @@ document.addEventListener('pointerdown',e=>{if(gsPicker&&!gsPicker.contains(e.ta
 function gsStatusOnce(url,requestId){return new Promise((resolve,reject)=>{const callback='__gs_'+Math.random().toString(36).slice(2)+'_'+Date.now(),script=document.createElement('script');let timer;function cleanup(){clearTimeout(timer);script.remove();delete window[callback];}window[callback]=result=>{cleanup();resolve(result);};script.onerror=()=>{cleanup();reject(new Error('Не удалось проверить ответ скрипта'));};timer=setTimeout(()=>{cleanup();reject(new Error('Проверка ответа заняла слишком много времени'));},12000);const target=new URL(url);target.searchParams.set('action','workingScheduleStatus');target.searchParams.set('requestId',requestId);target.searchParams.set('callback',callback);script.src=districtReadUrl(target);document.body.append(script);});}
 // Выполняет запрос — модуль редактора графика.
 async function gsRequest(operation,fields={}){
- const owner=managementOwnerKey(),url=shiftSwapUrl();if(!managementAllowed())throw new Error('Раздел доступен руководству');if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт графика города');
+ const owner=managementOwnerKey(),url=shiftSwapUrl();if(!engineerScheduleAllowed()||(engineerAllowed()&&operation!=='list'))throw new Error('Доступен только просмотр графика');if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт графика города');
  const requestId=ctRequestId(),deadline=Date.now()+75000,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);let result,lastError;
  try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'workingSchedule',operation,requestId,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,...fields}),credentials:'omit',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);result=await response.json();}catch(error){lastError=error;}finally{clearTimeout(timer);}
  // Read the receipt for the same POST; never send a save twice after a redirect/network error.
@@ -13562,7 +13694,7 @@ async function gsRequest(operation,fields={}){
 // Проверяет операцию — модуль редактора графика.
 function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar gs-main-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn app-refresh-button" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">＋ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
 // Показывает Working график.
-async function openWorkingSchedule(){if(!managementAllowed())return;gsEnsure();const owner=managementOwnerKey();if(gsState.owner!==owner)gsState={data:null,blockId:'',busy:false,owner:owner,drafts:new Map(),vacations:new Map(),newVacations:[],preview:false,cycle:3,serial:gsState.serial+1};switchScreen('screen-admin-work-schedule');if(!gsState.data)await gsLoad();else gsRender();}
+async function openWorkingSchedule(){if(!engineerScheduleAllowed())return;gsEnsure();const owner=managementOwnerKey();if(gsState.owner!==owner)gsState={data:null,blockId:'',busy:false,owner:owner,drafts:new Map(),vacations:new Map(),newVacations:[],preview:false,cycle:3,serial:gsState.serial+1};switchScreen('screen-admin-work-schedule');engineerSchedulePresentation();if(!gsState.data)await gsLoad();else gsRender();}
 // Выполняет занятость — модуль редактора графика.
 function gsBusy(busy){gsState.busy=busy;gsClosePicker();document.querySelectorAll('#screen-admin-work-schedule button,#screen-admin-work-schedule input,#screen-admin-work-schedule textarea').forEach(b=>{if(busy){b.dataset.gsDisabled=String(b.disabled);b.disabled=true;}else if(b.dataset.gsDisabled!==undefined){b.disabled=b.dataset.gsDisabled==='true';delete b.dataset.gsDisabled;}});}
 // Получает операцию — модуль редактора графика.
@@ -13574,15 +13706,15 @@ function gsBlock(){return gsState.data?.blocks.find(b=>b.id===gsState.blockId);}
 // Выполняет значение — модуль редактора графика.
 function gsValue(b,r,field,day){const key=b.id+':'+r.row+':'+field+':'+(day??'');return gsState.drafts.get(key)?.value??(field==='shift'?r.statuses[day]:r[field]);}
 // Выполняет редактирование — модуль редактора графика.
-function gsEdit(b,r,field,value,day){const key=b.id+':'+r.row+':'+field+':'+(day??''),original=field==='shift'?r.statuses[day]:r[field];if(value===original)gsState.drafts.delete(key);else gsState.drafts.set(key,{blockId:b.id,row:r.row,field,value,...(day===undefined?{}:{day})});gsState.preview=false;gsMessage('Есть несохранённые изменения');}
+function gsEdit(b,r,field,value,day){if(engineerScheduleReadOnly())return;const key=b.id+':'+r.row+':'+field+':'+(day??''),original=field==='shift'?r.statuses[day]:r[field];if(value===original)gsState.drafts.delete(key);else gsState.drafts.set(key,{blockId:b.id,row:r.row,field,value,...(day===undefined?{}:{day})});gsState.preview=false;gsMessage('Есть несохранённые изменения');}
 // Показывает операцию — модуль редактора графика.
-function gsRender(){const tabs=document.getElementById('gsTabs');tabs.replaceChildren();(gsState.data?.blocks||[]).forEach(b=>{const title=new Date(Number(b.month.slice(0,4)),Number(b.month.slice(5))-1,1).toLocaleDateString('ru-RU',{month:'long',year:'numeric'}),button=ctNode('button','btn main-btn',title);button.type='button';button.setAttribute('aria-pressed',String(b.id===gsState.blockId));button.onclick=()=>{gsState.blockId=b.id;gsClosePicker();gsRender();};tabs.append(button);});gsRenderCycle();gsRenderGrid();gsRenderVacations();}
+function gsRender(){engineerSchedulePresentation();const tabs=document.getElementById('gsTabs');tabs.replaceChildren();(gsState.data?.blocks||[]).forEach(b=>{const title=new Date(Number(b.month.slice(0,4)),Number(b.month.slice(5))-1,1).toLocaleDateString('ru-RU',{month:'long',year:'numeric'}),button=ctNode('button','btn main-btn',title);button.type='button';button.setAttribute('aria-pressed',String(b.id===gsState.blockId));button.onclick=()=>{gsState.blockId=b.id;gsClosePicker();gsRender();};tabs.append(button);});gsRenderCycle();gsRenderGrid();if(!engineerScheduleReadOnly())gsRenderVacations();}
 // Выполняет fit Columns — модуль редактора графика.
 function gsFitColumns(){const root=document.getElementById('gsGrid'),table=root?.querySelector('.gs-table');if(!table)return;const cols=[...table.querySelectorAll('col')],days=cols.length-3,desktop=document.documentElement.dataset.appLayout==='desktop';if(desktop){const width=root.clientWidth||1200,role=width<950?76:90,name=width<950?210:260,total=32,day=(width-role-name-total)/days;table.style.width=width+'px';table.style.minWidth='0';cols.forEach((c,i)=>c.style.width=(i===0?role:i===1?name:i===cols.length-1?total:day)+'px');}else{table.style.removeProperty('width');table.style.removeProperty('min-width');cols.forEach(c=>c.style.removeProperty('width'));}root.querySelectorAll('.gs-name').forEach(n=>{n.style.height='auto';n.style.height=Math.max(40,n.scrollHeight)+'px';});}
 // Выполняет сотрудник варианты — модуль редактора графика.
 function gsEmployeeChoices(){const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');if(!city)return [];const source=Array.isArray(gsState.data?.staff)?gsState.data.staff:(Array.isArray(usersDb)?usersDb:[]);return source.filter(p=>String(p.city||'').trim().toLocaleLowerCase('ru')===city&&String(p.district||'')===String(currentUser.district||'')).map(p=>({...p,name:String(p.fullName||p.name||'').trim()})).filter(p=>p.name);}
 // Показывает Grid — модуль редактора графика.
-function gsRenderGrid(){const root=document.getElementById('gsGrid');if(!root)return;root.replaceChildren();const b=gsBlock();if(!b){root.append(ctNode('p','','Не найден текущий или следующий месяц. Проверьте заголовки дат в таблице.'));return;}const table=ctNode('table','gs-table'),head=ctNode('thead'),tr=ctNode('tr'),columns=ctNode('colgroup');for(let i=0;i<b.dates.length+3;i++)columns.append(ctNode('col'));table.append(columns);['Роль','ФИО монтажника',...b.dates.map(d=>d.slice(0,2)),'Смен'].forEach((s,i)=>{const th=ctNode('th','',s);th.scope='col';if(i>=2&&i<2+b.dates.length){const date=parseScheduleDate(b.dates[i-2]);th.title=b.dates[i-2]+(date?' · '+date.toLocaleDateString('ru-RU',{weekday:'long'}):'');th.tabIndex=0;if(date&&date<parseScheduleDate(gsState.data.today))th.classList.add('gs-past-date');if(date&&(date.getDay()===0||date.getDay()===6))th.classList.add('gs-weekend');}tr.append(th);});head.append(tr);table.append(head);const body=ctNode('tbody'),query=document.getElementById('gsSearch').value.trim().toLowerCase();b.rows.forEach(r=>{if(query&&!((gsValue(b,r,'name')+' '+gsValue(b,r,'role')).toLowerCase().includes(query)))return;const tr=ctNode('tr'),role=ctNode('td'),name=ctNode('td'),roleBtn=ctNode('button','gs-choice gs-role',gsValue(b,r,'role'));roleBtn.type='button';roleBtn.disabled=r.identityReadonly;roleBtn.setAttribute('aria-label','Роль '+r.name);roleBtn.onclick=()=>gsPick(roleBtn,['Монтажник','Техник-Универсал','Бригадир','Старший Техник','Стажер'].map(s=>[s,s]),gsValue(b,r,'role'),v=>{gsEdit(b,r,'role',v);roleBtn.textContent=v;});role.append(roleBtn);const input=ctNode('button','gs-choice gs-name gs-name-choice');input.type='button';input.append(ctNode('span','gs-name-label',gsValue(b,r,'name')),ctNode('span','dropdown-arrow','▼'));input.title=gsValue(b,r,'name');input.disabled=r.identityReadonly;input.setAttribute('aria-label','ФИО монтажника: '+gsValue(b,r,'name'));input.setAttribute('aria-haspopup','listbox');input.onclick=()=>{const staff=gsEmployeeChoices().filter(p=>!b.rows.some(other=>other!==r&&gsValue(b,other,'name').trim().toLocaleLowerCase('ru')===p.name.trim().toLocaleLowerCase('ru')));if(!staff.length){gsMessage('В городе нет доступных сотрудников для выбора. Обновите список сотрудников.');return;}gsPick(input,staff.map(p=>[p.name,p.name,p]),gsValue(b,r,'name'),value=>{const person=staff.find(p=>p.name===value);if(!person||!String(person.role||'').trim()){gsMessage('У сотрудника не заполнена роль в «Списке сотрудников».');return;}gsEdit(b,r,'name',person.name);gsEdit(b,r,'role',person.role);gsRenderGrid();},true);};name.append(input);tr.append(role,name);const count=ctNode('td','gs-total');function updateCount(){const n=b.dates.filter((_,d)=>gsValue(b,r,'shift',d)==='Р').length;count.textContent=String(n);count.classList.toggle('gs-over',n>15);}b.dates.forEach((date,d)=>{const td=ctNode('td'),value=gsValue(b,r,'shift',d),button=ctNode('button','gs-choice gs-shift',value||'·');button.type='button';button.dataset.status=value;button.dataset.past=String(parseScheduleDate(date)<parseScheduleDate(gsState.data.today));button.title=r.name+' · '+date+' · '+(GS_CODES.find(c=>c[0]===value)?.[1]||'Не задано');button.setAttribute('aria-label',button.title);button.disabled=r.readonly[d]||r.frozen[d];if(gsState.drafts.has(b.id+':'+r.row+':shift:'+d))button.classList.add('gs-changed');button.onclick=()=>gsPick(button,GS_CODES,gsValue(b,r,'shift',d),v=>{gsEdit(b,r,'shift',v,d);button.textContent=v;button.dataset.status=v;button.classList.toggle('gs-changed',gsState.drafts.has(b.id+':'+r.row+':shift:'+d));updateCount();const footer=table.querySelector('tfoot tr');if(footer)footer.children[2+d].textContent=String(b.rows.filter(x=>gsValue(b,x,'shift',d)==='Р').length);});td.append(button);tr.append(td);});updateCount();tr.append(count);body.append(tr);});table.append(body);const foot=ctNode('tfoot'),line=ctNode('tr');line.append(ctNode('th','','На линии'),ctNode('td','',''));b.dates.forEach((_,d)=>line.append(ctNode('td','',String(b.rows.filter(r=>gsValue(b,r,'shift',d)==='Р').length))));line.append(ctNode('td','',''));foot.append(line);table.append(foot);root.append(table);requestAnimationFrame(gsFitColumns);if(gsState.busy)root.querySelectorAll('button,input,textarea').forEach(n=>{n.dataset.gsDisabled=String(n.disabled);n.disabled=true;});}
+function gsRenderGrid(){const root=document.getElementById('gsGrid');if(!root)return;root.replaceChildren();const b=gsBlock();if(!b){root.append(ctNode('p','','Не найден текущий или следующий месяц. Проверьте заголовки дат в таблице.'));return;}const table=ctNode('table','gs-table'),head=ctNode('thead'),tr=ctNode('tr'),columns=ctNode('colgroup');for(let i=0;i<b.dates.length+3;i++)columns.append(ctNode('col'));table.append(columns);['Роль','ФИО монтажника',...b.dates.map(d=>d.slice(0,2)),'Смен'].forEach((s,i)=>{const th=ctNode('th','',s);th.scope='col';if(i>=2&&i<2+b.dates.length){const date=parseScheduleDate(b.dates[i-2]);th.title=b.dates[i-2]+(date?' · '+date.toLocaleDateString('ru-RU',{weekday:'long'}):'');th.tabIndex=0;if(date&&date<parseScheduleDate(gsState.data.today))th.classList.add('gs-past-date');if(date&&(date.getDay()===0||date.getDay()===6))th.classList.add('gs-weekend');}tr.append(th);});head.append(tr);table.append(head);const body=ctNode('tbody'),query=document.getElementById('gsSearch').value.trim().toLowerCase();b.rows.forEach(r=>{if(query&&!((gsValue(b,r,'name')+' '+gsValue(b,r,'role')).toLowerCase().includes(query)))return;const tr=ctNode('tr'),role=ctNode('td'),name=ctNode('td'),roleBtn=ctNode('button','gs-choice gs-role',gsValue(b,r,'role'));roleBtn.type='button';roleBtn.disabled=engineerScheduleReadOnly()||r.identityReadonly;roleBtn.setAttribute('aria-label','Роль '+r.name);roleBtn.onclick=()=>gsPick(roleBtn,['Монтажник','Техник-Универсал','Бригадир','Старший Техник','Стажер'].map(s=>[s,s]),gsValue(b,r,'role'),v=>{gsEdit(b,r,'role',v);roleBtn.textContent=v;});role.append(roleBtn);const input=ctNode('button','gs-choice gs-name gs-name-choice');input.type='button';input.append(ctNode('span','gs-name-label',gsValue(b,r,'name')),ctNode('span','dropdown-arrow','▼'));input.title=gsValue(b,r,'name');input.disabled=engineerScheduleReadOnly()||r.identityReadonly;input.setAttribute('aria-label','ФИО монтажника: '+gsValue(b,r,'name'));input.setAttribute('aria-haspopup','listbox');input.onclick=()=>{const staff=gsEmployeeChoices().filter(p=>!b.rows.some(other=>other!==r&&gsValue(b,other,'name').trim().toLocaleLowerCase('ru')===p.name.trim().toLocaleLowerCase('ru')));if(!staff.length){gsMessage('В городе нет доступных сотрудников для выбора. Обновите список сотрудников.');return;}gsPick(input,staff.map(p=>[p.name,p.name,p]),gsValue(b,r,'name'),value=>{const person=staff.find(p=>p.name===value);if(!person||!String(person.role||'').trim()){gsMessage('У сотрудника не заполнена роль в «Списке сотрудников».');return;}gsEdit(b,r,'name',person.name);gsEdit(b,r,'role',person.role);gsRenderGrid();},true);};name.append(input);tr.append(role,name);const count=ctNode('td','gs-total');function updateCount(){const n=b.dates.filter((_,d)=>gsValue(b,r,'shift',d)==='Р').length;count.textContent=String(n);count.classList.toggle('gs-over',n>15);}b.dates.forEach((date,d)=>{const td=ctNode('td'),value=gsValue(b,r,'shift',d),button=ctNode('button','gs-choice gs-shift',value||'·');button.type='button';button.dataset.status=value;button.dataset.past=String(parseScheduleDate(date)<parseScheduleDate(gsState.data.today));button.title=r.name+' · '+date+' · '+(GS_CODES.find(c=>c[0]===value)?.[1]||'Не задано');button.setAttribute('aria-label',button.title);button.disabled=engineerScheduleReadOnly()||r.readonly[d]||r.frozen[d];if(gsState.drafts.has(b.id+':'+r.row+':shift:'+d))button.classList.add('gs-changed');button.onclick=()=>gsPick(button,GS_CODES,gsValue(b,r,'shift',d),v=>{gsEdit(b,r,'shift',v,d);button.textContent=v;button.dataset.status=v;button.classList.toggle('gs-changed',gsState.drafts.has(b.id+':'+r.row+':shift:'+d));updateCount();const footer=table.querySelector('tfoot tr');if(footer)footer.children[2+d].textContent=String(b.rows.filter(x=>gsValue(b,x,'shift',d)==='Р').length);});td.append(button);tr.append(td);});updateCount();tr.append(count);body.append(tr);});table.append(body);const foot=ctNode('tfoot'),line=ctNode('tr');line.append(ctNode('th','','На линии'),ctNode('td','',''));b.dates.forEach((_,d)=>line.append(ctNode('td','',String(b.rows.filter(r=>gsValue(b,r,'shift',d)==='Р').length))));line.append(ctNode('td','',''));foot.append(line);table.append(foot);root.append(table);requestAnimationFrame(gsFitColumns);if(gsState.busy)root.querySelectorAll('button,input,textarea').forEach(n=>{n.dataset.gsDisabled=String(n.disabled);n.disabled=true;});}
 // Выполняет i SO — модуль редактора графика.
 function gsISO(text){const m=/^(\d{2})\.(\d{2})\.(\d{4})$/.exec(text||'');return m?m[3]+'-'+m[2]+'-'+m[1]:'';}
 // Выполняет дата — модуль редактора графика.
@@ -13598,9 +13730,9 @@ function gsRenderVacations(){const root=document.getElementById('gsVacations');r
 // Формирует отпуск — модуль редактора графика.
 function gsAddVacation(){const staff=gsVacationChoices({});if(!staff.length){gsMessage('Нет доступных сотрудников города для добавления отпуска.');document.querySelector('.gs-vacation').open=true;return;}gsPick(document.getElementById('gsAddVacation'),staff.map(p=>[p.name,p.name,p]),'',name=>{gsState.newVacations.push({name,start:'',end:''});document.querySelector('.gs-vacation').open=true;gsRenderVacations();gsMessage('Укажите обе даты и нажмите «Сохранить отпуск». Сохранятся все изменения этого экрана.');},true);}
 // Выполняет предпросмотр — модуль редактора графика.
-async function gsPreview(){if(gsState.busy)return;if(gsDirty()){showBeelineModal('Автосборка','Сначала сохраните изменения графика и отпусков. Предложение строится по актуальным данным таблицы.','⚠️');return;}const b=gsBlock();if(!b)return;gsBusy(true);gsMessage('Готовим предложение '+gsState.cycle+' через '+gsState.cycle+'…',true);try{const plan=await gsRequest('preview',{version:gsState.data.version,blockId:b.id,cycle:gsState.cycle});b.rows.forEach((r,i)=>plan.grid[i].forEach((value,d)=>{if(value!==r.statuses[d])gsEdit(b,r,'shift',value,d);}));gsState.preview=true;gsRenderGrid();gsMessage('Предпросмотр · изменено ячеек: '+gsState.drafts.size+'. Для записи нажмите «Сохранить».'+(plan.warnings.length?' ⚠️ '+plan.warnings.join(' · '):''));}catch(e){gsMessage('⚠️ '+e.message);}finally{gsBusy(false);}}
+async function gsPreview(){if(engineerScheduleReadOnly()||gsState.busy)return;if(gsDirty()){showBeelineModal('Автосборка','Сначала сохраните изменения графика и отпусков. Предложение строится по актуальным данным таблицы.','⚠️');return;}const b=gsBlock();if(!b)return;gsBusy(true);gsMessage('Готовим предложение '+gsState.cycle+' через '+gsState.cycle+'…',true);try{const plan=await gsRequest('preview',{version:gsState.data.version,blockId:b.id,cycle:gsState.cycle});b.rows.forEach((r,i)=>plan.grid[i].forEach((value,d)=>{if(value!==r.statuses[d])gsEdit(b,r,'shift',value,d);}));gsState.preview=true;gsRenderGrid();gsMessage('Предпросмотр · изменено ячеек: '+gsState.drafts.size+'. Для записи нажмите «Сохранить».'+(plan.warnings.length?' ⚠️ '+plan.warnings.join(' · '):''));}catch(e){gsMessage('⚠️ '+e.message);}finally{gsBusy(false);}}
 // Сохраняет операцию — модуль редактора графика.
-async function gsSave(){if(gsState.busy||!gsState.data)return;if(!gsDirty()&&gsState.cycle===gsState.data.cycle){gsMessage('Нет изменений для сохранения');return;}gsBusy(true);gsMessage('Сохраняем изменения…',true);try{const result=await gsRequest('save',{version:gsState.data.version,changes:[...gsState.drafts.values()],vacations:[...gsState.vacations.values()].map(v=>({row:v.row,name:v.name,start:v.start,end:v.end,remove:!!v.remove})),newVacations:gsState.newVacations,cycle:gsState.cycle});gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];gsState.preview=false;if(result.blocks){gsState.data=result;gsRender();gsMessage('✅ Изменения сохранены и перечитаны из таблицы'+(result.notifications?' · Telegram: доставлено '+result.notifications.sent+(result.notifications.failed?' · не доставлено '+result.notifications.failed+'. '+result.notifications.errors.join(' · '):''):''));}else{gsState.data=null;gsMessage(result.message);}}catch(e){gsMessage('⚠️ '+e.message+' Несохранённые изменения сохранены на экране.');}finally{gsBusy(false);}}
+async function gsSave(){if(engineerScheduleReadOnly()||gsState.busy||!gsState.data)return;if(!gsDirty()&&gsState.cycle===gsState.data.cycle){gsMessage('Нет изменений для сохранения');return;}gsBusy(true);gsMessage('Сохраняем изменения…',true);try{const result=await gsRequest('save',{version:gsState.data.version,changes:[...gsState.drafts.values()],vacations:[...gsState.vacations.values()].map(v=>({row:v.row,name:v.name,start:v.start,end:v.end,remove:!!v.remove})),newVacations:gsState.newVacations,cycle:gsState.cycle});gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];gsState.preview=false;if(result.blocks){gsState.data=result;gsRender();gsMessage('✅ Изменения сохранены и перечитаны из таблицы'+(result.notifications?' · Telegram: доставлено '+result.notifications.sent+(result.notifications.failed?' · не доставлено '+result.notifications.failed+'. '+result.notifications.errors.join(' · '):''):''));}else{gsState.data=null;gsMessage(result.message);}}catch(e){gsMessage('⚠️ '+e.message+' Несохранённые изменения сохранены на экране.');}finally{gsBusy(false);}}
 window.addEventListener('resize',gsFitColumns);new MutationObserver(gsFitColumns).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
 window.addEventListener('beforeunload',e=>{if(gsDirty()){e.preventDefault();e.returnValue='';}});
 </script>
@@ -13764,7 +13896,7 @@ let rfUi={owner:'',manager:false,data:null,drafts:new Map(),busy:false,version:0
 function rfUiSerial(value){return String(value||'').trim().toUpperCase().replace(/^(?:S\/N\s*[:：]?\s*|SN\s*[:：]\s*)/i,'').replace(/\s+/g,'');}
 function rfUiMac(value){return String(value||'').trim().replace(/^MAC\s*[:：]?\s*/i,'').replace(/[^a-f0-9]/gi,'').toUpperCase();}
 function rfUiManager(){return ['Супервайзер','Старший Техник','Владелец'].includes(currentUser?.role);}
-function rfUiAssigned(){return currentUser?.refarbEnabled===true;}
+function rfUiAssigned(){return !engineerAllowed()&&currentUser?.refarbEnabled===true;}
 function rfVisibility(){const b=document.getElementById('refarbWorkerBtn');if(b){b.hidden=!rfUiAssigned();b.style.display=rfUiAssigned()?'':'none';}}
 function rfElement(tag,cls='',text=''){const n=document.createElement(tag);n.className=cls;if(text)n.textContent=text;return n;}
 function rfRoot(){return document.querySelector((rfUi.manager?'#screen-admin-refarb':'#screen-refarb')+' .rf-root');}
