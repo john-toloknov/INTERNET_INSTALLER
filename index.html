@@ -5249,7 +5249,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
 
                             <label style="margin-top: 15px;">ФИО Монтажника 2</label>
                             <div class="custom-dropdown ppr-staff-dropdown">
-                                <input type="search" class="dropdown-select-btn staff-search-trigger" id="tr-pprInstaller2-btn" placeholder="🔍 Выберите второго сотрудника или найдите по фамилии" aria-label="Поиск второго сотрудника ППР" aria-controls="tr-pprInstaller2-list" autocomplete="off" onclick="openSearchDropdown(event, 'tr-pprInstaller2-list')" onfocus="this.select(); updatePprInstallersLists(''); openSearchDropdown(event, 'tr-pprInstaller2-list')" oninput="document.getElementById('tr-pprInstaller2').value=''; updatePprInstallersLists(this.value); openSearchDropdown(event, 'tr-pprInstaller2-list')">
+                                <input type="search" class="dropdown-select-btn staff-search-trigger" id="tr-pprInstaller2-btn" placeholder="🔍 Выберите второго сотрудника или найдите по фамилии" aria-label="Поиск второго сотрудника ППР" aria-controls="tr-pprInstaller2-list" autocomplete="off" onclick="openSearchDropdown(event, 'tr-pprInstaller2-list')" onfocus="this.select(); updatePprInstallersLists(''); openSearchDropdown(event, 'tr-pprInstaller2-list')" oninput="document.getElementById('tr-pprInstaller2').value=''; syncPprSecondRate(); updatePprInstallersLists(this.value); openSearchDropdown(event, 'tr-pprInstaller2-list')">
                                 <input type="hidden" id="tr-pprInstaller2">
                                 <div class="dropdown-list" id="tr-pprInstaller2-list"></div>
                             </div>
@@ -9887,13 +9887,18 @@ document.addEventListener('blur', (e) => {
     }
     // Проверяет Finish шаг.
     function syncPprSecondRate(){
-        const selected=String(document.getElementById('tr-pprInstaller2').value||'').trim();
-        const active=!!selected&&getReportInstallersFromDatabase().some(person=>formatReportInstallerValue(person)===selected);
-        const rate=document.getElementById('tr-pprRate2');
-        document.getElementById('tr-pprRate2Field').hidden=!active;rate.disabled=!active;rate.required=active;
+        const hidden=document.getElementById('tr-pprInstaller2'),rate=document.getElementById('tr-pprRate2'),wrapper=document.getElementById('tr-pprRate2Field'),input=document.getElementById('tr-pprInstaller2-btn');
+        if(!hidden||!rate||!wrapper)return false;
+        const selected=String(hidden.value||'').trim(),person=getReportInstallersFromDatabase().find(person=>formatReportInstallerValue(person)===selected);
+        const active=!!selected&&!!person&&(!input||String(input.value||'').trim()===String(person.fullName||'').trim());
+        if(!active)hidden.value='';wrapper.hidden=!active;rate.disabled=!active;rate.required=active;rate.setAttribute('aria-required',String(active));
         if(!active){rate.value='';rate.setCustomValidity('');}
         return active;
     }
+    // Синхронизация до встроенной проверки required при клике или Enter.
+    function syncPprBeforeNativeValidation(event){if(!event.target.closest?.('#screen-technician-reports'))return;if(event.type==='keydown'&&event.key!=='Enter')return;syncPprSecondRate();}
+    document.addEventListener('click',syncPprBeforeNativeValidation,true);
+    document.addEventListener('keydown',syncPprBeforeNativeValidation,true);
     function validateFinishStep(isPpr) {
         if (!validateReportField(isPpr ? 'tr-pprComment' : 'tr-comment', true)) return false;
         if (!isPpr) return true;
@@ -11093,7 +11098,7 @@ function ctDetectStbModel(serial) {
     }
 
     // Показывает Verified отчёт результат.
-    function showVerifiedReportResult(type, city, receipt) {
+    function showVerifiedReportResult(type, city, receipt, requestId='') {
         const safe = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
         const rowNumber = Number(receipt.rowNumber);
         const sheetName = safe(receipt.spreadsheetName || '');
@@ -11101,7 +11106,7 @@ function ctDetectStbModel(serial) {
         const cityName = safe(city);
         const queued = receipt.telegram==='queued';
         const message = `Отчёт <b>${reportName}</b> записан в таблицу <b>${sheetName}</b> (г. ${cityName}), строка <b>${rowNumber}</b>.` +
-            (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : '');
+            (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : '') + (requestId?'<div role="status" aria-live="polite" data-report-delivery="'+safe(requestId)+'">'+(queued?'⏳ Продолжаем доставку отчёта и фотографий…':receipt.telegram==='sent'?'✅ Telegram подтвердил доставку отчёта и фотографий.':'Проверьте состояние доставки.')+'</div>':'');
         const buttons = '<button type="button" class="btn main-btn" onclick="finishReportAndStartNext()">📝 Следующий отчёт</button>';
         showBeelineModal('Отчёт сохранён', message, '✅', buttons);
     }
@@ -11120,9 +11125,22 @@ function ctDetectStbModel(serial) {
         if(receipt.reportType!==payload.reportType||!Number.isInteger(Number(receipt.rowNumber))||Number(receipt.rowNumber)<2)throw new Error('Некорректное подтверждение записи отчёта');
         return receipt;
     }
-    function kickReportDelivery(url,requestId) {
-        districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'reportProcess',requestId}),keepalive:true})
-            .catch(error=>console.warn('Доставка продолжится фоновым обработчиком:',error.message));
+    const reportDeliveryJobs=new Map();
+    function reportDeliveryStatus(requestId,text){const node=document.querySelector('[data-report-delivery]');if(node?.dataset.reportDelivery===requestId)node.textContent=text;}
+    function kickReportDelivery(url,requestId){
+        const user=currentUser;if(!user)return;const scope=[user.dwLogin,user.city,user.district].join('|'),key=scope+'|'+url+'|'+requestId;if(reportDeliveryJobs.has(key))return;
+        const job={deadline:Date.now()+5*60000};reportDeliveryJobs.set(key,job);
+        const active=()=>[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|')===scope&&Date.now()<job.deadline;
+        const run=async()=>{if(!active()){reportDeliveryJobs.delete(key);return;}let delay=5000;
+            try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'reportProcess',requestId,city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password})}),receipt=await response.json();if(!active()){reportDeliveryJobs.delete(key);return;}
+                if(receipt.status==='error')throw new Error(receipt.message||'Не удалось проверить доставку');
+                if(receipt.telegram==='sent'){reportDeliveryStatus(requestId,'✅ Telegram подтвердил доставку отчёта и всех фотографий.');reportDeliveryJobs.delete(key);return;}
+                if(receipt.telegram==='unknown'){reportDeliveryStatus(requestId,'⚠️ Результат отправки не подтверждён. Проверьте группу Telegram; автоматический повтор остановлен.');reportDeliveryJobs.delete(key);return;}
+                const retryAt=Number(receipt.telegramRetryAt)||0;if(retryAt>Date.now()){delay=retryAt-Date.now()+1000;reportDeliveryStatus(requestId,'⏳ Ожидание Telegram. Доставка продолжится после '+new Date(retryAt).toLocaleTimeString('ru-RU')+'.');}
+                else reportDeliveryStatus(requestId,receipt.telegram==='error'?'⚠️ '+String(receipt.telegramMessage||'Ошибка доставки. Очередь повторит попытку.'):'⏳ Продолжаем доставку отчёта и фотографий…');
+            }catch(error){reportDeliveryStatus(requestId,'⏳ Не удалось проверить доставку. Фоновая очередь сохранена.');console.warn('Проверка доставки отчёта:',error.message);}
+            if(active())job.timer=setTimeout(run,delay);else reportDeliveryJobs.delete(key);
+        };void run();
     }
 
     // Проверяет форму, отправляет отчёт и ждёт подтверждения записи.
@@ -11172,7 +11190,7 @@ function ctDetectStbModel(serial) {
             const targetUrl = cityConf.reportsScriptUrl;
             if (!isConfiguredCityUrl(targetUrl)) throw new Error("Не настроен URL скрипта отчетов для города.");
             const stockCheck = await vsBeforeReport(type,targetUrl);
-            if(stockCheck.receipt){if(stockCheck.receipt.telegram==='queued')kickReportDelivery(targetUrl,stockCheck.requestId);invalidateEquipmentSnapshots();showVerifiedReportResult(type,currentUser.city,stockCheck.receipt);return;}
+            if(stockCheck.receipt){if(stockCheck.receipt.telegram==='queued')kickReportDelivery(targetUrl,stockCheck.requestId);invalidateEquipmentSnapshots();showVerifiedReportResult(type,currentUser.city,stockCheck.receipt,stockCheck.requestId);return;}
             const requestId = stockCheck.requestId;
 
             let payload;
@@ -11211,7 +11229,7 @@ function ctDetectStbModel(serial) {
                 showBeelineModal('Отчёт записан, Telegram не доставлен',
                     `Отчёт записан в таблицу, строка ${Number(receipt.rowNumber)}. Остаток зарезервирован; доставка в Telegram повторится автоматически. Ошибка: ${detail}`, '⚠️');
             } else {
-                showVerifiedReportResult(type, currentUser.city, receipt);
+                showVerifiedReportResult(type, currentUser.city, receipt, requestId);
             }
         } catch(error) {
             console.error(error);
