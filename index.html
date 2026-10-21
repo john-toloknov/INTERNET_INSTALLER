@@ -410,14 +410,16 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
         .ppr-plan-item.is-active .ppr-plan-arrow { transform:rotate(180deg); }
         @media(max-width:380px) { .ppr-plan-item { font-size:12px; gap:6px; padding:7px 8px; }
             .ppr-plan-status { font-size:10px; } }
-        .ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: var(--ui-bg-rgba-0-0-0-0_86,rgba(0,0,0,.86)); display: none; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; }
-        .ppr-plan-dialog { width: min(100%, 520px); max-height: 92vh; overflow-y: auto; scrollbar-width: none; background: var(--card-bg); border: 1px solid var(--accent); border-radius: 15px; padding: 20px; box-sizing: border-box; }
+        .ppr-plan-overlay { position: fixed; inset: 0; z-index: 19000; background: var(--ui-bg-rgba-0-0-0-0_86,rgba(0,0,0,.86)); display: none; align-items: flex-start; justify-content: center; padding: 16px; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+        .ppr-plan-overlay::-webkit-scrollbar { display: none; }
+        .ppr-plan-dialog { width: min(100%, 520px); max-height: none; overflow: visible; flex-shrink: 0; margin: auto; scrollbar-width: none; background: var(--card-bg); border: 1px solid var(--accent); border-radius: 15px; padding: 20px; box-sizing: border-box; }
         .ppr-plan-dialog::-webkit-scrollbar { display: none; }
         .ppr-plan-dialog h3 { text-align: center; color: var(--accent-ink); margin-top: 0; }
         .ppr-plan-dialog label { display: block; margin: 13px 0 5px; }
         .ppr-plan-dialog input, .ppr-plan-dialog textarea { width: 100%; box-sizing: border-box; background: var(--surface-dark); color: var(--text-main); border: 1px solid var(--card-border); border-radius: 9px; padding: 11px; font: inherit; }
         .ppr-plan-dialog input[type="date"] { color-scheme: dark; cursor: pointer; }
         .ppr-plan-dialog input:disabled, .ppr-plan-dialog textarea:disabled, .ppr-plan-dialog .dropdown-select-btn:disabled { opacity: .72; cursor: default; }
+        .ppr-plan-dialog .ppr-staff-dropdown.open { z-index: 200; }
         .ppr-plan-dialog .ppr-staff-dropdown .dropdown-list { background: var(--ui-bg-1c1c1c,#1c1c1c); border: 1px solid var(--card-border); border-radius: 12px; max-height: 300px; overflow-y: auto; z-index: 100; }
         .ppr-plan-dialog .ppr-staff-dropdown.open .dropdown-list { max-height: 300px; }
         .ppr-plan-dialog .ppr-staff-dropdown .dropdown-select-btn { background: var(--ui-bg-0a0a0a,#0a0a0a); color: var(--ui-fg-ffffff,#fff); }
@@ -2549,10 +2551,10 @@ html[data-app-layout] :is(.card,.common-nav-row,.management-event-dates,.ppr-pla
 html[data-app-layout] .common-nav-row { gap:10px !important; }
 html[data-app-layout] .common-nav-row .btn { width:100%; margin:0 !important; }
 html[data-app-layout] :is(.dropdown-select-btn,.dropdown-trigger,.app-date-trigger,.app-time-trigger) { min-height:46px; }
-html[data-app-layout] :is(.beeline-modal-card,.ppr-plan-dialog,.edit-user-card) { max-height:calc(100dvh - 32px) !important; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#b7ed55 var(--ui-border-000000,#000); }
-html[data-app-layout] :is(.beeline-modal-card,.ppr-plan-dialog,.edit-user-card)::-webkit-scrollbar { display:block; width:8px; }
-html[data-app-layout] :is(.beeline-modal-card,.ppr-plan-dialog,.edit-user-card)::-webkit-scrollbar-track { background:var(--ui-bg-000000,#000); border-radius:10px; }
-html[data-app-layout] :is(.beeline-modal-card,.ppr-plan-dialog,.edit-user-card)::-webkit-scrollbar-thumb { background:#b7ed55; border:2px solid var(--ui-border-000000,#000); border-radius:10px; }
+html[data-app-layout] :is(.beeline-modal-card,.edit-user-card) { max-height:calc(100dvh - 32px) !important; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#b7ed55 var(--ui-border-000000,#000); }
+html[data-app-layout] :is(.beeline-modal-card,.edit-user-card)::-webkit-scrollbar { display:block; width:8px; }
+html[data-app-layout] :is(.beeline-modal-card,.edit-user-card)::-webkit-scrollbar-track { background:var(--ui-bg-000000,#000); border-radius:10px; }
+html[data-app-layout] :is(.beeline-modal-card,.edit-user-card)::-webkit-scrollbar-thumb { background:#b7ed55; border:2px solid var(--ui-border-000000,#000); border-radius:10px; }
 .view-header { width:100%; max-width:var(--view-width); margin:0 auto 22px; display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 0; border-bottom:1px solid var(--ui-border-333333,#333); box-sizing:border-box; }
 .view-brand { font-size:16px; letter-spacing:.04em; color:var(--ui-fg-b7ed55,#b7ed55); font-weight:800; line-height:1.5; }
 .view-brand small { display:block; color:var(--ui-fg-aaaaaa,#aaa); font-size:11px; font-weight:400; letter-spacing:0; }
@@ -4671,7 +4673,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;pwAdminBusy=tru
             </div>
         </div>
     </div>
-    <div id="pprPlanOverlay" class="ppr-plan-overlay" role="dialog" aria-modal="true" aria-labelledby="pprPlanTitle">
+    <div id="pprPlanOverlay" class="ppr-plan-overlay" onscroll="this.querySelectorAll('.custom-dropdown.open').forEach(positionDropdownPanel)" role="dialog" aria-modal="true" aria-labelledby="pprPlanTitle">
         <div class="ppr-plan-dialog">
             <h3 id="pprPlanTitle">План ППР</h3>
             <div id="pprPlanMeta"></div>
