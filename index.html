@@ -7182,7 +7182,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
             [key, typeof value === 'string' ? escapeScheduleHtml(value) : value]));
         const role = d.role || currentUser.role || 'Техник-Универсал';
         
-        const row = (label, val, style = "") => val ? `
+        const row = (label, val, style = "") => val !== null && val !== undefined && val !== "" ? `
             <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;">
                 <span style="color: var(--text-secondary);">${label}</span>
                 <span style="font-weight: 600; text-align: right; ${style}">${val}</span>
@@ -7203,14 +7203,15 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                         🎯 Цели и KPI (Старший техник)
                     </summary>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        ${row("Норматив по дням (план 21 / факт):", d.days)}
+                        ${row("Норматив по дням (план " + (d.normDays ?? '-') + " / факт):", d.days)}
                         ${row("Оклад (фикс: " + (d.baseSalaryFixed || '-') + " / факт):", d.baseSalary)}
                         ${row("Цель 1. Заявки без выезда (план 7%):", formatPct(d.goal1))}
                         ${row("Цель 2. SL-24 (план 85%):", formatPct(d.goal2))}
                         ${row("Цель 3. Результативность услуг (план 92%):", formatPct(d.goal3))}
                         ${row("Цель 4. Эффективность ресурсов (план 90%):", formatPct(d.goal4))}
                         ${row("Итоговый KPI:", formatPct(d.kpiTotal, "color: #4CAF50;"))}
-                        ${row("Бонус за выполнение KPI:", d.goal1Bonus)}
+                        ${row("Премия KPI — план:", d.goal1Bonus)}
+                        ${row("Премия KPI — факт:", d.kpiActual)}
                     </div>
                 </details>
                 <details style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--ui-border-333333,#333);">
@@ -7219,11 +7220,10 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                     </summary>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
                         ${row("Наличие авто / ГСМ:", d.gsm || '')}
-                        ${row("Включения (Кол-во / Сумма):", (d.activationsCount ? d.activationsCount + " шт. — " : "") + (d.activationsSum || '-'))}
                         ${row("День Х (" + (d.dayXRequests ? d.dayXRequests + " шт." : "") + "):", d.dayXSum)}
                         ${row("Брендирование авто:", d.carBranding)}
                         ${row("Приведи друга:", d.friendBonus)}
-                        ${row("Доплата:", d.supplements)}
+                        ${row("Общая доплата:", d.supplements)}
                     </div>
                 </details>
                 ${d.penalty && d.penalty !== "0" ? `
@@ -7243,7 +7243,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                         🎯 Цели и KPI (Бригадир)
                     </summary>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        ${row("Норматив по дням (план 15 / факт):", d.days)}
+                        ${row("Норматив по дням (план " + (d.normDays ?? '-') + " / факт):", d.days)}
                         ${row("Оклад (фикс: " + (d.baseSalaryFixed || '-') + " / факт):", d.baseSalary)}
                         ${row("Цель 1. Заявки без выезда (план 5%):", formatPct(d.goal1))}
                         ${row("Цель 2. SL-12 (план 85%):", formatPct(d.goal2))}
@@ -7260,6 +7260,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
                         ${row("Наличие авто / ГСМ:", d.gsm || '')}
                         ${row("Брендирование авто:", d.carBranding)}
+                        ${row("Услуга менее 6ч (кол-во / сумма):", (d.serviceUnder6h ?? '-') + " / " + (d.serviceUnder6hSum ?? '-'))}
                         ${row("День Х (" + (d.dayXRequests ? d.dayXRequests + " шт." : "") + "):", d.dayXSum)}
                         ${row("Приведи друга:", d.friendBonus)}
                         ${row("Bee buddy:", d.beeBuddy)}
@@ -7286,14 +7287,14 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                         🎯 Цели и KPI (Техник-универсал)
                     </summary>
                     <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.1);">
-                        ${row("Норматив по дням (план 15 / факт):", d.days)}
+                        ${row("Норматив по дням (план " + (d.normDays ?? '-') + " / факт):", d.days)}
                         ${row("Оклад (фикс: " + (d.baseSalaryFixed || '-') + " / факт):", d.baseSalary)}    
                         ${row("Цель 1. Заявки без выезда (план 5%):", formatPct(d.goal1))}
                         ${row("Цель 2. SL12 (план 85%):", formatPct(d.goal2))}
                         ${row("Цель 3. Конвертация (план 95%):", formatPct(d.goal3))}
                         ${row("Цель 4. Претензии на опоздания (план 0%):", formatPct(d.goal4))}
                         ${row("Цель 5. Продуктивность (план 100%):", formatPct(d.goal5))}
-                        ${row("Итоговый KPI:", d.kpiTotal, "color: #4CAF50;")}
+                        ${row("Итоговый KPI:", formatPct(d.kpiTotal), "color: #4CAF50;")}
                     </div>
                 </details>
                 <details style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--ui-border-333333,#333);">
@@ -7308,6 +7309,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                         ${row("Приведи друга:", d.friendBonus)}
                         ${row("Bee buddy:", d.beeBuddy)}
                         ${row("Стажировка пред. месяц:", d.prevMonthInternship)}
+                        ${row("Общая доплата:", d.supplements)}
                     </div>
                 </details>
                 ${d.penalties && d.penalties !== "0" ? `
@@ -7337,7 +7339,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
 
             <div style="background: linear-gradient(135deg, var(--ui-bg-2a2a2a,#2a2a2a), var(--ui-bg-1a1a1a,#1a1a1a)); border: 2px solid var(--accent); border-radius: 14px; padding: 16px; text-align: center; box-shadow: 0 4px 15px var(--ui-shadow-0_3,rgba(0,0,0,0.3));">
                 <div style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">Итого сумма на руки ❗️</div>
-                <div style="font-size: 24px; color: var(--accent-ink); font-weight: 900;">${d.netSalary || '-'}</div>
+                <div style="font-size: 24px; color: var(--accent-ink); font-weight: 900;">${d.netSalary ?? '-'}</div>
             </div>
         `;
 
