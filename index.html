@@ -4259,6 +4259,54 @@ function openTmcSection(key){
 
 
 
+<style id="universalSalaryBreakdownStyles">
+.salary-universal{min-width:0;width:100%}
+.su-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+.su-grid-single{grid-template-columns:minmax(0,1fr)}
+.su-profile{padding:14px;margin-bottom:16px;text-align:center;border:1px solid var(--accent);border-radius:12px;background:rgba(183,237,85,.1);color:var(--text-main)}
+.su-profile>div{margin-top:6px;font-size:12px;color:var(--text-secondary)}
+.su-card{min-width:0;margin:0;padding:16px;border:1px solid var(--card-border);border-radius:12px;background:var(--card-bg);color:var(--text-main)}
+.su-card summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;cursor:pointer;margin:0;text-align:left;font-size:15px;line-height:1.5;font-weight:700;color:var(--accent-ink)}
+.su-card summary::-webkit-details-marker{display:none}
+.su-card summary::after{content:"▾";flex-shrink:0;font-size:18px;transition:transform .15s ease}
+.su-card[open]>summary::after{transform:rotate(180deg)}
+.su-card summary:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:4px}
+.su-section-body{padding-top:10px}
+.su-row{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--card-border);font-size:13px;line-height:1.5}
+.su-row:last-child{border-bottom:0}
+.su-row>span{min-width:0;color:var(--text-secondary);overflow-wrap:break-word}
+.su-row>strong{min-width:0;max-width:62%;text-align:right;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:break-word}
+.su-wide{grid-column:1/-1}
+.su-side{display:grid;gap:16px;min-width:0}
+.su-subtotal>strong{font-weight:800;color:var(--accent-ink)}
+.su-goals{margin-top:8px}
+.su-goal{padding:14px 0;border-bottom:1px solid var(--card-border)}
+.su-goal:last-child{padding-bottom:0;border-bottom:0}
+.su-goal h4{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin:0 0 8px;font-size:13px;line-height:1.5;font-weight:600}
+.su-goal-description{min-width:0;overflow-wrap:break-word}
+.su-goal-plan{display:inline-block;white-space:nowrap;color:var(--text-secondary)}
+.su-goal-plan strong{color:var(--text-main);font-variant-numeric:tabular-nums}
+.su-goal-fact{flex-shrink:0;margin-left:auto;padding:2px 6px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums;background:transparent;color:var(--text-secondary)}
+.su-goal-fact.su-goal-met{background:rgba(34,197,94,.12);color:#4ade80}
+.su-goal-fact.su-goal-unmet{background:rgba(248,113,113,.12);color:#f87171}
+html[data-app-theme=light] .su-goal-fact.su-goal-met{color:#14763c}
+html[data-app-theme=light] .su-goal-fact.su-goal-unmet{color:#bb2430}
+.su-goal-label-short{display:none}
+.su-goal-weight{margin-top:6px;font-size:12px;color:var(--text-secondary)}
+.su-take-home{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:22px;border-radius:14px;border:1px solid var(--accent);background:rgba(183,237,85,.1);color:var(--accent-ink);font-size:20px;font-weight:700}
+.su-take-home strong{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:break-word;max-width:100%}
+.su-warning{padding:12px;border:1px solid var(--danger);border-radius:10px;color:var(--danger)}
+html[data-app-layout=mobile] .su-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+html[data-app-layout=mobile] .su-side{gap:12px}
+html[data-app-layout=mobile] .su-card{padding:14px}
+html[data-app-layout=mobile] .su-row{gap:10px;font-size:13px}
+html[data-app-layout=mobile] .su-take-home{padding:20px 16px;font-size:18px}
+html[data-app-layout=mobile] .su-take-home strong{font-size:24px}
+html[data-app-layout=mobile] .su-goal h4{gap:6px;font-size:12px}
+html[data-app-layout=mobile] .su-goal-label-first .su-goal-label-full{display:none}
+html[data-app-layout=mobile] .su-goal-label-short{display:inline}
+html[data-app-layout=mobile] .su-goal-fact{padding:2px 4px}
+</style>
 </head>
 <body>
 
@@ -7176,11 +7224,81 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
     }
 
     // Показывает зарплата шаблон.
+    function renderUniversalSalaryTemplate(d,container){
+        const number=value=>{if(value===null||value===undefined||value==='')return null;const n=Number(String(value).replace(/[\s\u00a0\u202f]/g,'').replace(',','.'));return Number.isFinite(n)?n:null;};
+        const money=value=>{const n=number(value);return n===null?'—':new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n).replace(/,00$/,'')+'\u00a0₸';};
+        const roundedMoney=value=>{const n=number(value);return money(n===null?null:Math.round(n));};
+        const wholePct=value=>{const n=number(value);return n===null?'—':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:0}).format(n*100)+'%';};
+        const gsmPlan=number(d.gsmPlan)??50000;
+        const qty=value=>{const n=number(value);return n===null?'—':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(n);};
+        const pct=value=>{const n=number(value);return n===null?'—':new Intl.NumberFormat('ru-RU',{maximumFractionDigits:2}).format(n*100)+'%';};
+        const nonzero=value=>{const n=number(value);return n!==null&&n!==0;};
+        const row=(label,value,cls='')=>`<div class="su-row ${cls}"><span>${label}:</span><strong>${value}</strong></div>`;
+        const senior=d.role==='Старший Техник';
+        const hasCar=String(d.car||'').trim().toLowerCase()==='да';
+        const defaults=senior?['Исполнение заявок без выезда по SL техническому сервису','SL24 закреплённого участка','Результативность услуг','Эффективность ресурсов']:['Заявок без выезда по SL техническому сервису','SL12','Конвертация','Претензии на опоздания','Коэффициент продуктивности'];
+        let goals='';
+        for(let i=1;i<=(senior?4:5);i++){
+            const plan=i===5&&number(d.goal5Plan)===null?1:d['goal'+i+'Plan'];
+            const fact=number(d['goal'+i]),target=number(plan);
+            const contribution=number(d['goal'+i+'Contribution']),weight=number(d['goal'+i+'Weight']);
+            const adjusted=i===5?number(d.adjustedProductivity):null;
+            let achieved=null;
+            if(fact!==null&&target!==null){
+                if(i<5&&contribution!==null&&weight!==null)achieved=contribution+1e-9>=weight;
+                else if(i===4&&!senior)achieved=fact<=target+1e-9;
+                else achieved=(adjusted===null?fact:adjusted)+1e-9>=target;
+            }
+            const status=achieved===null?'':achieved?' su-goal-met':' su-goal-unmet';
+            const explanation=achieved===null?'Нет данных':achieved?'Цель выполнена':'Цель выполнена не полностью';
+            const calculationNote=i===5&&adjusted!==null&&fact!==null&&Math.abs(adjusted-fact)>1e-9?' · Для расчёта принято '+pct(adjusted):'';
+            goals+=`<div class="su-goal"><h4><span class="su-goal-description"><span class="su-goal-label${i===1?' su-goal-label-first':''}"><span class="su-goal-label-full">Цель ${i}. ${d['goal'+i+'Name']||defaults[i-1]}</span>${i===1?'<span class="su-goal-label-short">Цель 1. Без выезда по SL</span>':''}</span> <span class="su-goal-plan">План <strong>${pct(plan)}</strong></span></span><strong class="su-goal-fact${status}" aria-label="Факт: ${explanation}" title="${explanation}${calculationNote}">${pct(d['goal'+i])}</strong></h4>${i<5?`<div class="su-goal-weight">Вес цели: ${pct(d['goal'+i+'Weight'])}</div>`:''}</div>`;
+        }
+        const additions=(senior?[['День Х','dayXSum','dayXRequests'],['Брендирование автомобиля','carBranding'],['Приведи друга','friendBonus'],['Дополнительная выплата','manualSupplement']]:[
+            ['День Х','dayXSum','dayXRequests'],['Приведи друга','friendBonus'],['Bee buddy','beeBuddy'],
+            ['Стажировка предыдущего месяца','prevMonthInternship'],['Дополнительная выплата','manualSupplement'],
+            ['Брендирование автомобиля','carBranding'],['Услуга менее 6 часов','serviceUnder6hSum','serviceUnder6h']
+        ]).filter(([,key])=>nonzero(d[key])).map(([label,key,count])=>row(label+(count&&number(d[count])!==null?' · '+qty(d[count])+' шт.':''),money(d[key]))).join('');
+        const fines=(senior?[['Штраф','penaltyAd']]:[['Штраф АД','penaltyAd'],['Касание до Swap','swapTouch'],['Повторы за 30 дней','repeats30Days']])
+            .filter(([,key])=>nonzero(d[key])).map(([label,key])=>row(label,money(d[key]))).join('');
+        const additionsCard=additions||nonzero(d.supplements)?`<details class="su-card su-additions"><summary>💰 Доплаты</summary><div class="su-section-body">${additions}${row('Итого доплат',money(d.supplements),'su-subtotal')}</div></details>`:'';
+        const finesCard=fines||nonzero(d.penalties)?`<details class="su-card su-fines"><summary>⚠️ Штрафы</summary><div class="su-section-body">${fines}${row('Общая сумма штрафов',money(d.penalties),'su-subtotal')}</div></details>`:'';
+        const side=additionsCard+finesCard;
+        const optionalDays=[['Дополнительные дни','extraDays'],['Дни стажировки','internshipDays'],['Отпуск','vacationDays']]
+            .filter(([,key])=>nonzero(d[key])).map(([label,key])=>row(label,qty(d[key]))).join('');
+        const noSalary=number(d.baseSalaryFixed)===null;
+        const role=senior?'Старший техник':d.role==='Бригадир'?'Бригадир':'Техник-универсал';
+        container.innerHTML=`<div class="salary-universal">
+          <div class="su-profile"><strong>👤 ${d.fullName||escapeScheduleHtml(currentUser.fullName)}</strong><div>${role} · ${d.city||escapeScheduleHtml(currentUser.city)}</div></div>
+          ${noSalary?'<p class="su-warning">В таблице не заполнен месячный оклад.</p>':''}
+          <div class="su-grid${side?'':' su-grid-single'}">
+            <details class="su-card su-main"><summary>🎯 KPI и основная зарплата</summary><div class="su-section-body">
+              ${row('Норматив дней — план/факт',qty(d.normDays)+' / '+qty(senior?d.days:d.mainDays))}
+              ${optionalDays}
+              ${row('Оклад — план/факт',money(d.baseSalaryFixed)+' / '+roundedMoney(d.baseSalary))}
+              ${!senior||hasCar?row('Компенсация ГСМ — план/факт',money(gsmPlan)+' / '+roundedMoney(d.gsm)):''}
+              ${senior&&hasCar?row('Включения · количество × ставка / начислено',qty(d.activationsCount)+' × '+money(d.activationRate)+' / '+money(d.activationsAmount)):''}
+              ${senior&&nonzero(d.otherCompensation)?row('Компенсация (маски, санитайзеры)',money(d.otherCompensation)):''}
+              ${senior?row('Итоговый KPI',wholePct(d.kpiTotal),'su-subtotal')+row('Премия KPI — план/факт',money(d.goal1Bonus)+' / '+money(d.kpiActual)):row('Итоговый KPI — процент/сумма',wholePct(d.kpiTotal)+' / '+money(d.earningsWithKpi),'su-subtotal')}
+              <div class="su-goals">${goals}</div>
+            </div></details>
+            ${side?`<div class="su-side">${side}</div>`:''}
+            <details class="su-card su-wide su-taxes"><summary>📑 Налоги и итоги</summary><div class="su-section-body">
+              ${row('ОПВ (10%)',money(d.opv))}${row('ВОСМС (2%)',money(d.vosms))}${row('ИПН (10%)',money(d.ipn))}${row('СО (5%)',money(d.so))}
+              ${row('Сумма для АВР',money(d.totalAvr))}
+              ${row('Итог начислений',money(d.beforePenalties),'su-subtotal')}
+            </div></details>
+            <div class="su-take-home su-wide"><span>На руки</span><strong>${money(d.netSalary)}</strong></div>
+          </div>
+        </div>`;
+    }
+
     function renderSalaryTemplate(d) {
         const container = document.getElementById('salaryContentContainer');
         d = Object.fromEntries(Object.entries(d).map(([key, value]) =>
             [key, typeof value === 'string' ? escapeScheduleHtml(value) : value]));
         const role = d.role || currentUser.role || 'Техник-Универсал';
+        if((role==='Техник-Универсал'&&d.salarySchema==='universal-v2')||(role==='Бригадир'&&d.salarySchema==='brigadier-v2')||(role==='Старший Техник'&&d.salarySchema==='senior-v2')){renderUniversalSalaryTemplate(d,container);return;}
         
         const row = (label, val, style = "") => val !== null && val !== undefined && val !== "" ? `
             <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px;">
@@ -7188,6 +7306,12 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                 <span style="font-weight: 600; text-align: right; ${style}">${val}</span>
             </div>
         ` : '';
+
+        const premiumMoney=value=>{
+            if(value===null||value===undefined||value==='')return '—';
+            const n=Number(String(value).replace(/[₸\s\u00a0\u202f]/g,'').replace(',','.'));
+            return Number.isFinite(n)?new Intl.NumberFormat('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n).replace(/,00$/,'')+'\u00a0₸':'—';
+        };
 
         let html = `
             <div style="background: rgba(183,237,85, 0.1); border: 1px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 14px; text-align: center;">
@@ -7210,8 +7334,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                         ${row("Цель 3. Результативность услуг (план 92%):", formatPct(d.goal3))}
                         ${row("Цель 4. Эффективность ресурсов (план 90%):", formatPct(d.goal4))}
                         ${row("Итоговый KPI:", formatPct(d.kpiTotal, "color: #4CAF50;"))}
-                        ${row("Премия KPI — план:", d.goal1Bonus)}
-                        ${row("Премия KPI — факт:", d.kpiActual)}
+                        ${[d.goal1Bonus,d.kpiActual].some(value=>value!==null&&value!==undefined&&value!=='')?row("Премия KPI — план/факт:",premiumMoney(d.goal1Bonus)+' / '+premiumMoney(d.kpiActual)):''}
                     </div>
                 </details>
                 <details style="background: rgba(255,255,255,0.03); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; border: 1px solid var(--ui-border-333333,#333);">
