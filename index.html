@@ -6742,6 +6742,7 @@ function engineerSchedulePresentation(){
             el.classList.remove('active');
         });
         const target = document.getElementById(screenId);
+        if(screenId==='screen-access-record')restoreAccessSaveDraft();
         if(engineerAllowed()){const section=screenId==='screen-ppr-plans'?'ppr':screenId==='screen-admin-work-schedule'?'schedule':screenId==='screen-management-event'?'event':screenId.startsWith('screen-access-')||screenId==='screen-equipment-access'?'access':'';if(section)engineerMountDistrict(screenId,section);}
         if (target) {
             if(typeof tmcMountSectionTabs==='function')tmcMountSectionTabs(target);
@@ -8170,82 +8171,59 @@ function engineerSchedulePresentation(){
         );
     }
 
-// ПРОДАКШН МОДУЛЬ: Сохранение и поиск доступов к оборудованию 1. Сохранение доступа
-async function handleSaveAccess(e) {
-    e.preventDefault();
-    
-    const phone1Input = document.getElementById('accPhone1').value.trim();
-    const phone2Input = document.getElementById('accPhone2').value.trim();
-
-    // Функция подсчета цифр в номере
-    const getDigitsCount = (str) => (str.match(/\d/g) || []).length;
-
-    // Пустой номер допустим; начатый номер проверяем на полноту.
-    const digitsCount1 = getDigitsCount(phone1Input);
-    if (phone1Input !== "" && digitsCount1 < 11) {
-        showBeelineModal("Внимание", "Первый телефонный номер введен не полностью!", "⚠️");
-        return;
-    }
-
-    // Проверяем второй номер (если начали вводить, но не дописали)
-    const digitsCount2 = getDigitsCount(phone2Input);
-    if (phone2Input !== "" && digitsCount2 < 11) {
-        showBeelineModal("Внимание", "Второй телефонный номер введен не полностью!", "⚠️");
-        return;
-    }
-
-    const cityConf = CITIES_CONFIG[currentUser?.city] || {};
-    const scriptUrl = cityConf ? cityConf.reportsScriptUrl : null;
-    
-    if (!isConfiguredCityUrl(scriptUrl)) {
-        showBeelineModal("Ошибка", "Не найдена ссылка скрипта для вашего города!", "❌");
-        return;
-    }
-
-    const payload = {
-        mode: "equipment_access",
-        address: document.getElementById('accAddress').value.trim(),
-        phone1: phone1Input ? "'" + phone1Input : "",
-        phone2: phone2Input ? "'" + phone2Input : "",
-        kskKeys: document.getElementById('accKsk').value.trim(),     
-        roofOpen: document.getElementById('accRoof').value.trim(),   
-        intercomCode: document.getElementById('accIntercom').value.trim() 
-    };
-
-    try {
-        showBeelineModal("Сохранение", "Запись доступа в таблицу...", "⏳");
-        
-        const savedResponse=await districtFetch(scriptUrl, {method:'POST',mode:'cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-        if(!savedResponse.ok)throw new Error('HTTP '+savedResponse.status);const savedResult=await savedResponse.json();if(savedResult.status!=='success')throw new Error(savedResult.message||'Запись не подтверждена');
-
-        accessDb.push({ 
-            id: 'acc_' + Date.now(),
-            district:engineerAllowed()?engineerDistrict('access').district:String(currentUser?.district||''),
-            city: currentUser?.city || '',
-            address: payload.address,
-            phone1: payload.phone1,
-            phone2: payload.phone2,
-            kskKeys: payload.kskKeys,
-            roofOpen: payload.roofOpen,
-            intercomCode: payload.intercomCode
-        });
-        localStorage.setItem('beeline_access_db', JSON.stringify(accessDb));
-
-        showBeelineModal(
-            "Успешно", 
-            "Доступ к оборудованию успешно сохранен в таблицу!", 
-            "✅",
-            `<button class="btn main-btn" onclick="closeBeelineModal(); switchScreen('screen-equipment-access');" style="margin-top:0;">К меню доступа</button>`
-        );
-
-        e.target.reset();
-        handleSearchAccess();
-
-    } catch (err) {
-        console.error("Ошибка сохранения доступа:", err);
-        showBeelineModal("Ошибка", "Не удалось подтвердить запись: "+err.message, "❌");
-    }
+// Запись доступа: повторяется прежний ID, а не новая строка.
+let accessSaveBusy=false,accessSavePending=null;
+function accessSaveScope(){return managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('access').district:currentUser.district);}
+function restoreAccessSaveDraft(){
+    const scope=accessSaveScope(),form=document.querySelector('#screen-access-record form');if(!form)return;
+    const mapping={address:'accAddress',phone1:'accPhone1',phone2:'accPhone2',kskKeys:'accKsk',roofOpen:'accRoof',intercomCode:'accIntercom'};
+    try{const pending=JSON.parse(sessionStorage.getItem('access_pending_v1_'+scope)||'null');if(pending?.scope!==scope)return;
+        if(Object.values(mapping).every(id=>!document.getElementById(id).value.trim())){for(const [key,id] of Object.entries(mapping))document.getElementById(id).value=pending.payload[key]||'';}
+        accessSavePending=pending;
+    }catch(error){console.warn('Не удалось восстановить поля доступа');}
 }
+function accessRememberPending(){try{const key='access_pending_v1_'+accessSaveScope();if(accessSavePending)sessionStorage.setItem(key,JSON.stringify(accessSavePending));else sessionStorage.removeItem(key);}catch(error){console.warn('Не удалось сохранить состояние записи доступа');}}
+async function requestAccessSave(url,payload){
+    let result;
+    try{result=await postJsonBounded(url,payload,45000);}catch(error){/* Сначала проверяем тот же ID; POST здесь повторно не отправляем. */}
+    if(result?.status==='success')return result;
+    if(result?.status==='error'){const error=new Error(result.message||'Запись отклонена');error.confirmed=true;throw error;}
+    const deadline=Date.now()+30000;
+    while(Date.now()<deadline){
+        try{result=await postJsonBounded(url,{...payload,operation:'status'},Math.max(1,Math.min(10000,deadline-Date.now())));}catch(error){result=null;}
+        if(result?.status==='success')return result;
+        if(result?.status==='error'){const error=new Error(result.message||'Запись отклонена');error.confirmed=true;throw error;}
+        if(Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,Math.min(1500,deadline-Date.now())));
+    }
+    throw new Error('Связь прервалась или ответ задерживается. Поля сохранены. Повторное нажатие проверит и при необходимости повторит ту же запись без создания дубля.');
+}
+async function handleSaveAccess(e){
+    e.preventDefault();if(accessSaveBusy)return;
+    const form=e.target,scope=accessSaveScope(),phone1=document.getElementById('accPhone1').value.trim(),phone2=document.getElementById('accPhone2').value.trim();
+    if([phone1,phone2].some(v=>v&&(v.match(/\d/g)||[]).length<11)){showBeelineModal('Внимание','Начатый телефонный номер введён не полностью.','⚠️');return;}
+    const fields={address:document.getElementById('accAddress').value.trim(),phone1,phone2,kskKeys:document.getElementById('accKsk').value.trim(),roofOpen:document.getElementById('accRoof').value.trim(),intercomCode:document.getElementById('accIntercom').value.trim()};
+    if(!fields.address){showBeelineModal('Внимание','Укажите адрес.','⚠️');return;}
+    const url=CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url)){showBeelineModal('Ошибка','Не настроен скрипт вашего участка.','❌');return;}
+    if(accessSavePending?.scope!==scope){accessSavePending=null;try{const stored=JSON.parse(sessionStorage.getItem('access_pending_v1_'+scope)||'null');if(stored?.scope===scope)accessSavePending=stored;}catch(error){}}
+    const fingerprint=JSON.stringify(fields);
+    const hasNewDraft=!!accessSavePending&&accessSavePending.fingerprint!==fingerprint;
+    if(!accessSavePending)accessSavePending={scope,fingerprint,payload:{action:'equipment_access',operation:'save',requestId:'access_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2)),...fields}};
+    accessRememberPending();accessSaveBusy=true;
+    const controls=[...form.querySelectorAll('input,textarea,button')],states=controls.map(n=>[n,n.disabled]);controls.forEach(n=>n.disabled=true);
+    try{
+        showBeelineModal('Сохранение','Записываем доступ и проверяем результат…','⏳');
+        const accessSavePendingFingerprint=accessSavePending.fingerprint;
+        const saved=await requestAccessSave(url,accessSavePending.payload);if(scope!==accessSaveScope())return;
+        accessSavePending=null;accessRememberPending();
+        const submitted=JSON.parse(accessSavePendingFingerprint);
+        const item={id:'access_'+saved.requestId,city:currentUser.city,district:engineerAllowed()?engineerDistrict('access').district:String(currentUser.district),...submitted};
+        if(!accessDb.some(v=>v.id===item.id))accessDb.push(item);try{localStorage.setItem('beeline_access_db',JSON.stringify(accessDb));}catch(error){console.warn('Доступ сохранён на сервере; локальный кэш не обновился');}
+        if(!hasNewDraft)form.reset();showBeelineModal('Успешно',hasNewDraft?'Предыдущая запись подтверждена. Новые значения остались в полях и ещё не отправлены.':'Доступ сохранён, запись подтверждена.','✅');handleSearchAccess();
+    }catch(error){
+        if(scope===accessSaveScope()){if(error.confirmed){accessSavePending=null;accessRememberPending();}showBeelineModal(error.confirmed?'Запись отклонена':'Проверка сохранения',String(error.message||error),error.confirmed?'❌':'⚠️');}
+    }finally{accessSaveBusy=false;states.forEach(([n,disabled])=>n.disabled=disabled);}
+}
+
 
 // 2. Поиск и выгрузка доступов
 let accessSearchTimer = null, accessSearchVersion = 0, accessSearchController = null;
@@ -11250,11 +11228,20 @@ function ctDetectStbModel(serial) {
         showBeelineModal('Отчёт сохранён', message, '✅', buttons);
     }
 
+// Ограничивает всю отправку, включая чтение JSON; потеря ответа не означает отказ записи.
+async function postJsonBounded(url,payload,timeoutMs=45000){
+    const controller=new AbortController();let timer;
+    const expired=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();const error=new Error('Время ожидания ответа истекло. Результат записи необходимо проверить.');error.name='TimeoutError';reject(error);},timeoutMs);});
+    try{
+        return await Promise.race([(async()=>{const response=await districtFetch(url,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();})(),expired]);
+    }finally{clearTimeout(timer);}
+}
+
+
     async function sendReportForReceipt(url,payload) {
         let receipt;
         try {
-            const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-            receipt=await response.json();
+            receipt=await postJsonBounded(url,payload,90000);
         }catch(networkError){
             // A lost response can follow a successful write: poll the same ID, never resend here.
             return await waitForReportReceipt(url,payload.requestId);
@@ -11437,11 +11424,15 @@ function ctDetectStbModel(serial) {
             document.head.appendChild(script);
         });
     }
+    const pprPendingWrites=new Map();
     // Выполняет запрос ППР планы.
     async function requestPprPlans(operation, fields = {}, stableRequestId = "") {
         const url = CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;
         if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
-        const requestId = stableRequestId || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        const owner=currentUser,scope=managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
+        const writeKey=scope+'|'+operation+'|'+JSON.stringify(fields);
+        const requestId = stableRequestId || (operation!=='list'&&pprPendingWrites.get(writeKey)) || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        if(operation!=='list')pprPendingWrites.set(writeKey,requestId);
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, district:String(currentUser.district), actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
         if(operation==='list'){
@@ -11458,19 +11449,24 @@ function ctDetectStbModel(serial) {
             } finally {clearTimeout(timer);}
             if(result){if(result.status!=='success')throw new Error(result.message||'Не удалось загрузить планы');return result;}
         }
-        await districtFetch(url, {method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
-        const deadline = Date.now() + 90000;
-        while (Date.now() < deadline) {
-            try {
-                const result = await pprPlanStatusOnce(url, requestId);
-                if (result.status === 'success') return result;
-                if (result.status === 'error') throw new Error(result.message || 'Не удалось сохранить план');
-            } catch (err) {
-                if (!['Нет ответа городского скрипта','Городской скрипт недоступен'].includes(err.message)) throw err;
-            }
-            await new Promise(resolve => setTimeout(resolve, 1200));
+        const deadline=Date.now()+95000;
+        const active=()=>currentUser===owner&&scope===managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
+        let direct;
+        try{direct=await postJsonBounded(url,payload,45000);}catch(error){/* Потеря ответа: проверяем тот же запрос. */}
+        if(!active())throw new Error('Сеанс изменился');
+        function verified(result){
+            if(result?.status==='success'){pprPendingWrites.delete(writeKey);return result;}
+            if(result?.status==='error'){pprPendingWrites.delete(writeKey);const error=new Error(result.message||'Запись отклонена');error.confirmed=true;throw error;}
+            return null;
         }
-        throw new Error('Не удалось подтвердить запись. Проверьте таблицу города перед повторной отправкой.');
+        if(direct){const result=verified(direct);if(result)return result;}
+        while(Date.now()<deadline){
+            if(!active())throw new Error('Сеанс изменился');
+            try{const result=verified(await pprPlanStatusOnce(url,requestId));if(result)return result;}
+            catch(error){if(error.confirmed)throw error;if(!['Нет ответа городского скрипта','Городской скрипт недоступен'].includes(error.message))throw error;}
+            if(Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,Math.min(1200,deadline-Date.now())));
+        }
+        throw new Error('Результат записи пока не подтверждён. Поля сохранены. Повторная попытка использует тот же запрос.');
     }
     // Получает ППР планы.
     async function loadPprPlans(force=false) {
@@ -11665,7 +11661,7 @@ function ctDetectStbModel(serial) {
             closePprPlan();
             showBeelineModal('План ППР сохранён', `Адрес: ${pprEsc(item.address)} ${pprEsc(item.house)}. Статус: ${pprEsc(result.result)}.${result.warning ? '<br>⚠️ '+pprEsc(result.warning) : ''}`, result.warning ? '⚠️' : '✅');
         } catch (err) { showBeelineModal('Не удалось сохранить ППР', pprEsc(err.message), '❌'); }
-        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; loadPprPlans(true); }
+        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; if(!pprPlanSelected)loadPprPlans(true); }
     }
 
     // ===== Навигация и сброс формы отчетов =====
