@@ -4468,6 +4468,12 @@ html[data-app-layout=mobile] .pa-orders td::before{content:attr(data-label);colo
 #pwSummary .pw-summary-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
 #pwSummary .pw-summary-details>p,#pwSummary .pw-notice-panel>p{margin:0;padding:8px 14px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.6;overflow-wrap:anywhere;color:var(--text-main)}
 @media(prefers-reduced-motion:reduce){#pwSummary .pw-summary-details>summary::after{transition:none}}
+/* Замечания — те же цвета и скругление, что у кнопки «Вернуть на доработку». */
+#pwSummary .pw-summary-details:is([data-payroll-notice=delivery],[data-payroll-notice=source]){background:rgba(238,37,36,.15);border-color:var(--danger);border-radius:8px;box-shadow:none}
+#pwSummary .pw-summary-details:is([data-payroll-notice=delivery],[data-payroll-notice=source])>summary,#pwSummary .pw-summary-details:is([data-payroll-notice=delivery],[data-payroll-notice=source])>summary::after{color:var(--danger)}
+#pwSummary .pw-summary-details:is([data-payroll-notice=delivery],[data-payroll-notice=source])>summary:focus-visible{outline-color:var(--danger)}
+html[data-app-theme=light] #pwSummary .pw-summary-details:is([data-payroll-notice=delivery],[data-payroll-notice=source]){background:#fff1f2;border-color:#e4aeb2}
+
 .pw-filename[data-file-state=selected],.pw-filename[data-file-state=loading],.pw-filename[data-file-state=saved],.pw-filename[data-file-state=rework]{padding:8px 12px;border:1px solid var(--accent);border-radius:10px;background:rgba(183,237,85,.1);color:var(--text-main);font-weight:600}
 .pw-filename[data-file-state=selected]{border-style:dashed}
 .pw-filename[data-file-state=saved]{background:rgba(183,237,85,.18)}
@@ -4482,7 +4488,7 @@ html[data-app-layout=desktop] #pwSummary .pw-publication-heading{display:flex;al
 html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-version-status{display:flex;align-items:center;min-height:44px;flex:1 1 120px;margin:0}
 html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-summary-details{width:330px;max-width:100%;flex:0 1 330px;margin:0;position:relative;height:46px;box-sizing:border-box;overflow:visible}
 html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-summary-details[open]{z-index:30}
-html[data-app-layout=desktop] #pwSummary .pw-publication-heading .pw-notice-panel{position:absolute;top:calc(100% + 6px);right:-1px;left:-1px;max-height: min(60vh,480px);overflow:auto;overscroll-behavior:contain;background:var(--card-bg);border:1px solid var(--accent);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.24);padding:4px 0}
+html[data-app-layout=desktop] #pwSummary .pw-publication-heading .pw-notice-panel{position:absolute;top:calc(100% + 6px);right:-1px;left:-1px;max-height: min(60vh,480px);overflow:auto;overscroll-behavior:contain;background:var(--card-bg);border:1px solid var(--danger);border-radius:8px;box-shadow:0 10px 28px rgba(0,0,0,.24);padding:4px 0}
 html[data-app-layout=desktop] #pwSummary .pw-notice-panel>p:first-child{border-top:0}
 
 
