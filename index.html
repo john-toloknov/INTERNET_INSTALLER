@@ -363,6 +363,9 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
 
         /* Ролевые кнопки скрываются независимо от display:flex у .btn. */
         #screen-main .btn[hidden] { display: none !important; }
+        /* Ролевые разделы не показываются другим ролям ни в одной адаптации. */
+        #screen-main:not([data-menu-role="Инженер"]) :is(#engineerPprBtn,#engineerScheduleBtn,#engineerEventsBtn,#engineerDeliveryBtn),
+        #screen-main:not([data-menu-role="Супервайзер"]) #supervisorPprBtn { display: none !important; }
 
         .btn:active { transform: scale(0.98); }
 
@@ -4051,6 +4054,7 @@ function openTmcSection(key){
  function applyLayout(){
   root.dataset.viewPreference=preference;
   root.dataset.appLayout=preference==='auto'?(media.matches?'desktop':'mobile'):preference;
+  if(typeof engineerApplyMenu==='function')engineerApplyMenu();
   window.dispatchEvent(new Event('resize'));
  }
  applyLayout();
@@ -6677,13 +6681,18 @@ function engineerSelectDistrict(section,value){
     if(section==='event'){managementEventRequest='';managementEventFingerprint='';engineerMountDistrict('screen-management-event','event');updateManagementPreview();}
 }
 function engineerScreenAllowed(id){return id.startsWith('screen-software')||id==='screen-channel-catalog'||['screen-main','screen-login','screen-forgot','screen-reset','screen-software','screen-ppr-plans','screen-equipment-access','screen-access-search','screen-access-record','screen-admin-work-schedule','screen-management-event'].includes(id);}
+function mainRoleButtonVisibility(id,visible){
+    const button=document.getElementById(id);if(!button)return;
+    button.hidden=!visible;button.style.display=visible?'':'none';
+}
 function engineerApplyMenu(){
-    const active=engineerAllowed();
-    document.getElementById('engineerDeliveryBtn').hidden=!(active&&managementGroup&&managementDeliveryOwner===managementOwnerKey());
-    for(const id of ['engineerPprBtn','engineerScheduleBtn','engineerEventsBtn'])document.getElementById(id).hidden=!active;
+    const active=engineerAllowed(),role=normalizeEmployeeRole(currentUser?.role);
+    document.getElementById('screen-main')?.setAttribute('data-menu-role',role);
+    mainRoleButtonVisibility('engineerDeliveryBtn',!!(active&&managementGroup&&managementDeliveryOwner===managementOwnerKey()));
+    for(const id of ['engineerPprBtn','engineerScheduleBtn','engineerEventsBtn'])mainRoleButtonVisibility(id,active);
     document.getElementById('digitalWindowBtn').style.display='';
-    const supervisor=currentUser?.role==='Супервайзер';
-    document.getElementById('supervisorPprBtn').hidden=!supervisor;
+    const supervisor=role==='Супервайзер';
+    mainRoleButtonVisibility('supervisorPprBtn',supervisor);
     if(supervisor)for(const id of ['technicianReportsBtn','installerMenuBtn'])document.getElementById(id).style.display='none';
     if(active)for(const id of ['technicianReportsBtn','installerMenuBtn','scannerAppBtn','adminPanelBtn'])document.getElementById(id).style.display='none';
 }
@@ -6728,6 +6737,7 @@ function engineerSchedulePresentation(){
     function switchScreen(screenId) {
         if(currentUser?.role==='Супервайзер'&&['screen-installer-menu','screen-technician-reports'].includes(screenId))screenId='screen-main';
         if(engineerAllowed()&&!engineerScreenAllowed(screenId))screenId="screen-main";
+        if(screenId==='screen-main')engineerApplyMenu();
         if(typeof closePprCreate==="function")closePprCreate();
         if(typeof gsClosePicker==='function')gsClosePicker();
         if(typeof closeAppCalendar==='function')closeAppCalendar();
@@ -12774,7 +12784,7 @@ function openManagementDelivery(){
 // Выполняет руководство установка доставка.
 function managementSetDelivery(result,summary){
  managementDeliveryDistrict=engineerAllowed()?engineerDistrict('event').district:String(currentUser?.district||'');managementGroup=result.group;managementLastDelivery=result.delivery||null;managementDeliverySummary=summary;managementDeliveryOwner=managementOwnerKey();
- managementState('');document.getElementById('managementDeliveryReopen').hidden=false;document.getElementById('engineerDeliveryBtn').hidden=!engineerAllowed();openManagementDelivery();
+ managementState('');document.getElementById('managementDeliveryReopen').hidden=false;mainRoleButtonVisibility('engineerDeliveryBtn',engineerAllowed());openManagementDelivery();
 }
 // Выполняет руководство наблюдение.
 function managementWatch(group){
