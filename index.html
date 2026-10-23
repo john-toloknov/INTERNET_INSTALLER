@@ -3824,10 +3824,14 @@ html[data-app-layout=desktop] .view-header .view-preference-label{margin:0;white
 .view-preference-toggle>button{display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:40px;padding:0;border:0;border-radius:20px;background:transparent;color:var(--text-main);font:inherit;font-size:20px;cursor:pointer;touch-action:manipulation}
 .view-preference-toggle>button[aria-checked=true]{background:var(--accent);color:#142006;box-shadow:0 2px 6px #0002}
 .view-preference-toggle>button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
-html[data-app-layout=mobile] .view-header{grid-template-columns:minmax(0,1fr)!important;row-gap:10px!important;padding:6px 0 12px!important}
-html[data-app-layout=mobile] .view-header .view-brand{grid-column:1;grid-row:1;font-size:17px!important;justify-self:center}
-html[data-app-layout=mobile] .view-header .view-mode{grid-column:1;grid-row:2;width:100%;justify-self:stretch;justify-content:space-between;gap:16px}
-html[data-app-layout=mobile] .view-preference-toggle>button{height:44px}
+html[data-app-layout=mobile] .view-header{grid-template-columns:74px minmax(0,1fr) 74px!important;column-gap:6px!important;row-gap:0!important;align-items:center;padding:6px 0 12px!important}
+html[data-app-layout=mobile] .view-header .view-brand{grid-column:2;grid-row:1;width:100%;max-width:100%;font-size:clamp(20px,5vw,26px)!important;line-height:1.15;white-space:normal!important;overflow-wrap:normal;word-break:normal;justify-self:center}
+html[data-app-layout=mobile] .view-header .view-mode{display:contents}
+html[data-app-layout=mobile] .view-header .view-preference-field{grid-row:1;align-self:center;justify-self:center}
+html[data-app-layout=mobile] .view-header .view-preference-field:first-child{grid-column:1}
+html[data-app-layout=mobile] .view-header .view-preference-field:last-child{grid-column:3}
+html[data-app-layout=mobile] .view-preference-label{font-size:10px;margin-bottom:4px}
+html[data-app-layout=mobile] .view-preference-toggle>button{width:32px;min-width:32px;height:40px;font-size:16px}
 @media(max-width:1100px){html[data-app-layout=desktop] .view-header{grid-template-columns:48px minmax(0,1fr) 48px!important;row-gap:10px!important}html[data-app-layout=desktop] .view-header .view-mode{grid-column:1/-1;grid-row:2;justify-self:center}html[data-app-layout=desktop] .view-header .view-brand{grid-column:2;grid-row:1;font-size:clamp(14px,3vw,24px)!important;white-space:normal;overflow-wrap:anywhere}}
 
 /* Приглушённая светлая тема: серые уровни вместо сплошного белого. */
