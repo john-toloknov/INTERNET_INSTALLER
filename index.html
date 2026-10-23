@@ -2550,7 +2550,9 @@ html[data-app-layout=desktop] #screen-admin-board{max-width:none!important;width
 #screen-technician-reports .dismantle-kit .dropdown-select-btn{width:100%;min-height:44px;text-align:left}
 #screen-technician-reports .dismantle-kit-summary{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 #screen-technician-reports .dismantle-kit .dropdown-list{padding:4px;border-color:var(--accent);background:var(--card-bg)}
-#screen-technician-reports .dismantle-kit .checkbox-container{position:relative;margin:0;padding:7px 8px;min-height:36px}
+#screen-technician-reports .dismantle-kit .checkbox-container{display:flex;flex-direction:row;align-items:center;gap:10px;position:relative;margin:0;padding:7px 8px;min-height:36px;text-transform:none;letter-spacing:normal;line-height:1.4}
+#screen-technician-reports .dismantle-kit .custom-checkbox{display:flex;flex:0 0 20px;box-sizing:border-box;width:20px;height:20px}
+#screen-technician-reports .dismantle-kit .checkbox-label{display:block;min-width:0;white-space:normal;font-size:14px;line-height:1.4}
 #screen-technician-reports .dismantle-kit input[type=checkbox]{display:block;position:absolute;opacity:0;width:1px;height:1px;margin:0;padding:0}
 #screen-technician-reports .dismantle-kit input:focus-visible+.custom-checkbox{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
 html[data-app-layout=mobile] #screen-technician-reports .dismantle-kit .checkbox-container{min-height:44px;box-sizing:border-box}
@@ -3812,17 +3814,19 @@ html[data-app-theme=light] :is(.rf-warning,.city-debt-warning){color:#92510c}
 html[data-app-theme=light] :focus-visible{outline-color:#56851c}
 html[data-app-theme=light] :is(.view-header,.view-sidebar,.view-sidebar-user){border-color:var(--card-border)}
 html[data-app-layout] .view-header{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;grid-template-rows:auto!important;min-height:76px!important;column-gap:16px!important;overflow:visible}
-html[data-app-layout] .view-header .view-mode{display:flex;gap:12px;align-items:center;grid-column:3;grid-row:1;width:auto;min-width:0;justify-self:end}
+html[data-app-layout] .view-header .view-mode{display:flex;flex-direction:row;flex-wrap:nowrap;gap:16px;align-items:center;grid-column:3;grid-row:1;width:auto;min-width:0;justify-self:end}
 html[data-app-layout] .view-header .view-brand{grid-column:2;grid-row:1;min-width:0;justify-self:center;text-align:center;font-size:clamp(16px,1.7vw,28px)!important;white-space:nowrap}
 .view-preference-field{min-width:0;width:auto;text-align:center}
 .view-preference-label{display:block;margin:0 0 5px;font-size:11px;line-height:1.2;color:var(--text-secondary);font-weight:600}
+html[data-app-layout=desktop] .view-header .view-preference-field{display:flex;flex-direction:row;align-items:center;gap:8px}
+html[data-app-layout=desktop] .view-header .view-preference-label{margin:0;white-space:nowrap}
 .view-preference-toggle{display:flex;gap:3px;padding:3px;border:1px solid var(--card-border);border-radius:24px;background:var(--surface-dark);width:max-content}
 .view-preference-toggle>button{display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:40px;padding:0;border:0;border-radius:20px;background:transparent;color:var(--text-main);font:inherit;font-size:20px;cursor:pointer;touch-action:manipulation}
 .view-preference-toggle>button[aria-checked=true]{background:var(--accent);color:#142006;box-shadow:0 2px 6px #0002}
 .view-preference-toggle>button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
 html[data-app-layout=mobile] .view-header{grid-template-columns:minmax(0,1fr)!important;row-gap:10px!important;padding:6px 0 12px!important}
 html[data-app-layout=mobile] .view-header .view-brand{grid-column:1;grid-row:1;font-size:17px!important;justify-self:center}
-html[data-app-layout=mobile] .view-header .view-mode{grid-column:1;grid-row:2;width:auto;justify-self:center;gap:16px}
+html[data-app-layout=mobile] .view-header .view-mode{grid-column:1;grid-row:2;width:100%;justify-self:stretch;justify-content:space-between;gap:16px}
 html[data-app-layout=mobile] .view-preference-toggle>button{height:44px}
 @media(max-width:1100px){html[data-app-layout=desktop] .view-header{grid-template-columns:48px minmax(0,1fr) 48px!important;row-gap:10px!important}html[data-app-layout=desktop] .view-header .view-mode{grid-column:1/-1;grid-row:2;justify-self:center}html[data-app-layout=desktop] .view-header .view-brand{grid-column:2;grid-row:1;font-size:clamp(14px,3vw,24px)!important;white-space:normal;overflow-wrap:anywhere}}
 
@@ -9863,6 +9867,7 @@ document.addEventListener('blur', (e) => {
 
     // Обрабатывает отчёт Type изменение.
     function handleReportTypeChange() {
+        clearReportEquipmentLookup();
         const type = document.getElementById('tr-reportType').value;
         const standardBlock = document.querySelector('.standard-report-block');
         const pprBlock = document.querySelector('.ppr-only');
@@ -10518,7 +10523,21 @@ document.addEventListener('click',event=>{
 
     // ПОИСК ОБОРУДОВАНИЯ В ТАБЛИЦЕ ГОРОДА Используется тот же городской endpoint getMyEquipment, что и экран
 
+    function reportEquipmentLookupAllowed() {
+        return !/^Демонтаж (?:FTTB|GPON)$/.test(document.getElementById('tr-reportType')?.value || '');
+    }
+    // Отменяем отложенный поиск и игнорируем ответы предыдущей тематики.
+    function clearReportEquipmentLookup() {
+        for (const id of reportEquipmentSerialIds) {
+            const input = document.getElementById(id);if (!input) continue;
+            clearTimeout(equipmentSearchTimers.get(input));
+            equipmentSearchSequences.set(input,(equipmentSearchSequences.get(input)||0)+1);
+        }
+        closeEquipmentSearch();
+        document.querySelectorAll('#tr-step-equipment .equipment-search-results').forEach(box=>box.replaceChildren());
+    }
     async function loadReportEquipmentLookup() {
+        if (!reportEquipmentLookupAllowed()) return [];
         const name = String(currentUser?.fullName || '').trim();
         const city = String(currentUser?.city || '').trim();
         const login = currentUser?.dwLogin;
@@ -10567,6 +10586,7 @@ document.addEventListener('click',event=>{
 
     // Обрабатывает оборудование поиск.
     function selectEquipmentLookup(inputId, serial, mac, modelName) {
+        if (!reportEquipmentLookupAllowed()) return;
         const input = document.getElementById(inputId);
         if (!input) return;
         input.value = normalizeEquipmentValue(input, serial);
@@ -10594,6 +10614,7 @@ document.addEventListener('click',event=>{
     const equipmentSearchSequences = new WeakMap(), equipmentSearchTimers = new WeakMap();
     async function showEquipmentSearch(input) {
         if (!input || !reportEquipmentSerialIds.has(input.id)) return;
+        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
         const sequence = (equipmentSearchSequences.get(input) || 0) + 1;
         equipmentSearchSequences.set(input, sequence);
         const query = normalizeEquipmentValue(input, input.value).toUpperCase();
@@ -10606,13 +10627,13 @@ document.addEventListener('click',event=>{
         let items;
         try { items = await loadReportEquipmentLookup(); }
         catch(error) {
-            if(equipmentSearchSequences.get(input)!==sequence)return;
+            if(!reportEquipmentLookupAllowed()||equipmentSearchSequences.get(input)!==sequence)return;
             box.replaceChildren();
             const message=document.createElement('div');message.className='equipment-search-empty';
             message.textContent='Не удалось загрузить оборудование: '+String(error.message||error)+'. Повторите поиск.';
             box.appendChild(message);return;
         }
-        if(equipmentSearchSequences.get(input)!==sequence)return;
+        if(!reportEquipmentLookupAllowed()||equipmentSearchSequences.get(input)!==sequence)return;
         if (document.activeElement !== input && !input.matches(':focus')) {box.classList.remove('open');box.replaceChildren();return;}
         const type = input.id.startsWith('tr-r') ? 'Роутеры' : 'Приставки';
         const matches = items.filter(item => {
@@ -10654,11 +10675,13 @@ document.addEventListener('click',event=>{
     document.addEventListener('focusin', event => {
         if (!reportEquipmentSerialIds.has(event.target.id)) return;
         closeReportModelDropdowns();
+        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
         if (event.target.value) showEquipmentSearch(event.target);
     });
     document.addEventListener('input', event => {
         if (!reportEquipmentSerialIds.has(event.target.id)) return;
         closeReportModelDropdowns();
+        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
         const input=event.target;
         clearTimeout(equipmentSearchTimers.get(input));
         equipmentSearchSequences.set(input,(equipmentSearchSequences.get(input)||0)+1);
