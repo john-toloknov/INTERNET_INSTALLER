@@ -4482,7 +4482,7 @@ function paSalesDetails(entry,host,sign){
   if(rows.length){
    const labels=minus?['№ заявки','Адрес','Дата подключения','Тарифный план','СИМ · ₸','ТВ · ₸','Тариф · ₸','Выплата']:['№ заявки','Адрес','Дата решения','Тариф до · ₸','Тариф после · ₸','ТВ · шт.','СИМ · шт.','Тариф · шт.','Выплата'];
    const wrap=paNode('div',undefined,'pa-orders pa-sales-orders'),table=paNode('table'),head=paNode('thead'),tr=paNode('tr');for(const label of labels){const th=paNode('th',label);th.scope='col';tr.append(th);}head.append(tr);table.append(head);const tbody=paNode('tbody');
-   for(const r of rows){const row=paNode('tr'),values=minus?[r.order,[r.city,r.street,r.house,r.flat].map(v=>String(v??'').trim()).filter(Boolean).join(' '),paDate(r.date),r.plan,paMoney(r.sim),paMoney(r.tv),paMoney(r.tariff),paMoney(r.amount)]:[r.order,[r.street,r.house,r.flat?'кв. '+r.flat:''].filter(Boolean).join(', '),paDate(r.date),paMoney(r.previous),paMoney(r.current),String(r.tv),String(r.sim),String(r.tariff),paMoney(r.amount)];for(const [i,value]of values.entries()){const td=paNode('td',value||'—');td.dataset.label=labels[i];row.append(td);}tbody.append(row);}table.append(tbody);wrap.append(table);body.append(wrap);
+   for(const r of rows){const row=paNode('tr'),values=minus?[r.order,[paCityStreet(r.city,r.street),r.house,r.flat].map(v=>String(v??'').trim()).filter(Boolean).join(' '),paDate(r.date),r.plan,paMoney(r.sim),paMoney(r.tv),paMoney(r.tariff),paMoney(r.amount)]:[r.order,[r.street,r.house,r.flat?'кв. '+r.flat:''].filter(Boolean).join(', '),paDate(r.date),paMoney(r.previous),paMoney(r.current),String(r.tv),String(r.sim),String(r.tariff),paMoney(r.amount)];for(const [i,value]of values.entries()){const td=paNode('td',value||'—');td.dataset.label=labels[i];row.append(td);}tbody.append(row);}table.append(tbody);wrap.append(table);body.append(wrap);
   }
   if(adjustments.length){body.append(paNode('p','Начисления из F+ без номера заявки:','pa-warning'));for(const adjustment of adjustments)paRow(body,'Без номера заявки · '+adjustment.count+' действий',paMoney(adjustment.amount));}
   if(minus)paRow(body,'Заявок в детализации',String(rows.length));else paRow(body,'Засчитано действий',String(rows.concat(adjustments).reduce((s,r)=>s+(r.count||0),0)));
@@ -4522,6 +4522,9 @@ function paSalesXmlRows(text,strings,columns,loginColumn,eligible){
  }
  if(!result.length)throw new Error('Нет заголовка листа детализации');return result;
 }
+
+// Адрес сохраняется и обработчиком прежней версии, который не знает отдельного city.
+function paCityStreet(city,street){city=String(city??'').trim().replace(/\s+/g,' ');street=String(street??'').trim().replace(/\s+/g,' ');if(!city)return street;const c=city.toLowerCase(),t=street.toLowerCase();return t===c||t.startsWith(c+' ')?street:[city,street].filter(Boolean).join(' ');}
 
 async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
  if(!file||!file.name.toLowerCase().endsWith('.xlsx'))throw new Error('Выберите файл .xlsx');
@@ -4575,7 +4578,9 @@ async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
    const matches=nodes(book,'sheet').filter(s=>String(s.getAttribute('name')).trim()===name);if(!matches.length)continue;if(matches.length!==1)throw new Error('Повтор листа '+name);
    await onProgress(0,'Читаем детализацию '+name+' только для сотрудников города '+city+'.');
    const sheet=matches[0],id=sheet.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||sheet.getAttribute('r:id'),target=targets.get(id);if(!target)throw new Error('Не найден лист '+name);const path=target.startsWith('/')?target.slice(1):'xl/'+target;if(path.includes('..'))throw new Error('Неверный путь детализации');
-   result.push({sheet:name,rows:await xml(path,false,{columns,loginColumn,eligible})});
+   const detailRows=await xml(path,false,{columns,loginColumn,eligible});
+   if(name==='F-'){const cityIndex=detailRows[0].findIndex(v=>normalize(v)==='cityname'),streetIndex=detailRows[0].findIndex(v=>normalize(v)==='streetname');if(cityIndex<0||streetIndex<0)throw new Error('F-: не найдены город и улица');for(const row of detailRows.slice(1))row[streetIndex]=paCityStreet(row[cityIndex],row[streetIndex]);}
+   result.push({sheet:name,rows:detailRows});
   }
   await onProgress(1,'SWAP и итоговый расчёт города '+city+' подготовлены.');return result;
  }
