@@ -2451,6 +2451,8 @@ button, input, textarea, select { font:inherit; }
 #screen-shift-swaps .shift-swap-action-row.is-single .btn {grid-column:1 / -1;}
 .management-menu{display:flex;flex-direction:column;gap:8px;}
 .management-menu .btn{margin-top:0;}
+
+
 .management-status{font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;min-height:24px;}
 .management-event-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;}
 .management-event-dates>div{min-width:0;}
@@ -3542,6 +3544,7 @@ html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-na
 #screen-tmc-requests-management .tmr-toolbar .app-date-trigger{display:flex;align-items:center;justify-content:space-between}
 html[data-app-layout=mobile] #screen-installer-menu .view-installer-grid{align-items:stretch!important;grid-auto-rows:48px;gap:10px!important}
 html[data-app-layout=mobile] #screen-installer-menu .view-installer-grid>.btn{height:48px!important;min-height:48px!important;width:100%;margin:0!important;padding:10px 7px!important;font-size:13px!important;box-sizing:border-box;align-self:stretch}
+
 @media(max-width:1240px){.tmr-request-grid{grid-template-columns:repeat(7,minmax(0,1fr))}.tmr-request-grid>.tmr-cable{grid-column:1/5;grid-row:2}.tmr-request-grid>.tmr-person{grid-column:5/-1;grid-row:2}.tmr-request-grid>.tmr-quantity{grid-row:3}#screen-tmc-request .tmr-request-grid>.tmr-cable,#screen-tmc-request .tmr-request-grid>.tmr-person{grid-row:1}#screen-tmc-request .tmr-request-grid>.tmr-quantity{grid-row:2}}
 html[data-app-layout=mobile] .tmr-request-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 html[data-app-layout=mobile] .tmr-request-grid>.tmr-cable,html[data-app-layout=mobile] .tmr-request-grid>.tmr-person{grid-column:1/-1;grid-row:auto}
@@ -3583,9 +3586,19 @@ html[data-app-layout=desktop] #screen-admin-themes>.card>button[onclick="adminTo
 #tr-pprRate2Field[hidden]{display:none!important;}
 
 :is(#buttonSizePriority,.app-screen) .btn{min-height:44px!important;height:auto!important;padding:12px 16px!important;font-size:14px!important;font-weight:700!important;line-height:18px!important;border-radius:12px!important;box-sizing:border-box!important;}
+/* Админ-панель телефона: две кнопки в ряд, настройки и навигация на всю ширину. */
+html[data-app-layout=mobile] #screen-admin>.management-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
+html[data-app-layout=mobile] #screen-admin>.management-menu>:not(button),html[data-app-layout=mobile] #screen-admin #ufFrontMenuButton{grid-column:1/-1}
+html[data-app-layout=mobile] #screen-admin>.management-menu>button.btn:not(#ufFrontMenuButton){width:100%;min-width:0;min-height:48px!important;box-sizing:border-box;margin:0!important;padding:10px 7px!important;font-size:13px!important;line-height:1.25;white-space:normal;word-break:normal;overflow-wrap:normal;align-self:stretch}
+html[data-app-layout=mobile] #screen-admin>.management-menu>button[hidden]{display:none!important}
+html[data-app-layout=mobile] #screen-admin #managementStatus:empty{display:none}
 
 :is(#refreshStylePriority,.app-screen) button.app-refresh-button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;max-width:100%!important;min-width:0!important;min-height:44px!important;height:auto!important;padding:12px 16px!important;margin:0!important;align-self:center!important;justify-self:end!important;border:1px solid var(--accent)!important;border-radius:12px!important;background:var(--accent)!important;color:#111!important;font:700 14px/18px Arial,sans-serif!important;white-space:normal!important;box-sizing:border-box!important;cursor:pointer;}
 :is(#refreshStylePriority,.app-screen) button.app-refresh-button:disabled{opacity:.55;cursor:wait;}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;align-items:stretch}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar>.btn{width:100%!important;max-width:none!important;min-width:0;min-height:48px!important;margin:0!important;padding:10px 6px!important;font-size:13px!important;line-height:18px!important;white-space:normal!important;word-break:normal;overflow-wrap:normal;align-self:stretch!important;justify-self:stretch!important}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar>.btn[hidden]{display:none!important}
+
 #screen-tmc-request .tmr-request-header{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;}
 #screen-tmc-request .tmr-request-header .tmr-form-date{order:0;flex:0 1 160px;margin:0!important;}
 #screen-tmc-request .tmr-request-header .app-refresh-button{order:1;margin:0!important;align-self:flex-end!important;}
@@ -4403,7 +4416,8 @@ html[data-app-layout=desktop] #screen-admin-payroll #pwRework:disabled{opacity:.
 }
 /* Разделы выплат: две кнопки и компактные расчёты в обеих адаптациях. */
 .pa-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;margin:0 0 16px}
-#paOwnReload{width:auto;margin:0 0 12px}
+.pa-own-toolbar{display:flex;justify-content:flex-end;align-items:center;width:100%;min-width:0}
+#paOwnReload{width:auto;margin:0}
 .pa-tabs>.btn{width:100%;margin:0!important;padding:10px 8px;min-width:0;min-height:48px;line-height:1.25;font-size:14px;overflow-wrap:normal!important;word-break:normal}
 .pa-label-mobile{display:none}
 html[data-app-layout=mobile] .pa-label-desktop{display:none}
@@ -4412,6 +4426,7 @@ html[data-app-layout=mobile] .pa-label-mobile{display:inline}
 .pa-block>summary{cursor:pointer;padding:12px;font-weight:700;color:var(--accent-ink,var(--accent))}
 .pa-block>div{padding:0 12px 12px}
 .pa-net{padding:20px;margin-top:16px;border-radius:14px;background:var(--accent);color:#142006;font-size:23px;font-weight:800;text-align:center;grid-column:1/-1}
+.pa-empty{margin:8px 0;color:var(--text-secondary);font-size:14px;line-height:1.6}
 .pa-error{color:var(--danger);white-space:pre-line}
 .pa-orders{width:100%;margin:12px 0;min-width:0;overflow-x:auto}
 .pa-orders table{width:100%;border-collapse:collapse;font-size:12px;color:var(--text-main)}
@@ -4453,7 +4468,7 @@ function paInvalidateCalculation(kind){paDirtyKinds.add(kind);paAdminCache.delet
 function paRememberAdmin(){paEnsureCacheScope();if(!pwAdminState||pwAdminBusy||paDirtyKinds.has(paDataset())||pwAdminState.kind!==paDataset())return;const root=document.getElementById('screen-admin-payroll');if(!root)return;paAdminCache.set(paDataset(),{state:pwAdminState,nodes:Array.from(document.getElementById('pwEntries').children),search:document.getElementById('pwEmployeeSearch').value,month:document.getElementById('pwMonth').value,open:Array.from(document.querySelectorAll('#pwSummary>details'),n=>n.open)});}
 function paRestoreAdmin(){paEnsureCacheScope();const cached=paAdminCache.get(paDataset());if(!cached)return false;pwAdminState=cached.state;pwScope=[currentUser.dwLogin,currentUser.city,currentUser.district].join('|');document.getElementById('pwEmployeeSearch').value=cached.search;document.getElementById('pwMonth').value=cached.month;document.getElementById('pwMonth').channelSync?.();pwPaint();document.getElementById('pwEntries').replaceChildren(...cached.nodes);document.querySelectorAll('#pwSummary>details').forEach((n,i)=>n.open=!!cached.open[i]);pwStatus('');pwApplyAdminLayout();return true;}
 function paRestoreOwn(kind,period,host){paEnsureCacheScope();const cached=paOwnCache.get(kind);if(!cached||(period&&cached.period!==period))return false;host.replaceChildren(...cached.nodes);return true;}
-function paRememberOwn(kind,period,data,host){paOwnCache.set(kind,{period:data.publication?.period||period||'',nodes:Array.from(host.childNodes)});}
+function paRememberOwn(kind,period,data,host){paOwnCache.set(kind,{period:data.publication?.period||data.period||period||'',nodes:Array.from(host.childNodes)});}
 function paOwnLoading(busy){const reload=document.getElementById('paOwnReload');if(reload)reload.disabled=busy;document.getElementById('salaryContentContainer')?.setAttribute('aria-busy',String(busy));}
 
 function paDataset(){return paAdminSection==='salary'?'salary':'payouts';}
@@ -4512,13 +4527,14 @@ function paSalesDetails(entry,host,sign){
  });
 }
 
-function paOwnTabs(){const screen=document.getElementById('screen-salary');paTabs(screen,paOwnSection,section=>section==='salary'?openMySalary():openMyPayout(section),'paOwnTabs');screen.querySelector('h2').textContent=paOwnSection==='salary'?'💰 Моя зарплата':'💵 Агентское вознаграждение';let reload=document.getElementById('paOwnReload');if(!reload){reload=paNode('button','🔄 Обновить','btn action-btn');reload.id='paOwnReload';reload.type='button';reload.onclick=()=>{if(paOwnSection==='salary')openMySalary('',true);else openMyPayout('agency','',true);};document.getElementById('paOwnTabs').after(reload);}}
+function paOwnTabs(){const screen=document.getElementById('screen-salary');paTabs(screen,paOwnSection,section=>section==='salary'?openMySalary():openMyPayout(section),'paOwnTabs');screen.querySelector('h2').textContent=paOwnSection==='salary'?'💰 Моя зарплата':'💵 Агентское вознаграждение';let reload=document.getElementById('paOwnReload');if(!reload){reload=paNode('button','🔄 Обновить','btn secondary-btn read-refresh app-refresh-button');reload.id='paOwnReload';reload.type='button';reload.onclick=()=>{if(paOwnSection==='salary')openMySalary('',true);else openMyPayout('agency','',true);};const toolbar=paNode('div',undefined,'pa-own-toolbar');toolbar.append(reload);screen.querySelector(':scope>.card').prepend(toolbar);}}
 
+function paShowNoPayouts(host){host.replaceChildren(paNode('p','В опубликованном расчёте у вас нет выплат по продажам и SWAP.','pa-empty'));}
 async function openMyPayout(section='agency',period='',force=false){
  if(!currentUser||['Стажер','Инженер'].includes(currentUser.role)||!['swap','agency'].includes(section))return;
  paEnsureCacheScope();section='agency';paOwnSection=section;const cacheEpoch=paCacheEpoch,cacheOwner=paCacheOwner(),request=++paOwnRequest,scope=[currentUser.dwLogin,currentUser.city,currentUser.district].join('|');paOwnTabs();switchScreen('screen-salary');const host=document.getElementById('salaryContentContainer');if(!force&&paRestoreOwn('payouts',period,host)){paOwnLoading(false);return;}paOwnLoading(true);host.innerHTML=liveLoading('Загружаем расчёт…');
- try{const response=await districtFetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getSalary',kind:'payouts',salaryPeriod:period,fullName:currentUser.fullName,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password})});const result=await response.json();if(cacheEpoch!==paCacheEpoch||cacheOwner!==paCacheOwner()||request!==paOwnRequest||scope!==[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|'))return;if(result.status!=='ok'||!result.data)throw new Error(result.message||'Расчёт не найден');if(result.data.unpublished){host.replaceChildren(paNode('p','Расчёт ещё не опубликован. После публикации ответственным он появится здесь, и вам придёт уведомление.','pa-empty'));paRememberOwn('payouts',period,result.data,host);return;}paRender(result.data,host,section);const contact=paNode('div');contact.innerHTML=pwPublicationHtml(result.data.publication);host.prepend(contact);paRememberOwn('payouts',period,result.data,host);}
- catch(error){if(cacheEpoch===paCacheEpoch&&cacheOwner===paCacheOwner()&&request===paOwnRequest&&scope===[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|')){host.replaceChildren(paNode('p',error.message||'Ошибка соединения','pa-error'));}}
+ try{const response=await districtFetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'getSalary',kind:'payouts',salaryPeriod:period,fullName:currentUser.fullName,city:currentUser.city,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password})});const result=await response.json();if(cacheEpoch!==paCacheEpoch||cacheOwner!==paCacheOwner()||request!==paOwnRequest||scope!==[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|'))return;if(result.status!=='ok'||!result.data)throw new Error(result.message||'Расчёт не найден');if(result.data.noPayouts){paShowNoPayouts(host);paRememberOwn('payouts',period,result.data,host);return;}if(result.data.unpublished){host.replaceChildren(paNode('p','Расчёт ещё не опубликован. После публикации ответственным он появится здесь, и вам придёт уведомление.','pa-empty'));paRememberOwn('payouts',period,result.data,host);return;}paRender(result.data,host,section);const contact=paNode('div');contact.innerHTML=pwPublicationHtml(result.data.publication);host.prepend(contact);paRememberOwn('payouts',period,result.data,host);}
+ catch(error){if(cacheEpoch===paCacheEpoch&&cacheOwner===paCacheOwner()&&request===paOwnRequest&&scope===[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|')){if(String(error.message||'').includes('Нет опубликованных выплат для вашего логина DW')){paShowNoPayouts(host);paRememberOwn('payouts',period,{noPayouts:true},host);}else host.replaceChildren(paNode('p',error.message||'Ошибка соединения','pa-error'));}}
  finally{if(request===paOwnRequest)paOwnLoading(false);}
 }
 
@@ -4911,7 +4927,7 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;paEnsureCacheSc
         <div class="card">
             <label for="pprPlansSearch">Поиск по адресу</label>
             <input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off">
-            <div class="ppr-plans-toolbar"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить планы</button><button id="pprAddAddressBtn" type="button" class="btn main-btn" hidden onclick="openPprCreate()">➕ Добавить адрес</button></div>
+            <div class="ppr-plans-toolbar"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить</button><button id="pprAddAddressBtn" type="button" class="btn main-btn" hidden onclick="openPprCreate()">➕ Добавить адрес</button></div>
             <div id="pprPlansHint"></div>
             <div id="pprPlansList" class="ppr-plan-list"></div>
             <div class="common-nav-row" id="pprPlansNavigation" data-ppr-nav-version="two-buttons-20260927">
