@@ -2543,6 +2543,18 @@ button, input, textarea, select { font:inherit; }
 .staff-board-day{background:transparent;border:0;border-radius:6px;color:inherit;padding:6px;min-width:36px;cursor:pointer;font:inherit}.staff-board-day.worked{color:var(--accent-ink);font-weight:700}.staff-board-day:hover{background:var(--ui-bg-344026,#344026)}
 html[data-app-layout=desktop] #screen-admin-board{max-width:none!important;width:100%}
 @media(max-width:600px){.staff-board-table{font-size:12px}.staff-board-table tr>:first-child{min-width:145px;max-width:180px}.staff-board-table th,.staff-board-table td{padding:7px 8px}.staff-board-tabs button{min-width:100px;font-size:12px}}
+/* Комплектация демонтируемого оборудования — внутри своего аккордеона. */
+#screen-technician-reports .dismantle-kit{min-width:0;margin:16px 0 0;padding:10px 0 0;border:0;border-top:1px solid var(--card-border)}
+#screen-technician-reports .dismantle-kit[hidden]{display:none!important}
+#screen-technician-reports .dismantle-kit legend{padding:0 8px 0 0;font-size:13px;font-weight:700;color:var(--text-main)}
+#screen-technician-reports .dismantle-kit-choices{display:flex;flex-wrap:wrap;gap:8px}
+#screen-technician-reports label.dismantle-kit-choice{position:relative;display:block;margin:0;cursor:pointer;flex:0 1 auto;max-width:100%}
+#screen-technician-reports .dismantle-kit-choice input{position:absolute;width:1px;height:1px;padding:0;margin:0;opacity:0;pointer-events:none}
+#screen-technician-reports .dismantle-kit-choice span{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:40px;padding:8px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:13px;line-height:20px;font-weight:600;white-space:nowrap}
+#screen-technician-reports .dismantle-kit-choice input:checked+span{background:var(--accent);border-color:var(--accent);color:#142006}
+#screen-technician-reports .dismantle-kit-choice input:focus-visible+span{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
+html[data-app-layout=mobile] #screen-technician-reports .dismantle-kit-choice span{min-height:44px}
+
 </style>
 <style id="responsivePresentation">
 /* Адаптивное представление. Рабочие обработчики и данные не изменяются. */
@@ -9867,6 +9879,7 @@ document.addEventListener('blur', (e) => {
             pprBlock.style.display = 'block';
             dateLabel.textContent = "Дата ППР:";
             showPprStep(1);
+            syncDismantleKits();
             return;
         }
 
@@ -9889,6 +9902,7 @@ document.addEventListener('blur', (e) => {
         }
 
         initEquipmentDropdowns();
+        syncDismantleKits();
         showStep(1);
     }
 
@@ -10027,6 +10041,7 @@ document.addEventListener('blur', (e) => {
     document.addEventListener('click',syncPprBeforeNativeValidation,true);
     document.addEventListener('keydown',syncPprBeforeNativeValidation,true);
     function validateFinishStep(isPpr) {
+        if (!isPpr) syncDismantleKits();
         if (!validateReportField(isPpr ? 'tr-pprComment' : 'tr-comment', true)) return false;
         if (!isPpr) return true;
         return validateReportField('tr-pprRate1', true) &&
@@ -10105,6 +10120,81 @@ document.addEventListener('blur', (e) => {
         field.setCustomValidity('');
         syncReportEquipmentRequired();
     });
+
+// Комплектация каждого демонтируемого устройства; в таблицу уходит обычный комментарий AC.
+const dismantleKitSlots=['r1','r2','r3','tv1','tv2','tv3'];
+const dismantleKitParts={router:['Блок питания','Патч-корд','Коробка'],stb:['Блок питания','Пульт','HDMI','RCA','Коробка','Батарейки']};
+const dismantleKitState={slots:new Map(),generated:'',manual:'',updating:false};
+function mountDismantleKits(){
+    for(const prefix of dismantleKitSlots){
+        if(dismantleKitState.slots.has(prefix))continue;
+        const mac=document.getElementById(`tr-${prefix}Mac`),host=mac?.closest('.accordion-content');if(!host)continue;
+        const stb=prefix.startsWith('tv'),title=(stb?'Приставка ':'Роутер ')+prefix.slice(stb?2:1);
+        const panel=document.createElement('fieldset');panel.id=`tr-${prefix}Kit`;panel.className='dismantle-kit';panel.hidden=true;panel.setAttribute('aria-label','Комплектация: '+title);
+        const legend=document.createElement('legend');legend.textContent='Комплектация';panel.append(legend);
+        const choices=document.createElement('div');choices.className='dismantle-kit-choices';
+        const controls=dismantleKitParts[stb?'stb':'router'].map((part,index)=>{
+            const label=document.createElement('label');label.className='dismantle-kit-choice';
+            const input=document.createElement('input');input.type='checkbox';input.id=`tr-${prefix}Kit-${index}`;input.value=part;input.dataset.dismantleKit=prefix;
+            const caption=document.createElement('span');caption.textContent=part;label.append(input,caption);choices.append(label);
+            input.addEventListener('change',()=>syncDismantleKits());return input;
+        });
+        panel.append(choices);host.append(panel);dismantleKitState.slots.set(prefix,{panel,controls,title,identity:''});
+    }
+}
+function dismantleKitDevice(prefix){
+    const serial=normalizeEquipmentSerialCode(document.getElementById(`tr-${prefix}Sn`)?.value);
+    const rawMac=String(document.getElementById(`tr-${prefix}Mac`)?.value||'').trim().toUpperCase().replace(/O/g,'0');
+    const validMac=/^(?:[0-9A-F]{12}|(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|(?:[0-9A-F]{2}-){5}[0-9A-F]{2})$/.test(rawMac);
+    return {serial,mac:rawMac.replace(/[:-]/g,''),ready:/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&validMac};
+}
+function dismantleKitManual(value,generated){
+    if(!generated)return value;
+    if(value.startsWith(generated)){const tail=value.slice(generated.length);return tail.startsWith('\n\n')?tail.slice(2):tail.startsWith('\n')?tail.slice(1):tail;}
+    // Если сотрудник выделил весь комментарий и ввёл свой текст, сохраняем его.
+    // Прежние точные автоматические строки удаляем, чтобы не создавать дубли.
+    const lines=new Set(generated.split('\n'));
+    return value.split('\n').filter(line=>!lines.has(line)).join('\n').replace(/^\n{1,2}/,'');
+}
+function syncDismantleKits(){
+    if(dismantleKitState.updating)return;mountDismantleKits();
+    const comment=document.getElementById('tr-comment');if(!comment)return;
+    const before=comment.value,previous=dismantleKitState.generated,oldPrefix=previous?previous.length+2:0;
+    const start=comment.selectionStart,end=comment.selectionEnd,focused=document.activeElement===comment;
+    dismantleKitState.manual=dismantleKitManual(before,previous);
+    const active=/^Демонтаж (?:FTTB|GPON)$/.test(document.getElementById('tr-reportType')?.value||''),lines=[];
+    for(const prefix of dismantleKitSlots){
+        const slot=dismantleKitState.slots.get(prefix);if(!slot)continue;const device=dismantleKitDevice(prefix);
+        slot.panel.hidden=!(active&&device.ready);
+        const identity=device.ready?device.serial+'|'+device.mac:'';
+        if(!device.serial||(identity&&slot.identity&&identity!==slot.identity)){slot.controls.forEach(input=>input.checked=false);slot.identity='';}
+        if(identity)slot.identity=identity;
+        if(active&&device.ready){const selected=slot.controls.filter(input=>input.checked).map(input=>input.value);lines.push(slot.title+' (S/N: '+device.serial+'): '+(selected.join(', ')||'Без комплектации'));}
+    }
+    const generated=lines.join('\n'),next=generated?generated+'\n\n'+dismantleKitState.manual:dismantleKitState.manual;
+    dismantleKitState.generated=generated;
+    if(next!==before){
+        dismantleKitState.updating=true;comment.value=next;
+        if(focused){const prefix=generated?generated.length+2:0,offset=previous&&before.startsWith(previous)?oldPrefix:0;comment.setSelectionRange(Math.max(prefix,Math.min(next.length,prefix+Math.max(0,start-offset))),Math.max(prefix,Math.min(next.length,prefix+Math.max(0,end-offset))));}
+        dismantleKitState.updating=false;
+    }
+}
+function resetDismantleKits(){
+    dismantleKitState.generated='';dismantleKitState.manual='';
+    for(const slot of dismantleKitState.slots.values()){slot.identity='';slot.panel.hidden=true;slot.controls.forEach(input=>input.checked=false);}
+}
+document.addEventListener('input',event=>{
+    if(event.isComposing)return;
+    if(event.target.id==='tr-comment'||reportEquipmentSerialIds.has(event.target.id)||reportEquipmentMacIds.has(event.target.id))syncDismantleKits();
+});
+document.addEventListener('compositionend',event=>{if(event.target.id==='tr-comment')syncDismantleKits();});
+document.addEventListener('focusin',event=>{
+    if(event.target.id!=='tr-comment')return;syncDismantleKits();
+    if(dismantleKitState.generated)event.target.setSelectionRange(event.target.value.length,event.target.value.length);
+});
+document.addEventListener('click',event=>{
+    if(event.target.id==='tr-comment'&&dismantleKitState.generated&&event.target.selectionStart<dismantleKitState.generated.length+2)event.target.setSelectionRange(event.target.value.length,event.target.value.length);
+});
 
     const reportCableFields = {
         'tr-cableNum': { qty:'tr-cableQty', hint:'tr-cableNum-stock-hint' },
@@ -10793,6 +10883,7 @@ function ctDetectStbModel(serial) {
     function getTrimmedReportValue(id) { return document.getElementById(id)?.value?.trim() || ''; }
     // Собирает значения полей обычного отчёта.
     function getReportFormValues() {
+        syncDismantleKits();
         const v = getTrimmedReportValue;
         return {
             app: v('tr-appNumber'), address: v('tr-address'), login: v('tr-login'),
@@ -11683,6 +11774,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         const form = document.getElementById('tr-reportForm');
         if (form) {
             form.reset();
+            resetDismantleKits();
             form.querySelectorAll('input, textarea, select').forEach(field => field.setCustomValidity(''));
             form.querySelectorAll('.report-required-error').forEach(button => {button.classList.remove('report-required-error');button.removeAttribute('aria-invalid');});
         }
