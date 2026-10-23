@@ -4466,7 +4466,7 @@ html[data-app-layout=mobile] .pa-orders td::before{content:attr(data-label);colo
 #pwSummary .pw-summary-details[open]{border-color:var(--accent)}
 #pwSummary .pw-summary-details[open]>summary::after{transform:rotate(180deg)}
 #pwSummary .pw-summary-details>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
-#pwSummary .pw-summary-details>p{margin:0;padding:8px 14px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.6;overflow-wrap:anywhere;color:var(--text-main)}
+#pwSummary .pw-summary-details>p,#pwSummary .pw-notice-panel>p{margin:0;padding:8px 14px;border-top:1px solid var(--card-border);font-size:13px;line-height:1.6;overflow-wrap:anywhere;color:var(--text-main)}
 @media(prefers-reduced-motion:reduce){#pwSummary .pw-summary-details>summary::after{transition:none}}
 .pw-filename[data-file-state=selected],.pw-filename[data-file-state=loading],.pw-filename[data-file-state=saved],.pw-filename[data-file-state=rework]{padding:8px 12px;border:1px solid var(--accent);border-radius:10px;background:rgba(183,237,85,.1);color:var(--text-main);font-weight:600}
 .pw-filename[data-file-state=selected]{border-style:dashed}
@@ -4480,7 +4480,10 @@ html[data-app-layout=desktop] #screen-admin-payroll .pw-actions{margin:4px 0}
 html[data-app-layout=desktop] #screen-admin-payroll #pwEntries{gap:8px}
 html[data-app-layout=desktop] #pwSummary .pw-publication-heading{display:flex;align-items:flex-start;flex-wrap:wrap;justify-content:flex-end;gap:10px;margin:0 0 6px}
 html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-version-status{display:flex;align-items:center;min-height:44px;flex:1 1 120px;margin:0}
-html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-summary-details{width:330px;max-width:100%;flex:0 1 330px;margin:0}
+html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-summary-details{width:330px;max-width:100%;flex:0 1 330px;margin:0;position:relative;height:46px;box-sizing:border-box;overflow:visible}
+html[data-app-layout=desktop] #pwSummary .pw-publication-heading>.pw-summary-details[open]{z-index:30}
+html[data-app-layout=desktop] #pwSummary .pw-publication-heading .pw-notice-panel{position:absolute;top:calc(100% + 6px);right:-1px;left:-1px;max-height: min(60vh,480px);overflow:auto;overscroll-behavior:contain;background:var(--card-bg);border:1px solid var(--accent);border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.24);padding:4px 0}
+html[data-app-layout=desktop] #pwSummary .pw-notice-panel>p:first-child{border-top:0}
 
 
 </style>
@@ -4715,12 +4718,22 @@ function pwStatus(text,kind='info',step=null,title=''){
 async function pwImportProgress(step,text){pwStatus(text,'loading',step,'Загрузка зарплаты');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}
 function pwSearchKey(value){return String(value||'').toLocaleLowerCase('ru-RU').replace(/ё/g,'е').replace(/\s+/g,' ').trim();}
 function pwFilterEntries(){const search=document.getElementById('pwEmployeeSearch'),list=document.getElementById('pwEntries'),count=document.getElementById('pwSearchCount');if(!search||!list||!count)return;const desktop=document.documentElement.dataset.appLayout==='desktop',words=desktop?pwSearchKey(search.value).split(' ').filter(Boolean):[];let visible=0;for(const card of list.children){card.hidden=!words.every(word=>(card.dataset.searchName||'').includes(word));if(!card.hidden)visible++;}count.textContent=desktop&&words.length?'Найдено: '+visible+' из '+list.children.length:'';}
+function pwSetupNoticePopover(details){
+ if(details.querySelector(':scope>.pw-notice-panel'))return;
+ const panel=paNode('div',undefined,'pw-notice-panel');for(const node of Array.from(details.children)){if(node.tagName!=='SUMMARY')panel.append(node);}details.append(panel);details.querySelector('summary').tabIndex=0;
+ details.querySelector('summary').addEventListener('click',()=>{if(document.documentElement.dataset.appLayout!=='desktop')return;for(const other of document.querySelectorAll('#pwSummary .pw-publication-heading>details[open]')){if(other!==details)other.open=false;}});
+}
+let pwNoticePopoversBound=false;
+function pwBindNoticePopovers(){if(pwNoticePopoversBound)return;pwNoticePopoversBound=true;
+document.addEventListener('pointerdown',event=>{if(document.documentElement.dataset.appLayout!=='desktop')return;for(const details of document.querySelectorAll('#pwSummary .pw-publication-heading>details[open]')){if(!details.contains(event.target))details.open=false;}});
+document.addEventListener('keydown',event=>{if(event.key!=='Escape'||document.documentElement.dataset.appLayout!=='desktop')return;const details=document.querySelector('#pwSummary .pw-publication-heading>details[open]');if(details){details.open=false;details.querySelector('summary').focus();event.preventDefault();}});
+}
 function pwArrangeSummary(){
- const summary=document.getElementById('pwSummary'),publication=summary?.querySelector(':scope>.pw-publication');if(!publication)return;
+ const summary=document.getElementById('pwSummary'),publication=summary?.querySelector(':scope>.pw-publication');if(!publication)return;pwBindNoticePopovers();
  const status=publication.querySelector('.pw-version-status');if(!status)return;let row=publication.querySelector('.pw-publication-heading');
  if(document.documentElement.dataset.appLayout==='desktop'){
   if(!row){row=paNode('div',undefined,'pw-publication-heading');status.before(row);row.append(status);}
-  for(const details of summary.querySelectorAll('.pw-summary-details[data-payroll-notice="delivery"],.pw-summary-details[data-payroll-notice="source"]')){if(details.parentElement===row)continue;const anchor=document.createComment('payroll notice');details.before(anchor);details.pwSummaryAnchor=anchor;row.append(details);}
+  for(const details of summary.querySelectorAll('.pw-summary-details[data-payroll-notice="delivery"],.pw-summary-details[data-payroll-notice="source"]')){pwSetupNoticePopover(details);if(details.parentElement===row)continue;const anchor=document.createComment('payroll notice');details.before(anchor);details.pwSummaryAnchor=anchor;row.append(details);}
  }else if(row){for(const details of Array.from(row.querySelectorAll('details'))){if(details.pwSummaryAnchor?.isConnected)details.pwSummaryAnchor.replaceWith(details);else summary.append(details);delete details.pwSummaryAnchor;}row.before(status);row.remove();}
 }
 function pwPaintFileName(state,chosen){
