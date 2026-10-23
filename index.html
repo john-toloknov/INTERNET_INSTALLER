@@ -2543,17 +2543,17 @@ button, input, textarea, select { font:inherit; }
 .staff-board-day{background:transparent;border:0;border-radius:6px;color:inherit;padding:6px;min-width:36px;cursor:pointer;font:inherit}.staff-board-day.worked{color:var(--accent-ink);font-weight:700}.staff-board-day:hover{background:var(--ui-bg-344026,#344026)}
 html[data-app-layout=desktop] #screen-admin-board{max-width:none!important;width:100%}
 @media(max-width:600px){.staff-board-table{font-size:12px}.staff-board-table tr>:first-child{min-width:145px;max-width:180px}.staff-board-table th,.staff-board-table td{padding:7px 8px}.staff-board-tabs button{min-width:100px;font-size:12px}}
-/* Комплектация демонтируемого оборудования — внутри своего аккордеона. */
+/* Комплектация демонтажа: список с теми же флажками, что в возврате. */
 #screen-technician-reports .dismantle-kit{min-width:0;margin:16px 0 0;padding:10px 0 0;border:0;border-top:1px solid var(--card-border)}
 #screen-technician-reports .dismantle-kit[hidden]{display:none!important}
 #screen-technician-reports .dismantle-kit legend{padding:0 8px 0 0;font-size:13px;font-weight:700;color:var(--text-main)}
-#screen-technician-reports .dismantle-kit-choices{display:flex;flex-wrap:wrap;gap:8px}
-#screen-technician-reports label.dismantle-kit-choice{position:relative;display:block;margin:0;cursor:pointer;flex:0 1 auto;max-width:100%}
-#screen-technician-reports .dismantle-kit-choice input{position:absolute;width:1px;height:1px;padding:0;margin:0;opacity:0;pointer-events:none}
-#screen-technician-reports .dismantle-kit-choice span{display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:40px;padding:8px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:13px;line-height:20px;font-weight:600;white-space:nowrap}
-#screen-technician-reports .dismantle-kit-choice input:checked+span{background:var(--accent);border-color:var(--accent);color:#142006}
-#screen-technician-reports .dismantle-kit-choice input:focus-visible+span{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
-html[data-app-layout=mobile] #screen-technician-reports .dismantle-kit-choice span{min-height:44px}
+#screen-technician-reports .dismantle-kit .dropdown-select-btn{width:100%;min-height:44px;text-align:left}
+#screen-technician-reports .dismantle-kit-summary{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+#screen-technician-reports .dismantle-kit .dropdown-list{padding:4px;border-color:var(--accent);background:var(--card-bg)}
+#screen-technician-reports .dismantle-kit .checkbox-container{position:relative;margin:0;padding:7px 8px;min-height:36px}
+#screen-technician-reports .dismantle-kit input[type=checkbox]{display:block;position:absolute;opacity:0;width:1px;height:1px;margin:0;padding:0}
+#screen-technician-reports .dismantle-kit input:focus-visible+.custom-checkbox{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
+html[data-app-layout=mobile] #screen-technician-reports .dismantle-kit .checkbox-container{min-height:44px;box-sizing:border-box}
 
 </style>
 <style id="responsivePresentation">
@@ -3812,21 +3812,19 @@ html[data-app-theme=light] :is(.rf-warning,.city-debt-warning){color:#92510c}
 html[data-app-theme=light] :focus-visible{outline-color:#56851c}
 html[data-app-theme=light] :is(.view-header,.view-sidebar,.view-sidebar-user){border-color:var(--card-border)}
 html[data-app-layout] .view-header{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;grid-template-rows:auto!important;min-height:76px!important;column-gap:16px!important;overflow:visible}
-html[data-app-layout] .view-header .view-mode{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:end;grid-column:3;grid-row:1;width:320px;min-width:0;justify-self:end}
+html[data-app-layout] .view-header .view-mode{display:flex;gap:12px;align-items:center;grid-column:3;grid-row:1;width:auto;min-width:0;justify-self:end}
 html[data-app-layout] .view-header .view-brand{grid-column:2;grid-row:1;min-width:0;justify-self:center;text-align:center;font-size:clamp(16px,1.7vw,28px)!important;white-space:nowrap}
-.view-preference-field{min-width:0;width:100%}
-html[data-app-layout] .view-header .view-preference-field>label{display:block;position:static;margin:0 0 5px;padding:0;font-size:11px;line-height:1.2;text-transform:none;letter-spacing:0;color:var(--text-secondary);font-weight:600}
-html[data-app-layout] .view-header .view-preference-dropdown>.dropdown-select-btn{min-height:42px;height:42px;padding:9px 11px;font-size:12px;gap:8px;border-radius:10px;background:var(--surface-dark);color:var(--text-main);white-space:nowrap}
-.view-preference-value{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
-.view-preference-dropdown>.dropdown-list{min-width:100%;right:0;left:auto;border-color:var(--card-border);background:var(--card-bg)}
-.view-preference-dropdown .dropdown-item{display:block;width:100%;text-align:left;background:transparent;color:var(--text-main);border:0;border-bottom:1px solid var(--card-border);border-radius:0;padding:12px;min-height:44px;font:inherit;font-size:13px;cursor:pointer;white-space:nowrap}
-.view-preference-dropdown .dropdown-item[aria-selected=true]{background:rgba(183,237,85,.15);color:var(--accent-ink);font-weight:700}
-.view-preference-dropdown .dropdown-item:hover,.view-preference-dropdown .dropdown-item:focus-visible{background:rgba(183,237,85,.2);outline:2px solid var(--accent);outline-offset:-2px}
-html[data-app-layout=mobile] .view-header{grid-template-columns:minmax(0,1fr)!important;row-gap:12px!important;padding:6px 0 14px!important}
+.view-preference-field{min-width:0;width:auto;text-align:center}
+.view-preference-label{display:block;margin:0 0 5px;font-size:11px;line-height:1.2;color:var(--text-secondary);font-weight:600}
+.view-preference-toggle{display:flex;gap:3px;padding:3px;border:1px solid var(--card-border);border-radius:24px;background:var(--surface-dark);width:max-content}
+.view-preference-toggle>button{display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:40px;padding:0;border:0;border-radius:20px;background:transparent;color:var(--text-main);font:inherit;font-size:20px;cursor:pointer;touch-action:manipulation}
+.view-preference-toggle>button[aria-checked=true]{background:var(--accent);color:#142006;box-shadow:0 2px 6px #0002}
+.view-preference-toggle>button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
+html[data-app-layout=mobile] .view-header{grid-template-columns:minmax(0,1fr)!important;row-gap:10px!important;padding:6px 0 12px!important}
 html[data-app-layout=mobile] .view-header .view-brand{grid-column:1;grid-row:1;font-size:17px!important;justify-self:center}
-html[data-app-layout=mobile] .view-header .view-mode{grid-column:1;grid-row:2;width:100%;justify-self:stretch}
-@media(max-width:1100px){html[data-app-layout=desktop] .view-header{grid-template-columns:48px minmax(0,1fr) 48px!important;row-gap:10px!important}html[data-app-layout=desktop] .view-header .view-mode{grid-column:1/-1;grid-row:2;width:min(420px,100%);justify-self:end}html[data-app-layout=desktop] .view-header .view-brand{grid-column:2;grid-row:1;font-size:clamp(14px,3vw,24px)!important;white-space:normal;overflow-wrap:anywhere}}
-@media(prefers-reduced-motion:reduce){.view-preference-dropdown *{transition:none!important}}
+html[data-app-layout=mobile] .view-header .view-mode{grid-column:1;grid-row:2;width:auto;justify-self:center;gap:16px}
+html[data-app-layout=mobile] .view-preference-toggle>button{height:44px}
+@media(max-width:1100px){html[data-app-layout=desktop] .view-header{grid-template-columns:48px minmax(0,1fr) 48px!important;row-gap:10px!important}html[data-app-layout=desktop] .view-header .view-mode{grid-column:1/-1;grid-row:2;justify-self:center}html[data-app-layout=desktop] .view-header .view-brand{grid-column:2;grid-row:1;font-size:clamp(14px,3vw,24px)!important;white-space:normal;overflow-wrap:anywhere}}
 
 /* Приглушённая светлая тема: серые уровни вместо сплошного белого. */
 html[data-app-theme=light] .view-sidebar{background:#c5ced8}
@@ -3835,7 +3833,6 @@ html[data-app-theme=light] :is(.rf-scan,.rf-payment,.uf-step){background:#dce3eb
 html[data-app-theme=light] .rf-record{background:#e2e7ed}
 html[data-app-theme=light] .rf-record>.rf-record-head{background:#d5dde6;border-radius:8px}
 html[data-app-theme=light] :is(.dropdown-list,.beeline-modal-card,.edit-user-card,.ppr-plan-dialog,.rf-selection-actions){background:#e9edf2}
-html[data-app-theme=light] .view-preference-dropdown .dropdown-item[aria-selected=true]{background:#cfddbf}
 
 /* Все показатели актов имеют одинаковую ширину и высоту. */
 #cityTableCounts[data-ct-counts=acts]{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:10px;width:100%;margin:8px 0 16px;box-sizing:border-box}
@@ -4058,6 +4055,7 @@ function openTmcSection(key){
  const root=document.documentElement;
  const media=window.matchMedia('(min-width:1000px)');
  const key='beeline_view_preference';
+ function automaticLayout(){return navigator.userAgentData?.mobile===true||/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)?'mobile':'desktop';}
  let theme=root.dataset.appTheme==='light'?'light':'original';
  const themeKey='beeline_color_theme';
  function applyTheme(value){theme=value==='light'?'light':'original';root.dataset.appTheme=theme;try{localStorage.setItem(themeKey,theme);}catch(_){} }
@@ -4065,7 +4063,8 @@ function openTmcSection(key){
  try { const saved=localStorage.getItem(key); if(['auto','mobile','desktop'].includes(saved))preference=saved; } catch(_) {}
  function applyLayout(){
   root.dataset.viewPreference=preference;
-  root.dataset.appLayout=preference==='auto'?(media.matches?'desktop':'mobile'):preference;
+  root.dataset.appLayout=preference==='auto'?automaticLayout():preference;
+  document.getElementById('appViewMode')?.updateValue(root.dataset.appLayout);
   if(typeof engineerApplyMenu==='function')engineerApplyMenu();
   window.dispatchEvent(new Event('resize'));
  }
@@ -4077,33 +4076,29 @@ function openTmcSection(key){
   const controls=document.createElement('div');controls.className='view-mode';
   function preferencePicker(id,title,options,value,onChange){
    const field=document.createElement('div');field.className='view-preference-field';
-   const caption=document.createElement('label');caption.htmlFor=id+'Trigger';caption.textContent=title;
-   const select=document.createElement('select');select.id=id;select.hidden=true;select.style.display='none';
-   const wrap=document.createElement('div');wrap.className='custom-dropdown view-preference-dropdown';
-   const trigger=document.createElement('button');trigger.type='button';trigger.id=id+'Trigger';trigger.className='dropdown-select-btn';trigger.setAttribute('aria-label',title);trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-controls',id+'Options');trigger.setAttribute('aria-expanded','false');
-   const text=document.createElement('span');text.className='view-preference-value';const arrow=document.createElement('span');arrow.className='dropdown-arrow';arrow.textContent='▼';arrow.setAttribute('aria-hidden','true');trigger.append(text,arrow);
-   const list=document.createElement('div');list.className='dropdown-list';list.id=id+'Options';list.setAttribute('role','listbox');list.setAttribute('aria-label',title);
-   for(const [key,label] of options){
-    const option=document.createElement('option');option.value=key;option.textContent=label;select.append(option);
-    const item=document.createElement('button');item.type='button';item.className='dropdown-item';item.dataset.value=key;item.tabIndex=-1;item.setAttribute('role','option');item.textContent=label;
-    item.onclick=e=>{e.stopPropagation();select.value=key;select.dispatchEvent(new Event('change',{bubbles:true}));setDropdownOpen(wrap,false);trigger.focus();};list.append(item);
+   const caption=document.createElement('span');caption.id=id+'Label';caption.className='view-preference-label';caption.textContent=title;
+   const group=document.createElement('div');group.id=id;group.className='view-preference-toggle';group.setAttribute('role','radiogroup');group.setAttribute('aria-labelledby',caption.id);
+   let selected=value;
+   function sync(next){selected=next;for(const button of group.children){const active=button.dataset.value===next;button.setAttribute('aria-checked',String(active));button.tabIndex=active?0:-1;}}
+   function choose(next){sync(next);onChange(next);}
+   for(const [key,emoji,label] of options){
+    const button=document.createElement('button');button.type='button';button.dataset.value=key;button.setAttribute('role','radio');button.setAttribute('aria-label',label);button.title=label;
+    const icon=document.createElement('span');icon.textContent=emoji;icon.setAttribute('aria-hidden','true');button.append(icon);
+    button.onclick=()=>choose(key);
+    button.onkeydown=event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End'].includes(event.key))return;event.preventDefault();const index=options.findIndex(option=>option[0]===selected),next=event.key==='Home'?0:event.key==='End'?options.length-1:(index+(['ArrowRight','ArrowDown'].includes(event.key)?1:-1)+options.length)%options.length;choose(options[next][0]);group.children[next].focus();};
+    group.append(button);
    }
-   const sync=()=>{text.textContent=options.find(([key])=>key===select.value)?.[1]||options[0][1];list.querySelectorAll('[role=option]').forEach(item=>item.setAttribute('aria-selected',String(item.dataset.value===select.value)));};
-   select.value=value;sync();select.addEventListener('change',()=>{sync();onChange(select.value);});
-   trigger.onclick=e=>{e.stopPropagation();const open=!wrap.classList.contains('open');document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==wrap)setDropdownOpen(other,false);});setDropdownOpen(wrap,open);};
-   wrap.onkeydown=e=>{
-    if(['ArrowDown','ArrowUp','Home','End'].includes(e.key)){e.preventDefault();e.stopPropagation();setDropdownOpen(wrap,true);const items=[...list.children],index=items.indexOf(document.activeElement);let next=e.key==='Home'?0:e.key==='End'?items.length-1:index<0?Math.max(0,items.findIndex(item=>item.dataset.value===select.value)):(index+(e.key==='ArrowDown'?1:-1)+items.length)%items.length;items[next]?.focus();}
-    else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setDropdownOpen(wrap,false);trigger.focus();}else if(e.key==='Tab')setDropdownOpen(wrap,false);
-   };
-   document.addEventListener('click',e=>{if(!wrap.contains(e.target))setDropdownOpen(wrap,false);});
-   wrap.append(trigger,list);field.append(caption,select,wrap);return field;
+   group.updateValue=sync;sync(value);field.append(caption,group);return field;
   }
   controls.append(
-   preferencePicker('appViewMode','Экран',[['auto','Автоматически'],['mobile','📱 Телефон'],['desktop','💻 Компьютер']],preference,value=>{preference=value;try{localStorage.setItem(key,preference);}catch(_){}applyLayout();}),
-   preferencePicker('appColorTheme','Тема',[['original','Оригинальная'],['light','Светлая']],theme,applyTheme)
+   preferencePicker('appViewMode','Экран',[['desktop','🖥️','Компьютер'],['mobile','📱','Телефон']],root.dataset.appLayout,value=>{preference=value;try{localStorage.setItem(key,preference);}catch(_){}applyLayout();}),
+   preferencePicker('appColorTheme','Тема',[['original','🌙','Оригинальная тёмная тема'],['light','☀️','Светлая тема']],theme,applyTheme)
   );
   header.append(brand,controls);document.body.prepend(header);
-  window.addEventListener('storage',e=>{if(e.key===themeKey||e.key===key){const id=e.key===themeKey?'appColorTheme':'appViewMode',select=document.getElementById(id),allowed=e.key===themeKey?['original','light']:['auto','mobile','desktop'];if(select){select.value=allowed.includes(e.newValue)?e.newValue:allowed[0];select.dispatchEvent(new Event('change'));}}});
+  window.addEventListener('storage',event=>{
+   if(event.key===themeKey||event.key===null){theme=event.key===themeKey&&event.newValue==='light'?'light':'original';root.dataset.appTheme=theme;document.getElementById('appColorTheme')?.updateValue(theme);}
+   if(event.key===key||event.key===null){preference=['desktop','mobile'].includes(event.newValue)&&event.key!==null?event.newValue:'auto';applyLayout();}
+  });
   const sidebar=document.createElement('nav');sidebar.className='view-sidebar';sidebar.setAttribute('aria-label','Разделы приложения');header.after(sidebar);
   const softwareChoices=[];
   function softwareScreen(id,title){
@@ -10132,14 +10127,21 @@ function mountDismantleKits(){
         const stb=prefix.startsWith('tv'),title=(stb?'Приставка ':'Роутер ')+prefix.slice(stb?2:1);
         const panel=document.createElement('fieldset');panel.id=`tr-${prefix}Kit`;panel.className='dismantle-kit';panel.hidden=true;panel.setAttribute('aria-label','Комплектация: '+title);
         const legend=document.createElement('legend');legend.textContent='Комплектация';panel.append(legend);
-        const choices=document.createElement('div');choices.className='dismantle-kit-choices';
+        const dropdown=document.createElement('div');dropdown.className='custom-dropdown';dropdown.id=`tr-${prefix}KitDropdown`;
+        const trigger=document.createElement('button');trigger.type='button';trigger.className='dropdown-select-btn';trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-controls',`tr-${prefix}KitOptions`);trigger.setAttribute('aria-label','Комплектация: '+title);
+        const summary=document.createElement('span');summary.className='dismantle-kit-summary';summary.textContent='Выберите комплектацию...';
+        const arrow=document.createElement('span');arrow.className='dropdown-arrow';arrow.textContent='▼';arrow.setAttribute('aria-hidden','true');trigger.append(summary,arrow);
+        const choices=document.createElement('div');choices.className='dropdown-list';choices.id=`tr-${prefix}KitOptions`;choices.setAttribute('role','group');choices.setAttribute('aria-label','Комплектация: '+title);
+        trigger.onclick=event=>{event.stopPropagation();const open=!dropdown.classList.contains('open');document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,open);};
+        dropdown.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setDropdownOpen(dropdown,false);trigger.focus();}else if(event.key==='ArrowDown'&&event.target===trigger){event.preventDefault();setDropdownOpen(dropdown,true);choices.querySelector('input')?.focus();}});
+        dropdown.addEventListener('focusout',event=>{if(event.relatedTarget&&!dropdown.contains(event.relatedTarget))setDropdownOpen(dropdown,false);});
         const controls=dismantleKitParts[stb?'stb':'router'].map((part,index)=>{
-            const label=document.createElement('label');label.className='dismantle-kit-choice';
+            const label=document.createElement('label');label.className='checkbox-container';label.addEventListener('click',event=>event.stopPropagation());
             const input=document.createElement('input');input.type='checkbox';input.id=`tr-${prefix}Kit-${index}`;input.value=part;input.dataset.dismantleKit=prefix;
-            const caption=document.createElement('span');caption.textContent=part;label.append(input,caption);choices.append(label);
+            const mark=document.createElement('span');mark.className='custom-checkbox';mark.setAttribute('aria-hidden','true');const caption=document.createElement('span');caption.className='checkbox-label';caption.textContent=part;label.append(input,mark,caption);choices.append(label);
             input.addEventListener('change',()=>syncDismantleKits());return input;
         });
-        panel.append(choices);host.append(panel);dismantleKitState.slots.set(prefix,{panel,controls,title,identity:''});
+        dropdown.append(trigger,choices);panel.append(dropdown);host.append(panel);dismantleKitState.slots.set(prefix,{panel,controls,title,summary,dropdown,identity:''});
     }
 }
 function dismantleKitDevice(prefix){
@@ -10166,10 +10168,12 @@ function syncDismantleKits(){
     for(const prefix of dismantleKitSlots){
         const slot=dismantleKitState.slots.get(prefix);if(!slot)continue;const device=dismantleKitDevice(prefix);
         slot.panel.hidden=!(active&&device.ready);
+        if(slot.panel.hidden&&slot.dropdown.classList.contains('open'))setDropdownOpen(slot.dropdown,false);
         const identity=device.ready?device.serial+'|'+device.mac:'';
         if(!device.serial||(identity&&slot.identity&&identity!==slot.identity)){slot.controls.forEach(input=>input.checked=false);slot.identity='';}
         if(identity)slot.identity=identity;
-        if(active&&device.ready){const selected=slot.controls.filter(input=>input.checked).map(input=>input.value);lines.push(slot.title+' (S/N: '+device.serial+'): '+(selected.join(', ')||'Без комплектации'));}
+        const selected=slot.controls.filter(input=>input.checked).map(input=>input.value);slot.summary.textContent=selected.join(', ')||'Выберите комплектацию...';slot.summary.title=selected.join(', ')||'Без комплектации';
+        if(active&&device.ready){lines.push(slot.title+' (S/N: '+device.serial+'): '+(selected.join(', ')||'Без комплектации'));}
     }
     const generated=lines.join('\n'),next=generated?generated+'\n\n'+dismantleKitState.manual:dismantleKitState.manual;
     dismantleKitState.generated=generated;
@@ -10181,7 +10185,7 @@ function syncDismantleKits(){
 }
 function resetDismantleKits(){
     dismantleKitState.generated='';dismantleKitState.manual='';
-    for(const slot of dismantleKitState.slots.values()){slot.identity='';slot.panel.hidden=true;slot.controls.forEach(input=>input.checked=false);}
+    for(const slot of dismantleKitState.slots.values()){slot.identity='';slot.panel.hidden=true;slot.controls.forEach(input=>input.checked=false);slot.summary.textContent='Выберите комплектацию...';slot.summary.title='Без комплектации';if(slot.dropdown.classList.contains('open'))setDropdownOpen(slot.dropdown,false);}
 }
 document.addEventListener('input',event=>{
     if(event.isComposing)return;
