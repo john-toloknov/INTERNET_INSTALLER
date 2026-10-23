@@ -4410,6 +4410,7 @@ html[data-app-layout=desktop] #screen-admin-payroll #pwRework:disabled{opacity:.
 .pa-orders{width:100%;margin:12px 0;min-width:0;overflow-x:auto}
 .pa-orders table{width:100%;border-collapse:collapse;font-size:12px;color:var(--text-main)}
 .pa-orders th,.pa-orders td{padding:9px;text-align:left;vertical-align:top;border-bottom:1px solid var(--card-border);overflow-wrap:anywhere}
+html[data-app-layout=desktop] .pa-sales-orders table{min-width:920px}
 .pa-orders th{color:var(--accent-ink,var(--accent))}
 .pa-warning{font-size:12px;line-height:1.5;color:var(--text-secondary);padding:8px 0;white-space:pre-line}
 html[data-app-layout=mobile] .pa-tabs>.btn{font-size:11px;padding:10px 4px}
@@ -4467,10 +4468,29 @@ function paRender(entry,host,section){host.replaceChildren();
   for(const suffix of ['F-','F+'])if(a['Сумма '+suffix])paRow(body,suffix+' · '+a['Кол-во '+suffix]+' шт.',paMoney(a['Сумма '+suffix]));
   for(const label of ['Сумма F-/F+','FIX Бонус','Доп. Бонус','Оклад'])if(a[label])paRow(body,label,paMoney(a[label]));
  });
+ paSalesDetails(entry,host,'minus');paSalesDetails(entry,host,'plus');
  paAccordion(host,'Дополнительные начисления',body=>{for(const label of ['F+ Девайсы','SWAP GPON','SWAP','Компенсация SWAP','Реактивация','Переезды','B2B','MNP','Приведи друга','Мотивация'])if(a[label])paRow(body,label,paMoney(a[label]));if(a['Доп проекты'])paRow(body,'Итого дополнительных начислений',paMoney(a['Доп проекты']));});
  paAccordion(host,'Налоги и итоги',body=>{for(const label of ['ОПВ','ВОСМС','ИПН','СО','Сумма налогов','Итоговая сумма'])if(a[label])paRow(body,label,paMoney(a[label]));if(String(a['Льгота']).toLowerCase()==='да')paRow(body,'Льгота','Да');});
  host.append(paNode('div','На руки · '+paMoney(a['Сумма на руки']),'pa-net'));
 }
+function paSalesDetails(entry,host,sign){
+ const minus=sign==='minus',title=minus?'F− · Детализация заявок':'F+ · Детализация заявок';
+ paAccordion(host,title,body=>{
+  if(!(minus?entry.hasFminusDetail:entry.hasFplusDetail)){body.append(paNode('p','Детализация пока не загружена. Она появится после обновления файла ответственным.'));return;}
+  const rows=(minus?entry.fminus:entry.fplus)||[],adjustments=minus?[]:(entry.fplusAdjustments||[]);
+  if(!rows.length&&!adjustments.length){body.append(paNode('p','В исходном листе нет детализации для вашего логина DW.'));return;}
+  if(rows.length){
+   const labels=minus?['№ заявки','Улица','Дом','Квартира','Дата подключения','Тарифный план','СИМ · ₸','ТВ · ₸','Тариф · ₸','Выплата']:['№ заявки','Адрес','Дата решения','Тариф до · ₸','Тариф после · ₸','ТВ · шт.','СИМ · шт.','Тариф · шт.','Выплата'];
+   const wrap=paNode('div',undefined,'pa-orders pa-sales-orders'),table=paNode('table'),head=paNode('thead'),tr=paNode('tr');for(const label of labels){const th=paNode('th',label);th.scope='col';tr.append(th);}head.append(tr);table.append(head);const tbody=paNode('tbody');
+   for(const r of rows){const row=paNode('tr'),values=minus?[r.order,r.street,r.house,r.flat,paDate(r.date),r.plan,paMoney(r.sim),paMoney(r.tv),paMoney(r.tariff),paMoney(r.amount)]:[r.order,[r.street,r.house,r.flat?'кв. '+r.flat:''].filter(Boolean).join(', '),paDate(r.date),paMoney(r.previous),paMoney(r.current),String(r.tv),String(r.sim),String(r.tariff),paMoney(r.amount)];for(const [i,value]of values.entries()){const td=paNode('td',value||'—');td.dataset.label=labels[i];row.append(td);}tbody.append(row);}table.append(tbody);wrap.append(table);body.append(wrap);
+  }
+  if(adjustments.length){body.append(paNode('p','Начисления из F+ без номера заявки:','pa-warning'));for(const adjustment of adjustments)paRow(body,'Без номера заявки · '+adjustment.count+' действий',paMoney(adjustment.amount));}
+  if(minus)paRow(body,'Заявок в детализации',String(rows.length));else paRow(body,'Засчитано действий',String(rows.concat(adjustments).reduce((s,r)=>s+(r.count||0),0)));
+  const total=rows.concat(adjustments).reduce((s,r)=>s+r.amount,0),expected=entry.agent[minus?'Сумма F-':'Сумма F+'];paRow(body,'Итого по детализации',paMoney(total));
+  if(Math.abs(total-expected)>0.01){paRow(body,'Начислено в итоговом листе',paMoney(expected));body.append(paNode('p','Детализация и итоговый лист различаются. Итоговое вознаграждение показано по итоговому листу без пересчёта.','pa-warning'));}
+ });
+}
+
 function paOwnTabs(){const screen=document.getElementById('screen-salary');paTabs(screen,paOwnSection,section=>section==='salary'?openMySalary():openMyPayout(section),'paOwnTabs');screen.querySelector('h2').textContent=paOwnSection==='salary'?'💰 Моя зарплата':paOwnSection==='swap'?'🔄 Мой Swap':'💰 Агентское вознаграждение';}
 async function openMyPayout(section='swap',period=''){
  if(!currentUser||['Стажер','Инженер'].includes(currentUser.role)||!['swap','agency'].includes(section))return;
@@ -4480,6 +4500,29 @@ async function openMyPayout(section='swap',period=''){
 }
 
 // Чтение XLSX без изменения файла и без внешних библиотек. Из формул берём сохранённый результат Excel.
+// Из больших листов разбираются только строки сотрудников выбранного города.
+// Полный DOM большого F- не создаётся; сводные таблицы справа не импортируются.
+function paSalesXmlRows(text,strings,columns,loginColumn,eligible){
+ const parser=new DOMParser(),nodes=(el,name)=>Array.from(el.getElementsByTagNameNS('*',name));
+ const decodeCell=cell=>{const t=cell.getAttribute('t'),raw=nodes(cell,'v')[0]?.textContent;if(t==='s')return strings[Number(raw)]??'';if(t==='inlineStr')return nodes(cell,'t').map(n=>n.textContent).join('');if(t==='str'||t==='e')return raw??'';if(raw!==undefined&&raw!==''){const value=Number(raw);return Number.isFinite(value)?value:raw;}return nodes(cell,'f').length?'#NO_CACHE!':null;};
+ const namespaceAttrs=(text.match(/<(?:\w+:)?worksheet\b[^>]*>/)?.[0]||'').match(/xmlns(?::[\w.-]+)?=["'][^"']*["']/g)||[];
+ const root='<root '+namespaceAttrs.join(' ')+'>';
+ const result=[],lookup=new RegExp('<(?:\\w+:)?c\\b[^>]*\\br=["\\\']'+loginColumn+'[0-9]+["\\\'][^>]*>([\\s\\S]*?)<\\/(?:\\w+:)?c>');
+ for(const match of text.matchAll(/<(?:\w+:)?row\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?row>/g)){
+  const rowNumber=match[1].match(/\br=["']([0-9]+)["']/)?.[1];if(!rowNumber)continue;
+  if(rowNumber!=='1'){
+   const cell=match[0].match(lookup);if(!cell)continue;
+   const raw=cell[0].match(/<(?:\w+:)?v\b[^>]*>([\s\S]*?)<\/(?:\w+:)?v>/)?.[1];
+   let login;if(/\bt=["']s["']/.test(cell[0]))login=strings[Number(raw)]||'';
+   else{const doc=parser.parseFromString(root+cell[0]+'</root>','application/xml');login=decodeCell(nodes(doc,'c')[0]);}
+   if(!eligible.has(String(login||'').trim().toLowerCase().replace(/@beeline\.kz$/,'')))continue;
+  }
+  const doc=parser.parseFromString(root+match[0]+'</root>','application/xml');if(doc.getElementsByTagName('parsererror').length)throw new Error('Повреждён XML детализации');
+  const map=new Map(nodes(doc,'c').map(cell=>[(cell.getAttribute('r')||'').replace(/[0-9]/g,''),decodeCell(cell)]));result.push(columns.map(col=>map.get(col)??null));if(result.length>10001)throw new Error('Слишком много строк детализации сотрудников');
+ }
+ if(!result.length)throw new Error('Нет заголовка листа детализации');return result;
+}
+
 async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
  if(!file||!file.name.toLowerCase().endsWith('.xlsx'))throw new Error('Выберите файл .xlsx');
  if(file.size>(kind==='payouts'?80:20)*1024*1024)throw new Error('Максимальный размер файла — '+(kind==='payouts'?80:20)+' МБ');
@@ -4497,15 +4540,15 @@ async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
  }
  const crcTable=Array.from({length:256},(_,i)=>{let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;return c>>>0;});
  let inflated=0;
- async function xml(name,optional=false){
+ async function xml(name,optional=false,sales=null){
   const f=files.get(name);if(!f){if(optional)return null;throw new Error('В Excel отсутствует '+name);}
-  inflated+=f.size;if(kind==='payouts'&&(f.size>16*1024*1024||inflated>32*1024*1024))throw new Error('Слишком много данных в нужных листах Excel');
+  inflated+=f.size;if(kind==='payouts'&&(f.size>32*1024*1024||inflated>64*1024*1024))throw new Error('Слишком много данных в нужных листах Excel');
   const o=f.offset;if(o+30>bytes.length||v.getUint32(o,true)!==0x04034b50)throw new Error('Повреждён файл Excel');
   const start=o+30+v.getUint16(o+26,true)+v.getUint16(o+28,true);if(start+f.packed>bytes.length)throw new Error('Повреждён файл Excel');
   let data=bytes.subarray(start,start+f.packed);
   if(f.method===8){if(typeof DecompressionStream==='undefined')throw new Error('Обновите браузер для загрузки Excel');let stream;try{stream=new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'));}catch(e){throw new Error('Этот браузер не поддерживает чтение Excel. Используйте актуальный Chrome или Edge');}const reader=stream.getReader(),chunks=[];let n=0;while(true){const part=await reader.read();if(part.done)break;n+=part.value.length;if(n>f.size||n>40*1024*1024){await reader.cancel();throw new Error('Некорректный размер данных Excel');}chunks.push(part.value);}data=new Uint8Array(n);let at=0;for(const c of chunks){data.set(c,at);at+=c.length;}}
   let crc=0xffffffff;for(const b of data)crc=crcTable[(crc^b)&255]^(crc>>>8);if(data.length!==f.size||((crc^0xffffffff)>>>0)!==f.crc)throw new Error('Повреждён Excel: контрольная сумма не совпадает');
-  const text=decoder.decode(data);if(/<!DOCTYPE|<!ENTITY/i.test(text))throw new Error('Неподдерживаемый XML в Excel');const doc=new DOMParser().parseFromString(text,'application/xml');if(doc.getElementsByTagName('parsererror').length)throw new Error('Повреждён XML Excel');return doc;
+  const text=decoder.decode(data);if(/<!DOCTYPE|<!ENTITY/i.test(text))throw new Error('Неподдерживаемый XML в Excel');if(sales)return paSalesXmlRows(text,strings,sales.columns,sales.loginColumn,sales.eligible);const doc=new DOMParser().parseFromString(text,'application/xml');if(doc.getElementsByTagName('parsererror').length)throw new Error('Повреждён XML Excel');return doc;
  }
  const nodes=(el,name)=>Array.from(el.getElementsByTagNameNS('*',name)),book=await xml('xl/workbook.xml'),rels=await xml('xl/_rels/workbook.xml.rels'),shared=await xml('xl/sharedStrings.xml',true),strings=shared?nodes(shared,'si').map(si=>nodes(si,'t').map(t=>t.textContent).join('')):[],targets=new Map(nodes(rels,'Relationship').filter(r=>r.getAttribute('TargetMode')!=='External').map(r=>[r.getAttribute('Id'),r.getAttribute('Target')]));
  const normalize=s=>String(s??'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9%]+/g,''),normCity=s=>String(s??'').trim().toLowerCase().replace(/\s+/g,' ');
@@ -4525,6 +4568,14 @@ async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
    }
    const ci=rows[0]?.findIndex(v=>normalize(v)===(name==='SWAP'?'city':'город'));if(ci===undefined||ci<0)throw new Error('Не найден столбец города: '+name);
    result.push({sheet:name,rows:[rows[0],...rows.slice(1).filter(row=>normCity(row[ci])===normCity(city))]});
+  }
+  const finalRows=result.find(b=>b.sheet==='Итоговый лист').rows,headers=finalRows[0],ci=headers.findIndex(v=>normalize(v)==='логин'),ri=headers.findIndex(v=>normalize(v)==='роль'),ai=headers.findIndex(v=>normalize(v)==='итоговаясумма');
+  const eligible=new Set(finalRows.slice(1).filter(r=>normalize(r[ri])==='техник'&&typeof r[ai]==='number'&&r[ai]!==0).map(r=>String(r[ci]||'').trim().toLowerCase().replace(/@beeline\.kz$/,'')));
+  for(const [name,columns,loginColumn]of [['F-',['C','AC','AD','AE','G','K','BH','BI','BJ','BK','AG','AB','I'],'AG'],['F+',['A','H','I','J','C','L','M','AD','AE','AF','AG','AH','E','G'],'E']]){
+   const matches=nodes(book,'sheet').filter(s=>String(s.getAttribute('name')).trim()===name);if(!matches.length)continue;if(matches.length!==1)throw new Error('Повтор листа '+name);
+   await onProgress(0,'Читаем детализацию '+name+' только для сотрудников города '+city+'.');
+   const sheet=matches[0],id=sheet.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||sheet.getAttribute('r:id'),target=targets.get(id);if(!target)throw new Error('Не найден лист '+name);const path=target.startsWith('/')?target.slice(1):'xl/'+target;if(path.includes('..'))throw new Error('Неверный путь детализации');
+   result.push({sheet:name,rows:await xml(path,false,{columns,loginColumn,eligible})});
   }
   await onProgress(1,'SWAP и итоговый расчёт города '+city+' подготовлены.');return result;
  }
