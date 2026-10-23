@@ -4476,7 +4476,7 @@ function paRender(entry,host,section){host.replaceChildren();
  paAccordion(host,'Налоги и итоги',body=>{for(const label of ['ОПВ','ВОСМС','ИПН','СО','Сумма налогов','Итоговая сумма'])if(a[label])paRow(body,label,paMoney(a[label]));if(String(a['Льгота']).toLowerCase()==='да')paRow(body,'Льгота','Да');});
  host.append(paNode('div','На руки · '+paMoney(a['Сумма на руки']),'pa-net'));
 }
-function paSwapDetails(entry,host){paAccordion(host,'🔄 SWAP · Детализация заявок',body=>paRender(entry,body,'swap'));}
+function paSwapDetails(entry,host){paAccordion(host,'SWAP · Детализация заявок',body=>paRender(entry,body,'swap'));}
 function paSalesDetails(entry,host,sign){
  const minus=sign==='minus',title=minus?'F− · Детализация заявок':'F+ · Детализация заявок';
  paAccordion(host,title,body=>{
