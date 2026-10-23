@@ -3012,7 +3012,21 @@ html[data-app-layout=desktop] .view-header{grid-template-columns:160px minmax(0,
 html[data-app-layout=desktop] .view-brand{grid-column:2;grid-row:1;align-self:center;justify-self:center;text-align:center}
 html[data-app-layout=desktop] .view-mode{grid-column:3;grid-row:1;align-self:center;justify-self:end}
 html[data-app-layout=desktop] .menu-toggle{grid-column:1;grid-row:1;align-self:center;width:46px;min-width:46px;height:46px;font-size:32px}
-.view-router-content{align-items:center;justify-items:stretch}.view-router-image-area{display:flex;align-items:center;justify-content:center;min-width:0;height:360px}.view-router-image-area .view-router-image{display:block;width:auto;max-width:100%;height:auto;max-height:340px;object-fit:contain;object-position:center;box-sizing:border-box}
+.view-router-content{align-items:center;justify-items:stretch}.view-router-image-area{display:flex;align-items:center;justify-content:center;min-width:0;height:360px}.view-router-image-area .view-router-image{display:flex;width:300px;max-width:100%;height:auto;aspect-ratio:1;max-height:none;box-sizing:border-box}
+.software-model-art{display:flex;align-items:center;justify-content:center;flex:none;overflow:visible}
+.software-router-image.software-model-art{display:flex;width:150px;height:auto;aspect-ratio:1;max-width:70%;max-height:none}
+.software-model-bounds{position:relative;width:var(--art-width);aspect-ratio:var(--art-ratio);height:auto;overflow:hidden;flex:none}
+.software-model-bounds>.software-model-source{display:block;position:absolute;left:var(--source-left);top:var(--source-top);width:var(--source-width);height:auto;max-width:none;max-height:none;margin:0;object-fit:contain}
+.software-model-fallback{display:block;width:100%;height:100%;object-fit:contain}
+.view-router-nav{display:none}
+html[data-app-layout=desktop] .view-router-heading-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:0 0 12px;margin:0 0 18px;border-bottom:1px solid var(--ui-border-374429,#374429)}
+html[data-app-layout=desktop] .view-router-heading-row>.view-software-card-heading{width:auto;flex:1;min-width:120px;margin:0;padding:0;border:0}
+html[data-app-layout=desktop] .view-router-nav{display:flex;align-items:center;gap:10px;flex:none}
+.view-router-nav-button{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 12px;margin:0;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--accent-ink,var(--accent));font:600 13px/1.4 Arial,sans-serif;cursor:pointer;white-space:nowrap}
+.view-router-nav-button:disabled{opacity:.4;cursor:default}
+.view-router-nav-button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:2px}
+.view-router-counter{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible{grid-template-columns:100px minmax(0,1fr) 100px minmax(0,1fr) 120px minmax(0,1fr)}
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record[data-ct-equipment=true] .ct-visible{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 100px minmax(0,1fr) 120px minmax(0,1fr)}
 @media(max-width:600px){html[data-app-layout=desktop] .view-header{grid-template-columns:75px minmax(0,1fr) 75px;grid-template-rows:40px;min-height:48px!important}html[data-app-layout=desktop] .view-brand{font-size:10px}html[data-app-layout=desktop] .view-mode select{width:75px;font-size:8px}html[data-app-layout=desktop] .menu-toggle{width:38px;min-width:38px;height:38px;font-size:28px}}
@@ -4132,7 +4146,8 @@ function openTmcSection(key){
   softwareRoutersData.forEach((router,index)=>{
    const id='screen-software-device-'+index,card=softwareScreen(id,router.icon+' '+router.title);
    const content=document.createElement('div');content.className='view-router-content';
-   const image=document.createElement('img');image.className='view-router-image';image.src=router.img;image.alt=router.title;image.loading='lazy';
+   const image=softwareRouterArtwork(router,'view-router-image');
+   const heading=card.querySelector('.view-software-card-heading'),headingRow=document.createElement('div');headingRow.className='view-router-heading-row';heading.before(headingRow);headingRow.append(heading,softwareRouterControls(index));
    const links=document.createElement('div');links.className='view-router-links';router.links.forEach(link=>{const a=document.createElement('a');a.className='software-download-btn';a.textContent=link.text;a.setAttribute('href',link.url);a.target=link.target||'_blank';a.rel='noopener noreferrer';if(link.text==='Список актуальных каналов'){a.removeAttribute('target');a.onclick=e=>{e.preventDefault();openChannelCatalog();};}links.append(a);});const imageArea=document.createElement('div');imageArea.className='view-router-image-area';imageArea.append(image);content.append(imageArea,links);card.insertBefore(content,card.querySelector('.common-nav-row'));softwareChoice(id,router.icon+' '+router.title,'devices');
   });
   for(const [platform,title,apps] of [['android','🤖 Приложения Android',softwareAndroidApps],['ios','🍏 Приложения iOS',softwareIosApps]]){
@@ -12576,11 +12591,29 @@ document.addEventListener('click', function(e) {
 });
 
 // ВСТРОЕННЫЙ МОДУЛЬ «ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ»
+// Убираем из отображения только прозрачные поля; исходные PNG и их пропорции сохраняются.
+function softwareRouterArtwork(router,className){
+ const frame=document.createElement('div');frame.className=className+' software-model-art';
+ const image=document.createElement('img');image.src=router.img;image.alt=router.title;image.loading='lazy';image.decoding='async';
+ if(!router.artwork){image.className='software-model-fallback';frame.append(image);return frame;}
+ const [width,height]=router.artwork.size,[x,y,w,h]=router.artwork.box,bounds=document.createElement('div');bounds.className='software-model-bounds';
+ bounds.style.setProperty('--art-width',(100*w/Math.max(w,h))+'%');bounds.style.setProperty('--art-ratio',w+' / '+h);bounds.style.setProperty('--source-width',(100*width/w)+'%');bounds.style.setProperty('--source-left',(-100*x/w)+'%');bounds.style.setProperty('--source-top',(-100*y/h)+'%');
+ image.width=width;image.height=height;image.className='software-model-source';bounds.append(image);frame.append(bounds);return frame;
+}
+function softwareRouterControls(index){
+ const nav=document.createElement('nav');nav.className='view-router-nav';nav.setAttribute('aria-label','Переключение моделей');
+ function move(delta){if(document.documentElement.dataset.appLayout!=='desktop')return;const next=index+delta;if(next<0||next>=softwareRoutersData.length)return;const top=window.scrollY,left=window.scrollX;switchScreen('screen-software-device-'+next);window.scrollTo({left,top,behavior:'instant'});const screen=document.getElementById('screen-software-device-'+next);const focus=screen.querySelector('[data-model-move="'+delta+'"]:not(:disabled)')||screen.querySelector('.view-router-nav button:not(:disabled)');focus?.focus({preventScroll:true});}
+ const previous=document.createElement('button'),next=document.createElement('button');
+ for(const [button,delta,text]of [[previous,-1,'◀ Предыдущая'],[next,1,'Следующая ▶']]){button.type='button';button.className='view-router-nav-button';button.textContent=text;button.dataset.modelMove=String(delta);button.disabled=index+delta<0||index+delta>=softwareRoutersData.length;button.setAttribute('aria-label',(delta<0?'Предыдущая модель':'Следующая модель')+(button.disabled?'':': '+softwareRoutersData[index+delta].title));button.onclick=()=>move(delta);}
+ const count=document.createElement('span');count.className='view-router-counter';count.textContent=(index+1)+' из '+softwareRoutersData.length;nav.append(previous,count,next);return nav;
+}
+
 const softwareRoutersData = [
     {
         title: "AX3000",
         icon: "🛜",
         img: "кубик.png",
+        artwork: {size: [500, 500], box: [39, 27, 418, 444]},
         links: [
             { text: "Скачать прошивку", url: "https://john-toloknov.github.io/proshivok.net/YDK_MESH_V240729-sysupgrade.bin", target: "_blank" },
             { text: "Открыть инструкцию по прошивке", url: "Инструкция_по_обновлению_прошивки_роутера_M3000TP.pdf", target: "_blank" },
@@ -12591,6 +12624,7 @@ const softwareRoutersData = [
         title: "AX3000 GPON",
         icon: "🛜",
         img: "gpon.png",
+        artwork: {size: [320, 320], box: [20, 21, 263, 274]},
         links: [
             { text: "Скачать прошивку", url: "https://john-toloknov.github.io/proshivok.net/DGP-X3000TR_YDK_V3A1_V2.58a_OpenMarket_20251016-Image.bin", target: "_blank" },
             { text: "Открыть инструкцию по прошивке", url: "Инструкция_по_обновлению_прошивки_роутера_X3000TR.pdf", target: "_blank" }
@@ -12600,6 +12634,7 @@ const softwareRoutersData = [
         title: "BASIC AC1200",
         icon: "🛜",
         img: "ac.png",
+        artwork: {size: [433, 577], box: [75, 145, 280, 267]},
         links: [
             { text: "Скачать прошивку", url: "https://john-toloknov.github.io/proshivok.net/G12-B.7EFE5.V250206-sysupgrade.bin", target: "_blank" },
             { text: "Открыть инструкцию по прошивке", url: "Инструкция_по_обновлению_прошивки_роутера_AC1200.pdf", target: "_blank" }
@@ -12609,6 +12644,7 @@ const softwareRoutersData = [
         title: "BASIC",
         icon: "🛜",
         img: "basic1.png",
+        artwork: {size: [200, 200], box: [5, 0, 190, 200]},
         links: [
             { text: "Скачать прошивку версии (DVG)", url: "https://john-toloknov.github.io/proshivok.net/f10dvg.bin", target: "_blank" },
             { text: "Скачать прошивку версии (DVN)", url: "https://john-toloknov.github.io/proshivok.net/f10dvn.bin", target: "_blank" },
@@ -12619,6 +12655,7 @@ const softwareRoutersData = [
         title: "TURBO",
         icon: "🛜",
         img: "turbo.png",
+        artwork: {size: [240, 320], box: [0, 36, 214, 232]},
         links: [
             { text: "Скачать прошивку версии R200", url: "https://john-toloknov.github.io/proshivok.net/R200.14B.211223.bin", target: "_blank" },
             { text: "Скачать прошивку версии R201", url: "https://john-toloknov.github.io/proshivok.net/R201.14B.211222.bin", target: "_blank" },
@@ -12629,6 +12666,7 @@ const softwareRoutersData = [
         title: "ARCHER C24",
         icon: "🛜",
         img: "c24.png",
+        artwork: {size: [500, 500], box: [107, 64, 306, 366]},
         links: [
             { text: "Скачать прошивку", url: "https://john-toloknov.github.io/proshivok.net/tp-link-archer-c24v1.bin", target: "_blank" },
             { text: "Открыть инструкцию по прошивке", url: "прошивка.pdf", target: "_blank" }
@@ -12638,6 +12676,7 @@ const softwareRoutersData = [
         title: "Приставка ZTE",
         icon: "📺",
         img: "zte.png",
+        artwork: {size: [342, 342], box: [19, 65, 281, 213]},
         links: [
             { text: "Скачать прошивку", url: "https://john-toloknov.github.io/proshivok.net/app-atv-beeline_9.0.0_kz.apk", target: "_blank" },
             { text: "Открыть инструкцию", url: "Инструкия-STB-ZTE.pdf", target: "_blank" },
@@ -12728,7 +12767,7 @@ function renderSoftwareCatalog() {
                 <span><span aria-hidden="true">${router.icon}</span> ${router.title}</span><span class="software-arrow">▼</span>
             </button>
             <div id="${bodyId}" class="software-router-body">
-                <img class="software-router-image" src="${router.img}" alt="${router.title}" loading="lazy">
+                ${softwareRouterArtwork(router,'software-router-image').outerHTML}
                 ${links}
             </div>
         </div>`;
