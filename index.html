@@ -3055,6 +3055,9 @@ html[data-app-layout] #screen-main>.view-home{display:flex;flex-direction:column
 html[data-app-layout] .view-home h1.view-home-name{display:block;color:var(--ui-fg-b7ed55,#b7ed55);font-size:clamp(20px,2.8vw,30px);line-height:1.2;margin:0}
 html[data-app-layout] .view-home p.view-home-description{font-size:15px;line-height:1.7;max-width:560px;margin:0;color:var(--ui-fg-bbbbbb,#bbb);text-align:center}
 html[data-app-layout] .view-home p.view-home-author{font-size:13px;line-height:1.5;margin:6px 0 0;color:var(--ui-fg-b7ed55,#b7ed55);text-align:center;max-width:100%}
+html[data-app-layout] .view-home p.view-home-author{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.view-author-telegram{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;min-height:36px;box-sizing:border-box;border:1px solid var(--accent,#b7ed55);border-radius:10px;background:var(--accent,#b7ed55);color:#16200d!important;font-size:13px;font-weight:700;line-height:1.2;text-decoration:none;white-space:nowrap}
+.view-author-telegram svg{flex:none}.view-author-telegram:hover{filter:brightness(1.06)}.view-author-telegram:focus-visible{outline:2px solid var(--text-main,#fff);outline-offset:3px}
 html[data-app-layout=mobile] .view-home-logo{width:140px;height:140px}
 @keyframes homeLogoBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
 @media(prefers-reduced-motion:reduce){.view-home-logo{animation:none}}
@@ -4166,6 +4169,7 @@ function openTmcSection(key){
   const homeName=document.createElement('h1');homeName.className='view-home-name';homeName.textContent='INTERNET INSTALLER';
   const homeText=document.createElement('p');homeText.className='view-home-description';homeText.textContent='Всё для рабочего дня в одном приложении: заявки, график смен, оборудование и результаты работы. Откройте меню ☰ и выберите нужный раздел.';
   const homeAuthor=document.createElement('p');homeAuthor.className='view-home-author';homeAuthor.textContent='Автор: Толокнов Евгений Алексеевич';
+  const authorTelegram=document.createElement('a');authorTelegram.className='view-author-telegram';authorTelegram.href='tg://user?id=1160882045';authorTelegram.setAttribute('aria-label','Написать автору в Telegram');authorTelegram.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.8 3.4 18.5 20c-.2 1.2-.9 1.5-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1L18 6.5c.4-.4-.1-.6-.6-.2L5.8 13.6.9 12.1c-1.1-.3-1.1-1.1.2-1.6L20.2 3c.9-.3 1.8.2 1.6.4Z"/></svg><span>Telegram</span>';homeAuthor.append(authorTelegram);
   home.append(homeLogo,homeName,homeText,homeAuthor);document.getElementById('screen-main')?.prepend(home);
   const adminIntro=document.createElement('p');adminIntro.className='view-admin-intro';adminIntro.textContent='Выберите действие в разделе «Админ-панель» слева.';document.querySelector('#screen-admin > .card')?.prepend(adminIntro);
   const reportSelector=document.getElementById('tr-reportType-btn')?.closest('.custom-dropdown');
