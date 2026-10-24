@@ -4826,6 +4826,7 @@ html[data-app-layout=mobile] .my-report-device-fields{grid-template-columns:minm
 </style>
 <script id="myReportsScript">
 let myReportsState={records:[],day:'',timezone:'Asia/Qyzylorda',busy:false,owner:'',epoch:0,edit:null,pending:null};
+function reportLocalToday(){return new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Qyzylorda',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
 function reportTypeLabel(type){const emoji={'Включение':'🔌','Переезд':'📦','Сервис':'🛠️','Демонтаж':'❌','ППР':'♻️'};return (emoji[String(type).split(' ')[0]]||'📋')+' '+type;}
 function myReportsCloseDropdowns(){document.querySelectorAll('#myReportsContent .custom-dropdown.open').forEach(n=>setDropdownOpen(n,false));}
 function myReportsReset(){myReportsCloseDropdowns();myReportsState.epoch++;myReportsState.busy=false;myReportsState.records=[];myReportsState.edit=null;myReportsState.pending=null;myReportsState.owner='';myReportsState.day='';document.getElementById('myReportsContent')?.replaceChildren();document.getElementById('myReportsStatus')?.replaceChildren();}
@@ -9932,7 +9933,7 @@ document.addEventListener('blur', (e) => {
    МОДУЛЬ «ОТЧЕТЫ ТЕХНИКОВ» — функционал из исходного файла
    ========================================================== */
 
-    document.getElementById('tr-reportDate').valueAsDate = new Date();
+    document.getElementById('tr-reportDate').value = reportLocalToday();
 
     let photosList = [];
     let pprPhotosBefore = [];
@@ -12277,7 +12278,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         updateReportNetworkPickers();
 
         const date = document.getElementById('tr-reportDate');
-        if (date) date.valueAsDate = new Date();
+        if (date) date.value = reportLocalToday();
 
         try {
             initInstallersDropdowns();
