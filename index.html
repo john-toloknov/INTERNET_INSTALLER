@@ -4194,7 +4194,7 @@ function openTmcSection(key){
    const active=document.querySelector('.app-screen.active');
    const auth=!active||authIds.has(active.id);document.body.dataset.viewAuth=String(auth);
    if(active)updateBackNavigation(active);
-   reportTitle.textContent=document.getElementById('tr-reportType').value||'Отчёт по заявке';
+   reportTitle.textContent=reportTypeLabel(document.getElementById('tr-reportType').value||'Отчёт по заявке');
 
    const focused=sidebar.contains(document.activeElement)?document.activeElement.dataset.viewAction:null;
    sidebar.replaceChildren();if(auth)return;
@@ -4230,12 +4230,12 @@ function openTmcSection(key){
    if(visible(reports)){
     const options=[...document.querySelectorAll('#tr-reportType-list .dropdown-item')];
     section('reports','📝 Отчёты по заявкам',options,active.id==='screen-technician-reports',{allow:()=>visible(reports),before:()=>{if(document.querySelector('.app-screen.active')?.id!=='screen-technician-reports')reports.click();}});
-    sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===document.getElementById('tr-reportType').value;if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
+    sidebar.querySelectorAll('[data-view-section=reports] .view-sidebar-button').forEach(button=>{const current=active.id==='screen-technician-reports'&&button.textContent===reportTypeLabel(document.getElementById('tr-reportType').value);if(current)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
    }
    const digitalWindow=document.getElementById('digitalWindowBtn');if(visible(digitalWindow))addButton(digitalWindow,sidebar);
    for(const id of ['engineerPprBtn','engineerScheduleBtn','engineerEventsBtn','engineerDeliveryBtn']){const b=document.getElementById(id);if(visible(b))addButton(b,sidebar);}
    const refarbWorker=document.getElementById('refarbWorkerBtn');if(visible(refarbWorker))addButton(refarbWorker,sidebar);
-   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
+   if(visible(installer))section('installer','👤 Меню монтажника',[...document.querySelectorAll('.view-installer-grid > button')],['screen-installer-menu','screen-my-reports','screen-tmc-request','screen-schedule','screen-shift-swaps','screen-ppr-plans','screen-act-debts','screen-my-equipment','screen-my-hours','screen-salary','screen-return-equipment','screen-check-return'].includes(active.id),{allow:()=>visible(installer)});
    const supervisorPpr=document.getElementById('supervisorPprBtn');if(visible(supervisorPpr))addButton(supervisorPpr,sidebar);
    const access=document.getElementById('equipmentAccessBtn');
    if(visible(access)){
@@ -4508,7 +4508,7 @@ let paAdminSection='salary',paOwnSection='salary',paOwnRequest=0;
 let paCacheScope='',paCacheEpoch=0;
 const paAdminCache=new Map(),paOwnCache=new Map(),paDirtyKinds=new Set();
 function paCacheOwner(){return currentUser?JSON.stringify([currentUser.dwLogin,currentUser.city,currentUser.district,currentUser.role,currentUser.fullName,GLOBAL_AUTH_SALARY_URL]):'';}
-function paResetPayrollCache(){paCacheEpoch++;paOwnRequest++;paAdminCache.clear();paOwnCache.clear();paDirtyKinds.clear();paCacheScope='';pwAdminState=null;pwScope='';document.getElementById('salaryContentContainer')?.replaceChildren();for(const id of ['pwEntries','pwSummary','pwActions'])document.getElementById(id)?.replaceChildren();document.getElementById('pwRework')?.remove();const search=document.getElementById('pwEmployeeSearch');if(search)search.value='';}
+function paResetPayrollCache(){if(typeof myReportsReset==='function')myReportsReset();paCacheEpoch++;paOwnRequest++;paAdminCache.clear();paOwnCache.clear();paDirtyKinds.clear();paCacheScope='';pwAdminState=null;pwScope='';document.getElementById('salaryContentContainer')?.replaceChildren();for(const id of ['pwEntries','pwSummary','pwActions'])document.getElementById(id)?.replaceChildren();document.getElementById('pwRework')?.remove();const search=document.getElementById('pwEmployeeSearch');if(search)search.value='';}
 function paEnsureCacheScope(){const owner=paCacheOwner();if(owner!==paCacheScope){paResetPayrollCache();paCacheScope=owner;}return owner;}
 function paInvalidateCalculation(kind){paDirtyKinds.add(kind);paAdminCache.delete(kind);paOwnCache.delete(kind);paOwnRequest++;}
 function paRememberAdmin(){paEnsureCacheScope();if(!pwAdminState||pwAdminBusy||paDirtyKinds.has(paDataset())||pwAdminState.kind!==paDataset())return;const root=document.getElementById('screen-admin-payroll');if(!root)return;paAdminCache.set(paDataset(),{state:pwAdminState,nodes:Array.from(document.getElementById('pwEntries').children),search:document.getElementById('pwEmployeeSearch').value,month:document.getElementById('pwMonth').value,open:Object.fromEntries(Array.from(document.querySelectorAll('#pwSummary .pw-summary-details'),n=>[n.dataset.payrollNotice,n.open]))});}
@@ -4779,6 +4779,153 @@ async function pwImportFile(){
  finally{pwAdminBusy=false;pwOperation='';pwPaint();paRememberAdmin();}
 }
 async function pwMutation(action,revision){if(pwAdminBusy)return;paEnsureCacheScope();paInvalidateCalculation(paDataset());pwAdminBusy=true;pwOperation=action;pwPaint();pwStatus(action==='payrollPublish'?'Сохраняем публикацию и готовим личные уведомления.':'Обновляем состояние расчёта.','loading',null,action==='payrollPublish'?'Публикуем зарплату…':'Выполняется…');try{pwAdminState=await pwApi(action,{revision});paDirtyKinds.delete(paDataset());pwStatus(action==='payrollPublish'?'Расчёт опубликован. Уведомления поставлены в очередь.':action==='payrollDiscard'?'Черновик отменён.':pwAdminState.draft?.correctionEventId?'Расчёт возвращён на доработку. Уведомления о корректировке поставлены в очередь. Можно выбрать исправленный файл.':'Черновик возвращён на доработку. Можно выбрать исправленный файл.','success',null,action==='payrollPublish'?'Зарплата опубликована':'Готово');}catch(e){pwStatus(pwFriendlyError(e),e.retryable?'info':'error',null,e.retryable?'Проверьте состояние':'Ошибка');}finally{pwAdminBusy=false;pwOperation='';pwPaint();paRememberAdmin();}}
+
+</script>
+<style id="myReportsStyle">.my-reports-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.my-reports-toolbar p{margin:0;color:var(--text-secondary)}.my-report-card{padding:16px;border:1px solid var(--card-border);border-radius:12px;margin:12px 0;background:var(--surface-dark)}.my-report-card>.btn{margin:8px 0 0}.my-report-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.my-report-field{display:block;min-width:0;margin:0}.my-report-field>span{display:block;margin:0 0 6px;padding-inline-start:1ch;box-sizing:border-box}.my-report-field input,.my-report-field textarea,.my-report-field .custom-dropdown{width:100%;min-width:0;box-sizing:border-box;margin:0}.my-report-field .dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}.my-report-field .dropdown-arrow{flex:none}.my-report-field .dropdown-select-btn>span:first-child{min-width:0;white-space:normal;overflow-wrap:anywhere}.my-report-field:has(textarea){grid-column:1/-1}.my-report-field input:disabled{opacity:.65}.my-report-field[hidden]{display:none}.my-report-field .kit-option-row{display:flex;align-items:center;gap:10px;padding:10px;margin:0}.my-report-field .kit-option-row input{width:18px;height:18px;margin:0;flex:none}html[data-app-layout=mobile] .my-report-fields{grid-template-columns:minmax(0,1fr)}
+/* Компоновка исправления отчёта и штатные списки выбора. */
+#myReportsContent .dropdown-list{background:var(--surface-dark);border:1px solid var(--accent);border-radius:10px;max-height:260px;overflow-y:auto;z-index:99999}
+#myReportsContent .custom-dropdown:not(.open)>.dropdown-list{max-height:0!important;visibility:hidden;opacity:0;pointer-events:none}
+#myReportsContent .custom-dropdown.open>.dropdown-list{max-height:260px;visibility:visible;opacity:1;pointer-events:auto}
+#myReportsContent .dropdown-item{display:block;width:100%;box-sizing:border-box;background:transparent;color:var(--text-main);font:inherit;text-align:left;border:0;border-bottom:1px solid var(--card-border);padding:12px 14px;cursor:pointer}
+#myReportsContent .dropdown-item:hover,#myReportsContent .dropdown-item:focus-visible{background:var(--accent);color:#111;outline:0}
+.my-report-pair,.my-report-materials,.my-report-device-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+.my-report-full,.my-report-pair,.my-report-materials,.my-report-device{grid-column:1/-1;min-width:0}
+.my-report-materials{grid-template-columns:repeat(5,minmax(0,1fr))}.my-report-materials .my-report-field>span{font-size:11px}.my-report-materials input{padding:10px 6px;text-align:center}
+.my-report-device{border:1px solid var(--card-border);border-radius:12px;background:var(--surface-dark)}
+.my-report-device>summary{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;list-style:none;font-weight:700;cursor:pointer;color:var(--accent-ink,var(--accent))}
+.my-report-device>summary::-webkit-details-marker{display:none}.my-report-device>summary::marker{content:''}.my-report-device>summary::after{content:'▼';flex:none;transition:transform .2s}.my-report-device[open]>summary::after{transform:rotate(180deg)}
+.my-report-device-fields{padding:0 12px 12px;grid-template-columns:repeat(3,minmax(0,1fr))}.my-report-device-fields .my-report-field:has(.kit-option-row){grid-column:1/-1}
+.report-network-pickers{display:none}html[data-app-layout=mobile] .report-type-original{display:none!important}html[data-app-layout=mobile] .report-network-pickers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.report-network-pickers .dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;margin:0}.report-network-selected>.dropdown-select-btn{border-color:var(--accent)}
+html[data-app-layout=mobile] .my-report-device-fields{grid-template-columns:minmax(0,1fr)}
+@media(max-width:360px){html[data-app-layout=mobile] .my-report-materials{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.my-report-device>summary::after{transition:none}}
+.equipment-o-hint{display:block;color:var(--danger);font-size:12px;line-height:1.4;margin-top:5px}.equipment-o-hint[hidden]{display:none}
+.inventory-transfer-item{white-space:pre-line}
+.my-report-save>.btn{width:100%;margin:0}.my-report-save{margin-top:12px}
+#beelineModalButtons > .btn:only-child,#beelineModalButtons .my-report-result-actions,#beelineModalButtons .my-report-result-actions > .btn{box-sizing:border-box;width:100%!important;max-width:none;min-width:0}
+#beelineModalButtons .my-report-result-actions > .btn{margin:0!important}
+.my-report-model-note:empty{display:none}
+.my-report-model-note{display:block;margin-top:5px;color:var(--text-secondary);font-size:12px;line-height:1.4}
+</style>
+<script id="myReportsScript">
+let myReportsState={records:[],day:'',timezone:'Asia/Qyzylorda',busy:false,owner:'',epoch:0,edit:null,pending:null};
+function reportTypeLabel(type){const emoji={'Включение':'🔌','Переезд':'📦','Сервис':'🛠️','Демонтаж':'❌','ППР':'♻️'};return (emoji[String(type).split(' ')[0]]||'📋')+' '+type;}
+function myReportsCloseDropdowns(){document.querySelectorAll('#myReportsContent .custom-dropdown.open').forEach(n=>setDropdownOpen(n,false));}
+function myReportsReset(){myReportsCloseDropdowns();myReportsState.epoch++;myReportsState.busy=false;myReportsState.records=[];myReportsState.edit=null;myReportsState.pending=null;myReportsState.owner='';myReportsState.day='';document.getElementById('myReportsContent')?.replaceChildren();document.getElementById('myReportsStatus')?.replaceChildren();}
+function myReportsDetectModels(record,grid,changes){
+ for(const field of record.schema.fields){const match=/^(Роутер|Приставка) ([1-3]) · S\/N$/.exec(field.label);if(!match)continue;const modelField=record.schema.fields.find(f=>f.label===match[1]+' '+match[2]+' · Модель');if(!modelField)continue;
+  const serial=grid.querySelector(`[data-report-col="${field.col}"] input`),model=grid.querySelector(`[data-report-col="${modelField.col}"]`);if(!serial||serial.disabled||!model?.myReportSetValue)continue;
+  let previous=normalizeEquipmentSerialCode(serial.value);const note=ctNode('small','my-report-model-note');note.setAttribute('role','status');model.append(note);
+  const detect=event=>{const code=normalizeEquipmentSerialCode(serial.value);serial.value=code;if(code===(record.values[field.col]||''))delete changes[field.col];else changes[field.col]=code;if(code===previous&&(event.type==='change'||event.equipmentFormattingOnly))return;previous=code;const detected=(match[1]==='Роутер'?ctDetectRouterModel:ctDetectStbModel)(code);model.myReportSetValue(detected);note.textContent=!detected&&code?'Модель не распознана — выберите вручную.':'';};serial.addEventListener('input',detect);serial.addEventListener('change',detect);
+ }
+}
+function ctAutoEditModel(record,article,field,value){
+ if(record.__ctBatch)return;const match=/^(Роутер|Приставка) ([1-3]) · S\/N$/.exec(field.label),stock=['Роутеры','Приставки'].includes(record.sheet)&&field.col==='C';if(!match&&!stock)return;
+ const schema=ctState.sheets.find(s=>s.name===record.sheet)?.schema,modelField=schema?.fields.find(f=>stock?f.label==='Марка оборудования':f.label===match[1]+' '+match[2]+' · Модель');if(!modelField||record.readonly?.includes(modelField.col))return;
+ const draft=ctDraft(record),code=normalizeEquipmentSerialCode(value),model=(stock?record.sheet==='Роутеры':match[1]==='Роутер')?ctDetectRouterModel(code):ctDetectStbModel(code);
+ for(const [col,next]of [[field.col,code],[modelField.col,model]]){draft.values[col]=next;if(next===(record.values[col]||''))delete draft.changes[col];else draft.changes[col]=next;}
+ const serial=article.querySelector(`[data-ct-col="${field.col}"] input`),input=article.querySelector(`[data-ct-col="${modelField.col}"] input`);if(serial)serial.value=code;if(input)input.value=model;
+}
+
+function myReportsHiddenField(field){return field.type==='theme'||/^(?:Статус|Тип сервиса|Результат решения)$|^Часовая ставка(?:\s|$)|^Ставка(?:\s|$)/i.test(field.label);}
+function myReportsToggleDropdown(dropdown){const open=!dropdown.classList.contains('open');document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,open);}
+function myReportsArrangeFields(grid){
+ const fields=[...grid.children],method=[],cable=[],patch=[],materials=[],devices=new Map(),rest=[];
+ for(const field of fields){const label=field.dataset.reportLabel||field.querySelector('span')?.textContent||'',device=/^(Роутер|Приставка) ([1-3])/.exec(label);
+  if(device){const key=device[1]+' '+device[2];if(!devices.has(key))devices.set(key,[]);devices.get(key).push(field);}
+  else if(/Способ включения|Способ перетяжки|Способ включения \/ перетяжки/.test(label))method.push(field);
+  else if(/патч-корд/i.test(label)&&!/оптическ/i.test(label))patch.push(field);
+  else if(['Номер кабеля','Количество кабеля'].includes(label))cable.push(field);
+  else if(['Клипсы','Коннекторы','Хомуты','Изолента','UY2'].includes(label))materials.push(field);
+  else rest.push(field);
+ }
+ grid.replaceChildren();const row=(items,cls)=>{if(!items.length)return;const wrap=ctNode('div',cls);items.forEach(n=>wrap.append(n));grid.append(wrap);};
+ // Основные сведения — до расходных материалов; комментарий — после оборудования.
+ const ticketDate=rest.filter(n=>['Номер заявки','Дата монтажа','Дата'].includes(n.dataset.reportLabel));if(ticketDate.length===2)row(ticketDate,'my-report-pair my-report-ticket-date');
+ const basics=rest.filter(n=>['Номер заявки','Адрес','Логин','ФИО абонента','Дата монтажа','Дата','ФИО монтажника','Второй монтажник'].includes(n.dataset.reportLabel));basics.filter(n=>ticketDate.length!==2||!ticketDate.includes(n)).forEach(n=>grid.append(n));
+ row(method,'my-report-full');row(cable,'my-report-pair');row(patch,'my-report-pair');row(materials,'my-report-materials');
+ for(const [name,nodes]of devices){const details=ctNode('details','my-report-device'),summary=ctNode('summary','',name),body=ctNode('div','my-report-device-fields');nodes.forEach(n=>body.append(n));details.append(summary,body);grid.append(details);}
+ rest.filter(n=>!basics.includes(n)).forEach(n=>grid.append(n));
+}
+function reportNetworkPickers(){const original=document.getElementById('tr-reportType-btn')?.closest('.custom-dropdown');if(!original||document.getElementById('reportNetworkPickers'))return;original.classList.add('report-type-original');const row=ctNode('div','report-network-pickers');row.id='reportNetworkPickers';
+ for(const network of ['FTTB','GPON']){const dropdown=ctNode('div','custom-dropdown'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';button.setAttribute('aria-label','Виды отчётов '+network);button.setAttribute('aria-expanded','false');button.append(ctNode('span','',network),ctNode('span','dropdown-arrow','▼'));button.onclick=e=>{e.stopPropagation();myReportsToggleDropdown(dropdown);};
+  for(const kind of ['Включение','Переезд','Сервис','Демонтаж','ППР']){const value=kind+' '+network,option=ctNode('div','dropdown-item',reportTypeLabel(value));option.tabIndex=0;option.setAttribute('role','option');option.onclick=()=>{setDropdownOpen(dropdown,false);selectOption('tr-reportType',value,'tr-reportType-btn',reportTypeLabel(value),'tr-reportType-list');handleReportTypeChange();updateReportNetworkPickers();};option.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();option.click();}};list.append(option);}dropdown.append(button,list);row.append(dropdown);}
+ original.after(row);const input=document.getElementById('tr-reportType');input.addEventListener('change',updateReportNetworkPickers);new MutationObserver(updateReportNetworkPickers).observe(document.getElementById('tr-reportType-btn'),{childList:true,characterData:true,subtree:true});updateReportNetworkPickers();
+}
+function reportTypeMobile(){return document.documentElement.dataset.appLayout==='mobile';}
+function validateReportType(){
+ if(!reportTypeMobile())return true;
+ const valid=/^(Включение|Переезд|Сервис|Демонтаж|ППР) (FTTB|GPON)$/.test(document.getElementById('tr-reportType').value);
+ const buttons=document.querySelectorAll('#reportNetworkPickers > .custom-dropdown > button');
+ buttons.forEach(button=>{button.classList.toggle('input-error',!valid);if(valid)button.removeAttribute('aria-invalid');else button.setAttribute('aria-invalid','true');});
+ if(!valid){buttons[0]?.scrollIntoView?.({block:'center',behavior:'smooth'});buttons[0]?.focus();showBeelineModal('Обязательное поле','Выберите вид отчёта: откройте FTTB или GPON и выберите нужный пункт.','⚠️');}
+ return valid;
+}
+function updateReportNetworkPickers(){const value=document.getElementById('tr-reportType')?.value||'';document.querySelectorAll('#reportNetworkPickers>.custom-dropdown').forEach((dropdown,index)=>{const chosen=value.endsWith(index===0?'FTTB':'GPON');dropdown.classList.toggle('report-network-selected',chosen);dropdown.querySelector('button').setAttribute('aria-pressed',String(chosen));dropdown.querySelectorAll('.dropdown-item').forEach(n=>n.setAttribute('aria-selected',String(n.textContent===reportTypeLabel(value))));});}
+window.addEventListener('DOMContentLoaded',reportNetworkPickers);
+
+function inventoryAskTransfer(items){return new Promise(resolve=>{let done=false,observer;const finish=value=>{if(done)return;done=true;observer?.disconnect();if(body.isConnected)closeBeelineModal();resolve(value);},body=ctNode('div');for(const item of items)body.append(ctNode('p','inventory-transfer-item',item.sheet+' · '+item.serial+'\nЧислится за: '+item.owner+'\nБудет записано на: '+item.target));body.append(ctNode('p','','Вы уверены, что правильно указали оборудование? У него нет абонентского логина. При подтверждении изменится сотрудник.'));const actions=ctNode('div','common-nav-row'),no=ctNode('button','btn danger-btn','🔙 Нет, проверить'),yes=ctNode('button','btn main-btn','✅ Да, всё верно');no.type=yes.type='button';no.onclick=()=>finish(false);yes.onclick=()=>finish(true);actions.append(no,yes);showBeelineModalNode('Оборудование другого сотрудника',body,'⚠️',actions);const modal=document.getElementById('beelineModal');observer=new MutationObserver(()=>{if(modal.style.display==='none'||!body.isConnected)finish(false);});observer.observe(modal,{attributes:true,childList:true,subtree:true,attributeFilter:['style']});});}
+async function inventoryConfirmRequest(fields,send){const owner=managementOwnerKey();let payload={...fields};for(let attempt=0;attempt<4;attempt++){const result=await send(payload);if(result.status!=='inventory_confirmation')return result;if(owner!==managementOwnerKey())throw Object.assign(new Error('Сеанс изменился'),{confirmed:true});const accepted=await inventoryAskTransfer(result.confirmations||[]);if(!accepted||owner!==managementOwnerKey())throw Object.assign(new Error('Перезапись отменена. Проверьте серийный номер.'),{confirmed:true,inventoryCancelled:true});payload={...payload,inventoryApprovals:(result.confirmations||[]).map(item=>item.token)};}throw Object.assign(new Error('Данные оборудования изменились. Обновите форму.'),{confirmed:true});}
+async function myReportsApi(operation,fields={}){return operation==='save'?inventoryConfirmRequest(fields,next=>myReportsApiRaw_(operation,next)):myReportsApiRaw_(operation,fields);}
+async function ctRequest(operation,fields={},timeout=45000){return operation==='save'?inventoryConfirmRequest(fields,next=>ctRequestRaw_(operation,next,timeout)):ctRequestRaw_(operation,fields,timeout);}
+
+// Нормализация до обработчиков формы: ввод, вставка и компьютерный сканер.
+function deviceInputEnglish(value){const ru='ёйцукенгшщзхъфывапролджэячсмитьбю',en="`qwertyuiop[]asdfghjkl;'zxcvbnm,.";return String(value??'').normalize('NFKC').replace(/[А-Яа-яЁё]/g,ch=>{const i=ru.indexOf(ch.toLowerCase());return i<0?ch:en[i];}).toUpperCase();}
+function deviceInputSerial(value){return deviceInputEnglish(value).trim().replace(/^S\/?N\s*[:：]?\s*/,'').replace(/[^A-Z0-9._:/-]/g,'');}
+function deviceInputMac(value){return deviceInputEnglish(value).trim().replace(/^MAC\s*[:：]?\s*/,'').replace(/O/g,'0').replace(/[^A-Z0-9]/g,'');}
+function equipmentInputKind(field){if(!field?.matches?.('input')||field.type==='hidden'||field.type==='checkbox'||field.type==='radio')return '';const key=field.dataset.rfField||field.dataset.rfQueueField;if(key==='mac')return 'mac';if(key==='sn')return 'serial';const label=field.getAttribute('aria-label')||field.getAttribute('placeholder')||'',id=field.id||'';if(field.type==='search'||/поиск|найдите/i.test(label))return '';if(/(?:^|[^a-z])(mac|мак)(?:[^a-z]|$)/i.test(label)||/^(?:retMac|tr-(?:r|tv)[123]Mac)$/.test(id))return 'mac';if(field.hasAttribute('data-ct-serial')||/серийн|S\/N|\bserial\b|^Номер кабеля$|^Кабель для патч-корда$/i.test(label)||/^(?:retSerial|manual-serial-input|tr-(?:r|tv)[123]Sn|tr-(?:patchCable|cable)Num)$/.test(id))return 'serial';return '';}
+function equipmentNormalizeInput(field){const kind=equipmentInputKind(field);if(!kind||field.disabled||field.readOnly)return false;const old=field.value,fn=kind==='mac'?deviceInputMac:deviceInputSerial,pos=field.selectionStart,next=fn(old);field.autocapitalize='characters';field.setAttribute('lang','en');field.spellcheck=false;if(kind==='mac'&&field.maxLength===12)field.removeAttribute('maxlength');if(next!==old){field.value=next;if(pos!==null)try{const caret=fn(old.slice(0,pos)).length;field.setSelectionRange(caret,caret);}catch(ignore){}}
+ if(kind==='serial'){let hint=field.equipmentOHint;if(!hint&&next.includes('O')){hint=document.createElement('small');hint.className='equipment-o-hint';hint.setAttribute('role','status');hint.textContent='Введена буква O. Проверьте: возможно, на устройстве указан 0.';field.after(hint);field.equipmentOHint=hint;}if(hint)hint.hidden=!next.includes('O');}if(kind==='mac')field.setCustomValidity(next&&!/^[0-9A-F]{12}$/.test(next)?'MAC должен содержать ровно 12 символов: A–F и 0–9.':'');return next!==old;}
+function equipmentDispatchNormalized(field){const event=new Event('input',{bubbles:true});event.equipmentFormattingOnly=true;field.dispatchEvent(event);}
+document.addEventListener('input',event=>{if(!event.isComposing)equipmentNormalizeInput(event.target);},true);
+document.addEventListener('change',event=>equipmentNormalizeInput(event.target),true);
+document.addEventListener('compositionend',event=>{if(equipmentNormalizeInput(event.target))equipmentDispatchNormalized(event.target);},true);
+document.addEventListener('focusin',event=>{if(equipmentNormalizeInput(event.target))equipmentDispatchNormalized(event.target);},true);
+document.addEventListener('keydown',event=>{if(event.key==='Enter'&&equipmentNormalizeInput(event.target))equipmentDispatchNormalized(event.target);},true);
+function myReportsShowOutcome(message,error=false,field=null){message=myReportsFriendlyError(message);const body=ctNode('div');body.append(ctNode('p','',message));if(error&&myReportsState.edit)body.append(ctNode('p','','Исправления в форме сохранены. Проверьте указанные данные перед повторной попыткой.'));const actions=ctNode('div','my-report-result-actions'),button=ctNode('button','btn main-btn',field?'🔎 Показать поле':'Понятно');button.type='button';button.onclick=()=>{closeBeelineModal();if(field){for(let parent=field.parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;field.classList.add('input-error');field.scrollIntoView?.({block:'center',behavior:'smooth'});field.focus();}};actions.append(button);showBeelineModalNode(error?'Проверьте исправление отчёта':'Результат сохранения',body,error?'⚠️':'✅',actions);}
+function myReportsErrorField(message){const root=document.getElementById('myReportsContent');if(!root)return null;for(const input of root.querySelectorAll('input')){const kind=equipmentInputKind(input);if(kind==='mac'&&input.value&&!/^[A-F0-9]{12}$/.test(input.value))return input;if(kind==='serial'&&input.value&&message.includes(input.value))return /MAC/i.test(message)?input.closest('.my-report-device')?.querySelector('input[aria-label$="MAC"]')||input:input;}return null;}
+
+function myReportsAllowed(){return !!currentUser&&['монтажник','техник универсал','техник-универсал','бригадир','старший техник'].includes(String(currentUser.role||'').toLowerCase());}
+function myReportsDay(){return new Intl.DateTimeFormat('sv-SE',{timeZone:myReportsState.timezone}).format(new Date());}
+function myReportsCurrent(owner){return currentUser&&owner===managementOwnerKey()&&myReportsState.owner===owner;}
+async function myReportsApiRaw_(operation,fields={}){const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'myReportEdits',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),signal:controller.signal});if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(result.status==='error'){const error=new Error(result.message);error.confirmed=true;throw error;}return result;}finally{clearTimeout(timer);}}
+function myReportsStatus(text,loading=false){const host=document.getElementById('myReportsStatus');if(loading)host.innerHTML=liveLoading(text);else host.textContent=text;}
+function myReportsScreen(){let screen=document.getElementById('screen-my-reports');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-my-reports';screen.innerHTML='<h2>📜 Мои отчёты сегодня</h2><div class="card"><div class="my-reports-toolbar"><p>Исправление доступно до 00:00 по времени города.</p><button type="button" class="btn action-btn app-refresh-button" id="myReportsRefresh">🔄 Обновить</button></div><div id="myReportsStatus" role="status" aria-live="polite"></div><div id="myReportsContent"></div><div class="common-nav-row"><button type="button" class="btn danger-btn" id="myReportsBack">🔙 Назад</button><button type="button" class="btn danger-btn" id="myReportsHome">🔚 Главное меню</button></div></div>';document.querySelector('body>.container').append(screen);screen.querySelector('#myReportsRefresh').onclick=()=>myReportsLoad();const exit=id=>{if(myReportsState.busy)return;if(myReportsState.edit&&!confirm('Закрыть редактирование без сохранения?'))return;myReportsState.edit=null;switchScreen(id);};screen.querySelector('#myReportsBack').onclick=()=>exit('screen-installer-menu');screen.querySelector('#myReportsHome').onclick=()=>exit('screen-main');return screen;}
+async function openMyReports(){if(!myReportsAllowed())return;if(myReportsState.owner!==managementOwnerKey()){myReportsState.epoch++;myReportsState.busy=false;myReportsState.edit=null;myReportsState.records=[];myReportsState.pending=null;}myReportsScreen();switchScreen('screen-my-reports');await myReportsLoad();}
+async function myReportsLoad(){if(myReportsState.busy)return;if(myReportsState.edit&&!confirm('Обновить список и отменить несохранённые изменения?'))return;const owner=managementOwnerKey(),epoch=++myReportsState.epoch;myReportsState.owner=owner;myReportsCloseDropdowns();myReportsState.edit=null;myReportsState.pending=null;myReportsState.records=[];myReportsState.busy=true;myReportsScreen();document.getElementById('myReportsContent').replaceChildren();myReportsStatus('Загружаем ваши отчёты…',true);try{const result=await myReportsApi('list');if(!myReportsCurrent(owner)||epoch!==myReportsState.epoch)return;myReportsState.records=result.records;myReportsState.day=result.day;myReportsState.timezone=result.timezone;myReportsStatus('');myReportsRender();}catch(error){if(myReportsCurrent(owner))myReportsStatus('⚠️ '+myReportsFriendlyError(error.message));}finally{if(myReportsCurrent(owner))myReportsState.busy=false;}}
+function myReportsRender(){myReportsCloseDropdowns();const host=document.getElementById('myReportsContent');host.replaceChildren();if(myReportsState.day!==myReportsDay()||!myReportsState.records.length){host.append(ctNode('p','','Сегодня отправленных отчётов для исправления нет.'));return;}for(const record of myReportsState.records){const card=ctNode('article','my-report-card'),title=ctNode('strong','',(/^ППР/.test(record.sheet)?'':`Заявка №${record.values.A||'—'} · `)+reportTypeLabel(record.sheet)),address=ctNode('p','','📍 '+(record.values[/^ППР/.test(record.sheet)?'A':'B']||'—')),time=ctNode('p','','🕒 Отправлен в '+record.submitted),edit=ctNode('button','btn main-btn','✏️ Редактировать');edit.type='button';edit.onclick=()=>myReportsEdit(record);card.append(title,address,time,edit);host.append(card);}}
+function myReportsEdit(record){if(!myReportsCurrent(managementOwnerKey())||myReportsState.busy)return;if(myReportsState.day!==myReportsDay()){myReportsRender();return;}myReportsState.edit=record;const host=document.getElementById('myReportsContent');host.replaceChildren();host.append(ctNode('h3','',reportTypeLabel(record.sheet)));const grid=ctNode('div','my-report-fields'),changes={},controls=[];
+ for(const field of record.schema.fields.filter(f=>!myReportsHiddenField(f))){const label=ctNode('label','my-report-field'),title=ctNode('span','',field.label),locked=record.readonly.includes(field.col),value=record.values[field.col]||'';label.dataset.reportCol=field.col;label.dataset.reportLabel=field.label;if(field.label==='Количество кабеля для патч-корда')title.textContent='Количество патч-корда';label.append(title);let input;
+  if(!locked&&['router','stb','method','theme'].includes(field.type)){const select=ctNode('div','custom-dropdown'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';const text=ctNode('span','',value||'— Выберите —');button.append(text,ctNode('span','dropdown-arrow','▼'));button.setAttribute('aria-label',field.label);button.setAttribute('aria-expanded','false');button.onclick=event=>{event.stopPropagation();myReportsToggleDropdown(select);};label.myReportSetValue=next=>{const note=label.querySelector('.my-report-model-note');if(note)note.textContent='';text.textContent=next||'— Выберите —';if(next===value)delete changes[field.col];else changes[field.col]=next;list.querySelectorAll('[role=option]').forEach(n=>n.setAttribute('aria-selected',String(n.dataset.modelValue===next)));};for(const choice of ctOptions(field,record.sheet,value)){const option=ctNode('div','dropdown-item',choice.label);option.tabIndex=0;option.setAttribute('role','option');option.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();option.click();}};option.dataset.modelValue=choice.value;option.onclick=()=>{label.myReportSetValue(choice.value);setDropdownOpen(select,false);};list.append(option);}select.append(button,list);label.append(select);controls.push(button);grid.append(label);continue;}
+  input=ctNode(field.label==='Комментарий'?'textarea':'input');if(input.tagName==='INPUT'){input.type=field.type==='date'?'date':'text';if(field.type==='number')input.inputMode='decimal';}input.value=field.type==='date'?ctNormalizeDate(value):value;input.disabled=locked;input.setAttribute('aria-label',field.label);if(locked)input.title='Не изменяется при исправлении отчёта';input.oninput=()=>{if(input.value===value)delete changes[field.col];else changes[field.col]=input.value;};controls.push(input);label.append(input);grid.append(label);
+ }
+ myReportsDetectModels(record,grid,changes);myReportsKits(record,grid,changes,controls);myReportsArrangeFields(grid);
+ const note=ctNode('p','','Тип заявки, номер, автор, дата и время, фотографии остаются без изменений.'),actions=ctNode('div','my-report-save'),cancel=document.getElementById('myReportsBack'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.onclick=()=>myReportsSave(record,changes,controls,save,cancel);actions.append(save);host.append(grid,note,actions);}
+function myReportsKits(record,grid,changes,controls){
+ if(!record.sheet.startsWith('Демонтаж'))return;
+ const comment=grid.querySelector('[aria-label="Комментарий"]');if(!comment||comment.disabled)return;
+ const pattern=/^(?:Роутер|Приставка) [1-3] \(S\/N: [^\n]+\):[^\n]*(?:\n|$)/gm;
+ const initial=comment.value,manual=()=>comment.value.replace(pattern,'').replace(/^\n{1,2}/,'');let states=[];
+ function sync(){const free=manual(),lines=[];for(const slot of states){const serial=slot.sn.value.trim().toUpperCase(),mac=slot.mac.value.trim().replace(/[:-]/g,'').toUpperCase(),ready=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&/^[0-9A-F]{12}$/.test(mac);slot.panel.hidden=!ready;const identity=serial+'|'+mac;if(slot.identity&&slot.identity!==identity)slot.options.forEach(n=>n.checked=false);slot.identity=identity;const parts=slot.options.filter(n=>n.checked).map(n=>n.value);slot.text.textContent=parts.join(', ')||'Без комплектации';if(ready)lines.push(slot.title+' (S/N: '+serial+'): '+(parts.join(', ')||'Без комплектации'));}comment.value=lines.length?lines.join('\n')+'\n\n'+free:free;changes.AC=comment.value;}
+ for(const [kind,parts] of [['Роутер',['Блок питания','Патч-корд','Коробка']],['Приставка',['Блок питания','Пульт','HDMI','RCA','Коробка','Батарейки']]])for(let index=1;index<=3;index++){
+  const title=kind+' '+index,sn=grid.querySelector(`[aria-label="${title} · S/N"]`),mac=grid.querySelector(`[aria-label="${title} · MAC"]`);if(!sn||!mac)continue;
+  const panel=ctNode('div','my-report-field'),heading=ctNode('span','',title+' · Комплектация'),dropdown=ctNode('div','custom-dropdown'),trigger=ctNode('button','dropdown-select-btn'),text=ctNode('span'),list=ctNode('div','dropdown-list');trigger.type='button';trigger.setAttribute('aria-label',title+' · Комплектация');trigger.setAttribute('aria-expanded','false');trigger.append(text,ctNode('span','dropdown-arrow','▼'));trigger.onclick=e=>{e.stopPropagation();myReportsToggleDropdown(dropdown);};
+  list.addEventListener('click',e=>e.stopPropagation());const serial=sn.value.trim().toUpperCase(),line=initial.split('\n').find(line=>line.startsWith(title+' (S/N: '+serial+'): ')),selected=line?line.slice(line.indexOf('): ')+3).split(', '):[],options=[];
+  for(const part of parts){const label=ctNode('label','kit-option-row'),input=ctNode('input');input.type='checkbox';input.value=part;input.checked=selected.includes(part);input.onchange=sync;label.append(input,ctNode('span','',part));list.append(label);options.push(input);controls.push(input);}
+  dropdown.append(trigger,list);panel.append(heading,dropdown);mac.closest('label').after(panel);controls.push(trigger);const ready=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&/^[0-9A-F]{12}$/.test(mac.value.trim().replace(/[:-]/g,'').toUpperCase());panel.hidden=!ready;text.textContent=selected.join(', ')||'Без комплектации';states.push({panel,sn,mac,title,text,options,identity:serial+'|'+mac.value.trim().replace(/[:-]/g,'').toUpperCase()});sn.addEventListener('input',sync);mac.addEventListener('input',sync);
+ }
+ comment.addEventListener('focus',()=>{comment.setSelectionRange(comment.value.length,comment.value.length);});
+}
+
+function myReportsFriendlyError(message){const text=String(message||'');if(/fetch|abort|network|timeout/i.test(text))return 'Связь с приложением прервалась. Обновите список и проверьте результат сохранения.';if(/лист|ячейк|таблиц|spreadsheet|https?:|Exception|Error|HTTP|getRange/i.test(text))return 'Не удалось сохранить изменения. Обратитесь к руководителю для проверки отчёта.';return text||'Не удалось выполнить действие. Повторите позже.';}
+function myReportsResult(result){const telegram=result.telegram||{};return telegram.status==='updated'?'✅ Изменения сохранены. Отчёт в Telegram обновлён.'+(result.warning?' Данные оборудования требуют проверки руководителем.':''):'⚠️ Изменения сохранены, но сообщение в Telegram не обновлено. Обратитесь к руководителю.';}
+async function myReportsSave(record,changes,controls,save,cancel){if(myReportsState.busy||!myReportsCurrent(managementOwnerKey()))return;if(myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsRender();myReportsStatus('Редактирование закрыто в 00:00. Обратитесь к руководителю.');return;}document.querySelectorAll('#myReportsContent input').forEach(field=>{if(equipmentNormalizeInput(field))equipmentDispatchNormalized(field);});if(!Object.keys(changes).length){myReportsStatus('Нет изменений для сохранения.');return;}const invalidMac=myReportsErrorField('');if(invalidMac){myReportsShowOutcome('MAC должен содержать ровно 12 символов A–F и 0–9.',true,invalidMac);return;}const owner=managementOwnerKey(),requestId=ctRequestId();myReportsCloseDropdowns();myReportsState.busy=true;save.disabled=cancel.disabled=true;const before=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);myReportsStatus('Сохраняем исправления…',true);showBeelineModal('Сохранение отчёта','Сохраняем изменения и обновляем сообщение в группе…','⏳');
+ try{let result;try{result=await myReportsApi('save',{id:record.id,version:record.version,changes,requestId});}catch(error){if(error.confirmed)throw error;result=await myReportsApi('status',{requestId});if(result.status==='pending')throw new Error('Сохранение ещё проверяется. Обновите список перед новой попыткой.');}if(!myReportsCurrent(owner))return;myReportsState.edit=null;myReportsState.busy=false;await myReportsLoad();if(myReportsCurrent(owner)){const outcome=myReportsResult(result);myReportsStatus('');myReportsShowOutcome(outcome,result.telegram?.status!=='updated'||!!result.warning);}}
+ catch(error){if(myReportsCurrent(owner)){myReportsStatus('');myReportsShowOutcome(myReportsFriendlyError(error.message),true,myReportsErrorField(error.message));if(!error.confirmed){myReportsState.pending=requestId;save.disabled=true;save.textContent='Обновите список';}else save.disabled=false;}}
+ finally{if(myReportsCurrent(owner)){myReportsState.busy=false;cancel.disabled=false;controls.forEach((n,i)=>n.disabled=before[i]);if(!myReportsState.pending)save.disabled=false;}}
+}
+setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(screen?.classList.contains('active')&&!myReportsState.busy&&myReportsState.day&&myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsState.records=[];myReportsRender();myReportsStatus('Наступил новый день. Редактирование вчерашних отчётов закрыто.');}},30000);
 
 </script>
 </head>
@@ -5052,22 +5199,22 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;paEnsureCacheSc
                 <div class="card" style="z-index: 100;">
                     <label>Вид отчета:</label>
                     <div class="custom-dropdown">
-                        <button type="button" class="dropdown-select-btn" id="tr-reportType-btn" onclick="toggleDropdown(event, 'tr-reportType-list')">Включение FTTB</button>
+                        <button type="button" class="dropdown-select-btn" id="tr-reportType-btn" onclick="toggleDropdown(event, 'tr-reportType-list')">🔌 Включение FTTB</button>
                         <input type="hidden" id="tr-reportType" value="Включение FTTB">
                         <div class="dropdown-list" id="tr-reportType-list">
                             <div class="dropdown-group-label">FTTB</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Включение FTTB', 'tr-reportType-btn', 'Включение FTTB', 'tr-reportType-list'); handleReportTypeChange();">Включение FTTB</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Переезд FTTB', 'tr-reportType-btn', 'Переезд FTTB', 'tr-reportType-list'); handleReportTypeChange();">Переезд FTTB</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Сервис FTTB', 'tr-reportType-btn', 'Сервис FTTB', 'tr-reportType-list'); handleReportTypeChange();">Сервис FTTB</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Демонтаж FTTB', 'tr-reportType-btn', 'Демонтаж FTTB', 'tr-reportType-list'); handleReportTypeChange();">Демонтаж FTTB</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'ППР FTTB', 'tr-reportType-btn', 'ППР FTTB', 'tr-reportType-list'); handleReportTypeChange();">ППР FTTB</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Включение FTTB', 'tr-reportType-btn', '🔌 Включение FTTB', 'tr-reportType-list'); handleReportTypeChange();">🔌 Включение FTTB</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Переезд FTTB', 'tr-reportType-btn', '📦 Переезд FTTB', 'tr-reportType-list'); handleReportTypeChange();">📦 Переезд FTTB</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Сервис FTTB', 'tr-reportType-btn', '🛠️ Сервис FTTB', 'tr-reportType-list'); handleReportTypeChange();">🛠️ Сервис FTTB</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Демонтаж FTTB', 'tr-reportType-btn', '❌ Демонтаж FTTB', 'tr-reportType-list'); handleReportTypeChange();">❌ Демонтаж FTTB</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'ППР FTTB', 'tr-reportType-btn', '♻️ ППР FTTB', 'tr-reportType-list'); handleReportTypeChange();">♻️ ППР FTTB</div>
                             
                             <div class="dropdown-group-label">GPON</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Включение GPON', 'tr-reportType-btn', 'Включение GPON', 'tr-reportType-list'); handleReportTypeChange();">Включение GPON</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Переезд GPON', 'tr-reportType-btn', 'Переезд GPON', 'tr-reportType-list'); handleReportTypeChange();">Переезд GPON</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Сервис GPON', 'tr-reportType-btn', 'Сервис GPON', 'tr-reportType-list'); handleReportTypeChange();">Сервис GPON</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Демонтаж GPON', 'tr-reportType-btn', 'Демонтаж GPON', 'tr-reportType-list'); handleReportTypeChange();">Демонтаж GPON</div>
-                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'ППР GPON', 'tr-reportType-btn', 'ППР GPON', 'tr-reportType-list'); handleReportTypeChange();">ППР GPON</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Включение GPON', 'tr-reportType-btn', '🔌 Включение GPON', 'tr-reportType-list'); handleReportTypeChange();">🔌 Включение GPON</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Переезд GPON', 'tr-reportType-btn', '📦 Переезд GPON', 'tr-reportType-list'); handleReportTypeChange();">📦 Переезд GPON</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Сервис GPON', 'tr-reportType-btn', '🛠️ Сервис GPON', 'tr-reportType-list'); handleReportTypeChange();">🛠️ Сервис GPON</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'Демонтаж GPON', 'tr-reportType-btn', '❌ Демонтаж GPON', 'tr-reportType-list'); handleReportTypeChange();">❌ Демонтаж GPON</div>
+                            <div class="dropdown-item" onclick="selectOption('tr-reportType', 'ППР GPON', 'tr-reportType-btn', '♻️ ППР GPON', 'tr-reportType-list'); handleReportTypeChange();">♻️ ППР GPON</div>
                         </div>
                     </div>
 
@@ -5673,7 +5820,8 @@ async function pwMutation(action,revision){if(pwAdminBusy)return;paEnsureCacheSc
         <h2>👤 Меню монтажника</h2>
         <div class="card">
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;">
-                <button class="btn action-btn" type="button" onclick="openTmcRequest()">📨 Выдача ТМЦ</button>
+                <button class="btn main-btn" onclick="openMyReports()">📜 Мои отчёты сегодня</button>
+<button class="btn action-btn" type="button" onclick="openTmcRequest()">📨 Выдача ТМЦ</button>
                 <button class="btn action-btn" onclick="openMySchedule()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📅 Рабочий график</button>
                 <button class="btn action-btn" id="pprPlansMenuBtn" onclick="openPprPlans()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📈 Планы по ППР</button>
                 
@@ -9256,7 +9404,7 @@ async function runSearchAccess(version) {
     // Формирует позиция в пакет.
     function addItemToBatch(code) {
         if (!code) return;
-        code = code.trim();
+        code = deviceInputSerial(code);
         if(!code)return false;
 
         const now = Date.now();
@@ -10173,6 +10321,7 @@ document.addEventListener('blur', (e) => {
 
     // Обрабатывает отчёт Type изменение.
     function handleReportTypeChange() {
+        document.querySelectorAll('#reportNetworkPickers button').forEach(button=>{button.classList.remove('input-error');button.removeAttribute('aria-invalid');});
         clearReportEquipmentLookup();
         const type = document.getElementById('tr-reportType').value;
         const standardBlock = document.querySelector('.standard-report-block');
@@ -10312,10 +10461,12 @@ document.addEventListener('blur', (e) => {
     }
     // Проверяет клиент шаг.
     function validateClientStep() {
+        if(!validateReportType())return false;
         return ['tr-reportDate','tr-appNumber','tr-address','tr-login','tr-clientName'].every(id => validateReportField(id, true));
     }
     // Проверяет обязательность всех полей первого шага ППР.
     function validatePprDataStep() {
+        if(!validateReportType())return false;
         const labels = {'tr-reportDate':'Дата ППР','tr-pprAddress':'Адрес ППР','tr-pprLogin':'Логин ППР',
             'tr-pprPlace':'Место проведения ППР','tr-pprWorkType':'Вид производимых работ','tr-pprEntrance':'Подъезд №'};
         for (const [id, label] of Object.entries(labels)) {
@@ -10375,17 +10526,7 @@ document.addEventListener('blur', (e) => {
     const reportEquipmentMacIds = new Set(reportEquipmentPairs.map(pair => pair[1]));
 
     // Преобразует оборудование значение.
-    function normalizeEquipmentValue(field, value) {
-        let v = String(value ?? '').replace(/^\s+|\s+$/g, '');
-        if (reportEquipmentMacIds.has(field.id)) {
-            // В MAC буквы O/o не бывает: автоматически исправляем на ноль.
-            v = v.replace(/[oO]/g, '0').replace(/[^0-9a-fA-F:-]/g, '').toUpperCase();
-        } else if (reportEquipmentSerialIds.has(field.id)) {
-            // Серийные номера: только латиница/цифры и технические разделители.
-            v = v.replace(/[^0-9a-zA-Z._:/-]/g, '').toUpperCase();
-        }
-        return v;
-    }
+    function normalizeEquipmentValue(field, value){return reportEquipmentMacIds.has(field.id)?deviceInputMac(value):reportEquipmentSerialIds.has(field.id)?deviceInputSerial(value):value;}
 
     // Обрабатывает отчёт оборудование обязательные поля.
     function syncReportEquipmentRequired() {
@@ -11012,9 +11153,7 @@ document.addEventListener('click',event=>{
     }
 
 // Преобразует оборудование серийный номер код.
-function normalizeEquipmentSerialCode(value) {
-  return String(value || "").trim().toUpperCase().replace(/^S\/?N\s*[:：]?\s*/, "").replace(/\s+/g, "");
-}
+function normalizeEquipmentSerialCode(value){return deviceInputSerial(value);}
 // Определяет модель роутера по нормализованному серийному номеру.
 function ctDetectRouterModel(s) {
   s=normalizeEquipmentSerialCode(s);
@@ -11630,7 +11769,7 @@ function ctDetectStbModel(serial) {
         while (Date.now() < deadline) {
             try {
                 const result = await getReportStatusOnce(url, requestId);
-                if (result.status === 'success') return result;
+                if (result.status === 'success'||result.status==='inventory_confirmation') return result;
                 if (result.status === 'error') throw new Error(result.message || 'Ошибка записи в таблицу');
             } catch (error) {
                 if (error.message !== 'Ответ о записи не получен' && error.message !== 'Сервер статуса недоступен') throw error;
@@ -11673,17 +11812,10 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
 
 
     async function sendReportForReceipt(url,payload) {
-        let receipt;
-        try {
-            receipt=await postJsonBounded(url,payload,90000);
-        }catch(networkError){
-            // A lost response can follow a successful write: poll the same ID, never resend here.
-            return await waitForReportReceipt(url,payload.requestId);
-        }
-        if(receipt?.status==='error')throw new Error(receipt.message||'Отчёт не сохранён');
+        const receipt=await inventoryConfirmRequest(payload,async next=>{try{return await postJsonBounded(url,next,90000);}catch(error){return await waitForReportReceipt(url,next.requestId);}});
+        if(receipt?.status==='error')throw Object.assign(new Error(receipt.message||'Отчёт не сохранён'),{confirmed:true});
         if(receipt?.status!=='success')return await waitForReportReceipt(url,payload.requestId);
-        if(receipt.reportType!==payload.reportType||!Number.isInteger(Number(receipt.rowNumber))||Number(receipt.rowNumber)<2)throw new Error('Некорректное подтверждение записи отчёта');
-        return receipt;
+        if(receipt.reportType!==payload.reportType||!Number.isInteger(Number(receipt.rowNumber))||Number(receipt.rowNumber)<2)throw new Error('Некорректное подтверждение записи отчёта');return receipt;
     }
     const reportDeliveryJobs=new Map();
     function reportDeliveryStatus(requestId,text){const node=document.querySelector('[data-report-delivery]');if(node?.dataset.reportDelivery===requestId)node.textContent=text;}
@@ -11707,6 +11839,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     async function submitReport(e) {
         e.preventDefault();
         if (isSubmitting) return;
+        if(!validateReportType())return;
 
         const type = document.getElementById('tr-reportType').value;
         if (currentUser?.role === 'Стажер') { showBeelineModal('Доступ ограничен', 'Стажер не может завершить отчёт.', '🔒'); return; }
@@ -11792,6 +11925,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 showVerifiedReportResult(type, currentUser.city, receipt, requestId);
             }
         } catch(error) {
+            if(error.confirmed)vsPendingClear();if(error.inventoryCancelled)return;
             console.error(error);
             const safeMessage = String(error.message || error).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
             showBeelineModal('Не удалось подтвердить отчёт', safeMessage, '❌');
@@ -12114,8 +12248,9 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
 
         const type = document.getElementById('tr-reportType');
         const typeBtn = document.getElementById('tr-reportType-btn');
-        if (type) type.value = 'Включение FTTB';
-        if (typeBtn) typeBtn.textContent = 'Включение FTTB';
+        if (type) type.value = reportTypeMobile() ? '' : 'Включение FTTB';
+        if (typeBtn) typeBtn.textContent = type.value ? reportTypeLabel(type.value) : 'Выберите вид отчёта';
+        updateReportNetworkPickers();
 
         const date = document.getElementById('tr-reportDate');
         if (date) date.valueAsDate = new Date();
@@ -13772,7 +13907,7 @@ function ctIdentity(record){return record.sheet+':'+record.row;}
 // Выполняет запрос ID — модуль городской таблицы.
 function ctRequestId(){return 'ct_'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+'_'+Math.random().toString(36).slice(2));}
 // Выполняет запрос — модуль городской таблицы.
-async function ctRequest(operation,fields={},timeout=45000){
+async function ctRequestRaw_(operation,fields={},timeout=45000){
  if(!managementAllowed())throw new Error('Раздел доступен руководству');
  const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user.city]?.reportsScriptUrl;
  if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');
@@ -13899,7 +14034,7 @@ function ctNormalizeDate(value){if(/^\d{4}-\d{2}-\d{2}$/.test(value))return valu
 // Выполняет поле — модуль городской таблицы.
 function ctField(field,record,article){
  const draft=ctDraft(record),wrapper=ctNode('div','ct-field'),title=ctNode('span','',field.label);wrapper.dataset.ctCol=field.col;wrapper.dataset.ctField=field.type==='number'&&field.group==='materials'?'quantity':field.type==='method'?'method':field.type==='theme'?'theme':field.label==='Комментарий'?'comment':field.label==='Часовая ставка'?'hours':field.label==='Статус'?'status':field.label==='Номер заявки'?'ticket':field.label==='Логин'?'login':field.type==='date'?'date':'wide';title.textContent=field.type==='method'?'Способ протяжки':field.type==='theme'?'Тематика решения':field.label;wrapper.append(title);let input;
- function changed(value){draft.values[field.col]=value;if(value===(record.values[field.col]||'')||(field.type==='date'&&value===ctNormalizeDate(record.values[field.col])))delete draft.changes[field.col];else draft.changes[field.col]=value;if(record.__ctBatch&&field.type==='cableChoice'){const cable=ctIssueCableOptions().find(p=>p.name===value);if(cable){draft.values.D=cable.meters;draft.changes.D=cable.meters;const meters=record.node?.querySelector('[aria-label="Метраж"]');if(meters)meters.value=cable.meters;}}ctUpdateDraft(article,record);}
+ function changed(value){draft.values[field.col]=value;if(value===(record.values[field.col]||'')||(field.type==='date'&&value===ctNormalizeDate(record.values[field.col])))delete draft.changes[field.col];else draft.changes[field.col]=value;if(record.__ctBatch&&field.type==='cableChoice'){const cable=ctIssueCableOptions().find(p=>p.name===value);if(cable){draft.values.D=cable.meters;draft.changes.D=cable.meters;const meters=record.node?.querySelector('[aria-label="Метраж"]');if(meters)meters.value=cable.meters;}}ctAutoEditModel(record,article,field,value);ctUpdateDraft(article,record);}
  if(['staff','manager','stockStaff','issuer','issueStaff','cableChoice','router','stb','theme','method'].includes(field.type)){
   const dropdown=ctNode('div','custom-dropdown ct-select'),list=ctNode('div','dropdown-list');input=ctNode('input','dropdown-select-btn staff-search-trigger');input.type='search';input.autocomplete='off';const isStaff=['staff','manager','stockStaff','issuer','issueStaff'].includes(field.type);if(isStaff)dropdown.classList.add('staff-dropdown','ppr-staff-dropdown');const displayValue=()=>isStaff?staffDropdownPerson({name:draft.values[field.col]}).name:draft.values[field.col];input.value=displayValue();input.placeholder=isStaff?'🔍 Выберите сотрудника или найдите по фамилии':'🔍 Выберите или найдите';input.setAttribute('aria-label',field.label);input.setAttribute('aria-expanded','false');
   function fill(query){list.replaceChildren();const options=ctOptions(field,record.sheet,draft.values[field.col]).filter(o=>!query||(o.label+' '+o.value+' '+(o.person?staffDropdownPerson(o.person).role:'')).toLowerCase().includes(query.toLowerCase()));for(const o of options){const item=ctNode('div','dropdown-item',o.label);if(isStaff&&o.value)staffDropdownOption(item,o.person||{name:o.label,value:o.value});item.setAttribute('aria-selected',String(o.value===draft.values[field.col]));item.setAttribute('role','option');item.tabIndex=0;const select=()=>{changed(o.value);input.value=displayValue();setDropdownOpen(dropdown,false);};item.onclick=select;item.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();select();}};list.append(item);}if(!options.length)list.append(ctNode('div','dropdown-item','Совпадений нет'));list.updateScrollRail?.();}
@@ -13958,8 +14093,8 @@ async function ctMutate(operation,records){
   invalidateEquipmentSnapshots();
   if(operation==='save'){const s=ctState.sheets.find(s=>s.name===result.record.sheet),index=s.rows.findIndex(r=>r.row===result.record.row);s.rows[index]=result.record;ctState.drafts.delete(ctIdentity(result.record));}
   else if(result.record){const sheet=ctState.sheets.find(s=>s.name===result.record.sheet);sheet.rows[sheet.rows.findIndex(r=>r.row===result.record.row)]=result.record;ctState.drafts.delete(ctIdentity(result.record));}else{ctSetBusy(false);await ctLoad();}
-  if(ctPart==='acts'&&operation!=='save')ctInvalidateOtherTabs();else ctCacheCurrent();ctSetBusy(false);ctBuildFilters();ctRender();ctLoadCounts(true);ctSetMessage(operation==='save'?'✅ Изменения сохранены и проверены':operation==='unack'?'✅ Акт отмечен как несданный':`✅ Сдано актов: ${result.count}`);
- }catch(error){if(owner===managementOwnerKey()){ctSetBusy(false);ctSetMessage('⚠️ '+error.message);if(error.code==='ROW_CONFLICT'){ctConfirm('Данные строки изменились','Ваш ввод сохранён. Загрузить актуальные данные? Затем проверьте свои изменения и нажмите «Сохранить».',()=>ctRefreshKeepingDrafts());}else showBeelineModal('Таблица',error.message,'⚠️');}}
+  if(ctPart==='acts'&&operation!=='save')ctInvalidateOtherTabs();else ctCacheCurrent();ctSetBusy(false);ctBuildFilters();ctRender();ctLoadCounts(true);ctSetMessage(operation==='save'?(result.telegram?.status==='updated'?'✅ Сохранено в таблице и Telegram':result.telegram?.status==='warning'?'⚠️ В таблице сохранено. Telegram не обновлён: '+result.telegram.message:'✅ Изменения сохранены и проверены'):operation==='unack'?'✅ Акт отмечен как несданный':`✅ Сдано актов: ${result.count}`);
+ }catch(error){if(owner===managementOwnerKey()){if(error.inventoryCancelled){ctSetBusy(false);ctSetMessage(error.message);return;}ctSetBusy(false);ctSetMessage('⚠️ '+error.message);if(error.code==='ROW_CONFLICT'){ctConfirm('Данные строки изменились','Ваш ввод сохранён. Загрузить актуальные данные? Затем проверьте свои изменения и нажмите «Сохранить».',()=>ctRefreshKeepingDrafts());}else showBeelineModal('Таблица',error.message,'⚠️');}}
  finally{if(owner===managementOwnerKey())ctSetBusy(false);}
 }
 
@@ -14358,8 +14493,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 const RF_UI_VERSION='2026-10-15.8';
 let rfFieldSequence=0;
 let rfUi={owner:'',manager:false,data:null,drafts:new Map(),busy:false,version:0,month:'',pending:null,search:'',limit:100,scanTarget:null,selected:new Map()};
-function rfUiSerial(value){return String(value||'').trim().toUpperCase().replace(/^(?:S\/N\s*[:：]?\s*|SN\s*[:：]\s*)/i,'').replace(/\s+/g,'');}
-function rfUiMac(value){return String(value||'').trim().replace(/^MAC\s*[:：]?\s*/i,'').replace(/[^a-f0-9]/gi,'').toUpperCase();}
+function rfUiSerial(value){return deviceInputSerial(value);}
+function rfUiMac(value){return deviceInputMac(value);}
 function rfUiManager(){return ['Супервайзер','Старший Техник','Владелец'].includes(currentUser?.role);}
 function rfUiAssigned(){return !engineerAllowed()&&currentUser?.refarbEnabled===true;}
 function rfVisibility(){const b=document.getElementById('refarbWorkerBtn');if(b){b.hidden=!rfUiAssigned();b.style.display=rfUiAssigned()?'':'none';}}
