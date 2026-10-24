@@ -4439,6 +4439,14 @@ html[data-app-layout=mobile] .pa-label-desktop{display:none}
 html[data-app-layout=mobile] .pa-label-mobile{display:inline}
 .pa-block{border:1px solid var(--card-border);border-radius:12px;margin:10px 0;background:var(--surface-dark);min-width:0}
 .pa-block>summary{cursor:pointer;padding:12px;font-weight:700;color:var(--accent-ink,var(--accent))}
+/* Стрелки карточек сотрудников и разделов расчёта — справа, как в остальных списках. */
+:is(.pw-employee,.pa-block)>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;list-style:none;overflow-wrap:anywhere}
+:is(.pw-employee,.pa-block)>summary::-webkit-details-marker{display:none}
+:is(.pw-employee,.pa-block)>summary::marker{content:''}
+:is(.pw-employee,.pa-block)>summary::after{content:'▼';flex:none;margin-left:auto;color:var(--accent-ink,var(--accent));font-size:18px;line-height:1;transition:transform .2s;transform-origin:center;pointer-events:none}
+:is(.pw-employee,.pa-block)[open]>summary::after{transform:rotate(180deg)}
+@media(prefers-reduced-motion:reduce){:is(.pw-employee,.pa-block)>summary::after{transition:none}}
+
 .pa-block>div{padding:0 12px 12px}
 .pa-net{padding:20px;margin-top:16px;border-radius:14px;background:var(--accent);color:#142006;font-size:23px;font-weight:800;text-align:center;grid-column:1/-1}
 .pa-empty{margin:8px 0;color:var(--text-secondary);font-size:14px;line-height:1.6}
@@ -4542,7 +4550,6 @@ function paRender(entry,host,section){host.replaceChildren();
   for(const label of ['Сумма F-/F+','FIX Бонус','Доп. Бонус','Оклад'])if(a[label])paRow(body,label,paMoney(a[label]));
  });
  paSalesDetails(entry,host,'minus');paSalesDetails(entry,host,'plus');paSwapDetails(entry,host);
- paAccordion(host,'Дополнительные начисления',body=>{for(const label of ['F+ Девайсы','SWAP GPON','SWAP','Компенсация SWAP','Реактивация','Переезды','B2B','MNP','Приведи друга','Мотивация'])if(a[label])paRow(body,label,paMoney(a[label]));if(a['Доп проекты'])paRow(body,'Итого дополнительных начислений',paMoney(a['Доп проекты']));});
  paAccordion(host,'Налоги и итоги',body=>{for(const label of ['ОПВ','ВОСМС','ИПН','СО','Сумма налогов','Итоговая сумма'])if(a[label])paRow(body,label,paMoney(a[label]));if(String(a['Льгота']).toLowerCase()==='да')paRow(body,'Льгота','Да');});
  host.append(paNode('div','На руки · '+paMoney(a['Сумма на руки']),'pa-net'));
 }
