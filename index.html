@@ -4785,7 +4785,8 @@ async function pwImportFile(){
 async function pwMutation(action,revision){if(pwAdminBusy)return;paEnsureCacheScope();paInvalidateCalculation(paDataset());pwAdminBusy=true;pwOperation=action;pwPaint();pwStatus(action==='payrollPublish'?'Сохраняем публикацию и готовим личные уведомления.':'Обновляем состояние расчёта.','loading',null,action==='payrollPublish'?'Публикуем зарплату…':'Выполняется…');try{pwAdminState=await pwApi(action,{revision});paDirtyKinds.delete(paDataset());pwStatus(action==='payrollPublish'?'Расчёт опубликован. Уведомления поставлены в очередь.':action==='payrollDiscard'?'Черновик отменён.':pwAdminState.draft?.correctionEventId?'Расчёт возвращён на доработку. Уведомления о корректировке поставлены в очередь. Можно выбрать исправленный файл.':'Черновик возвращён на доработку. Можно выбрать исправленный файл.','success',null,action==='payrollPublish'?'Зарплата опубликована':'Готово');}catch(e){pwStatus(pwFriendlyError(e),e.retryable?'info':'error',null,e.retryable?'Проверьте состояние':'Ошибка');}finally{pwAdminBusy=false;pwOperation='';pwPaint();paRememberAdmin();}}
 
 </script>
-<style id="myReportsStyle">.my-reports-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.my-reports-toolbar p{margin:0;color:var(--text-secondary)}.my-report-card{padding:16px;border:1px solid var(--card-border);border-radius:12px;margin:12px 0;background:var(--surface-dark)}.my-report-card>.btn{margin:8px 0 0}.my-report-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.my-report-field{display:block;min-width:0;width:100%;box-sizing:border-box;margin:0;padding:0}.my-report-field>span{display:block;margin:0 0 6px;padding-inline-start:1ch;box-sizing:border-box}.my-report-field input,.my-report-field textarea,.my-report-field .custom-dropdown{width:100%;min-width:0;box-sizing:border-box;margin:0}.my-report-field .dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}.my-report-field .dropdown-arrow{flex:none}.my-report-field .dropdown-select-btn>span:first-child{min-width:0;white-space:normal;overflow-wrap:anywhere}.my-report-field:has(textarea){grid-column:1/-1}.my-report-field input:disabled{opacity:.65}.my-report-field[hidden]{display:none}.my-report-field .kit-option-row{display:flex;align-items:center;gap:10px;padding:10px;margin:0}.my-report-field .kit-option-row input{width:18px;height:18px;margin:0;flex:none}html[data-app-layout=mobile] .my-report-fields{grid-template-columns:minmax(0,1fr)}
+<style id="myReportsStyle">.ret-draft-status{font-size:12px;line-height:1.5;color:var(--text-secondary);margin:6px 0 10px}.ret-draft-matches{display:grid;gap:8px;margin-bottom:10px}.ret-draft-matches:empty{display:none}.ret-draft-match,.ret-no-kit{padding:10px 12px;border:1px solid var(--accent,#b7ed55);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font:inherit;text-align:left;cursor:pointer;overflow-wrap:anywhere}.ret-draft-match:focus-visible{outline:2px solid var(--accent,#b7ed55)}.ret-no-kit{font-size:12px;margin:4px 0 10px}
+.my-reports-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.my-reports-toolbar p{margin:0;color:var(--text-secondary)}.my-report-card{padding:16px;border:1px solid var(--card-border);border-radius:12px;margin:12px 0;background:var(--surface-dark)}.my-report-card>.btn{margin:8px 0 0}.my-report-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.my-report-field{display:block;min-width:0;width:100%;box-sizing:border-box;margin:0;padding:0}.my-report-field>span{display:block;margin:0 0 6px;padding-inline-start:1ch;box-sizing:border-box}.my-report-field input,.my-report-field textarea,.my-report-field .custom-dropdown{width:100%;min-width:0;box-sizing:border-box;margin:0}.my-report-field .dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}.my-report-field .dropdown-arrow{flex:none}.my-report-field .dropdown-select-btn>span:first-child{min-width:0;white-space:normal;overflow-wrap:anywhere}.my-report-field:has(textarea){grid-column:1/-1}.my-report-field input:disabled{opacity:.65}.my-report-field[hidden]{display:none}.my-report-field .kit-option-row{display:flex;align-items:center;gap:10px;padding:10px;margin:0}.my-report-field .kit-option-row input{width:18px;height:18px;margin:0;flex:none}html[data-app-layout=mobile] .my-report-fields{grid-template-columns:minmax(0,1fr)}
 /* Компоновка исправления отчёта и штатные списки выбора. */
 #myReportsContent .dropdown-list{background:var(--surface-dark);border:1px solid var(--accent);border-radius:10px;max-height:260px;overflow-y:auto;z-index:99999}
 #myReportsContent .custom-dropdown:not(.open)>.dropdown-list{max-height:0!important;visibility:hidden;opacity:0;pointer-events:none}
@@ -6144,8 +6145,10 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
             <input type="hidden" id="retWarehouse">
 
             <label>Серия (Серийный номер)</label>
+            <p id="retDraftStatus" class="ret-draft-status" role="status" aria-live="polite"></p>
+            <div id="retDraftMatches" class="ret-draft-matches"></div>
             <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                <input type="text" id="retSerial" required placeholder="Введите или отсканируйте серийный номер" oninput="detectNomenclatureBySerial(this.value)" style="flex: 1;">
+                <input type="text" id="retSerial" required placeholder="Введите или отсканируйте серийный номер" oninput="retDraftInput(this.value); detectNomenclatureBySerial(this.value)" style="flex: 1;">
                 <button type="button" class="btn secondary-btn" style="width: auto; margin-top: 0; padding: 0 14px;" onclick="openReturnSerialScanner()">📷</button>
             </div>
 
@@ -6211,6 +6214,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
                     </label>
                 </div>
             </div>
+<button type="button" class="ret-no-kit" onclick="document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=false); document.getElementById('retKit').value='Без комплектации'; document.getElementById('retKitLabel').textContent='Без комплектации';">Без комплектации</button>
             <input type="hidden" id="retKit" required>
                 </div>
                 <div class="return-selection-field">
@@ -12454,7 +12458,7 @@ let activeReturnScanField = null;
 function openReturnSerialScanner() {
     activeReturnScanField = 'retSerial';
     openUniversalScanner('retSerial', function(decodedText) {
-        detectNomenclatureBySerial(decodedText);
+        retDraftInput(document.getElementById('retSerial').value);detectNomenclatureBySerial(decodedText);
     });
 }
 
@@ -12480,7 +12484,7 @@ function applyScannedReturnText(decodedText) {
     if (inputEl) {
         inputEl.value = normalizeScannedCode(decodedText);
         inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-        if (field === 'retSerial') detectNomenclatureBySerial(inputEl.value);
+        if (field === 'retSerial'){retDraftInput(inputEl.value);detectNomenclatureBySerial(inputEl.value);}
     }
 }
 
@@ -12493,6 +12497,7 @@ function openReturnEquipmentForm() {
         return;
     }
     
+    retDraftReset();
     // Автозаполнение скрытых системных полей для отправки (формат ДД.ММ.ГГГГ)
     const dateInput = document.getElementById('retDate');
     const whInput = document.getElementById('retWarehouse');
@@ -12546,13 +12551,50 @@ function openReturnEquipmentForm() {
 
 // 6. ОТПРАВКА ДАННЫХ ВОЗВРАТА ОБОРУДОВАНИЯ В GOOGLE ТАБЛИЦУ (ЧЕРЕЗ reportsScriptUrl)
 
+// Поиск предварительных возвратов — только в авторизованном участке сотрудника.
+const retDraftState={epoch:0,timer:null,selection:null,items:[],loading:false,requestId:'',fingerprint:'',editVersion:0,completed:false};
+function retDraftMessage(text){const node=document.getElementById('retDraftStatus');if(node)node.textContent=text;}
+function retDraftReset(){clearTimeout(retDraftState.timer);retDraftState.epoch++;retDraftState.selection=null;retDraftState.items=[];retDraftState.loading=false;retDraftState.requestId='';retDraftState.fingerprint='';retDraftState.completed=false;document.getElementById('retDraftMatches')?.replaceChildren();retDraftMessage('Введите полный серийный номер или последние 4 символа. Поиск — только по вашим демонтажам. Для брака доступен ручной ввод.');}
+function retDraftClearAutofill(){for(const id of ['retMac','retNomenclature','retNomenclatureSearch','retKit','retReason','retStatus']){const field=document.getElementById(id);if(field)field.value='';}for(const [id,text]of [['retKitLabel','Выберите комплектацию...'],['retStatusLabel','Выберите статус...']]){const label=document.getElementById(id);if(label)label.textContent=text;}document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=false);}
+function retDraftInput(value){
+ const query=deviceInputSerial(value);if(retDraftState.selection&&query!==retDraftState.selection.series){retDraftClearAutofill();retDraftState.selection=null;}
+ clearTimeout(retDraftState.timer);const epoch=++retDraftState.epoch;retDraftState.items=[];retDraftState.loading=false;document.getElementById('retDraftMatches')?.replaceChildren();
+ if(!currentUser||query.length<4){retDraftMessage('Введите полный серийный номер или последние 4 символа для поиска своего демонтажа.');return;}
+ retDraftState.loading=true;retDraftMessage('⏳ Ищем в ваших демонтажах…');retDraftState.timer=setTimeout(()=>retDraftSearch(query,epoch),450);
+}
+async function retDraftSearch(query,epoch){
+ const owner=managementOwnerKey(),editVersion=retDraftState.editVersion,url=CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);
+ const current=()=>epoch===retDraftState.epoch&&owner===managementOwnerKey()&&document.getElementById('screen-return-equipment')?.classList.contains('active');
+ try{if(!isConfiguredCityUrl(url))throw new Error('Скрипт города не настроен');const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'returnDrafts',query}),signal:controller.signal});if(!response.ok)throw new Error('Поиск временно недоступен');const data=await response.json();if(!current())return;if(data.status!=='success')throw new Error(data.message||'Поиск временно недоступен');retDraftState.items=data.items||[];
+  if(!retDraftState.items.length){retDraftMessage('Предварительный возврат не найден. Заполните данные вручную.');return;}
+  if(retDraftState.items.length===1&&editVersion===retDraftState.editVersion){retDraftApply(retDraftState.items[0]);return;}
+  retDraftMessage(data.more?'Найдено много устройств. Уточните серийный номер.':'Выберите устройство из своих демонтажей.');const root=document.getElementById('retDraftMatches');root.replaceChildren();for(const item of retDraftState.items){const button=document.createElement('button');button.type='button';button.className='ret-draft-match';button.textContent=[item.series,item.model,item.responsible].filter(Boolean).join(' · ');button.onclick=()=>{if(current())retDraftApply(item);};root.append(button);}
+ }catch(error){if(current())retDraftMessage('Не удалось выполнить поиск. Повторите поиск или заполните возврат вручную.');}
+ finally{clearTimeout(timer);if(epoch===retDraftState.epoch)retDraftState.loading=false;}
+}
+function retDraftApply(item){
+ retDraftState.selection=item;document.getElementById('retSerial').value=item.series;document.getElementById('retMac').value=item.mac;
+ document.getElementById('retWarehouse').value=item.warehouse;document.getElementById('retResponsible').value=item.responsible;document.getElementById('retReason').value=item.reason||'Демонтаж';
+ document.getElementById('retNomenclature').value='';document.getElementById('retNomenclatureSearch').value='';detectNomenclatureBySerial(item.series);
+ if(!document.getElementById('retNomenclature').value&&NOMENCLATURE_LIST.includes(item.model))selectReturnDropdownOption('retNomenclatureDropdown','retNomenclature','retNomenclatureSearch',item.model,item.model);
+ const canon=value=>value.trim().replace('Патч-корд','Патч корд').replace(/^Пульт$/,'Пульт ДУ'),parts=String(item.kit||'Без комплектации').split(',').map(canon);
+ document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=parts.includes(cb.value));updateKitSelection();if(parts.includes('Без комплектации')){document.getElementById('retKit').value='Без комплектации';document.getElementById('retKitLabel').textContent='Без комплектации';}
+ selectReturnDropdownOption('retStatusDropdown','retStatus','retStatusLabel',item.status||'Рефарб',item.status||'Рефарб');document.getElementById('retDraftMatches').replaceChildren();retDraftMessage('Данные из вашего демонтажа подставлены. Проверьте номенклатуру и комплектацию, затем оформите возврат.');
+}
+document.addEventListener('input',event=>{if(event.target.closest?.('#screen-return-equipment')&&event.target.id!=='retSerial')retDraftState.editVersion++;});
+
 let returnSubmitBusy = false;
 // Обрабатывает возврат оборудование.
 async function handleReturnEquipment(e) {
     e.preventDefault();
     if (!currentUser || currentUser.role === 'Стажер' || returnSubmitBusy) return;
     const owner = managementOwnerKey();
-    
+    if(retDraftState.completed){showBeelineModal('Возврат оформлен','Для следующего устройства откройте форму возврата заново.','✅');return;}
+    if(retDraftState.loading){showBeelineModal('Поиск оборудования','Дождитесь завершения поиска по вашему серийному номеру.','⏳');return;}
+    if(retDraftState.items.length&&!retDraftState.selection){showBeelineModal('Выберите устройство','Выберите нужную запись из найденных демонтажей.','⚠️');return;}
+    for(const id of ['retSerial','retMac'])equipmentNormalizeInput(document.getElementById(id));
+    if(!/^[A-F0-9]{12}$/.test(document.getElementById('retMac').value)){showBeelineModal('Проверьте MAC','MAC должен содержать 12 символов A–F и 0–9.','⚠️');return;}
+    if(!document.getElementById('retNomenclature').value||!document.getElementById('retKit').value||!document.getElementById('retStatus').value||!document.getElementById('retReason').value.trim()){showBeelineModal('Обязательные поля','Заполните номенклатуру, комплектацию, статус и причину возврата.','⚠️');return;}
     const payload = {
         action: 'recordReturn',
         date: document.getElementById('retDate').value,
@@ -12569,6 +12611,8 @@ async function handleReturnEquipment(e) {
         city: currentUser.city
     };
 
+    if(retDraftState.selection){payload.draftId=retDraftState.selection.id;payload.draftVersion=retDraftState.selection.version;}
+    const returnFingerprint=JSON.stringify(payload);if(retDraftState.fingerprint!==returnFingerprint){retDraftState.requestId=ctRequestId();retDraftState.fingerprint=returnFingerprint;}payload.requestId=retDraftState.requestId;
     // Жесткая привязка к вашему reportsScriptUrl для отчетов/возвратов
     const cityConf = CITIES_CONFIG[currentUser.city] || {};
     const targetUrl = cityConf.reportsScriptUrl;
@@ -12589,7 +12633,7 @@ async function handleReturnEquipment(e) {
         if (owner !== managementOwnerKey()) return;
 
         if (res.status === 'success') {
-            invalidateEquipmentSnapshots();
+            invalidateEquipmentSnapshots();retDraftState.completed=true;retDraftState.epoch++;clearTimeout(retDraftState.timer);
             showBeelineModal("Успешно", "Возврат оборудования успешно зарегистрирован!", "✅", 
                 `<button class="btn main-btn" onclick="closeBeelineModal(); switchScreen('screen-installer-menu');" style="margin-top:0;">Понятно</button>`
             );
