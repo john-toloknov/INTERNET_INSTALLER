@@ -10523,7 +10523,7 @@ document.addEventListener('blur', (e) => {
     document.addEventListener('click',syncPprBeforeNativeValidation,true);
     document.addEventListener('keydown',syncPprBeforeNativeValidation,true);
     function validateFinishStep(isPpr) {
-        if (!isPpr) syncDismantleKits();
+        if (!isPpr) syncDismantleKits(false);
         if (!validateReportField(isPpr ? 'tr-pprComment' : 'tr-comment', true)) return false;
         if (!isPpr) return true;
         return validateReportField('tr-pprRate1', true) &&
@@ -10635,11 +10635,11 @@ function dismantleKitManual(value,generated){
     const lines=new Set(generated.split('\n'));
     return value.split('\n').filter(line=>!lines.has(line)).join('\n').replace(/^\n{1,2}/,'');
 }
-function syncDismantleKits(){
+function syncDismantleKits(editing=true){
     if(dismantleKitState.updating)return;mountDismantleKits();
     const comment=document.getElementById('tr-comment');if(!comment)return;
     const before=comment.value,previous=dismantleKitState.generated,oldPrefix=previous?previous.length+2:0;
-    const start=comment.selectionStart,end=comment.selectionEnd,focused=document.activeElement===comment;
+    const start=comment.selectionStart,end=comment.selectionEnd,focused=editing&&document.activeElement===comment;
     dismantleKitState.manual=dismantleKitManual(before,previous);
     const active=/^Демонтаж (?:FTTB|GPON)$/.test(document.getElementById('tr-reportType')?.value||''),lines=[];
     for(const prefix of dismantleKitSlots){
@@ -10652,7 +10652,9 @@ function syncDismantleKits(){
         const selected=slot.controls.filter(input=>input.checked).map(input=>input.value);slot.summary.textContent=selected.join(', ')||'Выберите комплектацию...';slot.summary.title=selected.join(', ')||'Без комплектации';
         if(active&&device.ready){lines.push(slot.title+' (S/N: '+device.serial+'): '+(selected.join(', ')||'Без комплектации'));}
     }
-    const generated=lines.join('\n'),next=generated?generated+'\n\n'+dismantleKitState.manual:dismantleKitState.manual;
+    const generated=lines.join('\n');
+    if(generated&&!dismantleKitState.manual.trim())dismantleKitState.manual='';
+    const next=generated?generated+((dismantleKitState.manual||focused)?'\n\n'+dismantleKitState.manual:''):dismantleKitState.manual;
     dismantleKitState.generated=generated;
     if(next!==before){
         dismantleKitState.updating=true;comment.value=next;
@@ -10669,6 +10671,9 @@ document.addEventListener('input',event=>{
     if(event.target.id==='tr-comment'||reportEquipmentSerialIds.has(event.target.id)||reportEquipmentMacIds.has(event.target.id))syncDismantleKits();
 });
 document.addEventListener('compositionend',event=>{if(event.target.id==='tr-comment')syncDismantleKits();});
+document.addEventListener('focusout',event=>{
+    if(event.target.id==='tr-comment')syncDismantleKits(false);
+});
 document.addEventListener('focusin',event=>{
     if(event.target.id!=='tr-comment')return;syncDismantleKits();
     if(dismantleKitState.generated)event.target.setSelectionRange(event.target.value.length,event.target.value.length);
@@ -11380,7 +11385,7 @@ function ctDetectStbModel(serial) {
     function getTrimmedReportValue(id) { return document.getElementById(id)?.value?.trim() || ''; }
     // Собирает значения полей обычного отчёта.
     function getReportFormValues() {
-        syncDismantleKits();
+        syncDismantleKits(false);
         const v = getTrimmedReportValue;
         return {
             app: v('tr-appNumber'), address: v('tr-address'), login: v('tr-login'),
