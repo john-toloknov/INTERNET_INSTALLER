@@ -4549,10 +4549,6 @@ function paRender(entry,host,section){host.replaceChildren();
   if(a['Выполнение заказов'])paRow(body,'Выполнение заказов',new Intl.NumberFormat('ru-RU',{style:'percent',maximumFractionDigits:2}).format(a['Выполнение заказов']));
   if(a['Норминг обходов']||a['Кол-во обходов'])paRow(body,'Обходы · норматив / факт',a['Норминг обходов']+' / '+a['Кол-во обходов']);
  });
- paAccordion(host,'Основные начисления',body=>{
-  for(const suffix of ['F-','F+'])if(a['Сумма '+suffix])paRow(body,suffix+' · '+a['Кол-во '+suffix]+' шт.',paMoney(a['Сумма '+suffix]));
-  for(const label of ['Сумма F-/F+','FIX Бонус','Доп. Бонус','Оклад'])if(a[label])paRow(body,label,paMoney(a[label]));
- });
  paSalesDetails(entry,host,'minus');paSalesDetails(entry,host,'plus');paSwapDetails(entry,host);
  paAccordion(host,'Налоги и итоги',body=>{for(const label of ['ОПВ','ВОСМС','ИПН','СО','Сумма налогов','Итоговая сумма'])if(a[label])paRow(body,label,paMoney(a[label]));if(String(a['Льгота']).toLowerCase()==='да')paRow(body,'Льгота','Да');});
  host.append(paNode('div','На руки · '+paMoney(a['Сумма на руки']),'pa-net'));
