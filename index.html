@@ -10266,12 +10266,12 @@ document.addEventListener('blur', (e) => {
             });
             listContainer.innerHTML = html;
 
-            if (prefix === 'r1' && !isService) {
+            if (prefix === 'r1' && !isService && !isDemontazh) {
                 document.getElementById(`tr-${prefix}Model`).value = "Роутер абонента";
                 document.getElementById(`tr-${prefix}Model-btn`).textContent = "Роутер абонента";
             } else {
                 document.getElementById(`tr-${prefix}Model`).value = "";
-                document.getElementById(`tr-${prefix}Model-btn`).textContent = prefix === 'r1' && isService ? "Выберите модель роутера" : "";
+                document.getElementById(`tr-${prefix}Model-btn`).textContent = isDemontazh || (prefix === 'r1' && isService) ? "Выберите модель роутера" : "";
             }
         });
 
@@ -10285,9 +10285,9 @@ document.addEventListener('blur', (e) => {
             });
             listContainer.innerHTML = html;
 
-            const initialModel = prefix === 'tv1' && !isService ? 'Без приставки' : '';
+            const initialModel = prefix === 'tv1' && !isService && !isDemontazh ? 'Без приставки' : '';
             document.getElementById(`tr-${prefix}Model`).value = initialModel;
-            document.getElementById(`tr-${prefix}Model-btn`).textContent = prefix === 'tv1' && isService ? "Выберите модель приставки" : initialModel;
+            document.getElementById(`tr-${prefix}Model-btn`).textContent = isDemontazh || (prefix === 'tv1' && isService) ? "Выберите модель приставки" : initialModel;
         });
     }
     // Обрабатывает Accordion.
@@ -10345,6 +10345,8 @@ document.addEventListener('blur', (e) => {
 
     // Обрабатывает отчёт Type изменение.
     function handleReportTypeChange() {
+        document.getElementById('tr-themeSearchInput').value = '';
+        document.getElementById('tr-completionTheme').value = '';
         document.querySelectorAll('#reportNetworkPickers button').forEach(button=>{button.classList.remove('input-error');button.removeAttribute('aria-invalid');});
         clearReportEquipmentLookup();
         const type = document.getElementById('tr-reportType').value;
@@ -10374,11 +10376,6 @@ document.addEventListener('blur', (e) => {
             gponOnlyBlock.style.display = 'none';
         }
 
-        const currentThemes = getActiveThemesList();
-        if (currentThemes.length > 0) {
-            document.getElementById('tr-themeSearchInput').value = currentThemes[0];
-            document.getElementById('tr-completionTheme').value = currentThemes[0];
-        }
 
         initEquipmentDropdowns();
         syncDismantleKits();
@@ -12290,13 +12287,6 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             handleReportTypeChange();
             setReportAuthorizedUser();
 
-            const defaultThemes = getActiveThemesList();
-            const search = document.getElementById('tr-themeSearchInput');
-            const hidden = document.getElementById('tr-completionTheme');
-            if (defaultThemes.length > 0) {
-                if (search) search.value = defaultThemes[0];
-                if (hidden) hidden.value = defaultThemes[0];
-            }
 
             syncReportEquipmentRequired();
             renderPhotos();
