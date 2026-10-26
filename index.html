@@ -2396,7 +2396,11 @@ button, input, textarea, select { font:inherit; }
 .return-check-entry summary b { color: var(--text-main); overflow-wrap: anywhere; }
 .return-check-title { color: var(--accent-ink); font-size: 15px; font-weight: 700; margin-bottom: 3px; }
 .return-check-status { display: flex; align-items: center; width: 100%; gap: 4px; }
-.return-check-status b { color: var(--success) !important; }
+html[data-app-theme=light] { --return-disposal-color: #946600; }
+.return-check-status b { color: var(--text-main) !important; }
+.return-check-status[data-status="Рефарб"] b { color: var(--success) !important; }
+.return-check-status[data-status="Брак"] b { color: var(--danger) !important; }
+.return-check-status[data-status="Утилизация"] b { color: var(--return-disposal-color, #ffd54f) !important; }
 .return-check-entry[open] .act-debts-arrow { transform: rotate(180deg); }
 .return-check-extra { border-top: 1px solid var(--ui-border-2a2a2a,#2a2a2a); padding: 10px 12px; font-size: 12px;
     color: var(--text-secondary); display: grid; gap: 7px; background: var(--ui-bg-121214,#121214); }
@@ -12703,7 +12707,7 @@ async function openCheckReturnScreen() {
                             <span>Серийный номер: <b>${escapeScheduleHtml(item.series || '—')}</b></span>
                             <span>МАК адрес: <b>${escapeScheduleHtml(item.mac || '—')}</b></span>
                             <span>Дата возврата: <b>${escapeScheduleHtml(displayDate)}</b></span>
-                            <span class="return-check-status">Статус: <b>${escapeScheduleHtml(item.status || '—')}</b><span class="act-debts-arrow" aria-hidden="true">▼</span></span>
+                            <span class="return-check-status" data-status="${escapeScheduleHtml(String(item.status || '').trim())}">Статус: <b>${escapeScheduleHtml(item.status || '—')}</b><span class="act-debts-arrow" aria-hidden="true">▼</span></span>
                         </summary>
                         <div class="return-check-extra">
                             <div><b>Комплектация:</b> ${escapeScheduleHtml(item.kit || 'Не указана')}</div>
