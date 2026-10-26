@@ -2423,7 +2423,7 @@ html[data-app-theme=light] { --return-disposal-color: #946600; }
 .return-check-status b { color: var(--text-main) !important; }
 .return-check-status[data-status="Рефарб"] b { color: var(--success) !important; }
 .return-check-status[data-status="Брак"] b { color: var(--danger) !important; }
-.return-check-status[data-status="Утилизация"] b { color: var(--return-disposal-color, #ffeb3b) !important; }
+.return-check-status[data-status="Утилизация"] b { color: var(--return-disposal-color, #ffd54f) !important; }
 .return-check-entry[open] .act-debts-arrow { transform: rotate(180deg); }
 .return-check-extra { border-top: 1px solid var(--ui-border-2a2a2a,#2a2a2a); padding: 10px 12px; font-size: 12px;
     color: var(--text-secondary); display: grid; gap: 7px; background: var(--ui-bg-121214,#121214); }
@@ -11726,6 +11726,7 @@ function ctDetectStbModel(serial) {
                 if (type === 'Кабель') meta.appendChild(actDebtsNode('span', 'act-debts-status', '● ' + entry.meters + ' м'));
                 meta.appendChild(actDebtsNode('span', 'act-debts-arrow', '▼'));
                 summary.appendChild(meta);
+                if (type !== 'Кабель' && String(entry.mac || '').trim()) summary.appendChild(actDebtsNode('span', 'act-debts-date my-equipment-mac', 'MAC адрес: ' + String(entry.mac).trim().toUpperCase()));
                 card.appendChild(summary);
                 const details = actDebtsNode('dl', 'act-debts-details');
                 for (const [label, value] of [['Дата выдачи', formatActDebtDate(entry.date) || 'Не указана'], ['Кем выдан', entry.issuedBy || 'Не указано']]) {
