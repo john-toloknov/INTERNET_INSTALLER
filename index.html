@@ -1249,6 +1249,29 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
 #screen-technician-reports .input-group input {
             flex: 1;
         }
+#screen-technician-reports .tr-author-display.tr-author-picker {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    min-height: 0;
+    align-items: stretch;
+}
+#screen-technician-reports .tr-author-picker > .custom-dropdown {
+    width: 100%;
+    margin: 0;
+}
+#screen-technician-reports .tr-author-picker .staff-search-trigger {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 45px;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    background-color: var(--surface-dark);
+    color: var(--text-main);
+    font-size: 14px;
+}
 #screen-technician-reports .btn-scan {
             background-color: var(--ui-bg-2b2b2b,#2b2b2b);
             border: 1px solid var(--card-border);
@@ -10202,6 +10225,7 @@ document.addEventListener('blur', (e) => {
     function initReportEmployeePicker(display,hidden,fallback){
         if(!display||!hidden)return;
         const manager=['Супервайзер','Старший Техник'].includes(normalizeEmployeeRole(currentUser?.role));
+        display.classList.toggle('tr-author-picker',manager);
         if(!manager){hidden.value=fallback;return;}
         const people=getReportInstallersFromDatabase();
         if(!people.some(p=>formatReportInstallerValue(p)===hidden.value))hidden.value=fallback;
