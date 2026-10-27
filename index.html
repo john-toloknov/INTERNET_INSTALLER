@@ -3948,11 +3948,14 @@ html[data-app-theme=light] :is(.dropdown-list,.beeline-modal-card,.edit-user-car
 
 /* Все показатели актов имеют одинаковую ширину и высоту. */
 #cityTableCounts[data-ct-counts=acts]{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));grid-auto-rows:1fr;align-items:stretch;gap:10px;width:100%;margin:8px 0 16px;box-sizing:border-box}
-#cityTableCounts .ct-act-count{display:grid;grid-template-rows:minmax(36px,auto) 32px minmax(18px,auto) minmax(18px,auto);align-content:center;gap:5px;min-width:0;min-height:144px;box-sizing:border-box;padding:12px 14px;border:1px solid var(--card-border);border-radius:12px;background:var(--surface-dark);color:var(--text-main)}
+#cityTableCounts .ct-act-count{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:3px;min-width:0;min-height:0;box-sizing:border-box;padding:10px 12px;border:1px solid var(--card-border);border-radius:12px;background:var(--surface-dark);color:var(--text-main)}
 #cityTableCounts .ct-act-count-label{display:flex;align-items:center;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--text-main);font-size:13px;font-weight:600;line-height:18px;overflow-wrap:anywhere}
-#cityTableCounts .ct-act-count-value{display:block;color:var(--accent-ink,var(--accent));font-size:28px;font-weight:750;line-height:32px;font-variant-numeric:tabular-nums}
+#cityTableCounts .ct-act-count-value{display:block;color:var(--accent-ink,var(--accent));font-size:24px;font-weight:750;line-height:28px;font-variant-numeric:tabular-nums}
 #cityTableCounts .ct-act-count-status,#cityTableCounts .ct-act-count-detail{display:block;margin:0;color:var(--text-secondary);font-size:11px;line-height:18px;white-space:normal;overflow-wrap:anywhere}
-#cityTableCounts .ct-equipment-kind{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:5px 9px;margin:4px 0 0;border:1px solid var(--card-border);border-radius:9px;background:transparent;color:var(--text-main);font:inherit;font-size:11px;text-align:left;cursor:pointer}
+#cityTableCounts .ct-equipment-kinds{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:4px}
+#cityTableCounts .ct-equipment-kind{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-width:0;min-height:32px;box-sizing:border-box;padding:4px 6px;margin:0;border:1px solid var(--card-border);border-radius:9px;background:transparent;color:var(--text-main);font:inherit;font-size:11px;line-height:14px;text-align:center;cursor:pointer}
+#cityTableCounts .ct-equipment-kind>span{min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:inherit;font:inherit;overflow-wrap:normal}
+
 #cityTableCounts .ct-equipment-kind strong{font-size:13px}
 #cityTableCounts .ct-equipment-kind[aria-pressed="true"]{background:var(--accent);color:#17220b;border-color:#4a701c}
 #cityTableCounts .ct-equipment-kind:disabled{cursor:default;opacity:1}
@@ -3960,7 +3963,7 @@ html[data-app-theme=light] :is(.dropdown-list,.beeline-modal-card,.edit-user-car
 
 html[data-app-theme=light] #cityTableCounts .ct-act-count{background:#d6dfe8;border-color:#b9c4d1}
 @media(max-width:1100px){#cityTableCounts[data-ct-counts=acts]{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:600px){#cityTableCounts[data-ct-counts=acts]{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#cityTableCounts .ct-act-count{padding:10px;min-height:140px}#cityTableCounts .ct-act-count-label{font-size:12px}}
+@media(max-width:600px){#cityTableCounts[data-ct-counts=acts]{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#cityTableCounts .ct-act-count{padding:9px;min-height:0}#cityTableCounts .ct-act-count-label{font-size:12px}}
 
 /* Цвета статусов сотрудника совпадают с редактором графика и не зависят от темы. */
 #screen-schedule{--status-p:#ffffff;--status-v:#34a853;--status-o:#ffcc00;--status-b:#00ffff;--status-pr:#ff0000;--status-u:#9900ff}
@@ -14202,9 +14205,10 @@ function ctArticle(record,schema){
 function ctActRecordVisible(record){
  if(ctPart!=='acts'||!['Роутеры','Приставки'].includes(record.sheet))return true;
  const values=ctDraft(record).values;
- return !!String(values.D??'').trim()&&!!String(values.E??'').trim()&&/^(не сдан|не сдано)$/i.test(String(record.act||'').trim());
+ return !!String(values.D??'').trim()&&!!String(values.E??'').trim()&&(/^(не сдан|не сдано)$/i.test(String(record.act||'').trim())||(record.act!==null&&!ctActOpen(record)));
 }
 function ctEquipmentKind(record){return /^001\s*[-–—−]\s*ВКЛЮЧЕНИЕ$/i.test(String(ctDraft(record).values.H??'').trim())?'inclusion':'service';}
+function ctToggleEquipmentKind(kind){const selected=new Set(ctKindFilter?(ctKindFilter==='none'?[]:[ctKindFilter]):['service','inclusion']);if(selected.has(kind))selected.delete(kind);else selected.add(kind);ctKindFilter=selected.size===2?'':selected.size===0?'none':[...selected][0];}
 function ctEquipmentKindMatches(record){return ctPart!=='acts'||ctState.group!=='equipment'||!ctKindFilter||ctEquipmentKind(record)===ctKindFilter;}
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]).filter(ctActRecordVisible);}
 // Показывает операцию — модуль городской таблицы.
@@ -14404,10 +14408,11 @@ function ctRenderActCounts(counts,loading=false){
   const breakdown=available?(key==='equipment'?Object.entries(sheets).map(([name,value])=>name+': '+value).join(' · '):'FTTB: '+split.FTTB+' · GPON: '+split.GPON):loading?'Загрузка…':'Обновите сервер для общего количества';
   card.append(title,ctNode('strong','ct-act-count-value',available?String(total):'—'),ctNode('small','ct-act-count-status',openAvailable?'Не сдано: '+open+(available?' · Сдано: '+(total-open):''):'Не сдано: — · Сдано: —'),ctNode('small','ct-act-count-detail',breakdown));
   if(key==='equipment'){
-   const kinds=entry?.equipmentKinds;
+   const kinds=entry?.equipmentKinds,kindRow=ctNode('div','ct-equipment-kinds');
    for(const [kind,caption] of [['service','Сервисные'],['inclusion','На включениях']]){
-    const value=kinds&&Number.isFinite(Number(kinds[kind]))?String(kinds[kind]):'—',button=ctNode('button','ct-equipment-kind');button.type='button';button.disabled=ctState.busy||ctState.group!=='equipment'||!kinds;button.setAttribute('aria-pressed',String(ctState.group==='equipment'&&ctKindFilter===kind));button.append(ctNode('span','',caption),ctNode('strong','',value));button.title='Показать '+caption.toLowerCase()+'. Повторное нажатие показывает всё оборудование.';button.onclick=()=>{if(button.disabled)return;ctKindFilter=ctKindFilter===kind?'':kind;ctState.limit=50;ctRender();};card.append(button);
+    const value=kinds&&Number.isFinite(Number(kinds[kind]))?String(kinds[kind]):'—',button=ctNode('button','ct-equipment-kind');button.type='button';button.disabled=ctState.busy||ctState.group!=='equipment'||!kinds;button.setAttribute('aria-pressed',String(ctState.group==='equipment'&&(!ctKindFilter||ctKindFilter===kind)));button.append(ctNode('span','',caption),ctNode('strong','',value));button.title='Показать или скрыть '+caption.toLowerCase()+'. Можно выбрать обе категории.';button.onclick=()=>{if(button.disabled)return;ctToggleEquipmentKind(kind);ctState.limit=50;ctRender();};kindRow.append(button);
    }
+   card.append(kindRow);
   }
   card.title='Все записи раздела без фильтров'+(available?' · Всего: '+total+' · Не сдано: '+open+' · Сдано: '+(total-open):'');root.append(card);
  }
