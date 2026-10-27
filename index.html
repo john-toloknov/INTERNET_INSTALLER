@@ -2900,6 +2900,17 @@ html[data-app-theme=light] .ctr-record[data-return-state=pending]{background:#ff
 .ctr-record .ct-footer{padding:0 12px 12px}#screen-admin-returns .ctr-record [data-ct-save]{width:100%!important;border:2px solid #263515!important}
 .ctr-note{font-size:12px;color:var(--text-secondary);margin:12px 0 0}
 .ctr-more,.ctr-empty{grid-column:1/-1}
+.ctr-export-controls{display:flex;gap:8px;align-items:center;min-width:0}
+.ctr-export-controls[hidden]{display:none!important}
+.ctr-export-months{width:200px;min-width:150px;margin:0!important}
+.ctr-export-months .dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;box-sizing:border-box;min-height:40px;padding:9px 12px;font-size:13px;white-space:nowrap}
+.ctr-export-months .dropdown-item{display:block;width:100%;box-sizing:border-box;text-align:left}
+.ctr-export-months .dropdown-item[aria-selected=true]{background:rgba(183,237,85,.15);color:var(--accent-ink)}
+.ctr-export-months .dropdown-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+html[data-app-layout=desktop] #screen-admin-returns .ct-toolbar{flex-wrap:nowrap}
+html[data-app-layout=mobile] .ctr-export-controls{flex:1 1 100%}
+html[data-app-layout=mobile] .ctr-export-months{flex:1;width:auto}
+
 #cityTableFilters .ctr-filter .dropdown-item{display:block;box-sizing:border-box;width:100%;text-align:left}
 #cityTableFilters .ctr-filter .dropdown-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=returns]{grid-template-columns:repeat(3,minmax(0,1fr))}
@@ -14192,7 +14203,7 @@ function ctActRecordVisible(record){
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]).filter(ctActRecordVisible);}
 // Показывает операцию — модуль городской таблицы.
 function ctRender(){
- if(ctPart==='returns')return ctrRender();document.getElementById('cityTableRows').classList.remove('ctr-grid');
+ ctrExportToolbar();if(ctPart==='returns')return ctrRender();document.getElementById('cityTableRows').classList.remove('ctr-grid');
  ctCloseDropdowns();if(ctPart==='stock')ctRenderStockCounts();else ctRenderActCounts(ctCountsOwner===managementOwnerKey()?ctCountsCache:null,!ctState.loaded);const tabs=document.getElementById('cityTableTabs');tabs.replaceChildren();for(const [key,title] of (ctPart==='stock'?CT_STOCK_SECTIONS:CT_SECTIONS)){const b=ctNode('button','btn main-btn',title);b.type='button';b.setAttribute('aria-pressed',String(key===ctState.group));b.onclick=()=>ctChangeGroup(key);tabs.append(b);}
  const search=document.getElementById('cityTableSearch').value.trim().toLowerCase(),root=document.getElementById('cityTableRows');root.replaceChildren();let total=0,shown=0;
  for(const sheet of ctState.sheets){const rows=sheet.rows.filter(r=>ctMatches(r,sheet.schema,search));total+=rows.length;root.append(ctNode('h3','ct-sheet-title',sheet.name+' · '+rows.length));if(sheet.missing){root.append(ctNode('p','','Лист не найден в городской таблице'));continue;}if(!rows.length)root.append(ctNode('p','','Записей по выбранным фильтрам нет'));for(const record of rows){if(shown>=ctState.limit)break;root.append(ctArticle(record,sheet.schema));shown++;}}
@@ -14227,6 +14238,52 @@ async function ctMutate(operation,records){
 }
 
 // Возвраты используют общий авторизованный редактор, без операций сдачи актов.
+// Выгрузка возвратов: локальный XLSX, без дополнительных запросов и библиотек.
+let ctrExportMonths=new Set(),ctrExportOwner='';
+function ctrMonthKey(value){const date=ctNormalizeDate(String(value||'').trim()),m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date);if(!m)return '';const y=Number(m[1]),month=Number(m[2]),day=Number(m[3]);return month>=1&&month<=12&&day>=1&&day<=new Date(Date.UTC(y,month,0)).getUTCDate()?m[1]+'-'+m[2]:'';}
+function ctrExportToolbar(){
+ const search=document.getElementById('cityTableSearch'),toolbar=search?.parentElement;if(!toolbar)return;
+ let controls=document.getElementById('ctrExportControls');if(!controls){controls=ctNode('div','ctr-export-controls');controls.id='ctrExportControls';toolbar.append(controls);}controls.hidden=ctPart!=='returns';if(controls.hidden)return;
+ const owner=managementOwnerKey();if(ctrExportOwner!==owner){ctrExportOwner=owner;ctrExportMonths=new Set([ctIssueToday().slice(0,7)]);}
+ controls.replaceChildren();const dropdown=ctNode('div','custom-dropdown ct-select ctr-export-months'),button=ctNode('button','dropdown-select-btn'),caption=ctNode('span'),list=ctNode('div','dropdown-list'),download=ctNode('button','btn main-btn','📥 Выгрузить Excel');
+ button.type=download.type='button';button.setAttribute('aria-label','Месяцы выгрузки возвратов');button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');list.setAttribute('aria-multiselectable','true');download.title='Все возвраты выбранных месяцев';download.disabled=!ctState.loaded||ctState.busy;download.onclick=ctrDownloadExcel;
+ const months=[...new Set([ctIssueToday().slice(0,7),...ctrExportMonths,...ctAllRecords().map(r=>ctrMonthKey(r.values.A)).filter(Boolean)])].sort().reverse();
+ function sync(){const selected=[...ctrExportMonths].sort();caption.textContent=selected.length===1?pwPeriodLabel(selected[0]):selected.length?'Месяцев: '+selected.length:'📅 Выберите месяцы';for(const item of list.children){const on=ctrExportMonths.has(item.dataset.month);item.setAttribute('aria-selected',String(on));item.textContent=(on?'☑ ':'☐ ')+pwPeriodLabel(item.dataset.month);}}
+ for(const month of months){const item=ctNode('div','dropdown-item');item.dataset.month=month;item.tabIndex=0;item.setAttribute('role','option');item.onclick=event=>{event.stopPropagation();ctrExportMonths.has(month)?ctrExportMonths.delete(month):ctrExportMonths.add(month);sync();};item.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();item.onclick(event);}};list.append(item);}
+ button.append(caption,ctNode('span','dropdown-arrow','▼'));button.onclick=event=>{event.stopPropagation();const open=!dropdown.classList.contains('open');ctCloseDropdowns();setDropdownOpen(dropdown,open);};dropdown.onkeydown=event=>{if(event.key==='Escape'){setDropdownOpen(dropdown,false);button.focus();}};dropdown.append(button,list);controls.append(dropdown,download);sync();
+}
+function ctrExportData(months){
+ const fields=[...(ctState.sheets[0]?.schema.fields||[])].sort((a,b)=>a.col.length-b.col.length||a.col.localeCompare(b.col)),selected=new Set(months);
+ const records=ctAllRecords().filter(r=>selected.has(ctrMonthKey(r.values.A))).sort((a,b)=>ctNormalizeDate(a.values.A||'').localeCompare(ctNormalizeDate(b.values.A||''))||a.row-b.row);
+ return {fields,rows:records.map(r=>[...fields.map(f=>{let value=String(r.values[f.col]??'');if(f.col==='H'&&!value)value=r.returnModel||'';if(f.col==='A')value=value.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3.$2.$1');if(f.type==='number'&&value.trim()){const n=Number(value.replace(/[\s\u00a0]/g,'').replace(',','.'));if(Number.isFinite(n))return n;}return value;}),r.returnState==='confirmed'?'Возврат оформлен':r.returnState==='pending'?'Ожидает сдачи':r.returnState==='confirming'?'Оформляется':'Требует проверки'])};
+}
+function ctrXml(value){return String(value??'').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+function ctrZip(entries){
+ const encoder=new TextEncoder(),locals=[],central=[];let offset=0;
+ function crc(bytes){let n=0xffffffff;for(const byte of bytes){n^=byte;for(let i=0;i<8;i++)n=(n>>>1)^((n&1)?0xedb88320:0);}return (n^0xffffffff)>>>0;}
+ for(const [name,text]of Object.entries(entries)){const filename=encoder.encode(name),data=encoder.encode(text),sum=crc(data),local=new Uint8Array(30+filename.length),l=new DataView(local.buffer);l.setUint32(0,0x04034b50,true);l.setUint16(4,20,true);l.setUint16(6,0x0800,true);l.setUint16(12,33,true);l.setUint32(14,sum,true);l.setUint32(18,data.length,true);l.setUint32(22,data.length,true);l.setUint16(26,filename.length,true);local.set(filename,30);locals.push(local,data);
+ const header=new Uint8Array(46+filename.length),c=new DataView(header.buffer);c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x0800,true);c.setUint16(14,33,true);c.setUint32(16,sum,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,filename.length,true);c.setUint32(42,offset,true);header.set(filename,46);central.push(header);offset+=local.length+data.length;}
+ const centralSize=central.reduce((n,v)=>n+v.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,central.length,true);e.setUint16(10,central.length,true);e.setUint32(12,centralSize,true);e.setUint32(16,offset,true);const result=new Uint8Array(offset+centralSize+22);let at=0;for(const part of [...locals,...central,end]){result.set(part,at);at+=part.length;}return result;
+}
+function ctrExcelBytes(data){
+ const xml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main',headers=[...data.fields.map(f=>f.label),'Оформление возврата'],rows=[headers,...data.rows];
+ const col=index=>{let n=index+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26);}return s;};
+ const sheet=xml+'<worksheet xmlns="'+ns+'"><dimension ref="A1:'+col(headers.length-1)+rows.length+'"/><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'+headers.map((_,i)=>'<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(data.fields[i]?.col==='H'?50:data.fields[i]?.col==='C'?36:24)+'" customWidth="1"/>').join('')+'</cols><sheetData>'+rows.map((row,r)=>'<row r="'+(r+1)+'">'+row.map((value,c)=>{const address=col(c)+(r+1);return typeof value==='number'&&Number.isFinite(value)?'<c r="'+address+'" s="'+(data.fields[c]?.col==='G'?2:0)+'"><v>'+value+'</v></c>':'<c r="'+address+'" t="inlineStr" s="'+(r===0?1:0)+'"><is><t xml:space="preserve">'+ctrXml(value)+'</t></is></c>';}).join('')+'</row>').join('')+'</sheetData><autoFilter ref="A1:'+col(headers.length-1)+rows.length+'"/></worksheet>';
+ return ctrZip({'[Content_Types].xml':xml+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
+ '_rels/.rels':xml+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+ 'xl/workbook.xml':xml+'<workbook xmlns="'+ns+'" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Возврат оборудования" sheetId="1" r:id="rId1"/></sheets></workbook>',
+ 'xl/_rels/workbook.xml.rels':xml+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>',
+ 'xl/styles.xml':xml+'<styleSheet xmlns="'+ns+'"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFB7ED55"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFill="1"><alignment wrapText="1"/></xf><xf numFmtId="2" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>',
+ 'xl/worksheets/sheet1.xml':sheet});
+}
+function ctrDownloadExcel(){
+ if(ctPart!=='returns'||ctState.busy||!ctState.loaded||ctState.owner!==managementOwnerKey()||!managementAllowed())return;
+ if(ctDirty()){showBeelineModal('Выгрузка возвратов','Сначала сохраните изменения в карточках.','⚠️');return;}
+ const months=[...ctrExportMonths].sort();if(!months.length){showBeelineModal('Выгрузка возвратов','Выберите хотя бы один месяц.','⚠️');return;}
+ const data=ctrExportData(months);if(!data.rows.length){showBeelineModal('Выгрузка возвратов','За выбранные месяцы возвратов нет.','ℹ️');return;}
+ try{const bytes=ctrExcelBytes(data),blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='Возвраты_'+String(currentUser.city||'').replace(/[^\p{L}\p{N}_-]/gu,'_')+'_'+months.join('_')+'.xlsx';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);ctSetMessage('✅ Excel сформирован · Записей: '+data.rows.length);}catch(error){showBeelineModal('Выгрузка возвратов','Не удалось сформировать Excel: '+String(error.message||error),'⚠️');}
+}
+
 function openReturnsTable(){return ctOpenEditor('returns','returns','screen-admin-returns');}
 function ctrFilterFields(){return [['Статус','returnStatus','K'],['Оформление','returnState'],...(ctState.sheets[0]?.schema.fields||[]).filter(f=>f.type==='returnChoice').map(f=>[f.label,'returnChoice',f.col]),['Дата возврата','date','A']];}
 function ctrFilter(label,type,col){
