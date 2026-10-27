@@ -2900,6 +2900,8 @@ html[data-app-theme=light] .ctr-record[data-return-state=pending]{background:#ff
 .ctr-record .ct-footer{padding:0 12px 12px}#screen-admin-returns .ctr-record [data-ct-save]{width:100%!important;border:2px solid #263515!important}
 .ctr-note{font-size:12px;color:var(--text-secondary);margin:12px 0 0}
 .ctr-more,.ctr-empty{grid-column:1/-1}
+#cityTableFilters .ctr-filter .dropdown-item{display:block;box-sizing:border-box;width:100%;text-align:left}
+#cityTableFilters .ctr-filter .dropdown-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=returns]{grid-template-columns:repeat(3,minmax(0,1fr))}
 html[data-app-layout=mobile] .ctr-grid{grid-template-columns:minmax(0,1fr)}
 @media(max-width:700px){.ctr-grid{grid-template-columns:minmax(0,1fr)}}
@@ -14228,11 +14230,11 @@ async function ctMutate(operation,records){
 function openReturnsTable(){return ctOpenEditor('returns','returns','screen-admin-returns');}
 function ctrFilterFields(){return [['Статус','returnStatus','K'],['Оформление','returnState'],...(ctState.sheets[0]?.schema.fields||[]).filter(f=>f.type==='returnChoice').map(f=>[f.label,'returnChoice',f.col]),['Дата возврата','date','A']];}
 function ctrFilter(label,type,col){
- const wrap=ctNode('div','ct-field'),dropdown=ctNode('div','custom-dropdown ct-select'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';button.setAttribute('aria-label',label);button.setAttribute('aria-expanded','false');
+ const wrap=ctNode('div','ct-field'),dropdown=ctNode('div','custom-dropdown ct-select ctr-filter'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';button.setAttribute('aria-label',label);button.setAttribute('aria-expanded','false');button.setAttribute('aria-haspopup','listbox');list.setAttribute('role','listbox');
  const options=type==='returnChoice'?[['','Все значения'],...(ctState.sheets[0]?.schema.fields.find(f=>f.col===col)?.options||[]).map(value=>[value,value])]:type==='returnStatus'?[['','Все статусы'],['Рефарб','Рефарб'],['Брак','Брак'],['Утилизация','Утилизация']]:[['','Все возвраты'],['pending','⏳ Ожидает сдачи'],['confirmed','✅ Возврат оформлен']];
  const active=options.find(o=>o[0]===(ctFilters[label]||''))||options[0];button.append(ctNode('span','',active[1]),ctNode('span','dropdown-arrow','▼'));
  button.onclick=event=>{event.stopPropagation();const open=!dropdown.classList.contains('open');ctCloseDropdowns();setDropdownOpen(dropdown,open);};
- for(const [value,title]of options){const item=ctNode('button','dropdown-item',title);item.type='button';item.setAttribute('role','option');item.setAttribute('aria-selected',String(value===(ctFilters[label]||'')));item.onclick=event=>{event.stopPropagation();ctFilters[label]=value;ctState.limit=50;ctCloseDropdowns();ctBuildFilters();ctRender();};list.append(item);}dropdown.append(button,list);wrap.append(ctNode('span','',label),dropdown);return wrap;
+ for(const [value,title]of options){const item=ctNode('div','dropdown-item',title);item.tabIndex=0;item.setAttribute('role','option');item.setAttribute('aria-selected',String(value===(ctFilters[label]||'')));item.onclick=event=>{event.stopPropagation();ctFilters[label]=value;ctState.limit=50;ctCloseDropdowns();ctBuildFilters();ctRender();};item.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();item.onclick(event);}};list.append(item);}dropdown.append(button,list);wrap.append(ctNode('span','',label),dropdown);return wrap;
 }
 function ctrArticle(record,schema){
  const article=ctNode('article','ct-record ctr-record'),draft=ctDraft(record),summary=ctNode('button','ctr-summary'),body=ctNode('div','ctr-body'),footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');
