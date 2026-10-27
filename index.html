@@ -3952,6 +3952,12 @@ html[data-app-theme=light] :is(.dropdown-list,.beeline-modal-card,.edit-user-car
 #cityTableCounts .ct-act-count-label{display:flex;align-items:center;min-width:0;margin:0;padding:0;border:0;border-radius:0;background:transparent;color:var(--text-main);font-size:13px;font-weight:600;line-height:18px;overflow-wrap:anywhere}
 #cityTableCounts .ct-act-count-value{display:block;color:var(--accent-ink,var(--accent));font-size:28px;font-weight:750;line-height:32px;font-variant-numeric:tabular-nums}
 #cityTableCounts .ct-act-count-status,#cityTableCounts .ct-act-count-detail{display:block;margin:0;color:var(--text-secondary);font-size:11px;line-height:18px;white-space:normal;overflow-wrap:anywhere}
+#cityTableCounts .ct-equipment-kind{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;padding:5px 9px;margin:4px 0 0;border:1px solid var(--card-border);border-radius:9px;background:transparent;color:var(--text-main);font:inherit;font-size:11px;text-align:left;cursor:pointer}
+#cityTableCounts .ct-equipment-kind strong{font-size:13px}
+#cityTableCounts .ct-equipment-kind[aria-pressed="true"]{background:var(--accent);color:#17220b;border-color:#4a701c}
+#cityTableCounts .ct-equipment-kind:disabled{cursor:default;opacity:1}
+#cityTableCounts .ct-equipment-kind:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
 html[data-app-theme=light] #cityTableCounts .ct-act-count{background:#d6dfe8;border-color:#b9c4d1}
 @media(max-width:1100px){#cityTableCounts[data-ct-counts=acts]{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){#cityTableCounts[data-ct-counts=acts]{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#cityTableCounts .ct-act-count{padding:10px;min-height:140px}#cityTableCounts .ct-act-count-label{font-size:12px}}
@@ -14130,7 +14136,7 @@ function ctActFilter(){
 // Формирует фильтры — модуль городской таблицы.
 function ctBuildFilters(){const root=document.getElementById('cityTableFilters');root.replaceChildren();root.dataset.ctLayout=ctPart==='returns'?'returns':ctPart==='acts'?'acts':ctState.group==='stockCable'?'cable':'equipment';for(const [label,type='text',col] of ctFilterFields()){let wrap;if(type==='returnStatus'||type==='returnState'||type==='returnChoice')wrap=ctrFilter(label,type,col);else if(type==='act')wrap=ctActFilter();else if(type==='modelMulti'||type==='staffMulti')wrap=ctMultiFilter(label,type,col);else{wrap=ctNode('label','ct-field');const input=ctNode('input');wrap.append(ctNode('span','',label));input.type=type==='date'?'date':'search';input.value=ctFilters[label]||'';input.setAttribute('aria-label','Фильтр: '+label);if(['Серийный номер','Метраж','Логин'].includes(label))input.size=10;input.oninput=input.onchange=()=>{ctFilters[label]=input.value;ctState.limit=50;ctRender();};wrap.append(input);}wrap.dataset.ctFilter=label;root.append(wrap);}const reset=ctNode('button','btn danger-btn ct-filter-reset','Сбросить фильтры');reset.type='button';reset.onclick=()=>{ctCloseDropdowns();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctBuildFilters();ctRender();};root.append(reset);if(typeof mountAppCalendars==='function')mountAppCalendars();}
 // Выполняет совпадения — модуль городской таблицы.
-function ctMatches(record,schema,search){if(!ctActRecordVisible(record))return false;const values=ctDraft(record).values;if(ctPart==='stock'&&ctKindFilter&&ctCommentKind(values.H)!==ctKindFilter)return false;if(search&&!Object.values(values).some(v=>String(v).toLowerCase().includes(search)))return false;return ctFilterFields().every(([label,type,col])=>{const chosen=ctFilters[label];if(type==='staffMulti'||type==='modelMulti'){if(!Array.isArray(chosen)||!chosen.length)return true;col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const actual=String(values[col]??'');return chosen.some(value=>value===actual||type==='staffMulti'&&(ctState.staff||[]).some(person=>person.value===value&&person.name===actual));}const query=String(chosen||'').trim().toLowerCase();if(!query)return true;if(type==='act')return record.act!==null&&(query==='open'?ctActOpen(record):!ctActOpen(record));col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const value=String(values[col]??'');return type==='date'?ctNormalizeDate(value)===query:type==='number'?Number(value.replace(',','.'))===Number(query.replace(',','.')):value.toLowerCase().includes(query);});}
+function ctMatches(record,schema,search){if(!ctActRecordVisible(record)||!ctEquipmentKindMatches(record))return false;const values=ctDraft(record).values;if(ctPart==='stock'&&ctKindFilter&&ctCommentKind(values.H)!==ctKindFilter)return false;if(search&&!Object.values(values).some(v=>String(v).toLowerCase().includes(search)))return false;return ctFilterFields().every(([label,type,col])=>{const chosen=ctFilters[label];if(type==='staffMulti'||type==='modelMulti'){if(!Array.isArray(chosen)||!chosen.length)return true;col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const actual=String(values[col]??'');return chosen.some(value=>value===actual||type==='staffMulti'&&(ctState.staff||[]).some(person=>person.value===value&&person.name===actual));}const query=String(chosen||'').trim().toLowerCase();if(!query)return true;if(type==='act')return record.act!==null&&(query==='open'?ctActOpen(record):!ctActOpen(record));col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const value=String(values[col]??'');return type==='date'?ctNormalizeDate(value)===query:type==='number'?Number(value.replace(',','.'))===Number(query.replace(',','.')):value.toLowerCase().includes(query);});}
 // Выполняет comment Kind — модуль городской таблицы.
 function ctCommentKind(value){const text=String(value||'').trim();return /^\d+$/.test(text)?'service':/[A-Za-zА-Яа-яЁёІіҚқҒғҢңӘәӨөҰұҮүҺһ]/.test(text)&&/\d/.test(text)?'inclusion':'';}
 // Показывает остатки количества — модуль городской таблицы.
@@ -14196,8 +14202,10 @@ function ctArticle(record,schema){
 function ctActRecordVisible(record){
  if(ctPart!=='acts'||!['Роутеры','Приставки'].includes(record.sheet))return true;
  const values=ctDraft(record).values;
- return !!String(values.D??'').trim()&&!!String(values.E??'').trim()&&!/^001\s*[-–—−]\s*ВКЛЮЧЕНИЕ$/i.test(String(values.H??'').trim())&&/^(не сдан|не сдано)$/i.test(String(record.act||'').trim());
+ return !!String(values.D??'').trim()&&!!String(values.E??'').trim()&&/^(не сдан|не сдано)$/i.test(String(record.act||'').trim());
 }
+function ctEquipmentKind(record){return /^001\s*[-–—−]\s*ВКЛЮЧЕНИЕ$/i.test(String(ctDraft(record).values.H??'').trim())?'inclusion':'service';}
+function ctEquipmentKindMatches(record){return ctPart!=='acts'||ctState.group!=='equipment'||!ctKindFilter||ctEquipmentKind(record)===ctKindFilter;}
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]).filter(ctActRecordVisible);}
 // Показывает операцию — модуль городской таблицы.
 function ctRender(){
@@ -14206,10 +14214,10 @@ function ctRender(){
  const search=document.getElementById('cityTableSearch').value.trim().toLowerCase(),root=document.getElementById('cityTableRows');root.replaceChildren();let total=0,shown=0;
  for(const sheet of ctState.sheets){const rows=sheet.rows.filter(r=>ctMatches(r,sheet.schema,search));total+=rows.length;root.append(ctNode('h3','ct-sheet-title',sheet.name+' · '+rows.length));if(sheet.missing){root.append(ctNode('p','','Лист не найден в городской таблице'));continue;}if(!rows.length)root.append(ctNode('p','','Записей по выбранным фильтрам нет'));for(const record of rows){if(shown>=ctState.limit)break;root.append(ctArticle(record,sheet.schema));shown++;}}
  if(total>shown){const more=ctNode('button','btn main-btn',`Показать ещё · осталось ${total-shown}`);more.type='button';more.onclick=()=>{ctState.limit+=50;ctRender();};root.append(more);}
- document.getElementById('cityTableAckAll').disabled=ctState.busy||!ctAllRecords().some(ctActOpen);ctSetMessage(`Всего: ${ctAllRecords().length}${ctState.group==='stockCable'?'':' · Не сдано: '+ctAllRecords().filter(ctActOpen).length} · Найдено: ${total} · Показано: ${shown}`);if(typeof mountAppCalendars==='function')mountAppCalendars();
+ document.getElementById('cityTableAckAll').disabled=ctState.busy||!ctAllRecords().some(r=>ctActOpen(r)&&ctEquipmentKindMatches(r));ctSetMessage(`Всего: ${ctAllRecords().length}${ctState.group==='stockCable'?'':' · Не сдано: '+ctAllRecords().filter(ctActOpen).length} · Найдено: ${total} · Показано: ${shown}`);if(typeof mountAppCalendars==='function')mountAppCalendars();
 }
 // Выполняет отметка сдачи все — модуль городской таблицы.
-function ctAckAll(){if(ctState.busy)return;const rows=ctAllRecords().filter(r=>ctActOpen(r)&&!r.actReadonly);if(!rows.length)return;if(ctDirty()){showBeelineModal('Сдача актов','Сначала сохраните изменения в строках.','⚠️');return;}ctConfirm('Сдать все акты?',`Будут сданы все ${rows.length} актов текущего раздела, включая скрытые поиском и ещё не показанные строки. Связанное оборудование включений также будет отмечено.`,()=>ctMutate('ackAll',rows));}
+function ctAckAll(){if(ctState.busy)return;const rows=ctAllRecords().filter(r=>ctActOpen(r)&&!r.actReadonly&&ctEquipmentKindMatches(r));if(!rows.length)return;if(ctDirty()){showBeelineModal('Сдача актов','Сначала сохраните изменения в строках.','⚠️');return;}ctConfirm('Сдать все акты?',`Будут сданы все ${rows.length} актов текущего раздела${ctState.group==='equipment'&&ctKindFilter?(ctKindFilter==='inclusion'?' на включениях':' сервисных предоставлений'):''}, включая скрытые поиском и ещё не показанные строки. Связанное оборудование включений также будет отмечено.`,()=>ctMutate('ackAll',rows));}
 // Обрабатывает Keeping Drafts — модуль городской таблицы.
 async function ctRefreshKeepingDrafts(){
  if(ctState.busy)return;const owner=ctState.owner,group=ctState.group;ctSetBusy(true);
@@ -14382,6 +14390,7 @@ function arrangeSalarySections(container){
 function ctCountsFromSheets(sheets){
  const result={total:0,sheets:{},recordsTotal:0,recordsSheets:{},submittedTotal:0};
  for(const sheet of sheets){const rows=(sheet.rows||[]).filter(ctActRecordVisible),open=rows.filter(ctActOpen).length;result.sheets[sheet.name]=open;result.recordsSheets[sheet.name]=rows.length;result.total+=open;result.recordsTotal+=rows.length;}
+ result.equipmentKinds={service:0,inclusion:0};for(const sheet of sheets)for(const record of (sheet.rows||[]).filter(ctActRecordVisible))if(['Роутеры','Приставки'].includes(record.sheet))result.equipmentKinds[ctEquipmentKind(record)]++;
  result.submittedTotal=result.recordsTotal-result.total;return result;
 }
 function ctRenderActCounts(counts,loading=false){
@@ -14394,6 +14403,12 @@ function ctRenderActCounts(counts,loading=false){
   for(const [name,value] of Object.entries(sheets)){const kind=String(name).trim().toUpperCase().match(/(FTTB|GPON)$/)?.[1];if(kind&&Number.isFinite(Number(value)))split[kind]+=Number(value);}
   const breakdown=available?(key==='equipment'?Object.entries(sheets).map(([name,value])=>name+': '+value).join(' · '):'FTTB: '+split.FTTB+' · GPON: '+split.GPON):loading?'Загрузка…':'Обновите сервер для общего количества';
   card.append(title,ctNode('strong','ct-act-count-value',available?String(total):'—'),ctNode('small','ct-act-count-status',openAvailable?'Не сдано: '+open+(available?' · Сдано: '+(total-open):''):'Не сдано: — · Сдано: —'),ctNode('small','ct-act-count-detail',breakdown));
+  if(key==='equipment'){
+   const kinds=entry?.equipmentKinds;
+   for(const [kind,caption] of [['service','Сервисные'],['inclusion','На включениях']]){
+    const value=kinds&&Number.isFinite(Number(kinds[kind]))?String(kinds[kind]):'—',button=ctNode('button','ct-equipment-kind');button.type='button';button.disabled=ctState.busy||ctState.group!=='equipment'||!kinds;button.setAttribute('aria-pressed',String(ctState.group==='equipment'&&ctKindFilter===kind));button.append(ctNode('span','',caption),ctNode('strong','',value));button.title='Показать '+caption.toLowerCase()+'. Повторное нажатие показывает всё оборудование.';button.onclick=()=>{if(button.disabled)return;ctKindFilter=ctKindFilter===kind?'':kind;ctState.limit=50;ctRender();};card.append(button);
+   }
+  }
   card.title='Все записи раздела без фильтров'+(available?' · Всего: '+total+' · Не сдано: '+open+' · Сдано: '+(total-open):'');root.append(card);
  }
 }
