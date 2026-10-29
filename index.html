@@ -14601,30 +14601,27 @@ async function gsSave(){
   }catch(e){gsMessage('⚠️ '+e.message+' Изменения остались на экране. При потере ответа обновите график перед повтором.');}
   finally{gsBusy(false);}return;
  }
- if(changes.some(c=>c.field!=='shift')){
-  gsMessage('⚠️ Изменение ФИО и должности пока недоступно через безопасное сохранение. Правки не удалены.');
-  return;
- }
+ const identityChanges=changes.filter(c=>c.field==='name'||c.field==='role').length;
  if(gsState.cycle!==gsState.data.cycle){
   gsMessage('⚠️ Изменение цикла пока не поддерживается защищённым сохранением. Выберите исходный цикл.');
   return;
  }
  if(!changes.length){gsMessage('Нет изменений для сохранения');return;}
- gsBusy(true);gsMessage('Проверяем и сохраняем смены…',true);
+ gsBusy(true);gsMessage('Проверяем и сохраняем график…',true);
  try{
-  // The server recalculates the complete plan under lock; no client UUID or coordinates.
-  const result=await gsRequest('save-shifts',{version:gsState.data.version,changes,confirmed:true});
-  if(!result.saved)throw new Error('Сервер не подтвердил сохранение смен');
+  // ФИО и роль проверяются существующей серверной операцией save.
+  const result=await gsRequest(identityChanges?'save':'save-shifts',{version:gsState.data.version,changes,confirmed:true});
+  if(!result.saved)throw new Error('Сервер не подтвердил сохранение графика');
   // Do not silently discard drafts if refreshing fails after a confirmed write.
   try{
    const fresh=await gsRequest('list');
    gsState.data=fresh;
    gsState.drafts.clear();gsState.preview=false;gsState.cycle=fresh.cycle;
    if(!fresh.blocks.some(b=>b.id===gsState.blockId))gsState.blockId=fresh.blocks[0]?.id||'';
-   gsRender();gsMessage('✅ Сохранено смен: '+result.written+'. Данные перечитаны из таблицы.');
+   gsRender();gsMessage(identityChanges?'✅ Изменения графика сохранены. ФИО и должности перечитаны из таблицы.':'✅ Сохранено смен: '+result.written+'. Данные перечитаны из таблицы.');
   }catch(refreshError){
    gsState.drafts.clear();gsState.preview=false;gsState.data=null;
-   gsMessage('✅ Смены сохранены ('+result.written+'), но повторное чтение не удалось: '+refreshError.message+'. Нажмите «Обновить».');
+   gsMessage('✅ Изменения графика сохранены, но повторное чтение не удалось: '+refreshError.message+'. Нажмите «Обновить».');
   }
  }catch(e){gsMessage('⚠️ '+e.message+' Правки остались на экране. Если ответ потерян, сначала обновите график, не нажимайте «Сохранить» повторно.');}
  finally{gsBusy(false);}
