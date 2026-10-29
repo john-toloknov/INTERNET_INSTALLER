@@ -2449,9 +2449,8 @@ html[data-app-theme=light] { --return-disposal-color: #e4cb00; }
 .live-loading { display:flex; flex-direction:column; align-items:center; justify-content:center;
     gap:10px; min-height:90px; padding:18px 12px; color:var(--text-secondary);
     text-align:center; font-size:13px; }
-.live-loading-emoji { display:inline-block; font-size:34px; line-height:1.2;
-    animation:bounceSpinDrop 1.6s infinite ease-in-out; }
-.hours-hero.is-loading .hours-hero-icon { display:inline-block; animation:bounceSpinDrop 1.6s infinite ease-in-out; }
+
+
 /* Стрелка выбора совпадает с крупной жёлтой стрелкой шага «Оборудование». */
 .custom-dropdown .dropdown-arrow,
 .ppr-staff-dropdown::after { color:var(--accent-ink); font-size:18px; font-weight:800; line-height:1; }
@@ -2528,7 +2527,7 @@ html[data-app-theme=light] { --return-disposal-color: #e4cb00; }
 .management-delivery-actions .btn{margin:0!important;width:100%;}
 @media(max-width:320px){.management-delivery-grid{grid-template-columns:1fr;}}
 
-.hours-hero-icon,.hours-hero.is-loading .hours-hero-icon{animation:none!important;transform:none!important;transition:none!important}
+.hours-hero-icon,
 .admin-tools-screen .card{display:grid;gap:14px}.admin-period{width:100%;padding:14px;background:var(--ui-bg-090909,#090909);color:var(--ui-fg-ffffff,#fff);border:1px solid #b7ed55;border-radius:14px;color-scheme:dark}
 .admin-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.admin-kpi,.admin-document,.admin-theme-row{padding:14px;border:1px solid var(--ui-border-53663d,#53663d);border-radius:16px;background:var(--ui-bg-111111,#111);color:var(--ui-fg-ffffff,#fff)}.admin-kpi strong{display:block;font-size:26px;color:var(--ui-fg-b7ed55,#b7ed55)}.admin-kpi small{color:var(--ui-fg-cccccc,#ccc)}.admin-document h3{color:var(--ui-fg-b7ed55,#b7ed55);margin:0 0 8px}.admin-document+.admin-document{margin-top:12px}.admin-chart-scroll{overflow-x:auto;background:#fff;border-radius:14px;margin:14px 0}.admin-chart-scroll img{display:block;width:1255px;max-width:none}.admin-theme-row{margin-top:10px}.admin-theme-row summary{color:var(--ui-fg-b7ed55,#b7ed55);cursor:pointer;font-weight:bold}.admin-theme-row p{white-space:pre-line}.admin-theme-metrics{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}.admin-pdf-viewer{width:100%;height:60vh;border:0;background:#fff}.admin-file-actions{display:flex;gap:10px;flex-wrap:wrap}.admin-file-actions a{padding:12px;background:#b7ed55;color:#000;border-radius:12px;font-weight:bold;text-decoration:none}.admin-tools-screen button:disabled{opacity:.55}
 .app-date-control{position:relative;width:100%}.app-date-trigger{width:100%;min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 15px;border:1px solid var(--ui-border-383838,#383838);border-radius:15px;background:var(--ui-bg-090909,#090909);color:var(--ui-fg-ffffff,#fff);font:inherit;cursor:pointer}.app-date-trigger:disabled{opacity:.5;cursor:default}.app-date-chevron{font-size:25px;color:var(--ui-fg-b7ed55,#b7ed55);flex-shrink:0}.app-date-trigger[aria-expanded="true"] .app-date-chevron{transform:rotate(180deg)}
@@ -4825,10 +4824,10 @@ async function pwApi(action,fields={}){
  }
 }
 function pwFriendlyError(error){const labels={baseSalaryFixed:'Месячный оклад',baseSalary:'Начисленный оклад FIX',kpiTotal:'Итоговый KPI',gsm:'Компенсация ГСМ',beforePenalties:'Итог начислений',netSalary:'На руки',totalAvr:'Сумма для АВР',goal1Bonus:'Премия KPI — план',kpiActual:'Премия KPI — факт',supplements:'Итого доплат',opv:'ОПВ',vosms:'ВОСМС',ipn:'ИПН',so:'СО'};let text=String(error?.message||error||'Не удалось выполнить операцию');if(/Failed to fetch|NetworkError|Load failed|aborted/i.test(text))return 'Не удалось подтвердить результат на сервере. Нажмите «Обновить», чтобы проверить, сохранился ли черновик. Повтор той же загрузки защищён от дубликатов.';for(const [key,label] of Object.entries(labels))text=text.replace(new RegExp('\\b'+key+'\\b','g'),'«'+label+'»');return text;}
-function pwHourglass(){const icon=paNode('span','⏳','pw-hourglass');icon.setAttribute('aria-hidden','true');return icon;}
+function pwHourglass(){const icon=paNode('span','','pw-hourglass');icon.innerHTML=iiLoadingMark();icon.setAttribute('aria-hidden','true');return icon;}
 function pwStatus(text,kind='info',step=null,title=''){
  if(paDataset()==='payouts'){const rename=value=>String(value).replace(/Опубликована зарплата/g,'Опубликованы SWAP и вознаграждение').replace(/Зарплата загружена/g,'Файл выплат загружен').replace(/Зарплата опубликована/g,'SWAP и вознаграждение опубликованы').replace(/Загрузка зарплаты/g,'Загрузка SWAP и вознаграждения').replace(/Публикуем зарплату/g,'Публикуем SWAP и вознаграждение').replace(/зарплаты/g,'SWAP и вознаграждения');text=rename(text);title=rename(title);}
- const box=document.getElementById('pwStatus'),oldIcon=kind==='loading'&&box.className==='pw-feedback pw-feedback-loading'?box.querySelector?.(':scope>.pw-hourglass'):null;if(oldIcon){Array.from(box.childNodes).forEach(node=>{if(node!==oldIcon)node.remove();});}else box.replaceChildren();box.hidden=!text;if(!text)return;box.className='pw-feedback pw-feedback-'+kind;box.setAttribute('aria-live',kind==='error'?'assertive':'polite');const icon=oldIcon||document.createElement('span');icon.className=kind==='loading'?'pw-feedback-icon pw-hourglass':'pw-feedback-icon';icon.setAttribute('aria-hidden','true');icon.textContent=kind==='loading'?'⏳':kind==='error'?'❌':kind==='success'?'✅':'ℹ️';const body=document.createElement('div');body.className='pw-feedback-content';const heading=document.createElement('strong');heading.className='pw-feedback-title';heading.textContent=title||({loading:'Выполняется…',error:'Ошибка',success:'Готово',info:'Информация'}[kind]||'Информация');const message=document.createElement('p');message.textContent=text;body.append(heading,message);
+ const box=document.getElementById('pwStatus'),oldIcon=kind==='loading'&&box.className==='pw-feedback pw-feedback-loading'?box.querySelector?.(':scope>.pw-hourglass'):null;if(oldIcon){Array.from(box.childNodes).forEach(node=>{if(node!==oldIcon)node.remove();});}else box.replaceChildren();box.hidden=!text;if(!text)return;box.className='pw-feedback pw-feedback-'+kind;box.setAttribute('aria-live',kind==='error'?'assertive':'polite');const icon=oldIcon||document.createElement('span');icon.className=kind==='loading'?'pw-feedback-icon pw-hourglass':'pw-feedback-icon';icon.setAttribute('aria-hidden','true');if(kind==='loading')icon.innerHTML=iiLoadingMark();else icon.textContent=kind==='error'?'❌':kind==='success'?'✅':'ℹ️';const body=document.createElement('div');body.className='pw-feedback-content';const heading=document.createElement('strong');heading.className='pw-feedback-title';heading.textContent=title||({loading:'Выполняется…',error:'Ошибка',success:'Готово',info:'Информация'}[kind]||'Информация');const message=document.createElement('p');message.textContent=text;body.append(heading,message);
  if(step!==null){const list=document.createElement('ol');list.className='pw-progress-steps';['Чтение Excel','Подготовка данных города','Проверка и сохранение на сервере'].forEach((label,i)=>{const item=document.createElement('li');item.className=i<step?'done':i===step?'active':'';item.textContent=(i<step?'✓ ':String(i+1)+'. ')+label;if(i===step)item.setAttribute('aria-current','step');list.append(item);});body.append(list);}if(oldIcon)box.append(body);else box.append(icon,body);
 }
 async function pwImportProgress(step,text){pwStatus(text,'loading',step,'Загрузка зарплаты');await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));}
@@ -6022,7 +6021,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
         <h2>💰 Моя зарплата</h2>
         <div class="card">
             <div id="salaryContentContainer">
-                <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка данных о зарплате...</span></div>
+                <div class="live-loading" role="status"><span class="ii-loading-mark" aria-hidden="true"><img src="./assets/brand/internet-installer-logo.svg" alt="" width="42" height="42"><span class="ii-loading-brand">INTERNET INSTALLER</span><span class="ii-loading-track"></span></span><span>Загрузка данных о зарплате...</span></div>
             </div>
             <div class="common-nav-row">
                 <button class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
@@ -6037,7 +6036,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
         <div class="card">
             <div class="schedule-refresh-row"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="openMySchedule(true)">🔄 Обновить график</button></div>
             <div id="scheduleContentContainer">
-                <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка графика смен...</span></div>
+                <div class="live-loading" role="status"><span class="ii-loading-mark" aria-hidden="true"><img src="./assets/brand/internet-installer-logo.svg" alt="" width="42" height="42"><span class="ii-loading-brand">INTERNET INSTALLER</span><span class="ii-loading-track"></span></span><span>Загрузка графика смен...</span></div>
             </div>
             <div class="common-nav-row">
                 <button class="btn danger-btn" onclick="switchScreen('screen-installer-menu')">🔙 Назад</button>
@@ -7166,7 +7165,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
         document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
-        document.getElementById('beelineModalIcon').textContent = icon;
+        if(icon==='⏳')document.getElementById('beelineModalIcon').innerHTML=iiLoadingMark();else document.getElementById('beelineModalIcon').textContent=icon;
         
         const btnContainer = document.getElementById('beelineModalButtons');
         if (buttonsHtml) {
@@ -7307,7 +7306,7 @@ async function savePprCreate(event){
     const fields={address:document.getElementById('pprCreateStreet').value.trim(),house:document.getElementById('pprCreateHouse').value.trim(),technology:document.getElementById('pprCreateTechnology').value,houseId:document.getElementById('pprCreateHouseId').value.trim()};
     const fingerprint=JSON.stringify([managementOwnerKey(),engineerAllowed()?engineerDistrict('ppr').district:currentUser.district,fields]);
     if(fingerprint!==pprCreateFingerprint){pprCreateRequest='ppr_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));pprCreateFingerprint=fingerprint;}
-    const owner=managementOwnerKey(),status=document.getElementById('pprCreateStatus'),button=document.getElementById('pprCreateSave');pprPlanBusy=true;document.querySelectorAll('#pprCreateForm input,#pprCreateForm button').forEach(n=>n.disabled=true);button.disabled=true;status.textContent='⏳ Проверяем дубли и сохраняем адрес…';let saved=false;
+    const owner=managementOwnerKey(),status=document.getElementById('pprCreateStatus'),button=document.getElementById('pprCreateSave');pprPlanBusy=true;document.querySelectorAll('#pprCreateForm input,#pprCreateForm button').forEach(n=>n.disabled=true);button.disabled=true;status.textContent='Проверяем дубли и сохраняем адрес…';let saved=false;
     try{await requestPprPlans('create',fields,pprCreateRequest);if(owner!==managementOwnerKey())return;saved=true;pprCreateRequest='';pprCreateFingerprint='';status.textContent='✅ Адрес сохранён · Не начат';document.getElementById('pprCreateForm').reset();document.getElementById('pprCreateTechnologyLabel').textContent='FTTB';}
     catch(error){if(owner===managementOwnerKey())status.textContent='⚠️ '+error.message;}
     finally{pprPlanBusy=false;document.querySelectorAll('#pprCreateForm input,#pprCreateForm button').forEach(n=>n.disabled=false);button.disabled=false;}
@@ -7479,7 +7478,7 @@ function engineerSchedulePresentation(){
         }
         const continueButton = document.getElementById('ownerCityContinue');
         continueButton.disabled = !ownerCitySelected || !ownerCityIsConfigured(ownerCitySelected) || ownerCityBusy;
-        continueButton.textContent = ownerCityBusy ? '⏳ Сохраняем город...' :
+        continueButton.textContent = ownerCityBusy ? 'Сохраняем город...' :
             (ownerCitySelected ? 'Продолжить: ' + ownerCitySelected : 'Выберите город');
     }
 
@@ -7866,7 +7865,7 @@ function engineerSchedulePresentation(){
         loginController = controller;
         loginBusy = true;
         button.disabled = true;
-        button.textContent = '⏳ Проверяем вход...';
+        button.textContent = 'Проверяем вход...';
         try {
             const result = await requestAuthJson({action:'authenticate',login:loginInput,password:passInput}, 20000, controller.signal);
             if (epoch !== authRequestEpoch) return;
@@ -11197,7 +11196,7 @@ document.addEventListener('click',event=>{
         if (!box) return;
         closeEquipmentSearch(box);
         if (!query) { box.classList.remove('open'); box.replaceChildren(); return; }
-        box.innerHTML = '<div class="equipment-search-empty">⏳ Ищем в таблице города…</div>';
+        box.innerHTML = liveLoading('Ищем в таблице города…');
         box.classList.add('open');
         let items;
         try { items = await loadReportEquipmentLookup(); }
@@ -11610,11 +11609,13 @@ function ctDetectStbModel(serial) {
         return requestCityReadJsonp(url, {action:'getActDebts', fullName, city}, '__beelineActDebtsCallback_');
     }
     // Выполняет live Loading.
+    function iiLoadingMark(){return '<span class="ii-loading-mark" aria-hidden="true"><img src="./assets/brand/internet-installer-logo.svg" alt="" width="42" height="42"><span class="ii-loading-brand">INTERNET INSTALLER</span><span class="ii-loading-track"></span></span>';}
+
     function liveLoading(message) {
         const safe = String(message || 'Загружаем данные...').replace(/[&<>"']/g, ch => ({
             '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
         }[ch]));
-        return `<div class="live-loading" role="status" aria-live="polite"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>${safe}</span></div>`;
+        return `<div class="live-loading" role="status" aria-live="polite">${iiLoadingMark()}<span>${safe}</span></div>`;
     }
 
     // Выполняет акт долги по актам элемент.
@@ -12004,7 +12005,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         isSubmitting = true;
         const submitBtn = e.submitter || e.target.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
-        submitBtn.textContent = "⏳ Отправка...";
+        submitBtn.textContent = "Отправка...";
         submitBtn.disabled = true;
 
         try {
@@ -12353,7 +12354,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         pprPlanBusy = true;pprPlanRenderPhotos();
         const item = pprPlanSelected;
         const btn = document.getElementById(complete ? 'pprPlanCompleteBtn' : 'pprPlanSaveBtn');
-        const label = btn.textContent; btn.disabled=true; btn.textContent='⏳ Сохранение…';
+        const label = btn.textContent; btn.disabled=true; btn.textContent='Сохранение…';
         try {
             const result = await requestPprPlans('save', {row:item.row, version:item.version, complete,
                 brigade:document.getElementById('pprPlanBrigade').value,
@@ -12388,7 +12389,7 @@ async function pprPlanSelectPhotos(event){
  const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length||!pprPlanSelected||!pprPlanPhotoEditable||pprPlanBusy||pprPlanPhotoBusy)return;
  if(pprPlanPhotoItems.length+files.length>10){showBeelineModal('Фотографии ППР','Можно прикрепить до 10 фотографий. Уже добавлено: '+pprPlanPhotoItems.length+'.','⚠️');return;}
  if(files.some(f=>!String(f.type||'').startsWith('image/')||f.size>30*1024*1024)){showBeelineModal('Фотографии ППР','Выберите изображения размером до 30 МБ каждое.','⚠️');return;}
- const epoch=pprPlanPhotoEpoch,prepared=[];pprPlanPhotoBusy=true;pprPlanRenderPhotos();document.getElementById('pprPlanPhotoNotice').textContent='⏳ Подготавливаем фотографии…';
+ const epoch=pprPlanPhotoEpoch,prepared=[];pprPlanPhotoBusy=true;pprPlanRenderPhotos();document.getElementById('pprPlanPhotoNotice').innerHTML=liveLoading('Подготавливаем фотографии…');
  try{
   for(const file of files){const dataUrl=await prepareReportPhoto(file);if(epoch!==pprPlanPhotoEpoch)return;if(!/^data:image\/jpeg;base64,/.test(dataUrl||'')||dataUrl.length>1400000)throw new Error('Не удалось сжать фотографию. Попробуйте другой снимок.');prepared.push({dataUrl,src:dataUrl,name:file.name});}
   pprPlanPhotoItems.push(...prepared);document.getElementById('pprPlanPhotoNotice').textContent='Фотографии готовы к сохранению.';
@@ -12686,7 +12687,7 @@ function openReturnEquipmentForm() {
 
 // Поиск предварительных возвратов — только в авторизованном участке сотрудника.
 const retDraftState={epoch:0,timer:null,selection:null,items:[],loading:false,requestId:'',fingerprint:'',editVersion:0,completed:false};
-function retDraftMessage(text){const node=document.getElementById('retDraftStatus');if(node)node.textContent=text;}
+function retDraftMessage(text){const node=document.getElementById('retDraftStatus');if(node){if(String(text).startsWith('⏳'))node.innerHTML=liveLoading(String(text).replace(/^⏳\s*/,''));else node.textContent=text;}}
 function retDraftReset(){clearTimeout(retDraftState.timer);retDraftState.epoch++;retDraftState.selection=null;retDraftState.items=[];retDraftState.loading=false;retDraftState.requestId='';retDraftState.fingerprint='';retDraftState.completed=false;document.getElementById('retDraftMatches')?.replaceChildren();retDraftMessage('Введите полный серийный номер или последние 4 символа. Поиск — только по вашим демонтажам. Для брака доступен ручной ввод.');}
 function retDraftClearAutofill(){for(const id of ['retMac','retNomenclature','retNomenclatureSearch','retKit','retReason','retStatus']){const field=document.getElementById(id);if(field)field.value='';}for(const [id,text]of [['retKitLabel','Выберите комплектацию...'],['retStatusLabel','Выберите статус...']]){const label=document.getElementById(id);if(label)label.textContent=text;}document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=false);}
 function retDraftInput(value){
@@ -13541,7 +13542,7 @@ function renderManagementDelivery(delivery,error=''){
  root.replaceChildren();
  const summary=document.createElement('p');summary.className='management-delivery-summary';summary.textContent=managementDeliverySummary;root.appendChild(summary);
  const phase=document.createElement('p');phase.className='management-delivery-phase';phase.setAttribute('role','status');phase.setAttribute('aria-live','polite');
- if(!delivery){phase.textContent='⏳ Проверяем доставку…';root.appendChild(phase);}
+ if(!delivery){phase.textContent='Проверяем доставку…';root.appendChild(phase);}
  else{
   const pending=managementCount(delivery.pending),problems=managementCount(delivery.failed)+managementCount(delivery.skipped)+managementCount(delivery.unknown);
   phase.textContent=pending?'⏳ Отправка продолжается…':problems?'⚠️ Обработка завершена. Доставлены не все сообщения.':managementCount(delivery.total)?'✅ Все сообщения отправлены':'ℹ️ Нет сообщений для отправки';
@@ -15364,7 +15365,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div id="screen-ii-teams" class="app-screen uniform-screen">
   <h2>👥 Управление бригадами</h2>
   <div class="card" style="max-width:850px;margin:auto">
-    <p>Выберите текущий или следующий месяц. Назначения сохраняются на листе «Бригады» участка; для текущего месяца обновляются расчёты часов.</p>
+    <p>Выберите месяц и отметьте техников каждого бригадира. Для текущего месяца после сохранения обновятся расчёты часов.</p>
     <div id="iiTeamsStatus" role="status" aria-live="polite"></div>
     <div class="ii-teams-toolbar"><button class="btn main-btn" type="button" onclick="iiTeamsLoad()">🔄 Обновить</button></div>
     <div id="iiTeamsContent"></div>
@@ -15403,17 +15404,17 @@ async function call(operation,fields={}){
  if(requestId)writeIds.delete(key);return data;
 }
 window.iiTeamsOpen=async function(){try{actor();selectedMonth='';state=null;switchScreen('screen-ii-teams');await window.iiTeamsLoad();}catch(e){status(e.message,true);}};
-window.iiTeamsLoad=async function(){if(busy)return;busy=true;const owner=managementOwnerKey();status('Загружаем сотрудников…');$('iiTeamsContent').innerHTML='';try{
+window.iiTeamsLoad=async function(){if(busy)return;busy=true;const owner=managementOwnerKey();status('');$('iiTeamsContent').innerHTML=liveLoading('Загружаем сотрудников и состав бригад…');try{
  const data=await call('list',selectedMonth?{month:selectedMonth}:{});if(owner!==managementOwnerKey())return;
  state=data;selectedMonth=data.month;const bosses=data.employees.filter(p=>p.role==='Бригадир'),techs=data.employees.filter(p=>p.role==='Техник-Универсал');
- let html='<label>Месяц назначения</label><div class="custom-dropdown" id="iiTeamsMonthDropdown"><button type="button" class="dropdown-select-btn" id="iiTeamsMonthButton"><span>'+esc(data.month)+'</span><span class="dropdown-arrow">▼</span></button><div class="dropdown-list">'+[[data.currentMonth,' · текущий'],[data.nextMonth,' · следующий']].map(([month,label])=>'<button type="button" class="dropdown-item" data-team-month="'+esc(month)+'">'+esc(month+label)+'</button>').join('')+'</div></div>';
+ let html='<div class="ii-team-month"><label>Месяц назначения</label><div class="custom-dropdown" id="iiTeamsMonthDropdown"><button type="button" class="dropdown-select-btn" id="iiTeamsMonthButton" aria-label="Месяц назначения"><span>'+esc(data.month)+'</span><span class="dropdown-arrow">▼</span></button><div class="dropdown-list">'+[[data.currentMonth,' · текущий'],[data.nextMonth,' · следующий']].map(([month,label])=>'<button type="button" class="dropdown-item" data-team-month="'+esc(month)+'">'+esc(month+label)+'</button>').join('')+'</div></div></div><div class="ii-team-grid">';
  if(!bosses.length)html+='<p>На участке нет сотрудников с ролью Бригадир.</p>';
  bosses.forEach(boss=>{html+='<section class="ii-team-panel" data-boss="'+esc(boss.id)+'"><h3>'+esc(boss.fullName)+'</h3><p>Выберите техников бригады:</p>';
   techs.forEach(p=>{const assigned=data.employees.find(x=>x.id===p.brigadierId),other=p.brigadierId&&p.brigadierId!==boss.id;html+='<label class="ii-team-person"><input type="checkbox" data-person="'+esc(p.id)+'" '+(p.brigadierId===boss.id?'checked':'')+'><span>'+esc(p.fullName)+(other?' — сейчас у '+esc(assigned?.fullName||'другого бригадира'):'')+'</span></label>';});
   html+='<button type="button" class="btn main-btn" data-save-team="'+esc(boss.id)+'">💾 Сохранить состав бригады</button></section>';});
- $('iiTeamsContent').innerHTML=html;$('iiTeamsMonthButton').onclick=event=>toggleDropdown(event,'iiTeamsMonthDropdown');$('iiTeamsContent').querySelectorAll('[data-team-month]').forEach(button=>button.onclick=event=>{event.stopPropagation();setDropdownOpen($('iiTeamsMonthDropdown'),false);selectedMonth=button.dataset.teamMonth;void window.iiTeamsLoad();});
+ $('iiTeamsContent').innerHTML=html+'</div>';$('iiTeamsMonthButton').onclick=event=>toggleDropdown(event,'iiTeamsMonthDropdown');$('iiTeamsContent').querySelectorAll('[data-team-month]').forEach(button=>button.onclick=event=>{event.stopPropagation();setDropdownOpen($('iiTeamsMonthDropdown'),false);selectedMonth=button.dataset.teamMonth;void window.iiTeamsLoad();});
  $('iiTeamsContent').querySelectorAll('[data-save-team]').forEach(button=>button.onclick=()=>window.iiTeamsSave(button.dataset.saveTeam));status('Состав загружен из ежедневной таблицы участка.');
- }catch(e){status(e.message,true);}finally{busy=false;}};
+ }catch(e){$('iiTeamsContent').replaceChildren();status(e.message,true);}finally{busy=false;}};
 window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.from($('iiTeamsContent').querySelectorAll('[data-boss]')).find(e=>e.dataset.boss===bossId);if(!section)return;
  const members=Array.from(section.querySelectorAll('input[data-person]:checked')).map(e=>e.dataset.person),fields={leader:bossId,members,month:selectedMonth,version:state.version};
  ctConfirm('Сохранить состав бригады?',selectedMonth+' · техников: '+members.length+'. Отмеченные техники будут назначены выбранному бригадиру, включая переводы из других бригад.',async()=>{
@@ -15427,5 +15428,41 @@ window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.f
 })();
 </script>
 
+<style>
+/* Списки состава не наследуют геометрию полей формы. */
+html[data-app-layout] #screen-ii-teams>.card{display:block!important;max-width:1100px!important;min-width:0;width:100%;margin:0 auto!important;padding:22px!important}
+html[data-app-layout] #screen-ii-teams>.card>p{margin:0 0 12px;line-height:1.5;text-align:left;font-size:14px}
+html[data-app-layout] #screen-ii-teams #iiTeamsStatus{margin:8px 0 12px;line-height:1.5;font-size:13px;overflow-wrap:break-word}
+html[data-app-layout] #screen-ii-teams .ii-teams-toolbar{margin:0 0 12px;min-height:0;display:flex!important;justify-content:flex-end}
+html[data-app-layout] #screen-ii-teams #iiTeamsContent{display:block!important;min-width:0;width:100%;padding:0}
+html[data-app-layout] #screen-ii-teams .ii-team-month{max-width:340px;margin:0 0 18px;min-width:0}
+html[data-app-layout] #screen-ii-teams .ii-team-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start;min-width:0}
+html[data-app-layout] #screen-ii-teams .ii-team-panel{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;min-width:0;width:100%;margin:0!important;padding:18px!important;border:1px solid var(--card-border);border-radius:16px;background:var(--card-bg)}
+html[data-app-layout] #screen-ii-teams .ii-team-panel h3{margin:0 0 6px!important;text-align:left!important;font-size:17px;line-height:1.4;overflow-wrap:break-word}
+html[data-app-layout] #screen-ii-teams .ii-team-panel p{margin:0 0 12px!important;text-align:left;font-size:13px}
+html[data-app-layout] #screen-ii-teams label.ii-team-person{display:grid!important;grid-template-columns:22px minmax(0,1fr)!important;align-items:start!important;justify-content:stretch!important;gap:12px!important;width:100%!important;min-width:0;min-height:46px;height:auto!important;padding:12px 0!important;margin:0!important;text-transform:none!important;letter-spacing:normal!important;font-weight:400!important;font-size:14px!important;line-height:1.5!important;border-bottom:1px solid var(--card-border);cursor:pointer}
+html[data-app-layout] #screen-ii-teams label.ii-team-person>input[type=checkbox]{display:block!important;position:static!important;appearance:auto!important;opacity:1!important;grid-column:1!important;flex:none!important;width:20px!important;min-width:20px!important;max-width:20px!important;height:20px!important;min-height:20px!important;margin:1px 0 0!important;padding:0!important;accent-color:var(--accent,#b7ef4b);cursor:pointer}
+html[data-app-layout] #screen-ii-teams label.ii-team-person>span{display:block!important;grid-column:2!important;min-width:0!important;width:auto!important;max-width:none!important;margin:0!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word!important;text-align:left!important;color:var(--text-main)}
+html[data-app-layout] #screen-ii-teams .ii-team-person:has(input:checked){color:var(--accent-ink);background:color-mix(in srgb,var(--accent,#b7ef4b) 9%,transparent)}
+html[data-app-layout] #screen-ii-teams .ii-team-panel>button{width:100%!important;margin:16px 0 0!important;min-height:44px;white-space:normal}
+html[data-app-layout=mobile] #screen-ii-teams>.card{padding:16px!important}
+html[data-app-layout=mobile] #screen-ii-teams .ii-team-grid{grid-template-columns:minmax(0,1fr)}
+@media(max-width:700px){html[data-app-layout] #screen-ii-teams .ii-team-grid{grid-template-columns:minmax(0,1fr)}}
+/* Общий индикатор: белый, серый и салатовый; движение отражает ожидание, не процент. */
+.live-loading{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:10px!important;width:100%;min-width:0;min-height:110px;padding:18px 12px!important;background:#f4f6f8!important;color:#536170!important;border:1px solid #dce2e7;border-radius:14px;font-family:inherit;font-size:13px;line-height:1.5;text-align:center!important}
+.ii-loading-mark{display:flex!important;flex-direction:column!important;align-items:center!important;gap:8px!important;min-width:0;max-width:100%;font-style:normal}
+.ii-loading-mark img{display:block!important;width:42px!important;height:42px!important;min-height:0!important;object-fit:contain!important;animation:none!important;transform:none!important}
+.ii-loading-brand{display:block;font-size:11px!important;font-weight:800!important;letter-spacing:1px;color:#5d8519!important;line-height:1.4!important;white-space:normal}
+.ii-loading-track{display:block!important;width:128px!important;height:4px!important;min-height:0!important;border-radius:8px;background:#dce2e7;overflow:hidden}
+.ii-loading-track:after{content:'';display:block;width:40%;height:100%;border-radius:inherit;background:#b7ef4b;animation:iiLoadingMove 1.4s ease-in-out infinite alternate}
+@keyframes iiLoadingMove{to{transform:translateX(150%)}}
+.beeline-modal-icon{animation:none!important;transform:none!important}
+#beelineModalIcon:has(.ii-loading-mark){display:block!important;margin:0 0 16px!important;padding:14px;border-radius:14px;background:#f4f6f8}
+.pw-hourglass{animation:none!important;transform:none!important;line-height:1!important;width:auto!important;height:auto!important}
+.pw-hourglass .ii-loading-mark{gap:3px!important}.pw-hourglass .ii-loading-mark img{width:24px!important;height:24px!important}.pw-hourglass .ii-loading-brand{font-size:9px!important}.pw-hourglass .ii-loading-track{width:80px!important;height:3px!important}
+#pwStatus.pw-feedback-loading{grid-template-columns:minmax(0,1fr)!important;background:#f4f6f8!important;color:#28323b!important}#pwStatus.pw-feedback-loading>.pw-feedback-icon{justify-self:start!important;width:auto!important;height:auto!important}#pwStatus.pw-feedback-loading .pw-feedback-content{color:#28323b}
+@media(prefers-reduced-motion:reduce){.ii-loading-track:after{animation:none!important;transform:none!important}}
+
+</style>
 </body>
 </html>
