@@ -2601,6 +2601,9 @@ html[data-app-layout=desktop] #screen-admin-board{max-width:none!important;width
 #screen-technician-reports .dismantle-kit input:focus-visible+.custom-checkbox{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
 html[data-app-layout=mobile] #screen-technician-reports .dismantle-kit .checkbox-container{min-height:44px;box-sizing:border-box}
 
+
+#pprPlanPhotoInput,#pprPlanAddPhotos[hidden]{display:none!important}
+.ppr-plan-photo-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 8px}.ppr-plan-photo-toolbar .btn{width:auto;margin:0}.ppr-plan-photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}.ppr-plan-photo{position:relative;min-width:0;aspect-ratio:1;border:1px solid var(--card-border);border-radius:10px;overflow:hidden;background:var(--card-bg);display:flex;align-items:center;justify-content:center}.ppr-plan-photo img{width:100%;height:100%;object-fit:cover}.ppr-plan-photo-remove{position:absolute;right:4px;top:4px;width:28px;height:28px;border:1px solid var(--danger);border-radius:7px;color:var(--danger);background:var(--card-bg);font-size:18px;cursor:pointer}.ppr-plan-photo-notice{font-size:13px;color:var(--text-secondary);margin:6px 0 12px}
 </style>
 <style id="responsivePresentation">
 /* Адаптивное представление. Рабочие обработчики и данные не изменяются. */
@@ -5288,6 +5291,10 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
             </div>
             <label for="pprPlanComment">Комментарий к работам</label>
             <textarea id="pprPlanComment" rows="4" maxlength="1500" placeholder="Какие работы предстоит выполнить"></textarea>
+            <div class="ppr-plan-photo-toolbar"><span id="pprPlanPhotoCount">Фотографии: 0 / 10</span><button id="pprPlanAddPhotos" type="button" class="btn main-btn" onclick="document.getElementById('pprPlanPhotoInput').click()">📷 Добавить фотографии</button></div>
+            <input id="pprPlanPhotoInput" type="file" accept="image/*" multiple hidden onchange="pprPlanSelectPhotos(event)">
+            <div id="pprPlanPhotoPreview" class="ppr-plan-photo-grid"></div>
+            <div id="pprPlanPhotoNotice" class="ppr-plan-photo-notice" role="status" aria-live="polite"></div>
             <label for="pprPlanExecutorBtn">Исполняющий Монтажник</label>
             <div class="custom-dropdown ppr-staff-dropdown">
                 <input type="search" class="dropdown-select-btn staff-search-trigger" id="pprPlanExecutorBtn" placeholder="🔍 Выберите исполнителя или найдите по фамилии" aria-label="Поиск исполнителя" aria-controls="pprPlanExecutorList" autocomplete="off" onclick="openSearchDropdown(event, 'pprPlanExecutorList')" onfocus="this.select(); pprPlanFilterStaff('pprPlanExecutor', '')" oninput="document.getElementById('pprPlanExecutor').value=''; pprPlanFilterStaff('pprPlanExecutor', this.value); openSearchDropdown(event, 'pprPlanExecutorList')">
@@ -11280,7 +11287,7 @@ function ctDetectRouterModel(s) {
   if (s.indexOf("QXH")===0) return "D-Link Dir 615";
   if (/^(2312T2DM|2309T2DM)/.test(s)) return "AX3000 (Ultimate Black)";
   if (s.indexOf("22161K")===0) return "TP-Link DEKO M4 (Ultimate)";
-  if (/^(220B|220A3B)/.test(s)) return "TP-Link Archer C24";
+  if (/^(220B|220A3B|2227126)/.test(s)) return "TP-Link Archer C24";
   if (/^(2184545|2212252|2211846|2211477|2211225)/.test(s)) return "TP-Link Archer C20";
   if (/^(318|317|218|216)/.test(s)) return "Маршрутизатор беспроводной 840 TP-Link";
   if (s.indexOf("BRDM")!==-1) return "TURBO";
@@ -12119,12 +12126,12 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         const url = CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;
         if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
         const owner=currentUser,scope=managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
-        const writeKey=scope+'|'+operation+'|'+JSON.stringify(fields);
-        const requestId = stableRequestId || (operation!=='list'&&pprPendingWrites.get(writeKey)) || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
-        if(operation!=='list')pprPendingWrites.set(writeKey,requestId);
+        const writeKey=scope+'|'+operation+'|'+JSON.stringify(await pprPlanPhotoWriteFields(fields));
+        const requestId = stableRequestId || (!['list','photos'].includes(operation)&&pprPendingWrites.get(writeKey)) || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        if(!['list','photos'].includes(operation))pprPendingWrites.set(writeKey,requestId);
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, district:String(currentUser.district), actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
-        if(operation==='list'){
+        if(operation==='list'||operation==='photos'){
             const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
             let result;
             try {
@@ -12137,6 +12144,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 if(!(error instanceof TypeError)&&!(error instanceof SyntaxError))throw error;
             } finally {clearTimeout(timer);}
             if(result){if(result.status!=='success')throw new Error(result.message||'Не удалось загрузить планы');return result;}
+            if(operation==='photos')throw new Error('Не удалось загрузить фотографии');
         }
         const deadline=Date.now()+95000;
         const active=()=>currentUser===owner&&scope===managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
@@ -12289,7 +12297,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     }
     // Показывает ППР план карточка.
     function openPprPlanCard(index) {
-        const item = pprPlanItems[index]; if (!item) return;
+        const item = pprPlanItems[index]; if (!item || pprPlanBusy) return;
         pprPlanSelected = item;
         document.querySelectorAll('.ppr-plan-item.is-active').forEach(button => button.classList.remove('is-active'));
         document.querySelector(`.ppr-plan-item[data-ppr-row="${Number(item.row)}"]`)?.classList.add('is-active');
@@ -12312,9 +12320,12 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         document.getElementById('pprPlanCompleteBtn').style.display = item.canComplete ? '' : 'none';
         document.getElementById('pprPlanNotice').textContent = inWork && !manager ? (item.canComplete ? 'План уже в работе. Поля закрыты для редактирования; вы можете отметить выполнение.' : 'План уже в работе. Для вашей роли редактирование и завершение недоступны.') : '';
         document.getElementById('pprPlanOverlay').style.display = 'flex';
+        pprPlanResetPhotos(item,editable);
     }
     // Очищает ППР план.
-    function closePprPlan() {
+    function closePprPlan(force=false) {
+        if(pprPlanBusy&&!force)return;
+        pprPlanPhotoEpoch++;pprPlanPhotoItems=[];pprPlanPhotoBusy=false;
         if(typeof closeAppCalendar==='function')closeAppCalendar();
         document.querySelectorAll('#pprPlanOverlay .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('pprPlanOverlay').style.display='none';
@@ -12324,6 +12335,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     // Обрабатывает ППР план.
     function confirmPprPlan(complete) {
         if (!pprPlanSelected || pprPlanBusy) return;
+        if(pprPlanPhotoBusy){showBeelineModal("Фотографии ППР","Дождитесь подготовки фотографий.","⏳");return;}
         if (!complete) {
             const start = document.getElementById('pprPlanStart').value, end = document.getElementById('pprPlanEnd').value;
             if (!start || !end || start > end || !document.getElementById('pprPlanComment').value.trim()) {
@@ -12336,8 +12348,8 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     }
     // Сохраняет ППР план.
     async function savePprPlan(complete) {
-        if (pprPlanBusy || !pprPlanSelected) return;
-        pprPlanBusy = true;
+        if (pprPlanBusy || pprPlanPhotoBusy || !pprPlanSelected) return;
+        pprPlanBusy = true;pprPlanRenderPhotos();
         const item = pprPlanSelected;
         const btn = document.getElementById(complete ? 'pprPlanCompleteBtn' : 'pprPlanSaveBtn');
         const label = btn.textContent; btn.disabled=true; btn.textContent='⏳ Сохранение…';
@@ -12346,12 +12358,53 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 brigade:document.getElementById('pprPlanBrigade').value,
                 start:document.getElementById('pprPlanStart').value, end:document.getElementById('pprPlanEnd').value,
                 comment:document.getElementById('pprPlanComment').value.trim(),
-                executor:document.getElementById('pprPlanExecutor').value});
-            closePprPlan();
+                executor:document.getElementById('pprPlanExecutor').value,
+                ...(!complete?{photos:pprPlanPhotoItems.map(p=>p.id?{id:p.id}:p.dataUrl)}:{})});
+            closePprPlan(true);
             showBeelineModal('План ППР сохранён', `Адрес: ${pprEsc(item.address)} ${pprEsc(item.house)}. Статус: ${pprEsc(result.result)}.${result.warning ? '<br>⚠️ '+pprEsc(result.warning) : ''}`, result.warning ? '⚠️' : '✅');
         } catch (err) { showBeelineModal('Не удалось сохранить ППР', pprEsc(err.message), '❌'); }
-        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; if(!pprPlanSelected)loadPprPlans(true); }
+        finally { btn.disabled=false; btn.textContent=label; pprPlanBusy=false; pprPlanRenderPhotos();if(!pprPlanSelected)loadPprPlans(true); }
     }
+
+let pprPlanPhotoItems=[],pprPlanPhotoBusy=false,pprPlanPhotoEditable=false,pprPlanPhotoEpoch=0;
+async function pprPlanPhotoWriteFields(fields){
+ if(!Array.isArray(fields.photos)||!window.crypto?.subtle)return fields;
+ const bytes=new TextEncoder().encode(JSON.stringify(fields.photos)),hash=await window.crypto.subtle.digest('SHA-256',bytes);
+ return {...fields,photos:{count:fields.photos.length,hash:[...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')}};
+}
+function pprPlanRenderPhotos(){
+ const root=document.getElementById('pprPlanPhotoPreview');if(!root)return;root.replaceChildren();
+ document.getElementById('pprPlanPhotoCount').textContent='Фотографии: '+pprPlanPhotoItems.length+' / 10';
+ const add=document.getElementById('pprPlanAddPhotos');add.hidden=!pprPlanPhotoEditable;add.disabled=pprPlanBusy||pprPlanPhotoBusy||pprPlanPhotoItems.length>=10;
+ pprPlanPhotoItems.forEach((photo,index)=>{
+  const box=document.createElement('div');box.className='ppr-plan-photo';
+  if(photo.src||photo.dataUrl){const img=document.createElement('img');img.src=photo.src||photo.dataUrl;img.alt='Фото '+(index+1)+' к плану ППР';box.appendChild(img);}else{const label=document.createElement('span');label.textContent='🖼 Фото '+(index+1);box.appendChild(label);}
+  if(pprPlanPhotoEditable){const remove=document.createElement('button');remove.type='button';remove.className='ppr-plan-photo-remove';remove.textContent='✕';remove.setAttribute('aria-label','Убрать фото '+(index+1));remove.disabled=pprPlanBusy||pprPlanPhotoBusy;remove.onclick=()=>{if(pprPlanBusy||pprPlanPhotoBusy)return;pprPlanPhotoItems.splice(index,1);pprPlanRenderPhotos();};box.appendChild(remove);}root.appendChild(box);
+ });
+}
+function pprPlanResetPhotos(item,editable){
+ const epoch=++pprPlanPhotoEpoch;pprPlanPhotoBusy=false;pprPlanPhotoEditable=editable;
+ pprPlanPhotoItems=(item?.photos||[]).map(p=>({id:p.id,name:p.name,src:''}));
+ document.getElementById('pprPlanPhotoInput').value='';document.getElementById('pprPlanPhotoNotice').textContent='';pprPlanRenderPhotos();
+ if(pprPlanPhotoItems.length)void pprPlanLoadPhotos(item,epoch);
+}
+async function pprPlanLoadPhotos(item,epoch){
+ const notice=document.getElementById('pprPlanPhotoNotice');notice.textContent='⏳ Загружаем фотографии…';
+ try{const result=await requestPprPlans('photos',{row:item.row,version:item.version});if(epoch!==pprPlanPhotoEpoch||pprPlanSelected!==item)return;
+  const photos=new Map((result.photos||[]).map(p=>[p.id,p.dataUrl]));pprPlanPhotoItems.forEach(p=>{if(p.id&&photos.has(p.id))p.src=photos.get(p.id);});pprPlanRenderPhotos();notice.textContent='';
+ }catch(error){if(epoch===pprPlanPhotoEpoch)notice.textContent='Не удалось загрузить предпросмотр. Сохранённые фотографии остаются в плане.';}
+}
+async function pprPlanSelectPhotos(event){
+ const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length||!pprPlanSelected||!pprPlanPhotoEditable||pprPlanBusy||pprPlanPhotoBusy)return;
+ if(pprPlanPhotoItems.length+files.length>10){showBeelineModal('Фотографии ППР','Можно прикрепить до 10 фотографий. Уже добавлено: '+pprPlanPhotoItems.length+'.','⚠️');return;}
+ if(files.some(f=>!String(f.type||'').startsWith('image/')||f.size>30*1024*1024)){showBeelineModal('Фотографии ППР','Выберите изображения размером до 30 МБ каждое.','⚠️');return;}
+ const epoch=pprPlanPhotoEpoch,prepared=[];pprPlanPhotoBusy=true;pprPlanRenderPhotos();document.getElementById('pprPlanPhotoNotice').textContent='⏳ Подготавливаем фотографии…';
+ try{
+  for(const file of files){const dataUrl=await prepareReportPhoto(file);if(epoch!==pprPlanPhotoEpoch)return;if(!/^data:image\/jpeg;base64,/.test(dataUrl||'')||dataUrl.length>1400000)throw new Error('Не удалось сжать фотографию. Попробуйте другой снимок.');prepared.push({dataUrl,src:dataUrl,name:file.name});}
+  pprPlanPhotoItems.push(...prepared);document.getElementById('pprPlanPhotoNotice').textContent='Фотографии готовы к сохранению.';
+ }catch(error){if(epoch===pprPlanPhotoEpoch)showBeelineModal('Фотографии ППР',error.message,'⚠️');}
+ finally{if(epoch===pprPlanPhotoEpoch){pprPlanPhotoBusy=false;pprPlanRenderPhotos();}}
+}
 
     // ===== Навигация и сброс формы отчетов =====
     function resetTechnicianReportState() {
