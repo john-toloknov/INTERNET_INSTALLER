@@ -12174,7 +12174,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         if(!force&&pprReadSnapshot?.owner===owner&&pprReadSnapshot.district===selectedDistrict&&Date.now()-pprReadSnapshot.time<15000){
             pprPlanItems=pprReadSnapshot.items;pprPlanStaff=pprReadSnapshot.staff;filterPprPlans();return true;
         }
-        if(force)pprReadSnapshot=null;
+        if(force){pprReadSnapshot=null;if(pprPlanSelected)closePprPlan(true);}
         pprPlanBusy = true;
         const hint = document.getElementById('pprPlansHint');
         pprPlanItems = [];
@@ -12326,7 +12326,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     // Очищает ППР план.
     function closePprPlan(force=false) {
         if(pprPlanBusy&&!force)return;
-        pprPlanPhotoEpoch++;pprPlanPhotoItems=[];pprPlanPhotoBusy=false;
+        pprPlanPhotoEpoch++;pprPlanPhotoItems=[];pprPlanPhotoBusy=false;pprPlanRenderPhotos();
         if(typeof closeAppCalendar==='function')closeAppCalendar();
         document.querySelectorAll('#pprPlanOverlay .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('pprPlanOverlay').style.display='none';
@@ -12360,7 +12360,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 start:document.getElementById('pprPlanStart').value, end:document.getElementById('pprPlanEnd').value,
                 comment:document.getElementById('pprPlanComment').value.trim(),
                 executor:document.getElementById('pprPlanExecutor').value,
-                ...(!complete?{photos:pprPlanPhotoItems.map(p=>p.id?{id:p.id}:p.dataUrl)}:{})});
+                ...(!complete?{photos:pprPlanPhotoItems.map(p=>p.dataUrl)}:{})});
             closePprPlan(true);
             showBeelineModal('План ППР сохранён', `Адрес: ${pprEsc(item.address)} ${pprEsc(item.house)}. Статус: ${pprEsc(result.result)}.${result.warning ? '<br>⚠️ '+pprEsc(result.warning) : ''}`, result.warning ? '⚠️' : '✅');
         } catch (err) { showBeelineModal('Не удалось сохранить ППР', pprEsc(err.message), '❌'); }
@@ -12383,18 +12383,7 @@ function pprPlanRenderPhotos(){
   if(pprPlanPhotoEditable){const remove=document.createElement('button');remove.type='button';remove.className='ppr-plan-photo-remove';remove.textContent='✕';remove.setAttribute('aria-label','Убрать фото '+(index+1));remove.disabled=pprPlanBusy||pprPlanPhotoBusy;remove.onclick=()=>{if(pprPlanBusy||pprPlanPhotoBusy)return;pprPlanPhotoItems.splice(index,1);pprPlanRenderPhotos();};box.appendChild(remove);}root.appendChild(box);
  });
 }
-function pprPlanResetPhotos(item,editable){
- const epoch=++pprPlanPhotoEpoch;pprPlanPhotoBusy=false;pprPlanPhotoEditable=editable;
- pprPlanPhotoItems=(item?.photos||[]).map(p=>({id:p.id,name:p.name,src:''}));
- document.getElementById('pprPlanPhotoInput').value='';document.getElementById('pprPlanPhotoNotice').textContent='';pprPlanRenderPhotos();
- if(pprPlanPhotoItems.length)void pprPlanLoadPhotos(item,epoch);
-}
-async function pprPlanLoadPhotos(item,epoch){
- const notice=document.getElementById('pprPlanPhotoNotice');notice.textContent='⏳ Загружаем фотографии…';
- try{const result=await requestPprPlans('photos',{row:item.row,version:item.version});if(epoch!==pprPlanPhotoEpoch||pprPlanSelected!==item)return;
-  const photos=new Map((result.photos||[]).map(p=>[p.id,p.dataUrl]));pprPlanPhotoItems.forEach(p=>{if(p.id&&photos.has(p.id))p.src=photos.get(p.id);});pprPlanRenderPhotos();notice.textContent='';
- }catch(error){if(epoch===pprPlanPhotoEpoch)notice.textContent='Не удалось загрузить предпросмотр. Сохранённые фотографии остаются в плане.';}
-}
+function pprPlanResetPhotos(item,editable){pprPlanPhotoEpoch++;pprPlanPhotoBusy=false;pprPlanPhotoEditable=editable;pprPlanPhotoItems=[];document.getElementById('pprPlanPhotoInput').value='';document.getElementById('pprPlanPhotoNotice').textContent='Фото отправляются адресатам один раз и не сохраняются в приложении.';pprPlanRenderPhotos();}
 async function pprPlanSelectPhotos(event){
  const files=Array.from(event.target.files||[]);event.target.value='';if(!files.length||!pprPlanSelected||!pprPlanPhotoEditable||pprPlanBusy||pprPlanPhotoBusy)return;
  if(pprPlanPhotoItems.length+files.length>10){showBeelineModal('Фотографии ППР','Можно прикрепить до 10 фотографий. Уже добавлено: '+pprPlanPhotoItems.length+'.','⚠️');return;}
@@ -15375,7 +15364,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <div id="screen-ii-teams" class="app-screen uniform-screen">
   <h2>👥 Управление бригадами</h2>
   <div class="card" style="max-width:850px;margin:auto">
-    <p>Состав вступает в силу <strong>с первого числа следующего месяца</strong>. Изменение бригады не переписывает прошлые графики.</p>
+    <p>Выберите текущий или следующий месяц. Назначения сохраняются на листе «Бригады» участка; для текущего месяца обновляются расчёты часов.</p>
     <div id="iiTeamsStatus" role="status" aria-live="polite"></div>
     <div class="ii-teams-toolbar"><button class="btn main-btn" type="button" onclick="iiTeamsLoad()">🔄 Обновить</button></div>
     <div id="iiTeamsContent"></div>
@@ -15404,47 +15393,37 @@ function actor(){const u=window.currentUser ?? (typeof currentUser!=='undefined'
  if(!u||!['Владелец','Супервайзер','Старший Техник'].includes(String(u.role||'')))throw Error('Для управления бригадами требуется вход руководителя');
  if(!u.city||!u.district||!u.dwLogin||!u.password)throw Error('Отсутствуют данные текущего сеанса. Войдите заново');
  return {city:u.city,district:u.district,actorLogin:u.dwLogin,actorPassword:u.password};}
-async function call(action,fields={}){
- const url=typeof GLOBAL_AUTH_SALARY_URL!=='undefined'?GLOBAL_AUTH_SALARY_URL:'';
- if(!/^https:\/\//.test(url))throw Error('Не задан адрес центрального справочника сотрудников');
- const request=typeof districtFetch==='function'?districtFetch:fetch;
- const response=await request(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...actor(),action,...fields})});
- if(!response.ok)throw Error('Сервер сотрудников: HTTP '+response.status);
- const data=await response.json();
- if(!data||data.status!=='ok'){
-   const msg=String(data?.message||'Не удалось выполнить '+action);
-   if(/unknown action|invalid action/i.test(msg))throw Error('Центральный сервер сотрудников не поддерживает команду «'+action+'». Проверь развертывание именно проекта «Список сотрудников»: после сохранения кода нужно «Развернуть → Управление развертываниями → Изменить → Новая версия → Развернуть». До обновления сервера бригады загружать и сохранять нельзя.');
-   throw Error(msg);
- }
- return data;
+let selectedMonth='',writeIds=new Map();
+async function call(operation,fields={}){
+ const auth=actor(),url=CITIES_CONFIG[auth.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw Error('Не настроен скрипт ежедневной таблицы участка');
+ const key=JSON.stringify([auth.city,auth.district,auth.actorLogin,operation,fields]),requestId=operation==='save'?(writeIds.get(key)||'br_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2))):'';
+ if(requestId)writeIds.set(key,requestId);
+ const data=await postJsonBounded(url,{...auth,action:'brigades',operation,...fields,...(requestId?{requestId}:{})},95000);
+ if(!data||data.status!=='ok')throw Error(data?.message||'Не удалось получить ответ ежедневной таблицы. Обновите список перед повторным сохранением.');
+ if(requestId)writeIds.delete(key);return data;
 }
-window.iiTeamsOpen=async function(){try{actor();switchScreen('screen-ii-teams');await window.iiTeamsLoad();}catch(e){status(e.message,true);if(!$('screen-ii-teams')?.classList.contains('active'))alert(e.message);}};
-window.iiTeamsLoad=async function(){if(busy)return;busy=true;status('Загружаем сотрудников…');$('iiTeamsContent').innerHTML='';try{
- const data=await call('getBrigades');
- if(!Array.isArray(data.employees))throw Error('Неверный ответ справочника');
- state=data;const people=data.employees, bosses=people.filter(x=>x.role==='Бригадир'),techs=people.filter(x=>x.role==='Техник-Универсал');
- const next=String(data.month||'');
- let html='<p>Месяц назначения: <strong>'+esc(next)+'</strong>. Бригадиров: '+bosses.length+'; техников: '+techs.length+'.</p>';
- if(!bosses.length)html+='<p>Бригадиры в справочнике отсутствуют. Зарегистрируйте сотрудников с нужной ролью.</p>';
- bosses.forEach((boss,i)=>{
-  html+='<section class="ii-team-panel" data-boss="'+esc(boss.id)+'"><h3>'+esc(boss.fullName)+'</h3><p>Выберите подчинённых техников:</p>';
-  techs.forEach((p,j)=>{const assigned=p.brigadierId||'',other=assigned&&assigned!==boss.id;
-   html+='<label class="ii-team-person"><input type="checkbox" data-person="'+esc(p.id)+'" '+(assigned===boss.id?'checked ':'')+(other?'disabled ':'')+'><span>'+esc(p.fullName)+(other?' — уже назначен другой бригаде':'')+'</span></label>';});
-  html+='<button type="button" class="btn main-btn" data-save-team="'+esc(boss.id)+'">Сохранить состав с 1-го числа следующего месяца</button></section>';
- });
- html+='<p><strong>Синхронизация:</strong> сейчас состав сохраняется только в центральном справочнике. Автоматический перенос в «Подсчёт часов» и «График» не подключён. Это ещё не окончательная реализация задания.</p>';
- $('iiTeamsContent').innerHTML=html;
- $('iiTeamsContent').querySelectorAll('[data-save-team]').forEach(button=>button.addEventListener('click',()=>window.iiTeamsSave(button.dataset.saveTeam)));
- status('Справочник загружен. Проверяй состав перед сохранением.');
+window.iiTeamsOpen=async function(){try{actor();selectedMonth='';state=null;switchScreen('screen-ii-teams');await window.iiTeamsLoad();}catch(e){status(e.message,true);}};
+window.iiTeamsLoad=async function(){if(busy)return;busy=true;const owner=managementOwnerKey();status('Загружаем сотрудников…');$('iiTeamsContent').innerHTML='';try{
+ const data=await call('list',selectedMonth?{month:selectedMonth}:{});if(owner!==managementOwnerKey())return;
+ state=data;selectedMonth=data.month;const bosses=data.employees.filter(p=>p.role==='Бригадир'),techs=data.employees.filter(p=>p.role==='Техник-Универсал');
+ let html='<label>Месяц назначения</label><div class="custom-dropdown" id="iiTeamsMonthDropdown"><button type="button" class="dropdown-select-btn" id="iiTeamsMonthButton"><span>'+esc(data.month)+'</span><span class="dropdown-arrow">▼</span></button><div class="dropdown-list">'+[[data.currentMonth,' · текущий'],[data.nextMonth,' · следующий']].map(([month,label])=>'<button type="button" class="dropdown-item" data-team-month="'+esc(month)+'">'+esc(month+label)+'</button>').join('')+'</div></div>';
+ if(!bosses.length)html+='<p>На участке нет сотрудников с ролью Бригадир.</p>';
+ bosses.forEach(boss=>{html+='<section class="ii-team-panel" data-boss="'+esc(boss.id)+'"><h3>'+esc(boss.fullName)+'</h3><p>Выберите техников бригады:</p>';
+  techs.forEach(p=>{const assigned=data.employees.find(x=>x.id===p.brigadierId),other=p.brigadierId&&p.brigadierId!==boss.id;html+='<label class="ii-team-person"><input type="checkbox" data-person="'+esc(p.id)+'" '+(p.brigadierId===boss.id?'checked':'')+'><span>'+esc(p.fullName)+(other?' — сейчас у '+esc(assigned?.fullName||'другого бригадира'):'')+'</span></label>';});
+  html+='<button type="button" class="btn main-btn" data-save-team="'+esc(boss.id)+'">💾 Сохранить состав бригады</button></section>';});
+ $('iiTeamsContent').innerHTML=html;$('iiTeamsMonthButton').onclick=event=>toggleDropdown(event,'iiTeamsMonthDropdown');$('iiTeamsContent').querySelectorAll('[data-team-month]').forEach(button=>button.onclick=event=>{event.stopPropagation();setDropdownOpen($('iiTeamsMonthDropdown'),false);selectedMonth=button.dataset.teamMonth;void window.iiTeamsLoad();});
+ $('iiTeamsContent').querySelectorAll('[data-save-team]').forEach(button=>button.onclick=()=>window.iiTeamsSave(button.dataset.saveTeam));status('Состав загружен из ежедневной таблицы участка.');
  }catch(e){status(e.message,true);}finally{busy=false;}};
-window.iiTeamsSave=async function(bossId){if(busy||!state)return;const section=Array.from($('iiTeamsContent').querySelectorAll('[data-boss]')).find(e=>e.dataset.boss===bossId);if(!section)return;
- const ids=Array.from(section.querySelectorAll('input[data-person]:checked')).map(e=>e.dataset.person);
- if(!ids.length){status('Выбери хотя бы одного техника. Пустой список нельзя записать.',true);return;}
- if(!confirm('Назначить '+ids.length+' техников на следующий месяц? Запись создаст новый состав бригады.'))return;
- busy=true;status('Сохраняем назначение…');try{const data=await call('setBrigade',{brigadierUuid:bossId,technicianUuids:ids,effectiveMonth:state.month});status('Сохранено: '+data.assigned+' техников. Применяется с '+data.month+'.');
- }catch(e){status(e.message,true);}finally{busy=false;}
- // Не перечитываем автоматически: оставляем сообщение результата на экране.
+window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.from($('iiTeamsContent').querySelectorAll('[data-boss]')).find(e=>e.dataset.boss===bossId);if(!section)return;
+ const members=Array.from(section.querySelectorAll('input[data-person]:checked')).map(e=>e.dataset.person),fields={leader:bossId,members,month:selectedMonth,version:state.version};
+ ctConfirm('Сохранить состав бригады?',selectedMonth+' · техников: '+members.length+'. Отмеченные техники будут назначены выбранному бригадиру, включая переводы из других бригад.',async()=>{
+  if(busy)return;busy=true;const owner=managementOwnerKey();$('iiTeamsContent').querySelectorAll('button,input,select').forEach(e=>e.disabled=true);status('Сохраняем состав и обновляем расчёты…');let message='',failed=false;
+  try{const result=await call('save',fields);if(owner!==managementOwnerKey())return;message=result.message||'Состав сохранён';}catch(e){failed=true;message=e.message+' Перед повторным сохранением нажмите «Обновить».';}
+  finally{busy=false;}
+  if(owner===managementOwnerKey()){await window.iiTeamsLoad();status(message,failed);}
+ });
 };
+
 })();
 </script>
 
