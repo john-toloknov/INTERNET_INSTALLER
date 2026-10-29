@@ -136,6 +136,18 @@ html[data-app-theme=light]{color-scheme:light;--bg-color:#cfd5dd;--card-bg:#e7eb
 --ui-shadow-_5:rgba(15,23,42,.10);
 --ui-shadow-_9:rgba(15,23,42,.10);
 }
+
+/* INTERNET INSTALLER · унификация фильтров и компактных счётчиков актов */
+#cityTableCounts[data-ct-counts="acts"]{gap:6px;margin:6px 0 10px;grid-auto-rows:auto}
+#cityTableCounts[data-ct-counts="acts"] .ct-act-count{padding:7px 9px;gap:2px;border-radius:10px}
+#cityTableCounts[data-ct-counts="acts"] .ct-act-count-label{font-size:12px;line-height:16px}
+#cityTableCounts[data-ct-counts="acts"] .ct-act-count-value{font-size:19px;line-height:22px}
+#cityTableCounts[data-ct-counts="acts"] .ct-act-count-status{font-size:10px;line-height:14px}
+#cityTableCounts[data-ct-counts="acts"] .ct-act-count-detail{font-size:10px;line-height:14px}
+#cityTableCounts[data-ct-counts="acts"] .ct-equipment-kinds{gap:5px;margin-top:3px}
+#cityTableCounts[data-ct-counts="acts"] .ct-equipment-kind{min-height:28px;padding:4px;font-size:11px;white-space:nowrap}
+#cityTableCounts[data-ct-counts="acts"] .ct-equipment-kind strong{font-size:12px}
+@media(max-width:600px){#cityTableCounts[data-ct-counts="acts"]{gap:6px}#cityTableCounts[data-ct-counts="acts"] .ct-act-count{padding:7px}}
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -3178,6 +3190,8 @@ html[data-app-layout=mobile] #screen-channel-catalog #channelReload{flex:1 1 100
 <style id="workingScheduleStyles">
 #screen-admin-work-schedule{width:100%;max-width:none!important;min-width:0}#screen-admin-work-schedule>.card{width:100%;max-width:none!important;box-sizing:border-box;min-width:0}.gs-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}.gs-toolbar .btn{margin:0;width:auto;min-height:42px;padding:8px 14px}.gs-toolbar input{flex:1;min-width:150px;margin:0}.gs-toolbar [aria-pressed=false]{background:var(--ui-bg-111111,#111);color:var(--ui-fg-b7ed55,#b7ed55);border:1px solid var(--ui-border-566a40,#566a40);box-shadow:none}.gs-note{font-size:12px;color:var(--ui-fg-aaaaaa,#aaa);line-height:1.6}.gs-scroll{width:100%;overflow:auto;max-height:65vh;border:1px solid var(--ui-border-53663d,#53663d);border-radius:12px;scrollbar-width:thin;scrollbar-color:#b7ed55 var(--ui-border-111111,#111)}.gs-table{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12px;table-layout:fixed}.gs-table th,.gs-table td{border-right:1px solid var(--ui-border-333333,#333);border-bottom:1px solid var(--ui-border-333333,#333);padding:3px;text-align:center;min-width:34px;background:var(--ui-bg-111111,#111)}.gs-table th{color:var(--ui-fg-b7ed55,#b7ed55);background:var(--ui-bg-1d2416,#1d2416)}.gs-table thead th{position:sticky;top:0;z-index:4}.gs-table th:nth-child(1),.gs-table td:nth-child(1){position:sticky;left:0;width:120px;min-width:120px;max-width:120px;z-index:2}.gs-table th:nth-child(2),.gs-table td:nth-child(2){position:sticky;left:127px;width:220px;min-width:220px;max-width:220px;z-index:2;text-align:left}.gs-table thead th:nth-child(-n+2){z-index:5}.gs-table tfoot td,.gs-table tfoot th{background:var(--ui-bg-1d2416,#1d2416);color:var(--ui-fg-b7ed55,#b7ed55);position:sticky;bottom:0;z-index:3}.gs-table input{width:220px;padding:6px;margin:0;border:1px solid var(--ui-border-444444,#444);border-radius:6px;min-height:36px;box-sizing:border-box;font-size:12px}.gs-table button{font:inherit}.gs-role{width:120px;min-height:36px;white-space:normal;background:var(--ui-bg-191919,#191919);color:var(--ui-fg-b7ed55,#b7ed55);border:1px solid var(--ui-border-444444,#444);border-radius:6px;cursor:pointer}.gs-shift{display:flex;align-items:center;justify-content:center;padding:0;width:34px;height:36px;border:1px solid transparent;border-radius:6px;background:var(--ui-bg-222222,#222);color:var(--ui-fg-cccccc,#ccc);font-weight:700;cursor:pointer}.gs-shift[data-status=Р]{background:#b7ed55;color:#111}.gs-shift[data-status=О]{background:var(--ui-bg-275737,#275737);color:var(--ui-fg-d5ffe0,#d5ffe0)}.gs-shift[data-status=Б]{background:var(--ui-bg-54292d,#54292d);color:var(--ui-fg-ffd5d5,#ffd5d5)}.gs-shift[data-status=У]{background:var(--ui-bg-293d60,#293d60);color:var(--ui-fg-d5e6ff,#d5e6ff)}.gs-shift[data-status=П]{background:var(--ui-bg-633511,#633511);color:var(--ui-fg-b7ed55,#b7ed55)}.gs-shift:disabled{cursor:default;opacity:.6}.gs-shift.gs-changed{outline:2px solid var(--ui-border-ffffff,#fff);outline-offset:-2px}.gs-weekend{background:var(--ui-bg-344026,#344026)!important}.gs-total{font-weight:bold;color:var(--ui-fg-b7ed55,#b7ed55)}.gs-over{color:var(--ui-fg-ff7777,#ff7777)!important}.gs-picker{position:fixed;z-index:200000;background:var(--ui-bg-111111,#111);color:var(--ui-fg-b7ed55,#b7ed55);border:1px solid #7d9a5c;border-radius:12px;padding:6px;box-shadow:0 10px 30px #000c;box-sizing:border-box}.gs-picker-list{max-height:248px;overflow:auto;scrollbar-width:thin;scrollbar-color:#b7ed55 var(--ui-border-111111,#111)}.gs-picker button{display:block;width:100%;min-height:42px;text-align:left;color:var(--ui-fg-eeeeee,#eee);background:var(--ui-bg-191919,#191919);border:0;border-radius:7px;padding:10px;font:inherit;cursor:pointer}.gs-picker button:hover,.gs-picker button:focus-visible,.gs-picker button[aria-selected=true]{background:var(--ui-bg-323d25,#323d25);color:var(--ui-fg-b7ed55,#b7ed55);outline:0}.gs-vacation{margin:18px 0;border:1px solid var(--ui-border-53663d,#53663d);border-radius:12px;padding:12px}.gs-vacation summary{list-style:none;color:var(--ui-fg-b7ed55,#b7ed55);font-weight:700;cursor:pointer;display:flex;justify-content:space-between}.gs-vacation summary::-webkit-details-marker{display:none}.gs-vacation[open] summary span{transform:rotate(180deg)}.gs-vac-row{display:grid;grid-template-columns:minmax(180px,1fr) 160px 160px auto;gap:10px;align-items:center;border-top:1px solid var(--ui-border-333333,#333);padding:12px 0}.gs-vac-row label{margin:0;font-size:12px}.gs-vac-row input{margin:4px 0 0;min-height:40px;padding:7px;box-sizing:border-box;width:100%}.gs-vac-row .btn{margin:0;width:auto;font-size:12px;padding:8px}.gs-scroll::-webkit-scrollbar,.gs-picker-list::-webkit-scrollbar{height:9px;width:8px}.gs-scroll::-webkit-scrollbar-thumb,.gs-picker-list::-webkit-scrollbar-thumb{background:#b7ed55;border-radius:8px;border:2px solid var(--ui-border-111111,#111)}.gs-scroll::-webkit-scrollbar-track,.gs-picker-list::-webkit-scrollbar-track{background:var(--ui-bg-111111,#111)}
 html[data-app-layout=mobile] .gs-table th:nth-child(1),html[data-app-layout=mobile] .gs-table td:nth-child(1){position:static;width:90px;min-width:90px;max-width:90px}html[data-app-layout=mobile] .gs-table th:nth-child(2),html[data-app-layout=mobile] .gs-table td:nth-child(2){left:0;width:150px;min-width:150px;max-width:150px}html[data-app-layout=mobile] .gs-table input{width:150px}html[data-app-layout=mobile] .gs-role{width:90px}html[data-app-layout=mobile] .gs-vac-row{grid-template-columns:1fr 1fr}html[data-app-layout=mobile] .gs-vac-row strong{grid-column:1/-1}html[data-app-layout=mobile] .gs-toolbar .btn{flex:1;font-size:12px}html[data-app-layout=mobile] #gsSearch{flex-basis:100%}
+
+html[data-app-layout=mobile] #screen-admin-work-schedule .gs-main-toolbar>#gsAddEmployee{grid-column:1/-1}
 </style>
 <style id="workingScheduleCompactColors">
 /* Exact status palette from the schedule sheet. */
@@ -6392,7 +6406,8 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
         <button class="btn main-btn" type="button" onclick="openStaffBoard()">📊 Показатели сотрудников</button>
         <button class="btn main-btn" type="button" onclick="openAdminTools('themes')">📈 Построить график</button>
         <button class="btn main-btn" type="button" onclick="openManagementEvent()">📣 Собрание</button>
-        <button class="btn main-btn" type="button" onclick="openAdminEmployees()">👥 Сотрудники</button>
+        <button class="btn main-btn" type="button" onclick="iiStaffHubOpen()">👥 Сотрудники</button>
+        <button class="btn main-btn" id="ufFrontMenuButton" type="button" onclick="ufOpenFrontSetup()">⚙️ Настройка участка · по этапам</button>
         <div id="managementStatus" class="management-status" role="status" aria-live="polite"></div>
         <button class="btn main-btn" id="managementDeliveryReopen" type="button" hidden onclick="openManagementDelivery()">📨 Статус рассылки</button>
         <div class="common-nav-row">
@@ -7293,7 +7308,7 @@ function engineerScheduleReadOnly(){return engineerAllowed()||gsState.data?.read
 function engineerSchedulePresentation(){
     const screen=document.getElementById('screen-admin-work-schedule');if(!screen)return;
     const readOnly=engineerScheduleReadOnly();screen.classList.toggle('engineer-readonly',readOnly);
-    for(const id of ['gsCycle','gsPreview','gsSave'])document.getElementById(id).hidden=readOnly;
+    for(const id of ['gsCycle','gsPreview','gsSave','gsAddEmployee'])document.getElementById(id).hidden=readOnly;
     screen.querySelector('.gs-vacation').hidden=readOnly;
     screen.querySelector('.gs-legend-note').textContent=readOnly?'Только просмотр · цвета обозначают статусы сотрудников.':'Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.';
 }
@@ -14132,14 +14147,14 @@ function ctMultiFilter(label,type,col){
 function ctActFilter(){
  const wrap=ctNode('div','ct-field'),dropdown=ctNode('div','custom-dropdown ct-select'),button=ctNode('button','dropdown-select-btn'),caption=ctNode('span'),arrow=ctNode('span','dropdown-arrow','▼'),list=ctNode('div','dropdown-list');
  wrap.append(ctNode('span','','АКТ'));button.type='button';button.setAttribute('aria-label','Фильтр: АКТ');button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');list.setAttribute('aria-label','Статус акта');
- const choices=[['','Все'],['done','Сдан'],['open','Не сдан']];caption.textContent=choices.find(([value])=>value===(ctFilters['АКТ']||''))?.[1]||'Все';
+ const choices=[['','Все'],['done','Сдан'],['open','Не сдан'],['unknown','Без статуса']];caption.textContent=choices.find(([value])=>value===(ctFilters['АКТ']||''))?.[1]||'Все';
  for(const [value,label] of choices){const item=ctNode('div','dropdown-item',label);item.tabIndex=0;item.setAttribute('role','option');item.setAttribute('aria-selected',String(value===(ctFilters['АКТ']||'')));const select=()=>{ctFilters['АКТ']=value;caption.textContent=label;list.querySelectorAll('[role=option]').forEach(n=>n.setAttribute('aria-selected',String(n===item)));setDropdownOpen(dropdown,false);button.focus();ctState.limit=50;ctRender();};item.onclick=select;item.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select();}};list.append(item);}
  button.append(caption,arrow);button.onclick=e=>{e.stopPropagation();const open=!dropdown.classList.contains('open');ctCloseDropdowns();setDropdownOpen(dropdown,open);};dropdown.onkeydown=e=>{if(e.key==='Escape'){setDropdownOpen(dropdown,false);button.focus();}if(e.target===button&&e.key==='ArrowDown'){e.preventDefault();ctCloseDropdowns();setDropdownOpen(dropdown,true);list.querySelector('[role=option]')?.focus();}};dropdown.append(button,list);wrap.append(dropdown);return wrap;
 }
 // Формирует фильтры — модуль городской таблицы.
 function ctBuildFilters(){const root=document.getElementById('cityTableFilters');root.replaceChildren();root.dataset.ctLayout=ctPart==='returns'?'returns':ctPart==='acts'?'acts':ctState.group==='stockCable'?'cable':'equipment';for(const [label,type='text',col] of ctFilterFields()){let wrap;if(type==='returnStatus'||type==='returnState'||type==='returnChoice')wrap=ctrFilter(label,type,col);else if(type==='act')wrap=ctActFilter();else if(type==='modelMulti'||type==='staffMulti')wrap=ctMultiFilter(label,type,col);else{wrap=ctNode('label','ct-field');const input=ctNode('input');wrap.append(ctNode('span','',label));input.type=type==='date'?'date':'search';input.value=ctFilters[label]||'';input.setAttribute('aria-label','Фильтр: '+label);if(['Серийный номер','Метраж','Логин'].includes(label))input.size=10;input.oninput=input.onchange=()=>{ctFilters[label]=input.value;ctState.limit=50;ctRender();};wrap.append(input);}wrap.dataset.ctFilter=label;root.append(wrap);}const reset=ctNode('button','btn danger-btn ct-filter-reset','Сбросить фильтры');reset.type='button';reset.onclick=()=>{ctCloseDropdowns();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctBuildFilters();ctRender();};root.append(reset);if(typeof mountAppCalendars==='function')mountAppCalendars();}
 // Выполняет совпадения — модуль городской таблицы.
-function ctMatches(record,schema,search){if(!ctActRecordVisible(record)||!ctEquipmentKindMatches(record))return false;const values=ctDraft(record).values;if(ctPart==='stock'&&ctKindFilter&&ctCommentKind(values.H)!==ctKindFilter)return false;if(search&&!Object.values(values).some(v=>String(v).toLowerCase().includes(search)))return false;return ctFilterFields().every(([label,type,col])=>{const chosen=ctFilters[label];if(type==='staffMulti'||type==='modelMulti'){if(!Array.isArray(chosen)||!chosen.length)return true;col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const actual=String(values[col]??'');return chosen.some(value=>value===actual||type==='staffMulti'&&(ctState.staff||[]).some(person=>person.value===value&&person.name===actual));}const query=String(chosen||'').trim().toLowerCase();if(!query)return true;if(type==='act')return record.act!==null&&(query==='open'?ctActOpen(record):!ctActOpen(record));col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const value=String(values[col]??'');return type==='date'?ctNormalizeDate(value)===query:type==='number'?Number(value.replace(',','.'))===Number(query.replace(',','.')):value.toLowerCase().includes(query);});}
+function ctMatches(record,schema,search){if(!ctActRecordVisible(record)||!ctEquipmentKindMatches(record))return false;const values=ctDraft(record).values;if(ctPart==='stock'&&ctKindFilter&&ctCommentKind(values.H)!==ctKindFilter)return false;if(search&&!Object.values(values).some(v=>String(v).toLowerCase().includes(search)))return false;return ctFilterFields().every(([label,type,col])=>{const chosen=ctFilters[label];if(type==='staffMulti'||type==='modelMulti'){if(!Array.isArray(chosen)||!chosen.length)return true;col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const actual=String(values[col]??'');return chosen.some(value=>value===actual||type==='staffMulti'&&(ctState.staff||[]).some(person=>person.value===value&&person.name===actual));}const query=String(chosen||'').trim().toLowerCase();if(!query)return true;if(type==='act')return query==='unknown'?record.act===null||String(record.act??'').trim()==='':query==='open'?ctActOpen(record):query==='done'?record.act!==null&&!ctActOpen(record):true;col=col||schema.fields.find(f=>f.label.toLowerCase()===label.toLowerCase())?.col;const value=String(values[col]??'');return type==='date'?ctNormalizeDate(value)===query:type==='number'?Number(value.replace(',','.'))===Number(query.replace(',','.')):value.toLowerCase().includes(query);});}
 // Выполняет comment Kind — модуль городской таблицы.
 function ctCommentKind(value){const text=String(value||'').trim();return /^\d+$/.test(text)?'service':/[A-Za-zА-Яа-яЁёІіҚқҒғҢңӘәӨөҰұҮүҺһ]/.test(text)&&/\d/.test(text)?'inclusion':'';}
 // Показывает остатки количества — модуль городской таблицы.
@@ -14205,11 +14220,11 @@ function ctArticle(record,schema){
 function ctActRecordVisible(record){
  if(ctPart!=='acts'||!['Роутеры','Приставки'].includes(record.sheet))return true;
  const values=ctDraft(record).values;
- return !!String(values.D??'').trim()&&!!String(values.E??'').trim()&&(/^(не сдан|не сдано)$/i.test(String(record.act||'').trim())||(record.act!==null&&!ctActOpen(record)));
+ return !!String(values.D??'').trim()&&!!String(values.E??'').trim(); // Все записи с идентификаторами: статус АКТ не должен скрывать строку
 }
 function ctEquipmentKind(record){return /^001\s*[-–—−]\s*ВКЛЮЧЕНИЕ$/i.test(String(ctDraft(record).values.H??'').trim())?'inclusion':'service';}
 function ctToggleEquipmentKind(kind){const selected=new Set(ctKindFilter?(ctKindFilter==='none'?[]:[ctKindFilter]):['service','inclusion']);if(selected.has(kind))selected.delete(kind);else selected.add(kind);ctKindFilter=selected.size===2?'':selected.size===0?'none':[...selected][0];}
-function ctEquipmentKindMatches(record){return ctPart!=='acts'||ctState.group!=='equipment'||!ctKindFilter||ctEquipmentKind(record)===ctKindFilter;}
+function ctEquipmentKindMatches(record){return ctPart!=='acts'||ctState.group!=='equipment'||!ctKindFilter||(ctKindFilter!=='none'&&ctEquipmentKind(record)===ctKindFilter);}
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]).filter(ctActRecordVisible);}
 // Показывает операцию — модуль городской таблицы.
 function ctRender(){
@@ -14410,7 +14425,7 @@ function ctRenderActCounts(counts,loading=false){
   if(key==='equipment'){
    const kinds=entry?.equipmentKinds,kindRow=ctNode('div','ct-equipment-kinds');
    for(const [kind,caption] of [['service','Сервисные'],['inclusion','На включениях']]){
-    const value=kinds&&Number.isFinite(Number(kinds[kind]))?String(kinds[kind]):'—',button=ctNode('button','ct-equipment-kind');button.type='button';button.disabled=ctState.busy||ctState.group!=='equipment'||!kinds;button.setAttribute('aria-pressed',String(ctState.group==='equipment'&&(!ctKindFilter||ctKindFilter===kind)));button.append(ctNode('span','',caption),ctNode('strong','',value));button.title='Показать или скрыть '+caption.toLowerCase()+'. Можно выбрать обе категории.';button.onclick=()=>{if(button.disabled)return;ctToggleEquipmentKind(kind);ctState.limit=50;ctRender();};kindRow.append(button);
+    const value=kinds&&Number.isFinite(Number(kinds[kind]))?String(kinds[kind]):'—',button=ctNode('button','ct-equipment-kind');button.type='button';button.disabled=ctState.busy||ctState.group!=='equipment';button.setAttribute('aria-pressed',String(ctState.group==='equipment'&&(!ctKindFilter||ctKindFilter===kind)));button.append(ctNode('span','',caption),ctNode('strong','',value));button.title='Показать или скрыть '+caption.toLowerCase()+'. Можно выбрать обе категории.';button.onclick=()=>{if(button.disabled)return;ctToggleEquipmentKind(kind);ctState.limit=50;ctRender();};kindRow.append(button);
    }
    card.append(kindRow);
   }
@@ -14526,7 +14541,7 @@ async function gsRequest(operation,fields={}){
  if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Не удалось выполнить операцию. Обновите скрипт графика.');return result;
 }
 // Проверяет операцию — модуль редактора графика.
-function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar gs-main-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsReload" class="btn action-btn app-refresh-button" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Нажмите «Сохранить отпуск»: даты запишутся в таблицу, в графике появятся О и сотруднику уйдёт уведомление. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">➕ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
+function gsEnsure(){let screen=document.getElementById('screen-admin-work-schedule');if(screen)return screen;screen=ctNode('div','app-screen uniform-screen');screen.id='screen-admin-work-schedule';screen.dataset.viewKind='data';screen.innerHTML='<h2>📅 Рабочий график</h2><div class="card"><div id="gsTabs" class="gs-toolbar"></div><div class="gs-toolbar gs-main-toolbar"><input id="gsSearch" type="search" placeholder="🔍 ФИО или роль" aria-label="Поиск сотрудников"><button id="gsCycle" class="btn action-btn gs-choice" type="button">3 через 3 ▼</button><button id="gsPreview" class="btn main-btn" type="button">🪄 Предложить график</button><button id="gsAddEmployee" class="btn main-btn gs-choice" type="button">➕ Добавить сотрудника</button><button id="gsReload" class="btn action-btn app-refresh-button" type="button">🔄 Обновить</button><button id="gsSave" class="btn main-btn" type="button">💾 Сохранить</button></div><p id="gsMessage" role="status" aria-live="polite"></p><div class="gs-legend"><span class="gs-legend-chip" data-status="Р">Р — рабочий</span><span class="gs-legend-chip" data-status="В">В — выходной</span><span class="gs-legend-chip" data-status="О">О — отпуск</span><span class="gs-legend-chip" data-status="Б">Б — больничный</span><span class="gs-legend-chip" data-status="П">П — прогул</span><span class="gs-legend-chip" data-status="У">У — учёба</span><span class="gs-legend-note">Нажмите на букву для изменения. Прошедшие дни и подтверждённые обмены защищены.</span></div><div id="gsGrid" class="gs-scroll"></div><details class="gs-vacation"><summary>🌴 График отпусков <span>▼</span></summary><p class="gs-note">Укажите первый и последний день отпуска включительно. Выберите сотрудника и даты, затем сохраните отпуск. Данные проверяются по текущей версии графика. Будущие месяцы заполняются при появлении в графике. После завершения даты очищаются, история смен сохраняется.</p><div id="gsVacations"></div><div class="gs-vacation-actions"><button id="gsAddVacation" class="btn action-btn" type="button">➕ Добавить сотрудника</button><button id="gsSaveVacation" class="btn main-btn" type="button">💾 Сохранить отпуск</button></div></details><div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen(\'screen-main\')">🔚 Главное меню</button></div></div>';document.querySelector('body > .container').append(screen);screen.querySelector('#gsSearch').oninput=gsRenderGrid;screen.querySelector('#gsCycle').onclick=e=>gsPick(e.currentTarget,[['2','2 через 2'],['3','3 через 3']],String(gsState.cycle),v=>{gsState.cycle=Number(v);gsRenderCycle();});screen.querySelector('#gsPreview').onclick=gsPreview;screen.querySelector('#gsReload').onclick=()=>gsDirty()?ctConfirm('Обновить график?','Несохранённые изменения будут потеряны.',gsLoad):gsLoad();screen.querySelector('#gsSave').onclick=gsSave;screen.querySelector('#gsAddEmployee').onclick=e=>gsChooseNewEmployee(e.currentTarget);screen.querySelector('#gsAddVacation').onclick=gsAddVacation;screen.querySelector('#gsSaveVacation').onclick=gsSave;if(typeof ResizeObserver!=='undefined')new ResizeObserver(gsFitColumns).observe(screen.querySelector('#gsGrid'));return screen;}
 // Показывает Working график.
 async function openWorkingSchedule(){if(!engineerScheduleAllowed())return;gsEnsure();const owner=managementOwnerKey();if(gsState.owner!==owner)gsState={data:null,blockId:'',busy:false,owner:owner,drafts:new Map(),vacations:new Map(),newVacations:[],preview:false,cycle:3,serial:gsState.serial+1};switchScreen('screen-admin-work-schedule');engineerSchedulePresentation();if(!gsState.data)await gsLoad();else gsRender();}
 // Выполняет занятость — модуль редактора графика.
@@ -14566,9 +14581,81 @@ function gsAddVacation(){const staff=gsVacationChoices({});if(!staff.length){gsM
 // Выполняет предпросмотр — модуль редактора графика.
 async function gsPreview(){if(engineerScheduleReadOnly()||gsState.busy)return;if(gsDirty()){showBeelineModal('Автосборка','Сначала сохраните изменения графика и отпусков. Предложение строится по актуальным данным таблицы.','⚠️');return;}const b=gsBlock();if(!b)return;gsBusy(true);gsMessage('Готовим предложение '+gsState.cycle+' через '+gsState.cycle+'…',true);try{const plan=await gsRequest('preview',{version:gsState.data.version,blockId:b.id,cycle:gsState.cycle});b.rows.forEach((r,i)=>plan.grid[i].forEach((value,d)=>{if(value!==r.statuses[d])gsEdit(b,r,'shift',value,d);}));gsState.preview=true;gsRenderGrid();gsMessage('Предпросмотр · изменено ячеек: '+gsState.drafts.size+'. Для записи нажмите «Сохранить».'+(plan.warnings.length?' ⚠️ '+plan.warnings.join(' · '):''));}catch(e){gsMessage('⚠️ '+e.message);}finally{gsBusy(false);}}
 // Сохраняет операцию — модуль редактора графика.
-async function gsSave(){if(engineerScheduleReadOnly()||gsState.busy||!gsState.data)return;if(!gsDirty()&&gsState.cycle===gsState.data.cycle){gsMessage('Нет изменений для сохранения');return;}gsBusy(true);gsMessage('Сохраняем изменения…',true);try{const result=await gsRequest('save',{version:gsState.data.version,changes:[...gsState.drafts.values()],vacations:[...gsState.vacations.values()].map(v=>({row:v.row,name:v.name,start:v.start,end:v.end,remove:!!v.remove})),newVacations:gsState.newVacations,cycle:gsState.cycle});gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];gsState.preview=false;if(result.blocks){gsState.data=result;gsRender();gsMessage('✅ Изменения сохранены и перечитаны из таблицы'+(result.notifications?' · Telegram: доставлено '+result.notifications.sent+(result.notifications.failed?' · не доставлено '+result.notifications.failed+'. '+result.notifications.errors.join(' · '):''):''));}else{gsState.data=null;gsMessage(result.message);}}catch(e){gsMessage('⚠️ '+e.message+' Несохранённые изменения сохранены на экране.');}finally{gsBusy(false);}}
+async function gsSave(){
+ if(engineerScheduleReadOnly()||gsState.busy||!gsState.data)return;
+ const changes=[...gsState.drafts.values()];
+ const vacations=[...gsState.vacations.values()];
+ if((vacations.length||gsState.newVacations.length)&&changes.length){
+  gsMessage('⚠️ Сохраните изменения смен и отпусков по отдельности. Правки остались на экране.');return;
+ }
+ if(vacations.length||gsState.newVacations.length){
+  if(gsState.cycle!==gsState.data.cycle){gsMessage('⚠️ Сначала верните исходный цикл графика.');return;}
+  gsBusy(true);gsMessage('Сохраняем даты отпусков…',true);
+  try{
+   const result=await gsRequest('save-vacations',{version:gsState.data.version,vacations,newVacations:gsState.newVacations,confirmed:true});
+   if(!result.saved)throw new Error('Сервер не подтвердил запись отпусков');
+   try{
+    const fresh=await gsRequest('list');gsState.data=fresh;gsState.vacations.clear();gsState.newVacations=[];
+    gsRender();gsMessage('✅ Даты отпусков сохранены. Новых записей: '+(result.vacationsCreated||0)+', отметок «О»: '+(result.shiftsMarked||0)+'.');
+   }catch(e){gsState.vacations.clear();gsState.data=null;gsMessage('✅ Отпуска сохранены, повторное чтение не удалось. Нажмите «Обновить».');}
+  }catch(e){gsMessage('⚠️ '+e.message+' Изменения остались на экране. При потере ответа обновите график перед повтором.');}
+  finally{gsBusy(false);}return;
+ }
+ if(changes.some(c=>c.field!=='shift')){
+  gsMessage('⚠️ Изменение ФИО и должности пока недоступно через безопасное сохранение. Правки не удалены.');
+  return;
+ }
+ if(gsState.cycle!==gsState.data.cycle){
+  gsMessage('⚠️ Изменение цикла пока не поддерживается защищённым сохранением. Выберите исходный цикл.');
+  return;
+ }
+ if(!changes.length){gsMessage('Нет изменений для сохранения');return;}
+ gsBusy(true);gsMessage('Проверяем и сохраняем смены…',true);
+ try{
+  // The server recalculates the complete plan under lock; no client UUID or coordinates.
+  const result=await gsRequest('save-shifts',{version:gsState.data.version,changes,confirmed:true});
+  if(!result.saved)throw new Error('Сервер не подтвердил сохранение смен');
+  // Do not silently discard drafts if refreshing fails after a confirmed write.
+  try{
+   const fresh=await gsRequest('list');
+   gsState.data=fresh;
+   gsState.drafts.clear();gsState.preview=false;gsState.cycle=fresh.cycle;
+   if(!fresh.blocks.some(b=>b.id===gsState.blockId))gsState.blockId=fresh.blocks[0]?.id||'';
+   gsRender();gsMessage('✅ Сохранено смен: '+result.written+'. Данные перечитаны из таблицы.');
+  }catch(refreshError){
+   gsState.drafts.clear();gsState.preview=false;gsState.data=null;
+   gsMessage('✅ Смены сохранены ('+result.written+'), но повторное чтение не удалось: '+refreshError.message+'. Нажмите «Обновить».');
+  }
+ }catch(e){gsMessage('⚠️ '+e.message+' Правки остались на экране. Если ответ потерян, сначала обновите график, не нажимайте «Сохранить» повторно.');}
+ finally{gsBusy(false);}
+}
 window.addEventListener('resize',gsFitColumns);new MutationObserver(gsFitColumns).observe(document.documentElement,{attributes:true,attributeFilter:['data-app-layout']});
 window.addEventListener('beforeunload',e=>{if(gsDirty()){e.preventDefault();e.returnValue='';}});
+function gsChooseNewEmployee(trigger){
+ if(engineerScheduleReadOnly()||gsState.busy||!gsState.data)return;
+ if(gsDirty()||gsState.cycle!==gsState.data.cycle){gsMessage('⚠️ Сначала сохраните изменения или обновите график.');return;}
+ const block=gsBlock();if(!block){gsMessage('Выберите месяц графика');return;}
+ const key=v=>String(v||'').trim().toLocaleLowerCase('ru').replace(/ё/g,'е').replace(/\s+/g,' ');
+ const existing=new Set(block.rows.map(r=>key(r.name)));
+ const people=gsEmployeeChoices().filter(p=>!existing.has(key(p.name))&&['Техник-Универсал','Бригадир','Старший Техник','Стажер','Стажёр'].includes(p.role));
+ if(!people.length){gsMessage('Нет новых сотрудников для этого месяца. Сотрудник должен быть зарегистрирован в вашем городе и участке и иметь роль для графика.');return;}
+ gsPick(trigger,people.map(p=>[p.name,p.name,p]),'',name=>ctConfirm('Добавить сотрудника в график?',name+' · '+block.month+'. Смены будут пустыми; их можно заполнить после добавления.',()=>gsAppendEmployee(name,block.id)),true);
+}
+async function gsAppendEmployee(name,blockId){
+ if(engineerScheduleReadOnly()||gsState.busy||!gsState.data)return;
+ gsBusy(true);gsMessage('Добавляем сотрудника в выбранный месяц…',true);
+ let saved=false;
+ try{
+  const result=await gsRequest('addEmployee',{version:gsState.data.version,blockId,name});saved=result.saved===true;
+  const data=Array.isArray(result.blocks)?result:await gsRequest('list');
+  gsState.data=data;gsState.blockId=blockId;gsState.cycle=data.cycle;gsState.drafts.clear();gsState.vacations.clear();gsState.newVacations=[];
+  gsRender();gsMessage('✅ '+(result.message||'Сотрудник добавлен. Заполните его смены.'));
+ }catch(error){
+  if(saved)gsState.data=null;
+  gsMessage(saved?'✅ Сотрудник добавлен. Нажмите «Обновить», чтобы перечитать график.':'⚠️ '+error.message);
+ }finally{gsBusy(false);}
+}
+
 </script>
 
 <script id="appStyledTooltips">
@@ -15182,6 +15269,90 @@ function initPersistentAppNavigation(){
  sync();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initPersistentAppNavigation);else initPersistentAppNavigation();
+</script>
+
+
+<!-- Единый раздел персонала: выбор из двух операций -->
+<div id="screen-ii-staff-hub" class="app-screen uniform-screen">
+  <h2>👥 Сотрудники</h2>
+  <div class="card management-menu" style="max-width:850px;margin:auto">
+    <button class="btn main-btn" type="button" onclick="openAdminEmployees()">👤 Список сотрудников</button>
+    <button class="btn main-btn" type="button" onclick="iiTeamsOpen()">👥 Управление бригадами</button>
+    <div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Админ-панель</button></div>
+  </div>
+</div>
+<script>function iiStaffHubOpen(){switchScreen('screen-ii-staff-hub');}</script>
+<!-- INTERNET INSTALLER: назначение бригад. На сервер отправляются UUID, не ФИО. -->
+<div id="screen-ii-teams" class="app-screen uniform-screen">
+  <h2>👥 Управление бригадами</h2>
+  <div class="card" style="max-width:850px;margin:auto">
+    <p>Состав вступает в силу <strong>с первого числа следующего месяца</strong>. Изменение бригады не переписывает прошлые графики.</p>
+    <div id="iiTeamsStatus" role="status" aria-live="polite"></div>
+    <button class="btn main-btn" type="button" onclick="iiTeamsLoad()">🔄 Обновить сотрудников и бригады</button>
+    <div id="iiTeamsContent"></div>
+    <div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="iiStaffHubOpen()">🔙 Сотрудники</button></div>
+  </div>
+</div>
+<style>
+ #screen-ii-teams .ii-team-person{display:flex;align-items:flex-start;gap:9px;padding:9px 4px;border-bottom:1px solid var(--border-color,#7773)}
+ #screen-ii-teams .ii-team-person input{margin-top:4px;flex-shrink:0}
+ #screen-ii-teams .ii-team-person span{overflow-wrap:anywhere}
+ #screen-ii-teams .ii-team-panel{padding:14px;margin:14px 0;border:1px solid var(--border-color,#8885);border-radius:12px}
+ #screen-ii-teams .ii-team-status{margin:8px 0}
+</style>
+<script>
+(function(){
+'use strict';
+let state=null, busy=false;
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function status(message,isError){const e=$('iiTeamsStatus');if(e){e.textContent=message;e.style.color=isError?'#b93838':'';}}
+function actor(){const u=window.currentUser ?? (typeof currentUser!=='undefined'?currentUser:null);
+ if(!u||!['Владелец','Супервайзер','Старший Техник'].includes(String(u.role||'')))throw Error('Для управления бригадами требуется вход руководителя');
+ if(!u.city||!u.district||!u.dwLogin||!u.password)throw Error('Отсутствуют данные текущего сеанса. Войдите заново');
+ return {city:u.city,district:u.district,actorLogin:u.dwLogin,actorPassword:u.password};}
+async function call(action,fields={}){
+ const url=typeof GLOBAL_AUTH_SALARY_URL!=='undefined'?GLOBAL_AUTH_SALARY_URL:'';
+ if(!/^https:\/\//.test(url))throw Error('Не задан адрес центрального справочника сотрудников');
+ const request=typeof districtFetch==='function'?districtFetch:fetch;
+ const response=await request(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...actor(),action,...fields})});
+ if(!response.ok)throw Error('Сервер сотрудников: HTTP '+response.status);
+ const data=await response.json();
+ if(!data||data.status!=='ok'){
+   const msg=String(data?.message||'Не удалось выполнить '+action);
+   if(/unknown action|invalid action/i.test(msg))throw Error('Центральный сервер сотрудников не поддерживает команду «'+action+'». Проверь развертывание именно проекта «Список сотрудников»: после сохранения кода нужно «Развернуть → Управление развертываниями → Изменить → Новая версия → Развернуть». До обновления сервера бригады загружать и сохранять нельзя.');
+   throw Error(msg);
+ }
+ return data;
+}
+window.iiTeamsOpen=async function(){try{actor();switchScreen('screen-ii-teams');await window.iiTeamsLoad();}catch(e){status(e.message,true);if(!$('screen-ii-teams')?.classList.contains('active'))alert(e.message);}};
+window.iiTeamsLoad=async function(){if(busy)return;busy=true;status('Загружаем сотрудников…');$('iiTeamsContent').innerHTML='';try{
+ const data=await call('getBrigades');
+ if(!Array.isArray(data.employees))throw Error('Неверный ответ справочника');
+ state=data;const people=data.employees, bosses=people.filter(x=>x.role==='Бригадир'),techs=people.filter(x=>x.role==='Техник-Универсал');
+ const next=String(data.month||'');
+ let html='<p>Месяц назначения: <strong>'+esc(next)+'</strong>. Бригадиров: '+bosses.length+'; техников: '+techs.length+'.</p>';
+ if(!bosses.length)html+='<p>Бригадиры в справочнике отсутствуют. Зарегистрируйте сотрудников с нужной ролью.</p>';
+ bosses.forEach((boss,i)=>{
+  html+='<section class="ii-team-panel" data-boss="'+esc(boss.id)+'"><h3>'+esc(boss.fullName)+'</h3><p>Выберите подчинённых техников:</p>';
+  techs.forEach((p,j)=>{const assigned=p.brigadierId||'',other=assigned&&assigned!==boss.id;
+   html+='<label class="ii-team-person"><input type="checkbox" data-person="'+esc(p.id)+'" '+(assigned===boss.id?'checked ':'')+(other?'disabled ':'')+'><span>'+esc(p.fullName)+(other?' — уже назначен другой бригаде':'')+'</span></label>';});
+  html+='<button type="button" class="btn main-btn" data-save-team="'+esc(boss.id)+'">Сохранить состав с 1-го числа следующего месяца</button></section>';
+ });
+ html+='<p><strong>Синхронизация:</strong> сейчас состав сохраняется только в центральном справочнике. Автоматический перенос в «Подсчёт часов» и «График» не подключён. Это ещё не окончательная реализация задания.</p>';
+ $('iiTeamsContent').innerHTML=html;
+ $('iiTeamsContent').querySelectorAll('[data-save-team]').forEach(button=>button.addEventListener('click',()=>window.iiTeamsSave(button.dataset.saveTeam)));
+ status('Справочник загружен. Проверяй состав перед сохранением.');
+ }catch(e){status(e.message,true);}finally{busy=false;}};
+window.iiTeamsSave=async function(bossId){if(busy||!state)return;const section=Array.from($('iiTeamsContent').querySelectorAll('[data-boss]')).find(e=>e.dataset.boss===bossId);if(!section)return;
+ const ids=Array.from(section.querySelectorAll('input[data-person]:checked')).map(e=>e.dataset.person);
+ if(!ids.length){status('Выбери хотя бы одного техника. Пустой список нельзя записать.',true);return;}
+ if(!confirm('Назначить '+ids.length+' техников на следующий месяц? Запись создаст новый состав бригады.'))return;
+ busy=true;status('Сохраняем назначение…');try{const data=await call('setBrigade',{brigadierUuid:bossId,technicianUuids:ids,effectiveMonth:state.month});status('Сохранено: '+data.assigned+' техников. Применяется с '+data.month+'.');
+ }catch(e){status(e.message,true);}finally{busy=false;}
+ // Не перечитываем автоматически: оставляем сообщение результата на экране.
+};
+})();
 </script>
 
 </body>
