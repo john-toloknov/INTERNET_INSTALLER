@@ -3191,13 +3191,15 @@ html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#scr
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record-controls .btn{min-width:0!important;min-height:34px!important;width:auto!important;padding:6px 8px!important;font-size:11px!important;white-space:nowrap;margin:0!important;box-shadow:none}
 
 /* Место для чекбокса, раскрытия и полной подписи кнопки сдачи акта. */
-html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false] .ct-visible{grid-template-columns:80px minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 176px}
-html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false][data-ct-equipment=true] .ct-visible{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 176px}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false] .ct-visible{grid-template-columns:80px minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 188px;column-gap:18px}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false][data-ct-equipment=true] .ct-visible{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 188px;column-gap:18px}
 #screen-admin-table .ct-record-controls{justify-content:flex-end;flex-wrap:nowrap}
+html[data-app-layout=desktop] #screen-admin-table .ct-record{padding-right:18px}
+html[data-app-layout=desktop] #screen-admin-table .ct-record .ct-record-controls{gap:18px}
 #screen-admin-table .ct-record[data-ct-stock=false] .ct-record-controls [data-ct-ack]{flex:0 0 auto;min-width:108px!important;width:max-content!important;box-sizing:border-box}
 #screen-admin-table .ct-record-controls .ct-act-check{flex:0 0 20px;padding:0!important;box-sizing:border-box}
-#screen-admin-table .ct-record-controls .ct-toggle{flex:0 0 24px;width:24px;min-width:24px}
-html[data-app-layout=mobile] #screen-admin-table .ct-record-controls{justify-content:flex-start;width:100%;gap:6px}
+#screen-admin-table .ct-record-controls .ct-toggle{flex:0 0 24px;width:24px;min-width:24px;box-sizing:border-box;padding:0}
+html[data-app-layout=mobile] #screen-admin-table .ct-record-controls{justify-content:flex-start;width:100%;gap:18px;padding-right:9px;box-sizing:border-box}
 html[data-app-layout=mobile] #screen-admin-table .ct-record-controls .ct-toggle{margin-left:auto}
 
 
