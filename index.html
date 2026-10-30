@@ -5092,16 +5092,29 @@ function myReportsEdit(record){if(!myReportsCurrent(managementOwnerKey())||myRep
  }
  myReportsDetectModels(record,grid,changes);myReportsKits(record,grid,changes,controls);myReportsArrangeFields(grid);
  const actions=ctNode('div','my-report-save'),cancel=document.getElementById('myReportsBack'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.onclick=()=>myReportsSave(record,changes,controls,save,cancel);actions.append(save);host.append(grid,actions);}
+// Серийники в комментарии нужны, если устройств одного вида больше одного.
+function dismantleKitLines(devices){
+ const routers=devices.filter(d=>d.title.startsWith('Роутер ')).length,stbs=devices.filter(d=>d.title.startsWith('Приставка ')).length;
+ const withSerial=routers>1||stbs>1;
+ return devices.map(d=>d.title+(withSerial?' (S/N: '+d.serial+')':'')+': '+(d.parts.join(', ')||'Без комплектации'));
+}
+function dismantleKitText(comment,title,serial){
+ const lines=String(comment||'').split(/\r?\n/);
+ for(const prefix of [title+' (S/N: '+serial+'): ',title+': ']){
+  const line=lines.find(value=>value.startsWith(prefix));if(line!==undefined)return line.slice(prefix.length).trim();
+ }
+ return '';
+}
 function myReportsKits(record,grid,changes,controls){
  if(!record.sheet.startsWith('Демонтаж'))return;
  const comment=grid.querySelector('[aria-label="Комментарий"]');if(!comment||comment.disabled)return;
- const pattern=/^(?:Роутер|Приставка) [1-3] \(S\/N: [^\n]+\):[^\n]*(?:\n|$)/gm;
+ const pattern=/^(?:Роутер|Приставка) [1-3](?: \(S\/N: [^\n]+\))?:[^\n]*(?:\n|$)/gm;
  const initial=comment.value,manual=()=>comment.value.replace(pattern,'').replace(/^\n{1,2}/,'');let states=[];
- function sync(){const free=manual(),lines=[];for(const slot of states){const serial=slot.sn.value.trim().toUpperCase(),mac=slot.mac.value.trim().replace(/[:-]/g,'').toUpperCase(),ready=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&/^[0-9A-F]{12}$/.test(mac);slot.panel.hidden=!ready;const identity=serial+'|'+mac;if(slot.identity&&slot.identity!==identity)slot.options.forEach(n=>n.checked=false);slot.identity=identity;const parts=slot.options.filter(n=>n.checked).map(n=>n.value);slot.text.textContent=parts.join(', ')||'Без комплектации';if(ready)lines.push(slot.title+' (S/N: '+serial+'): '+(parts.join(', ')||'Без комплектации'));}comment.value=lines.length?lines.join('\n')+'\n\n'+free:free;changes.AC=comment.value;}
+ function sync(){const free=manual(),devices=[];for(const slot of states){const serial=slot.sn.value.trim().toUpperCase(),mac=slot.mac.value.trim().replace(/[:-]/g,'').toUpperCase(),ready=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&/^[0-9A-F]{12}$/.test(mac);slot.panel.hidden=!ready;const identity=serial+'|'+mac;if(slot.identity&&slot.identity!==identity)slot.options.forEach(n=>n.checked=false);slot.identity=identity;const parts=slot.options.filter(n=>n.checked).map(n=>n.value);slot.text.textContent=parts.join(', ')||'Без комплектации';if(ready)devices.push({title:slot.title,serial,parts});}const lines=dismantleKitLines(devices);comment.value=lines.length?lines.join('\n')+(free?'\n\n'+free:''):free;changes.AC=comment.value;}
  for(const [kind,parts] of [['Роутер',['Блок питания','Патч-корд','Коробка']],['Приставка',['Блок питания','Пульт','HDMI','RCA','Коробка','Батарейки']]])for(let index=1;index<=3;index++){
   const title=kind+' '+index,sn=grid.querySelector(`[aria-label="${title} · S/N"]`),mac=grid.querySelector(`[aria-label="${title} · MAC"]`);if(!sn||!mac)continue;
   const panel=ctNode('div','my-report-field'),heading=ctNode('span','',title+' · Комплектация'),dropdown=ctNode('div','custom-dropdown'),trigger=ctNode('button','dropdown-select-btn'),text=ctNode('span'),list=ctNode('div','dropdown-list');trigger.type='button';trigger.setAttribute('aria-label',title+' · Комплектация');trigger.setAttribute('aria-expanded','false');trigger.append(text,ctNode('span','dropdown-arrow','▼'));trigger.onclick=e=>{e.stopPropagation();myReportsToggleDropdown(dropdown);};
-  list.addEventListener('click',e=>e.stopPropagation());const serial=sn.value.trim().toUpperCase(),line=initial.split('\n').find(line=>line.startsWith(title+' (S/N: '+serial+'): ')),selected=line?line.slice(line.indexOf('): ')+3).split(', '):[],options=[];
+  list.addEventListener('click',e=>e.stopPropagation());const serial=sn.value.trim().toUpperCase(),kit=dismantleKitText(initial,title,serial),selected=kit?kit.split(', '):[],options=[];
   for(const part of parts){const label=ctNode('label','kit-option-row'),input=ctNode('input');input.type='checkbox';input.value=part;input.checked=selected.includes(part);input.onchange=sync;label.append(input,ctNode('span','',part));list.append(label);options.push(input);controls.push(input);}
   dropdown.append(trigger,list);panel.append(heading,dropdown);mac.closest('label').after(panel);controls.push(trigger);const ready=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(serial)&&/^[0-9A-F]{12}$/.test(mac.value.trim().replace(/[:-]/g,'').toUpperCase());panel.hidden=!ready;text.textContent=selected.join(', ')||'Без комплектации';states.push({panel,sn,mac,title,text,options,identity:serial+'|'+mac.value.trim().replace(/[:-]/g,'').toUpperCase()});sn.addEventListener('input',sync);mac.addEventListener('input',sync);
  }
@@ -10808,7 +10821,7 @@ function syncDismantleKits(editing=true){
     const before=comment.value,previous=dismantleKitState.generated,oldPrefix=previous?previous.length+2:0;
     const start=comment.selectionStart,end=comment.selectionEnd,focused=editing&&document.activeElement===comment;
     dismantleKitState.manual=dismantleKitManual(before,previous);
-    const active=/^Демонтаж (?:FTTB|GPON)$/.test(document.getElementById('tr-reportType')?.value||''),lines=[];
+    const active=/^Демонтаж (?:FTTB|GPON)$/.test(document.getElementById('tr-reportType')?.value||''),devices=[];
     for(const prefix of dismantleKitSlots){
         const slot=dismantleKitState.slots.get(prefix);if(!slot)continue;const device=dismantleKitDevice(prefix);
         slot.panel.hidden=!(active&&device.ready);
@@ -10817,9 +10830,9 @@ function syncDismantleKits(editing=true){
         if(!device.serial||(identity&&slot.identity&&identity!==slot.identity)){slot.controls.forEach(input=>input.checked=false);slot.identity='';}
         if(identity)slot.identity=identity;
         const selected=slot.controls.filter(input=>input.checked).map(input=>input.value);slot.summary.textContent=selected.join(', ')||'Выберите комплектацию...';slot.summary.title=selected.join(', ')||'Без комплектации';
-        if(active&&device.ready){lines.push(slot.title+' (S/N: '+device.serial+'): '+(selected.join(', ')||'Без комплектации'));}
+        if(active&&device.ready){devices.push({title:slot.title,serial:device.serial,parts:selected});}
     }
-    const generated=lines.join('\n');
+    const generated=dismantleKitLines(devices).join('\n');
     if(generated&&!dismantleKitState.manual.trim())dismantleKitState.manual='';
     const next=generated?generated+((dismantleKitState.manual||focused)?'\n\n'+dismantleKitState.manual:''):dismantleKitState.manual;
     dismantleKitState.generated=generated;
