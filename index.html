@@ -3189,6 +3189,15 @@ html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#scr
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record[data-ct-equipment=true] .ct-visible{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 130px}
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record-controls{grid-column:7;grid-row:1;gap:6px;align-self:end;min-width:0}
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-record-controls .btn{min-width:0!important;min-height:34px!important;width:auto!important;padding:6px 8px!important;font-size:11px!important;white-space:nowrap;margin:0!important;box-shadow:none}
+
+/* Место для чекбокса, раскрытия и полной подписи кнопки сдачи акта. */
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false] .ct-visible{grid-template-columns:80px minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 176px}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false][data-ct-equipment=true] .ct-visible{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 176px}
+#screen-admin-table .ct-record-controls{justify-content:flex-end;flex-wrap:nowrap}
+#screen-admin-table .ct-record[data-ct-stock=false] .ct-record-controls [data-ct-ack]{flex:0 0 auto;min-width:108px!important;width:max-content!important;box-sizing:border-box}
+#screen-admin-table .ct-record-controls .ct-act-check{flex:0 0 20px;padding:0!important;box-sizing:border-box}
+#screen-admin-table .ct-record-controls .ct-toggle{flex:0 0 24px;width:24px;min-width:24px}
+
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible>.ct-field input,html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible .app-date-trigger{font-size:11px;padding:6px;height:34px;min-height:34px}
 html[data-app-layout=desktop] :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable) .ct-visible .app-date-chevron{font-size:10px;margin-left:2px;flex:0 0 10px}
 .view-software-card-heading{width:100%;box-sizing:border-box;text-align:left;color:var(--ui-fg-b7ed55,#b7ed55);font-size:22px;margin:0 0 18px;padding:0 0 12px;border-bottom:1px solid var(--ui-border-374429,#374429);line-height:1.3}
