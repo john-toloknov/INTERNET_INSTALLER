@@ -3992,7 +3992,7 @@ html[data-app-theme=light] :is(.view-header,.view-sidebar,.view-sidebar-user){bo
 html[data-app-layout] .view-header{grid-template-columns:44px minmax(0,1fr) 44px!important;grid-template-rows:auto!important;min-height:64px!important;column-gap:12px!important;overflow:visible}
 html[data-app-layout] .view-header .view-brand{grid-column:2;grid-row:1;min-width:0;max-width:100%;justify-self:center;text-align:center;font-size:clamp(16px,1.7vw,28px)!important;white-space:normal;overflow-wrap:normal;word-break:normal}
 html[data-app-layout] .view-header>.app-settings-button{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:10px;border:1px solid var(--card-border);border-radius:14px;background:var(--surface-dark);color:var(--accent-ink,var(--accent));cursor:pointer;box-sizing:border-box;touch-action:manipulation;box-shadow:none}
-.app-settings-button>svg{width:24px;height:24px;flex:none}
+.app-settings-button>span{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;font-size:24px;line-height:1;flex:none}
 .app-settings-button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
 html[data-app-layout=mobile] .view-header{column-gap:8px!important;padding:6px 0 12px!important}
 html[data-app-layout=mobile] .view-header .view-brand{font-size:clamp(16px,4.7vw,24px)!important;line-height:1.15}
@@ -4290,7 +4290,7 @@ function openTmcSection(key){
    preferencePicker('appColorTheme','Тема',[['original','🌙','Оригинальная тёмная тема'],['light','☀️','Светлая тема']],theme,applyTheme)
   );
   const settings=document.createElement('button');settings.type='button';settings.className='app-settings-button';settings.setAttribute('aria-label','Настройки экрана и темы');settings.title='Настройки экрана и темы';settings.setAttribute('aria-haspopup','dialog');settings.setAttribute('aria-controls','appAppearanceDialog');settings.setAttribute('aria-expanded','false');
-  settings.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 3-.6 2.1-1.8 1L5 5.6 2.5 10l1.6 1.5v2L2.5 15 5 19.4l2.1-.5 1.8 1 .6 2.1h5l.6-2.1 1.8-1 2.1.5 2.5-4.4-1.6-1.5v-2l1.6-1.5L19 5.6l-2.1.5-1.8-1L14.5 3Z"/><circle cx="12" cy="12.5" r="3.2"/></svg>';
+  settings.innerHTML='<span aria-hidden="true">⚙️</span>';
   const dialog=document.createElement('dialog');dialog.id='appAppearanceDialog';dialog.setAttribute('aria-labelledby','appAppearanceTitle');dialog.setAttribute('aria-describedby','appAppearanceNote');
   const heading=document.createElement('div');heading.className='app-settings-heading';
   const title=document.createElement('h2');title.id='appAppearanceTitle';title.textContent='Настройки приложения';
@@ -12810,6 +12810,17 @@ function openReturnEquipmentForm() {
     switchScreen('screen-return-equipment');
 }
 
+// После возврата компьютер остаётся на форме, телефон возвращается в меню.
+function returnEquipmentSavedContinue() {
+    closeBeelineModal();
+    if (document.documentElement.dataset.appLayout === 'desktop') {
+        if (retDraftState.completed) openReturnEquipmentForm();
+        document.getElementById('retSerial')?.focus({preventScroll:true});
+    } else {
+        switchScreen('screen-installer-menu');
+    }
+}
+
 // 6. ОТПРАВКА ДАННЫХ ВОЗВРАТА ОБОРУДОВАНИЯ В GOOGLE ТАБЛИЦУ (ЧЕРЕЗ reportsScriptUrl)
 
 // Поиск предварительных возвратов — только в авторизованном участке сотрудника.
@@ -12896,8 +12907,9 @@ async function handleReturnEquipment(e) {
 
         if (res.status === 'success') {
             invalidateEquipmentSnapshots();retDraftState.completed=true;retDraftState.epoch++;clearTimeout(retDraftState.timer);
+            if (document.documentElement.dataset.appLayout === 'desktop') openReturnEquipmentForm();
             showBeelineModal("Успешно", "Возврат оборудования успешно зарегистрирован!", "✅", 
-                `<button class="btn main-btn" onclick="closeBeelineModal(); switchScreen('screen-installer-menu');" style="margin-top:0;">Понятно</button>`
+                `<button class="btn main-btn" onclick="returnEquipmentSavedContinue();" style="margin-top:0;">Понятно</button>`
             );
         } else {
             throw new Error(res.message || "Ошибка записи");
