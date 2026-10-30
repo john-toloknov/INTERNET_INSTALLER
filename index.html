@@ -199,6 +199,17 @@ html[data-app-layout=mobile] #screen-ii-teams .ii-team-month .dropdown-item{min-
 
 
 
+
+/* Пакетная сдача актов — панель в стиле Рефарба. */
+.ct-act-check,.ct-act-select-all input{width:20px!important;height:20px!important;min-width:20px;margin:0!important;accent-color:var(--accent);cursor:pointer;flex:none}
+.ct-act-select-all{display:flex;align-items:center;gap:9px;margin:12px 0;font-size:13px}
+.ct-act-selection{position:fixed;z-index:950;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;box-sizing:border-box;max-width:calc(100vw - 28px);width:max-content;padding:12px 16px;border:1px solid var(--accent);border-radius:16px;background:var(--card-bg,var(--ui-bg-1b1b1b,#303436));color:var(--text-main);box-shadow:0 6px 24px #0003}
+.ct-act-selection .btn{width:auto!important;margin:0!important;padding:12px 16px!important;min-height:44px;font-size:13px}
+#cityTableEditor:has(.ct-act-selection) #cityTableRows{padding-bottom:150px}
+html[data-app-layout=mobile] .ct-act-selection{bottom:calc(90px + env(safe-area-inset-bottom));width:calc(100vw - 24px);gap:8px;padding:10px}
+html[data-app-layout=mobile] .ct-act-selection strong{width:100%;text-align:center}html[data-app-layout=mobile] .ct-act-selection .btn{flex:1 1 125px}
+html[data-app-layout=mobile] #cityTableEditor:has(.ct-act-selection) #cityTableRows{padding-bottom:250px}
+html[data-app-theme=light] .ct-act-selection{background:#e7ecf1;color:#222}
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -14239,6 +14250,7 @@ async function confirmOwnerDistrict(city,district){
 <script id="cityTableScript">
 // «Таблица»: per-city management editor, isolated from existing report flows.
 const CT_SECTIONS=[['inclusion','🔌 Включение FTTB/GPON'],['move','📦 Переезд FTTB/GPON'],['service','🛠️ Сервис FTTB/GPON'],['equipment','🛜 Предоставления FTTB/GPON'],['dismantle','❌ Демонтаж FTTB/GPON']];
+let ctActSelection=new Set();
 let ctState={group:'inclusion',sheets:[],staff:[],version:0,busy:false,owner:'',drafts:new Map(),limit:50};
 // Выполняет элемент — модуль городской таблицы.
 function ctNode(tag,className,text){const n=document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}
@@ -14300,7 +14312,7 @@ function openInventoryTable(group){if(!CT_STOCK_SCREENS[group])return;return ctO
 // Показывает Editor — модуль городской таблицы.
 function ctOpenEditor(part,group,screen){if(!managementAllowed())return;ctNavigate(async()=>{
  ctCloseDropdowns();const owner=managementOwnerKey();if(ctCacheOwner!==owner){ctTabCache.clear();ctCacheOwner=owner;}else ctCacheCurrent();const reset=ctState.owner!==owner||part!==ctPart||group!==ctState.group;
- if(reset)ctClearNewIssue();ctPart=part;if(reset){const cached=ctTabCache.get(group);ctState={group,sheets:cached?.sheets||[],staff:cached?.staff||[],options:cached?.options||{},loaded:!!cached,version:ctState.version+1,busy:false,owner,drafts:new Map(),limit:50};ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';}
+ if(reset){ctClearNewIssue();ctActSelection.clear();}ctPart=part;if(reset){const cached=ctTabCache.get(group);ctState={group,sheets:cached?.sheets||[],staff:cached?.staff||[],options:cached?.options||{},loaded:!!cached,version:ctState.version+1,busy:false,owner,drafts:new Map(),limit:50};ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';}
  document.getElementById(screen).append(document.getElementById('cityTableEditor'));switchScreen(screen);
  document.getElementById('cityTableAdd').hidden=part!=='stock';document.getElementById('cityTableCounts').hidden=part==='returns'||group==='stockCable';document.getElementById('cityTableAckAll').hidden=part==='returns'||group==='stockCable';
  document.getElementById('cityTableSearch').placeholder=part==='returns'?'🔍 Серийный номер, MAC адрес, ФИО…':'🔍 Адрес, логин, сотрудник…';document.getElementById('cityTableSearch').setAttribute('aria-label','Поиск по записям');ctBuildFilters();if(part==='acts')ctLoadCounts();if(!ctState.loaded)await ctLoad();else ctRender();
@@ -14394,6 +14406,7 @@ function ctUpdateDraft(article,record){if(ctPart==='returns'){const dirty=Object
 // Выполняет article — модуль городской таблицы.
 function ctArticle(record,schema){
  const article=ctNode('article','ct-record');article.dataset.ctKey=ctIdentity(record);article.dataset.ctStock=String(ctPart==='stock');article.dataset.ctEquipment=String(['Роутеры','Приставки'].includes(record.sheet));const visible=ctNode('div','ct-visible'),controls=ctNode('div','ct-record-controls'),hidden=ctNode('div','ct-hidden');hidden.hidden=true;
+ if(ctPart==='acts'&&schema.act&&!record.actReadonly){const check=ctNode('input','ct-act-check');check.type='checkbox';check.checked=ctActSelection.has(ctIdentity(record));check.disabled=ctState.busy;check.setAttribute('aria-label','Выбрать акт: '+record.sheet+', строка '+record.row);check.onchange=()=>{if(ctState.busy)return;check.checked?ctActSelection.add(ctIdentity(record)):ctActSelection.delete(ctIdentity(record));ctRenderActSelection();};controls.append(check);}
  schema.fields.filter(f=>f.group==='visible').forEach(f=>visible.append(ctField(f,record,article)));
  const arrow=ctNode('button','ct-toggle');arrow.type='button';arrow.setAttribute('aria-label','Раскрыть поля заявки');arrow.setAttribute('aria-expanded','false');arrow.append(ctNode('span','dropdown-arrow','▼'));arrow.onclick=()=>{if(hidden.hidden&&!hidden.dataset.ctMounted){mountHidden();hidden.dataset.ctMounted='true';}hidden.hidden=!hidden.hidden;arrow.setAttribute('aria-expanded',String(!hidden.hidden));arrow.setAttribute('aria-label',hidden.hidden?'Раскрыть поля заявки':'Скрыть поля заявки');ctCloseDropdowns();};
  controls.append(arrow);if(schema.act){const ack=ctNode('button','btn main-btn',ctActOpen(record)?'📄 Сдать акт':'✅ АКТ Сдан');ack.type='button';ack.dataset.ctAck='true';ack.title=record.actReadonly?'АКТ вычисляется формулой':ctActOpen(record)?'Отметить акт как сданный':'Изменить отметку: акт не сдан';ack.onclick=()=>ctConfirm(ctActOpen(record)?'Сдать акт?':'Изменить отметку АКТ?',ctActOpen(record)?'Подтвердить сдачу акта этой записи?':'Отметить этот акт как несданный?',()=>ctMutate(ctActOpen(record)?'ack':'unack',[record]));controls.append(ack);}visible.append(controls);
@@ -14413,12 +14426,44 @@ function ctEquipmentKindMatches(record){return ctPart!=='acts'||ctState.group!==
 function ctAllRecords(){return (ctState.sheets||[]).flatMap(s=>s.rows||[]).filter(ctActRecordVisible);}
 // Показывает операцию — модуль городской таблицы.
 function ctRender(){
- ctrExportToolbar();if(ctPart==='returns')return ctrRender();document.getElementById('cityTableRows').classList.remove('ctr-grid');
+ ctRenderActSelection(true);ctrExportToolbar();if(ctPart==='returns')return ctrRender();document.getElementById('cityTableRows').classList.remove('ctr-grid');
  ctCloseDropdowns();if(ctPart==='stock')ctRenderStockCounts();else ctRenderActCounts(ctCountsOwner===managementOwnerKey()?ctCountsCache:null,!ctState.loaded);const tabs=document.getElementById('cityTableTabs');tabs.replaceChildren();for(const [key,title] of (ctPart==='stock'?CT_STOCK_SECTIONS:CT_SECTIONS)){const b=ctNode('button','btn main-btn',title);b.type='button';b.setAttribute('aria-pressed',String(key===ctState.group));b.onclick=()=>ctChangeGroup(key);tabs.append(b);}
  const search=document.getElementById('cityTableSearch').value.trim().toLowerCase(),root=document.getElementById('cityTableRows');root.replaceChildren();let total=0,shown=0;
  for(const sheet of ctState.sheets){const rows=sheet.rows.filter(r=>ctMatches(r,sheet.schema,search));total+=rows.length;root.append(ctNode('h3','ct-sheet-title',sheet.name+' · '+rows.length));if(sheet.missing){root.append(ctNode('p','','Лист не найден в городской таблице'));continue;}if(!rows.length)root.append(ctNode('p','','Записей по выбранным фильтрам нет'));for(const record of rows){if(shown>=ctState.limit)break;root.append(ctArticle(record,sheet.schema));shown++;}}
  if(total>shown){const more=ctNode('button','btn main-btn',`Показать ещё · осталось ${total-shown}`);more.type='button';more.onclick=()=>{ctState.limit+=50;ctRender();};root.append(more);}
+ ctRenderActSelection();
  document.getElementById('cityTableAckAll').disabled=ctState.busy||!ctAllRecords().some(r=>ctActOpen(r)&&ctEquipmentKindMatches(r));ctSetMessage(`Всего: ${ctAllRecords().length}${ctState.group==='stockCable'?'':' · Не сдано: '+ctAllRecords().filter(ctActOpen).length} · Найдено: ${total} · Показано: ${shown}`);if(typeof mountAppCalendars==='function')mountAppCalendars();
+}
+function ctActSelectableRows(){
+ if(ctPart!=='acts')return [];
+ const search=document.getElementById('cityTableSearch').value.trim().toLowerCase();
+ return ctState.sheets.flatMap(sheet=>sheet.rows.filter(r=>ctMatches(r,sheet.schema,search))).slice(0,ctState.limit).filter(r=>r.act!==null&&!r.actReadonly);
+}
+function ctRenderActSelection(hide=false){
+ const root=document.getElementById('cityTableEditor');if(!root)return;
+ root.querySelector('.ct-act-selection')?.remove();root.querySelector('.ct-act-select-all')?.remove();
+ if(hide||ctPart!=='acts')return;
+ const rows=ctActSelectableRows(),keys=new Set(rows.map(ctIdentity));
+ for(const key of ctActSelection)if(!keys.has(key))ctActSelection.delete(key);
+ const all=ctNode('label','ct-act-select-all'),check=ctNode('input'),text=ctNode('span','','Выбрать все показанные · '+rows.length);
+ check.type='checkbox';check.disabled=ctState.busy||!rows.length;check.checked=!!rows.length&&rows.every(r=>ctActSelection.has(ctIdentity(r)));check.indeterminate=ctActSelection.size>0&&!check.checked;
+ check.onchange=()=>{if(ctState.busy)return;ctActSelection=check.checked?new Set(rows.map(ctIdentity)):new Set();ctRender();};all.append(check,text);document.getElementById('cityTableRows').prepend(all);
+ root.querySelectorAll('.ct-act-check').forEach(n=>n.checked=ctActSelection.has(n.closest('[data-ct-key]').dataset.ctKey));
+ if(!ctActSelection.size)return;
+ const selected=rows.filter(r=>ctActSelection.has(ctIdentity(r))),panel=ctNode('div','ct-act-selection');panel.setAttribute('role','region');panel.setAttribute('aria-label','Действия с выбранными актами');const count=ctNode('strong','','Выбрано: '+selected.length);count.setAttribute('role','status');panel.append(count);
+ for(const [label,kind,action,disabled] of [
+  ['✅ Сдать акты','main-btn',()=>ctAckSelected(false),!selected.some(ctActOpen)],
+  ['↩️ Отменить сдачу','danger-btn',()=>ctAckSelected(true),!selected.some(r=>!ctActOpen(r))],
+  ['Снять выделение','action-btn',()=>{ctActSelection.clear();ctRender();},false]
+ ]){const b=ctNode('button','btn '+kind,label);b.type='button';b.disabled=ctState.busy||disabled;b.onclick=action;panel.append(b);}root.append(panel);
+}
+function ctAckSelected(undo){
+ if(ctState.busy||ctPart!=='acts')return;
+ if(ctDirty()){showBeelineModal('Сдача актов','Сначала сохраните изменения в строках.','⚠️');return;}
+ const rows=ctActSelectableRows().filter(r=>ctActSelection.has(ctIdentity(r))&&(undo?!ctActOpen(r):ctActOpen(r)));
+ if(!rows.length)return;
+ const owner=ctState.owner,group=ctState.group;
+ ctConfirm(undo?'Отменить сдачу актов?':'Сдать выбранные акты?',(undo?'Будут отмечены как несданные: ':'Будут сданы выбранные акты: ')+rows.length+'. Только текущий раздел.'+(undo?'':' Связанное оборудование включений также будет отмечено.'),()=>{if(owner!==managementOwnerKey()||group!==ctState.group||ctPart!=='acts')return;ctMutate(undo?'unackBatch':'ackBatch',rows);});
 }
 // Выполняет отметка сдачи все — модуль городской таблицы.
 function ctAckAll(){if(ctState.busy)return;const rows=ctAllRecords().filter(r=>ctActOpen(r)&&!r.actReadonly&&ctEquipmentKindMatches(r));if(!rows.length)return;if(ctDirty()){showBeelineModal('Сдача актов','Сначала сохраните изменения в строках.','⚠️');return;}ctConfirm('Сдать все акты?',`Будут сданы все ${rows.length} актов текущего раздела${ctState.group==='equipment'&&ctKindFilter?(ctKindFilter==='inclusion'?' на включениях':' сервисных предоставлений'):''}, включая скрытые поиском и ещё не показанные строки. Связанное оборудование включений также будет отмечено.`,()=>ctMutate('ackAll',rows));}
@@ -14440,9 +14485,10 @@ async function ctMutate(operation,records){
   if(owner!==managementOwnerKey())return;
   if(result.status!=='success')throw new Error(result.message||'Таблица не подтвердила изменение');
   invalidateEquipmentSnapshots();
+  if(['ackBatch','unackBatch'].includes(operation))ctActSelection.clear();
   if(operation==='save'){const s=ctState.sheets.find(s=>s.name===result.record.sheet),index=s.rows.findIndex(r=>r.row===result.record.row);s.rows[index]=result.record;ctState.drafts.delete(ctIdentity(result.record));}
   else if(result.record){const sheet=ctState.sheets.find(s=>s.name===result.record.sheet);sheet.rows[sheet.rows.findIndex(r=>r.row===result.record.row)]=result.record;ctState.drafts.delete(ctIdentity(result.record));}else{ctSetBusy(false);await ctLoad();}
-  if(ctPart==='acts'&&operation!=='save')ctInvalidateOtherTabs();else ctCacheCurrent();ctSetBusy(false);ctBuildFilters();ctRender();ctLoadCounts(true);ctSetMessage(operation==='save'?(result.telegram?.status==='updated'?'✅ Сохранено в таблице и Telegram':result.telegram?.status==='warning'?'⚠️ В таблице сохранено. Telegram не обновлён: '+result.telegram.message:'✅ Изменения сохранены и проверены'):operation==='unack'?'✅ Акт отмечен как несданный':`✅ Сдано актов: ${result.count}`);
+  if(ctPart==='acts'&&operation!=='save')ctInvalidateOtherTabs();else ctCacheCurrent();ctSetBusy(false);ctBuildFilters();ctRender();ctLoadCounts(true);ctSetMessage(operation==='save'?(result.telegram?.status==='updated'?'✅ Сохранено в таблице и Telegram':result.telegram?.status==='warning'?'⚠️ В таблице сохранено. Telegram не обновлён: '+result.telegram.message:'✅ Изменения сохранены и проверены'):['unack','unackBatch'].includes(operation)?`✅ Отменена сдача актов: ${result.count}`:`✅ Сдано актов: ${result.count}`);
  }catch(error){if(owner===managementOwnerKey()){if(error.inventoryCancelled){ctSetBusy(false);ctSetMessage(error.message);return;}ctSetBusy(false);ctSetMessage('⚠️ '+error.message);if(error.code==='ROW_CONFLICT'){ctConfirm('Данные строки изменились','Ваш ввод сохранён. Загрузить актуальные данные? Затем проверьте свои изменения и нажмите «Сохранить».',()=>ctRefreshKeepingDrafts());}else showBeelineModal('Таблица',error.message,'⚠️');}}
  finally{if(owner===managementOwnerKey())ctSetBusy(false);}
 }
