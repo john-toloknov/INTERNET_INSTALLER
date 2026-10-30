@@ -11370,7 +11370,7 @@ function ctDetectRouterModel(s) {
   if (s.indexOf("QXH")===0) return "D-Link Dir 615";
   if (/^(2312T2DM|2309T2DM)/.test(s)) return "AX3000 (Ultimate Black)";
   if (s.indexOf("22161K")===0) return "TP-Link DEKO M4 (Ultimate)";
-  if (/^(220B|220A3B|2227126)/.test(s)) return "TP-Link Archer C24";
+  if (s === "220A0T6003469" || /^(220B|220A3B|2227126)/.test(s)) return "TP-Link Archer C24";
   if (/^(2184545|2212252|2211846|2211477|2211225)/.test(s)) return "TP-Link Archer C20";
   if (/^(318|317|218|216)/.test(s)) return "Маршрутизатор беспроводной 840 TP-Link";
   if (s.indexOf("BRDM")!==-1) return "TURBO";
