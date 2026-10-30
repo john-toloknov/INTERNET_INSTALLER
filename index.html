@@ -6144,7 +6144,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
         <h2>🔍 Поиск доступа</h2>
         <div class="card">
             <label>Адрес (улица/мкр, дом, квартира)</label>
-            <input type="text" id="searchAddressInput" placeholder="🔍 Введите адрес для поиска..." oninput="handleSearchAccess()">
+            <input type="text" id="searchAddressInput" placeholder="🔍 Например: 9 1е, 68 3, Абая 76" oninput="handleSearchAccess()">
 
             <div style="margin-top: 15px;" id="accessSearchResultsContainer"></div>
 <div class="common-nav-row">
@@ -8899,7 +8899,7 @@ async function handleSaveAccess(e){
         accessSavePending=null;accessRememberPending();
         const submitted=JSON.parse(accessSavePendingFingerprint);
         const item={id:'access_'+saved.requestId,city:currentUser.city,district:engineerAllowed()?engineerDistrict('access').district:String(currentUser.district),...submitted};
-        if(!accessDb.some(v=>v.id===item.id))accessDb.push(item);try{localStorage.setItem('beeline_access_db',JSON.stringify(accessDb));}catch(error){console.warn('Доступ сохранён на сервере; локальный кэш не обновился');}
+        accessSearchSnapshot=null;if(!accessDb.some(v=>v.id===item.id))accessDb.push(item);try{localStorage.setItem('beeline_access_db',JSON.stringify(accessDb));}catch(error){console.warn('Доступ сохранён на сервере; локальный кэш не обновился');}
         if(!hasNewDraft)form.reset();showBeelineModal('Успешно',hasNewDraft?'Предыдущая запись подтверждена. Новые значения остались в полях и ещё не отправлены.':'Доступ сохранён, запись подтверждена.','✅');handleSearchAccess();
     }catch(error){
         if(scope===accessSaveScope()){if(error.confirmed){accessSavePending=null;accessRememberPending();}showBeelineModal(error.confirmed?'Запись отклонена':'Проверка сохранения',String(error.message||error),error.confirmed?'❌':'⚠️');}
@@ -8909,6 +8909,29 @@ async function handleSaveAccess(e){
 
 // 2. Поиск и выгрузка доступов
 let accessSearchTimer = null, accessSearchVersion = 0, accessSearchController = null;
+let accessSearchSnapshot = null;
+// Индекс адресов: обозначения улиц не мешают искать микрорайон, дом и квартиру.
+function accessAddressTokens(value) {
+    const letters = {a:'а',b:'в',c:'с',e:'е',h:'н',k:'к',m:'м',o:'о',p:'р',t:'т',x:'х',y:'у'};
+    return String(value || '').normalize('NFKC').toLowerCase().replace(/ё/g, 'е')
+        .replace(/[abcehkmoptxy]/g, c => letters[c])
+        .replace(/(\d)\s+([а-я])(?=$|[^а-я])/g, '$1$2')
+        .match(/[а-яa-z]+|\d+[а-яa-z]*/g)?.filter(token =>
+            !['мкр','микрорайон','микр','кварт','квартал','ул','улица','пр','просп','проспект','бульв','бульвар','ш','шоссе','д','дом','кв','квартира'].includes(token)
+        ) || [];
+}
+function accessAddressMatches(address, queryTokens) {
+    if (!queryTokens.length) return false;
+    const tokens = accessAddressTokens(address);
+    let position = 0;
+    return queryTokens.every(query => {
+        while (position < tokens.length) {
+            const token = tokens[position++];
+            if (/^\d/.test(query) ? token === query : token.startsWith(query)) return true;
+        }
+        return false;
+    });
+}
 // Обрабатывает поиск доступы.
 function handleSearchAccess() {
     const version = ++accessSearchVersion;
@@ -8934,42 +8957,53 @@ async function runSearchAccess(version) {
 
     container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 10px;">Ищем в таблице... 🔄</div>`;
 
-    let serverResults = [];
-
-    if (isConfiguredCityUrl(scriptUrl)) {
+    const queryTokens = accessAddressTokens(query);
+    if (!queryTokens.length) {
+        container.textContent = 'Введите название улицы или номера микрорайона и дома.';
+        return;
+    }
+    const scope = JSON.stringify([scriptUrl, userCity, userLogin, engineerAllowed() ? engineerDistrict('access').district : String(currentUser?.district || '')]);
+    let serverResults = [], searchFailed = false;
+    if (accessSearchSnapshot?.scope === scope && Date.now() - accessSearchSnapshot.loadedAt < 60000) {
+        serverResults = accessSearchSnapshot.data;
+    } else if (isConfiguredCityUrl(scriptUrl)) {
         const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 20000);
         accessSearchController = controller;
         try {
-            const response = await districtFetch(`${scriptUrl}?mode=equipment_search&query=${encodeURIComponent(query)}`, {signal:controller.signal});
+            // Пустой запрос возвращает адреса выбранного участка; сопоставляем их здесь.
+            const response = await districtFetch(`${scriptUrl}?mode=equipment_search&query=`, {signal:controller.signal});
             if (!response.ok) throw new Error('HTTP ' + response.status);
             const res = await response.json();
-            
-            if (res.status === 'success' && Array.isArray(res.data)) {
-                serverResults = res.data.filter(item => item && (!item.city || item.city === userCity));
-            }
+            if (res.status !== 'success' || !Array.isArray(res.data)) throw new Error(res.message || 'Не удалось загрузить доступы');
+            serverResults = res.data.filter(item => item && (!item.city || item.city === userCity));
+            if (version === accessSearchVersion) accessSearchSnapshot = {scope, loadedAt:Date.now(), data:serverResults};
         } catch (e) {
-            if (e.name !== "AbortError") console.error("Ошибка при запросе к серверу:", e);
+            searchFailed = true;
+            if (e.name !== 'AbortError') console.error('Ошибка при запросе к серверу:', e);
         } finally { clearTimeout(timer); if (accessSearchController === controller) accessSearchController = null; }
     }
     if (version !== accessSearchVersion || currentUser?.city !== userCity || currentUser?.dwLogin !== userLogin) return;
 
     let localResults = accessDb.filter(item => {
-        const addr = (item.address || '').toLowerCase();
-        return !!userCity && item.city === userCity && (!engineerAllowed()||String(item.district||'')===engineerDistrict('access').district) && addr.includes(query);
+        return !!userCity && item.city === userCity && (!engineerAllowed()||String(item.district||'')===engineerDistrict('access').district);
     });
 
     const map = new Map();
     [...serverResults, ...localResults].forEach(item => {
-        if (item.address) map.set(item.address.toLowerCase().trim(), item);
+        if (item.address && accessAddressMatches(item.address, queryTokens)) map.set(item.address.toLowerCase().trim(), item);
     });
     const filtered = Array.from(map.values());
 
+    if (searchFailed && filtered.length === 0) {
+        container.textContent = 'Не удалось загрузить доступы из таблицы. Повторите поиск.';
+        return;
+    }
     if (filtered.length === 0) {
         container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); font-size: 13px; padding: 10px;">Доступы по вашему запросу не найдены.</div>`;
         return;
     }
 
-    let html = '';
+    let html = searchFailed ? '<p role="status">Таблица недоступна. Показаны только сохранённые на этом устройстве записи.</p>' : '';
     filtered.forEach(item => {
         const cleanPhone1 = escapeScheduleHtml((item.phone1 || '').replace(/^'/, ''));
         const cleanPhone2 = escapeScheduleHtml((item.phone2 || '').replace(/^'/, ''));
