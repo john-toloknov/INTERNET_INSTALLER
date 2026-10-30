@@ -3988,26 +3988,29 @@ html[data-app-theme=light] .btn.danger-btn{color:var(--danger)!important;backgro
 html[data-app-theme=light] :is(.rf-warning,.city-debt-warning){color:#92510c}
 html[data-app-theme=light] :focus-visible{outline-color:#56851c}
 html[data-app-theme=light] :is(.view-header,.view-sidebar,.view-sidebar-user){border-color:var(--card-border)}
-html[data-app-layout] .view-header{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;grid-template-rows:auto!important;min-height:76px!important;column-gap:16px!important;overflow:visible}
-html[data-app-layout] .view-header .view-mode{display:flex;flex-direction:row;flex-wrap:nowrap;gap:16px;align-items:center;grid-column:3;grid-row:1;width:auto;min-width:0;justify-self:end}
-html[data-app-layout] .view-header .view-brand{grid-column:2;grid-row:1;min-width:0;justify-self:center;text-align:center;font-size:clamp(16px,1.7vw,28px)!important;white-space:nowrap}
-.view-preference-field{min-width:0;width:auto;text-align:center}
-.view-preference-label{display:block;margin:0 0 5px;font-size:11px;line-height:1.2;color:var(--text-secondary);font-weight:600}
-html[data-app-layout=desktop] .view-header .view-preference-field{display:flex;flex-direction:row;align-items:center;gap:8px}
-html[data-app-layout=desktop] .view-header .view-preference-label{margin:0;white-space:nowrap}
-.view-preference-toggle{display:flex;gap:3px;padding:3px;border:1px solid var(--card-border);border-radius:24px;background:var(--surface-dark);width:max-content}
-.view-preference-toggle>button{display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:40px;padding:0;border:0;border-radius:20px;background:transparent;color:var(--text-main);font:inherit;font-size:20px;cursor:pointer;touch-action:manipulation}
+/* Компактная шапка и настройки представления приложения. */
+html[data-app-layout] .view-header{grid-template-columns:44px minmax(0,1fr) 44px!important;grid-template-rows:auto!important;min-height:64px!important;column-gap:12px!important;overflow:visible}
+html[data-app-layout] .view-header .view-brand{grid-column:2;grid-row:1;min-width:0;max-width:100%;justify-self:center;text-align:center;font-size:clamp(16px,1.7vw,28px)!important;white-space:normal;overflow-wrap:normal;word-break:normal}
+html[data-app-layout] .view-header>.app-settings-button{grid-column:3;grid-row:1;justify-self:end;display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:10px;border:1px solid var(--card-border);border-radius:14px;background:var(--surface-dark);color:var(--accent-ink,var(--accent));cursor:pointer;box-sizing:border-box;touch-action:manipulation;box-shadow:none}
+.app-settings-button>svg{width:24px;height:24px;flex:none}
+.app-settings-button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
+html[data-app-layout=mobile] .view-header{column-gap:8px!important;padding:6px 0 12px!important}
+html[data-app-layout=mobile] .view-header .view-brand{font-size:clamp(16px,4.7vw,24px)!important;line-height:1.15}
+#appAppearanceDialog{width:min(440px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid var(--card-border);border-radius:22px;background:var(--card-bg);color:var(--text-main);box-shadow:0 24px 80px #0006;box-sizing:border-box;overflow:auto;font-family:inherit;overscroll-behavior:contain;color-scheme:inherit}
+#appAppearanceDialog::backdrop{background:rgba(10,14,18,.6)}
+#appAppearanceDialog .app-settings-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 20px 16px;border-bottom:1px solid var(--card-border)}
+#appAppearanceDialog h2{margin:0;padding:0;font-size:20px;line-height:1.3;text-align:left;color:var(--text-main)}
+#appAppearanceDialog .app-settings-close{display:flex;align-items:center;justify-content:center;flex:none;width:44px;min-width:44px;height:44px;min-height:44px;margin:0;padding:0;border:1px solid var(--danger,#e4454f);border-radius:12px;background:transparent;color:var(--danger,#e4454f);font:inherit;font-size:28px;line-height:1;cursor:pointer;box-shadow:none}
+#appAppearanceDialog .app-settings-close:focus-visible{outline:2px solid var(--danger,#e4454f);outline-offset:3px}
+#appAppearanceDialog .app-settings-controls{display:grid;gap:12px;padding:20px}
+#appAppearanceDialog .view-preference-field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px;border:1px solid var(--card-border);border-radius:16px;background:var(--surface-dark);min-width:0;text-align:left;box-sizing:border-box}
+#appAppearanceDialog .view-preference-label{display:block;min-width:0;margin:0;font-size:14px;font-weight:600;line-height:1.4;color:var(--text-main);text-transform:none}
+.view-preference-toggle{display:flex;flex:none;gap:3px;padding:3px;border:1px solid var(--card-border);border-radius:24px;background:var(--card-bg);width:max-content}
+.view-preference-toggle>button{display:flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:40px;min-height:40px;margin:0;padding:0;border:0;border-radius:20px;background:transparent;color:var(--text-main);font:inherit;font-size:20px;cursor:pointer;touch-action:manipulation;box-shadow:none}
 .view-preference-toggle>button[aria-checked=true]{background:var(--accent);color:#142006;box-shadow:0 2px 6px #0002}
 .view-preference-toggle>button:focus-visible{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
-html[data-app-layout=mobile] .view-header{grid-template-columns:74px minmax(0,1fr) 74px!important;column-gap:6px!important;row-gap:0!important;align-items:center;padding:6px 0 12px!important}
-html[data-app-layout=mobile] .view-header .view-brand{grid-column:2;grid-row:1;width:100%;max-width:100%;font-size:clamp(20px,5vw,26px)!important;line-height:1.15;white-space:normal!important;overflow-wrap:normal;word-break:normal;justify-self:center}
-html[data-app-layout=mobile] .view-header .view-mode{display:contents}
-html[data-app-layout=mobile] .view-header .view-preference-field{grid-row:1;align-self:center;justify-self:center}
-html[data-app-layout=mobile] .view-header .view-preference-field:first-child{grid-column:1}
-html[data-app-layout=mobile] .view-header .view-preference-field:last-child{grid-column:3}
-html[data-app-layout=mobile] .view-preference-label{font-size:10px;margin-bottom:4px}
-html[data-app-layout=mobile] .view-preference-toggle>button{width:32px;min-width:32px;height:40px;font-size:16px}
-@media(max-width:1100px){html[data-app-layout=desktop] .view-header{grid-template-columns:48px minmax(0,1fr) 48px!important;row-gap:10px!important}html[data-app-layout=desktop] .view-header .view-mode{grid-column:1/-1;grid-row:2;justify-self:center}html[data-app-layout=desktop] .view-header .view-brand{grid-column:2;grid-row:1;font-size:clamp(14px,3vw,24px)!important;white-space:normal;overflow-wrap:anywhere}}
+#appAppearanceDialog .app-settings-note{margin:0;padding:0 20px 20px;font-size:12px;line-height:1.5;color:var(--text-secondary);text-align:left}
+@media(max-width:360px){#appAppearanceDialog .app-settings-controls{padding:16px}#appAppearanceDialog .view-preference-field{padding:12px;gap:8px}#appAppearanceDialog .view-preference-label{font-size:13px}}
 
 /* Приглушённая светлая тема: серые уровни вместо сплошного белого. */
 html[data-app-theme=light] .view-sidebar{background:#c5ced8}
@@ -4265,7 +4268,7 @@ function openTmcSection(key){
   const header=document.createElement('header');header.className='view-header';
   const brand=document.createElement('div');brand.className='view-brand';brand.textContent='INTERNET INSTALLER';
   
-  const controls=document.createElement('div');controls.className='view-mode';
+  const controls=document.createElement('div');controls.className='app-settings-controls';
   function preferencePicker(id,title,options,value,onChange){
    const field=document.createElement('div');field.className='view-preference-field';
    const caption=document.createElement('span');caption.id=id+'Label';caption.className='view-preference-label';caption.textContent=title;
@@ -4283,10 +4286,25 @@ function openTmcSection(key){
    group.updateValue=sync;sync(value);field.append(caption,group);return field;
   }
   controls.append(
-   preferencePicker('appViewMode','Экран',[['desktop','🖥️','Компьютер'],['mobile','📱','Телефон']],root.dataset.appLayout,value=>{preference=value;try{localStorage.setItem(key,preference);}catch(_){}applyLayout();}),
+   preferencePicker('appViewMode','Адаптация экрана',[['desktop','🖥️','Компьютер'],['mobile','📱','Телефон']],root.dataset.appLayout,value=>{preference=value;try{localStorage.setItem(key,preference);}catch(_){}applyLayout();}),
    preferencePicker('appColorTheme','Тема',[['original','🌙','Оригинальная тёмная тема'],['light','☀️','Светлая тема']],theme,applyTheme)
   );
-  header.append(brand,controls);document.body.prepend(header);
+  const settings=document.createElement('button');settings.type='button';settings.className='app-settings-button';settings.setAttribute('aria-label','Настройки экрана и темы');settings.title='Настройки экрана и темы';settings.setAttribute('aria-haspopup','dialog');settings.setAttribute('aria-controls','appAppearanceDialog');settings.setAttribute('aria-expanded','false');
+  settings.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m9.5 3-.6 2.1-1.8 1L5 5.6 2.5 10l1.6 1.5v2L2.5 15 5 19.4l2.1-.5 1.8 1 .6 2.1h5l.6-2.1 1.8-1 2.1.5 2.5-4.4-1.6-1.5v-2l1.6-1.5L19 5.6l-2.1.5-1.8-1L14.5 3Z"/><circle cx="12" cy="12.5" r="3.2"/></svg>';
+  const dialog=document.createElement('dialog');dialog.id='appAppearanceDialog';dialog.setAttribute('aria-labelledby','appAppearanceTitle');dialog.setAttribute('aria-describedby','appAppearanceNote');
+  const heading=document.createElement('div');heading.className='app-settings-heading';
+  const title=document.createElement('h2');title.id='appAppearanceTitle';title.textContent='Настройки приложения';
+  const close=document.createElement('button');close.type='button';close.className='app-settings-close';close.textContent='×';close.setAttribute('aria-label','Закрыть настройки');close.autofocus=true;
+  heading.append(title,close);
+  const note=document.createElement('p');note.id='appAppearanceNote';note.className='app-settings-note';note.textContent='Изменения применяются сразу и сохраняются на этом устройстве.';
+  dialog.append(heading,controls,note);document.body.append(dialog);
+  let previousOverflow='',backdropPress=false;
+  settings.onclick=()=>{if(dialog.open)return;document.getElementById('appViewMode')?.updateValue(root.dataset.appLayout);document.getElementById('appColorTheme')?.updateValue(theme);previousOverflow=document.body.style.overflow;dialog.showModal();document.body.style.overflow='hidden';settings.setAttribute('aria-expanded','true');};
+  close.onclick=()=>dialog.close();
+  dialog.addEventListener('close',()=>{document.body.style.overflow=previousOverflow;settings.setAttribute('aria-expanded','false');settings.focus({preventScroll:true});});
+  dialog.addEventListener('pointerdown',event=>{const rect=dialog.getBoundingClientRect();backdropPress=event.target===dialog&&(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom);});
+  dialog.addEventListener('click',event=>{const rect=dialog.getBoundingClientRect();if(backdropPress&&event.target===dialog&&(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom))dialog.close();backdropPress=false;});
+  header.append(brand,settings);document.body.prepend(header);
   window.addEventListener('storage',event=>{
    if(event.key===themeKey||event.key===null){theme=event.key===themeKey&&event.newValue==='light'?'light':'original';root.dataset.appTheme=theme;document.getElementById('appColorTheme')?.updateValue(theme);}
    if(event.key===key||event.key===null){preference=['desktop','mobile'].includes(event.newValue)&&event.key!==null?event.newValue:'auto';applyLayout();}
