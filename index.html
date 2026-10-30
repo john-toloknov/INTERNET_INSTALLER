@@ -12010,7 +12010,19 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
 
 
     async function sendReportForReceipt(url,payload) {
-        const receipt=await inventoryConfirmRequest(payload,async next=>{try{return await postJsonBounded(url,next,90000);}catch(error){return await waitForReportReceipt(url,next.requestId);}});
+        const receipt=await inventoryConfirmRequest(payload,async next=>{
+            const deadline=Date.now()+180000,owner=managementOwnerKey();
+            for(;;){
+                if(owner!==managementOwnerKey())throw new Error('Сеанс изменился. Проверьте состояние отчёта после входа.');
+                let result;
+                try{result=await postJsonBounded(url,next,90000);}catch(error){return await waitForReportReceipt(url,next.requestId);}
+                if(result?.status!=='busy'||result.code!=='REPORT_LOCK_BUSY')return result;
+                if(Date.now()>=deadline)throw new Error('Таблица всё ещё занята. Данные отчёта сохранены в форме. Повторите отправку — будет использован тот же ID.');
+                const button=document.querySelector('#tr-reportForm button[type="submit"]');
+                if(button?.disabled)button.textContent='⏳ Ожидаем сохранения…';
+                await new Promise(resolve=>setTimeout(resolve,Math.min(4000,Math.max(1000,Number(result.retryAfterMs)||1500))));
+            }
+        });
         if(receipt?.status==='error')throw Object.assign(new Error(receipt.message||'Отчёт не сохранён'),{confirmed:true});
         if(receipt?.status!=='success')return await waitForReportReceipt(url,payload.requestId);
         if(receipt.reportType!==payload.reportType||!Number.isInteger(Number(receipt.rowNumber))||Number(receipt.rowNumber)<2)throw new Error('Некорректное подтверждение записи отчёта');return receipt;
