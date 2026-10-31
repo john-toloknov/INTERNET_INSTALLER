@@ -245,6 +245,13 @@ html[data-app-layout=mobile] .return-hub-content .return-hub-submit{min-height:4
 html[data-app-layout=mobile] .return-hub-tabs{gap:5px}.return-hub-tabs .btn[aria-pressed=false]{box-shadow:none}html[data-app-layout=mobile] .return-hub-tabs .btn{font-size:11px!important;padding:8px 4px!important}
 html[data-app-layout=mobile] .return-hub-tools{flex-wrap:wrap}html[data-app-layout=mobile] .return-hub-tools input{flex-basis:100%}
 
+/* Поиск серийного номера: закрытие и сообщения без перекрытия MAC. */
+#screen-technician-reports #tr-step-equipment .equipment-search-note{font-size:12px;line-height:1.4;color:var(--text-secondary);margin:4px 0 8px;padding:0 8px;overflow-wrap:anywhere}
+#screen-technician-reports #tr-step-equipment .equipment-search-note[hidden]{display:none!important}
+#screen-technician-reports #tr-step-equipment .equipment-search-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 8px 4px 12px;font-size:12px;color:var(--text-secondary);border-bottom:1px solid var(--card-border);position:sticky;top:0;background:var(--surface-dark,var(--card-bg));z-index:1}
+#screen-technician-reports #tr-step-equipment .equipment-search-close{display:flex;align-items:center;justify-content:center;width:44px!important;min-width:44px;height:44px;min-height:44px;padding:0!important;margin:0!important;background:transparent;color:var(--text-main);border:1px solid var(--card-border);border-radius:8px;font-size:18px;cursor:pointer}
+#screen-technician-reports #tr-step-equipment button.equipment-search-item{display:block;width:100%;text-align:left;margin:0;min-height:44px;border:0;border-bottom:1px solid var(--card-border);border-radius:0;background:transparent;font-weight:400;white-space:normal;line-height:1.4}
+
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -11433,130 +11440,93 @@ document.addEventListener('click',event=>{
     }
 
     // Выполняет оборудование поиск контейнер.
+    function equipmentSearchNote(input,text='') {
+        const group=input?.closest('.input-group');if(!group)return;
+        let note=document.getElementById(input.id+'-lookup-note');
+        if(!note){note=document.createElement('div');note.id=input.id+'-lookup-note';note.className='equipment-search-note';note.setAttribute('role','status');note.setAttribute('aria-live','polite');group.after(note);}
+        note.textContent=text;note.hidden=!text;
+    }
     function equipmentSearchContainer(input) {
-        const group = input?.closest('.input-group');
-        if (!group) return null;
-        let box = group.querySelector('.equipment-search-results');
-        if (!box) {
-            box = document.createElement('div');
-            box.className = 'equipment-search-results';
-            group.appendChild(box);
-        }
-        return box;
+        const group = input?.closest('.input-group');if(!group)return null;
+        let box=group.querySelector('.equipment-search-results');
+        if(!box){box=document.createElement('div');box.className='equipment-search-results';box.id=input.id+'-lookup';box.setAttribute('role','group');box.setAttribute('aria-label','Найденное оборудование');group.append(box);}
+        input.setAttribute('aria-controls',box.id);if(!input.hasAttribute('aria-expanded'))input.setAttribute('aria-expanded','false');return box;
     }
-
-    // Очищает оборудование поиск.
-    function closeEquipmentSearch(except = null) {
-        document.querySelectorAll('#tr-step-equipment .equipment-search-results.open').forEach(box => {
-            if (box !== except) box.classList.remove('open');
-        });
+    function dismissEquipmentSearch(input){
+        if(!input)return;clearTimeout(equipmentSearchTimers.get(input));equipmentSearchSequences.set(input,(equipmentSearchSequences.get(input)||0)+1);
+        input.closest('.input-group')?.querySelector('.equipment-search-results')?.classList.remove('open');input.setAttribute('aria-expanded','false');equipmentSearchNote(input);
     }
-
-    // Обрабатывает оборудование поиск.
-    function selectEquipmentLookup(inputId, serial, mac, modelName) {
-        if (!reportEquipmentLookupAllowed()) return;
-        const input = document.getElementById(inputId);
-        if (!input) return;
-        input.value = normalizeEquipmentValue(input, serial);
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-        const macId = inputId.replace(/Sn$/, 'Mac');
-        const macInput = document.getElementById(macId);
-        if (macInput && mac) {
-            macInput.value = normalizeEquipmentValue(macInput, mac);
-            macInput.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-        const modelId = inputId.replace(/Sn$/, 'Model');
-        if (modelName) {
-            const modelInput = document.getElementById(modelId);
-            const modelBtn = document.getElementById(modelId + '-btn');
-            if (modelInput) modelInput.value = String(modelName);
-            if (modelBtn) modelBtn.textContent = String(modelName);
-        } else {
-            if (inputId.startsWith('tr-r')) autoDetectRouterModel(input.value, modelId);
-            if (inputId.startsWith('tr-tv')) autoDetectTvModel(input.value, modelId);
-        }
-        closeEquipmentSearch();
+    // Closing also cancels delayed searches: a late response cannot reopen the list.
+    function closeEquipmentSearch(except=null){
+        for(const id of reportEquipmentSerialIds){const input=document.getElementById(id);if(!input)continue;const box=input.closest('.input-group')?.querySelector('.equipment-search-results');if(!except||box!==except)dismissEquipmentSearch(input);}
     }
-
-    // Показывает оборудование поиск.
-    const equipmentSearchSequences = new WeakMap(), equipmentSearchTimers = new WeakMap();
+    function selectEquipmentLookup(inputId,serial,mac,modelName) {
+        if(!reportEquipmentLookupAllowed())return;
+        const input=document.getElementById(inputId);if(!input)return;
+        input.value=normalizeEquipmentValue(input,serial);input.dispatchEvent(new Event('input',{bubbles:true}));
+        const macId=inputId.replace(/Sn$/,'Mac'),macInput=document.getElementById(macId);
+        if(macInput&&mac){macInput.value=normalizeEquipmentValue(macInput,mac);macInput.dispatchEvent(new Event('input',{bubbles:true}));}
+        const modelId=inputId.replace(/Sn$/,'Model');
+        if(modelName){const modelInput=document.getElementById(modelId),modelBtn=document.getElementById(modelId+'-btn');if(modelInput)modelInput.value=String(modelName);if(modelBtn)modelBtn.textContent=String(modelName);}
+        else{if(inputId.startsWith('tr-r'))autoDetectRouterModel(input.value,modelId);if(inputId.startsWith('tr-tv'))autoDetectTvModel(input.value,modelId);}
+        closeEquipmentSearch();equipmentSearchNote(input,mac?'✓ Устройство найдено — MAC и модель подставлены.':'✓ Устройство найдено. Введите MAC вручную.');
+        syncDismantleKits();
+    }
+    const equipmentSearchSequences=new WeakMap(),equipmentSearchTimers=new WeakMap();
     async function showEquipmentSearch(input) {
-        if (!input || !reportEquipmentSerialIds.has(input.id)) return;
-        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
-        const sequence = (equipmentSearchSequences.get(input) || 0) + 1;
-        equipmentSearchSequences.set(input, sequence);
-        const query = normalizeEquipmentValue(input, input.value).toUpperCase();
-        const box = equipmentSearchContainer(input);
-        if (!box) return;
-        closeEquipmentSearch(box);
-        if (!query) { box.classList.remove('open'); box.replaceChildren(); return; }
-        box.innerHTML = '<div class="equipment-search-empty">⏳ Ищем в таблице города…</div>';
-        box.classList.add('open');
+        if(!input||!reportEquipmentSerialIds.has(input.id))return;
+        if(!reportEquipmentLookupAllowed()){clearReportEquipmentLookup();return;}
+        if(document.activeElement!==input)return;
+        const sequence=(equipmentSearchSequences.get(input)||0)+1;equipmentSearchSequences.set(input,sequence);
+        const query=normalizeEquipmentValue(input,input.value).toUpperCase(),box=equipmentSearchContainer(input);if(!box)return;
+        closeEquipmentSearch(box);box.classList.remove('open');box.replaceChildren();input.setAttribute('aria-expanded','false');
+        if(!query){equipmentSearchNote(input);return;}
+        equipmentSearchNote(input,'⏳ Ищем оборудование…');
+        const current=()=>reportEquipmentLookupAllowed()&&equipmentSearchSequences.get(input)===sequence&&document.activeElement===input&&normalizeEquipmentValue(input,input.value).toUpperCase()===query;
         let items;
-        try { items = await loadReportEquipmentLookup(); }
-        catch(error) {
-            if(!reportEquipmentLookupAllowed()||equipmentSearchSequences.get(input)!==sequence)return;
-            box.replaceChildren();
-            const message=document.createElement('div');message.className='equipment-search-empty';
-            message.textContent='Не удалось загрузить оборудование: '+String(error.message||error)+'. Повторите поиск.';
-            box.appendChild(message);return;
+        try{items=await loadReportEquipmentLookup();}
+        catch(error){if(current())equipmentSearchNote(input,'Не удалось загрузить оборудование. Можно заполнить данные вручную или повторить поиск.');return;}
+        if(!current())return;
+        const type=input.id.startsWith('tr-r')?'Роутеры':'Приставки';
+        const matches=items.filter(item=>String(item.type||'')===type&&equipmentSerial(item).toUpperCase().includes(query));
+        const exact=matches.filter(item=>normalizeEquipmentValue(input,equipmentSerial(item)).toUpperCase()===query);
+        if(exact.length===1){const item=exact[0];selectEquipmentLookup(input.id,equipmentSerial(item),equipmentItemMac(item),item.name||'');return;}
+        if(!matches.length){equipmentSearchNote(input,'Совпадений нет — можно заполнить MAC вручную.');return;}
+        equipmentSearchNote(input);
+        const header=document.createElement('div');header.className='equipment-search-header';
+        const title=document.createElement('span');title.textContent='Найдено: '+matches.length;
+        const close=document.createElement('button');close.type='button';close.className='equipment-search-close';close.textContent='✕';close.setAttribute('aria-label','Скрыть найденное оборудование');close.onclick=()=>closeEquipmentSearch();header.append(title,close);box.append(header);
+        for(const item of matches.slice(0,30)){
+            const serial=equipmentSerial(item),mac=equipmentItemMac(item),row=document.createElement('button');row.type='button';row.className='equipment-search-item';row.textContent=serial;
+            const meta=document.createElement('span');meta.className='equipment-search-meta';meta.textContent=(item.name?String(item.name):type.slice(0,-1))+(mac?' · MAC: '+mac:'');row.append(meta);
+            row.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')e.preventDefault();});
+            row.onclick=()=>selectEquipmentLookup(input.id,serial,mac,item.name||'');box.append(row);
         }
-        if(!reportEquipmentLookupAllowed()||equipmentSearchSequences.get(input)!==sequence)return;
-        if (document.activeElement !== input && !input.matches(':focus')) {box.classList.remove('open');box.replaceChildren();return;}
-        const type = input.id.startsWith('tr-r') ? 'Роутеры' : 'Приставки';
-        const matches = items.filter(item => {
-            if (String(item.type || '') !== type) return false;
-            const serial = equipmentSerial(item).toUpperCase();
-            // Можно искать по последним цифрам/символам серии.
-            return serial && (serial.endsWith(query) || serial.includes(query));
-        }).slice(0, 30);
-        box.replaceChildren();
-        if (!matches.length) {
-            const empty = document.createElement('div');
-            empty.className = 'equipment-search-empty';
-            empty.textContent = 'Совпадений нет — можно продолжить ручной ввод.';
-            box.appendChild(empty);
-        } else {
-            for (const item of matches) {
-                const serial = equipmentSerial(item);
-                const mac = equipmentItemMac(item);
-                const row = document.createElement('div');
-                row.className = 'equipment-search-item';
-                row.textContent = serial;
-                const meta = document.createElement('span');
-                meta.className = 'equipment-search-meta';
-                meta.textContent = (item.name ? String(item.name) : type.slice(0,-1)) + (mac ? ' · MAC: ' + mac : '');
-                row.appendChild(meta);
-                row.addEventListener('mousedown', e => { e.preventDefault(); selectEquipmentLookup(input.id, serial, mac, item.name || ''); });
-                box.appendChild(row);
-            }
-        }
-        box.classList.add('open');
+        box.classList.add('open');input.setAttribute('aria-expanded','true');
     }
-
-    // Очищает отчёт модель списки выбора.
     function closeReportModelDropdowns() {
-        document.querySelectorAll('#tr-step-equipment .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
-        document.querySelectorAll('#tr-step-equipment .dropdown-list.open').forEach(list => list.classList.remove('open'));
+        document.querySelectorAll('#tr-step-equipment .custom-dropdown.open').forEach(dropdown=>setDropdownOpen(dropdown,false));
+        document.querySelectorAll('#tr-step-equipment .dropdown-list.open').forEach(list=>list.classList.remove('open'));
     }
-
-    document.addEventListener('focusin', event => {
-        if (!reportEquipmentSerialIds.has(event.target.id)) return;
-        closeReportModelDropdowns();
-        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
-        if (event.target.value) showEquipmentSearch(event.target);
+    document.addEventListener('focusin',event=>{
+        if(!reportEquipmentSerialIds.has(event.target.id)){if(!event.target.closest?.('#tr-step-equipment .equipment-search-results'))closeEquipmentSearch();return;}
+        closeReportModelDropdowns();if(!reportEquipmentLookupAllowed()){clearReportEquipmentLookup();return;}
+        if(event.target.value)showEquipmentSearch(event.target);
     });
-    document.addEventListener('input', event => {
-        if (!reportEquipmentSerialIds.has(event.target.id)) return;
-        closeReportModelDropdowns();
-        if (!reportEquipmentLookupAllowed()) { clearReportEquipmentLookup(); return; }
-        const input=event.target;
-        clearTimeout(equipmentSearchTimers.get(input));
-        equipmentSearchSequences.set(input,(equipmentSearchSequences.get(input)||0)+1);
-        equipmentSearchTimers.set(input,setTimeout(()=>showEquipmentSearch(input),180));
+    document.addEventListener('focusout',event=>{
+        if(!reportEquipmentSerialIds.has(event.target.id))return;
+        const input=event.target;setTimeout(()=>{const box=input.closest('.input-group')?.querySelector('.equipment-search-results');if(document.activeElement!==input&&!box?.contains(document.activeElement))dismissEquipmentSearch(input);},150);
     });
-    document.addEventListener('click', event => {
-        if (!event.target.closest('#tr-step-equipment .input-group')) closeEquipmentSearch();
+    document.addEventListener('input',event=>{
+        if(!reportEquipmentSerialIds.has(event.target.id))return;
+        closeReportModelDropdowns();if(!reportEquipmentLookupAllowed()){clearReportEquipmentLookup();return;}
+        const input=event.target;closeEquipmentSearch();equipmentSearchTimers.set(input,setTimeout(()=>showEquipmentSearch(input),180));
+    });
+    document.addEventListener('pointerdown',event=>{
+        if(!event.target.closest?.('#tr-step-equipment .input-group'))closeEquipmentSearch();
+    });
+    document.addEventListener('keydown',event=>{
+        if(event.key==='Escape'&&event.target.closest?.('#tr-step-equipment'))closeEquipmentSearch();
     });
 
     // ////////////////////////////////////////////////////// ФУНКЦИЯ СКАНЕРА ДЛЯ ПОЛЕЙ ВВОДА ОБОРУДОВАНИЯ ОТКРЫТИЕ
