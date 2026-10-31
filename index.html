@@ -252,6 +252,10 @@ html[data-app-layout=mobile] .return-hub-tools{flex-wrap:wrap}html[data-app-layo
 #screen-technician-reports #tr-step-equipment .equipment-search-close{display:flex;align-items:center;justify-content:center;width:44px!important;min-width:44px;height:44px;min-height:44px;padding:0!important;margin:0!important;background:transparent;color:var(--text-main);border:1px solid var(--card-border);border-radius:8px;font-size:18px;cursor:pointer}
 #screen-technician-reports #tr-step-equipment button.equipment-search-item{display:block;width:100%;text-align:left;margin:0;min-height:44px;border:0;border-bottom:1px solid var(--card-border);border-radius:0;background:transparent;font-weight:400;white-space:normal;line-height:1.4}
 
+/* Обязательные поля оборудования: ошибка рядом с конкретным полем. */
+html[data-app-layout] .equipment-required-error{border:1px solid var(--danger,#ff4545)!important;box-shadow:0 0 0 1px var(--danger,#ff4545)!important}
+.equipment-field-error{display:block!important;color:var(--danger,#ff4545)!important;font-size:12px;line-height:1.4;margin:5px 0 8px;overflow-wrap:anywhere;grid-column:1/-1}
+
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -5190,7 +5194,7 @@ function myReportsKits(record,grid,changes,controls){
 
 function myReportsFriendlyError(message){const text=String(message||'');if(/fetch|abort|network|timeout/i.test(text))return 'Связь с приложением прервалась. Обновите список и проверьте результат сохранения.';if(/лист|ячейк|таблиц|spreadsheet|https?:|Exception|Error|HTTP|getRange/i.test(text))return 'Не удалось сохранить изменения. Обратитесь к руководителю для проверки отчёта.';return text||'Не удалось выполнить действие. Повторите позже.';}
 function myReportsResult(result){const telegram=result.telegram||{};return telegram.status==='updated'?'✅ Изменения сохранены. Отчёт в Telegram обновлён.'+(result.warning?' Данные оборудования требуют проверки руководителем.':''):'⚠️ Изменения сохранены, но сообщение в Telegram не обновлено. Обратитесь к руководителю.';}
-async function myReportsSave(record,changes,controls,save,cancel){if(myReportsState.busy||!myReportsCurrent(managementOwnerKey()))return;if(myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsRender();myReportsStatus('Редактирование закрыто в 00:00. Обратитесь к руководителю.');return;}try{document.querySelector('.my-report-fields')?.sxExchange?.validate();}catch(e){myReportsShowOutcome(e.message,true);return;}document.querySelectorAll('#myReportsContent input').forEach(field=>{if(equipmentNormalizeInput(field))equipmentDispatchNormalized(field);});if(!Object.keys(changes).length){myReportsStatus('Нет изменений для сохранения.');return;}const invalidMac=myReportsErrorField('');if(invalidMac){myReportsShowOutcome('MAC должен содержать ровно 12 символов A–F и 0–9.',true,invalidMac);return;}const owner=managementOwnerKey(),requestId=ctRequestId();myReportsCloseDropdowns();myReportsState.busy=true;save.disabled=cancel.disabled=true;const before=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);myReportsStatus('Сохраняем исправления…',true);showBeelineModal('Сохранение отчёта','Сохраняем изменения и обновляем сообщение в группе…','⏳');
+async function myReportsSave(record,changes,controls,save,cancel){if(myReportsState.busy||!myReportsCurrent(managementOwnerKey()))return;if(myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsRender();myReportsStatus('Редактирование закрыто в 00:00. Обратитесь к руководителю.');return;}const eqRoot=document.querySelector('.my-report-fields');if(!eqValidateRecord(eqRoot,record.schema,{...record.values,...changes}))return;try{eqRoot?.sxExchange?.validate();}catch(e){eqHandleExchangeError(eqRoot,e);return;}document.querySelectorAll('#myReportsContent input').forEach(field=>{if(equipmentNormalizeInput(field))equipmentDispatchNormalized(field);});if(!Object.keys(changes).length){myReportsStatus('Нет изменений для сохранения.');return;}const invalidMac=myReportsErrorField('');if(invalidMac){myReportsShowOutcome('MAC должен содержать ровно 12 символов A–F и 0–9.',true,invalidMac);return;}const owner=managementOwnerKey(),requestId=ctRequestId();myReportsCloseDropdowns();myReportsState.busy=true;save.disabled=cancel.disabled=true;const before=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);myReportsStatus('Сохраняем исправления…',true);showBeelineModal('Сохранение отчёта','Сохраняем изменения и обновляем сообщение в группе…','⏳');
  try{let result;try{result=await myReportsApi('save',{id:record.id,version:record.version,changes,requestId});}catch(error){if(error.confirmed)throw error;result=await myReportsApi('status',{requestId});if(result.status==='pending')throw new Error('Сохранение ещё проверяется. Обновите список перед новой попыткой.');}if(!myReportsCurrent(owner))return;myReportsState.edit=null;myReportsState.busy=false;await myReportsLoad();if(myReportsCurrent(owner)){const outcome=myReportsResult(result);myReportsStatus('');myReportsShowOutcome(outcome,result.telegram?.status!=='updated'||!!result.warning);}}
  catch(error){if(myReportsCurrent(owner)){myReportsStatus('');myReportsShowOutcome(myReportsFriendlyError(error.message),true,myReportsErrorField(error.message));if(!error.confirmed){myReportsState.pending=requestId;save.disabled=true;save.textContent='Обновите список';}else save.disabled=false;}}
  finally{if(myReportsCurrent(owner)){myReportsState.busy=false;cancel.disabled=false;controls.forEach((n,i)=>n.disabled=before[i]);if(!myReportsState.pending)save.disabled=false;}}
@@ -5843,8 +5847,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
                         <div class="card">
                             <h3>Завершение отчета</h3>
                             
-                            <label>Акт</label>
-                            <input type="text" id="tr-actStatus" value="Не сдан" readonly style="color: var(--text-secondary);">
+                            <input type="hidden" id="tr-actStatus" value="Не сдан">
 
                             <label>ФИО Монтажника</label>
                             <div class="tr-author-display" id="tr-author-display">👤 Авторизованный пользователь</div>
@@ -10834,36 +10837,16 @@ document.addEventListener('blur', (e) => {
     function normalizeEquipmentValue(field, value){return reportEquipmentMacIds.has(field.id)?deviceInputMac(value):reportEquipmentSerialIds.has(field.id)?deviceInputSerial(value):value;}
 
     // Обрабатывает отчёт оборудование обязательные поля.
-    function syncReportEquipmentRequired() {
-        for (const [serialId, macId] of reportEquipmentPairs) {
-            const serial = document.getElementById(serialId), mac = document.getElementById(macId);
-            if (!serial || !mac) continue;
-            mac.required = !!serial.value.trim();
-            mac.setAttribute('aria-required', String(mac.required));
-            if (!mac.required) mac.setCustomValidity('');
-        }
+    function syncReportEquipmentRequired(){
+        for(const [serialId,macId] of reportEquipmentPairs){const serial=document.getElementById(serialId),mac=document.getElementById(macId),model=document.getElementById(serialId.replace(/Sn$/,'Model')),button=document.getElementById(model?.id+'-btn');if(!serial||!mac)continue;const required=!!serial.value.trim();mac.required=required;mac.setAttribute('aria-required',String(required));button?.setAttribute('aria-required',String(required));if(!required){eqClearError(mac);eqClearError(button);}else if(eqModelValid_(model?.value))eqClearError(button);}
     }
-    // Проверяет пары серийный номер/MAC и формат MAC адресов.
-    function validateEquipmentStep() {
-        try{if(/^Сервис /.test(document.getElementById('tr-reportType')?.value||''))sxMainMount()?.validate();}catch(e){showBeelineModal('Оборудование абонента',e.message,'⚠️');return false;}
-        syncReportEquipmentRequired();
-        for (const [serialId, macId] of reportEquipmentPairs) {
-            const serial = document.getElementById(serialId);
-            const mac = document.getElementById(macId);
-            if (!serial || !mac) continue;
-            serial.value = normalizeEquipmentValue(serial, serial.value);
-            mac.value = normalizeEquipmentValue(mac, mac.value);
-            serial.setCustomValidity('');
-            mac.setCustomValidity('');
-            if (serial.value && !mac.value) {
-                return reportFieldError(macId, 'Если указан серийный номер, MAC адрес обязателен.');
-            }
-            if (mac.value && !/^(?:[0-9A-F]{12}|(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|(?:[0-9A-F]{2}-){5}[0-9A-F]{2})$/.test(mac.value)) {
-                return reportFieldError(macId, 'Укажите MAC адрес из 12 шестнадцатеричных цифр, например AA:BB:CC:DD:EE:FF.');
-            }
-        }
-        return true;
+    function validateEquipmentStep(){
+        syncReportEquipmentRequired();const errors=[];
+        for(const [serialId,macId] of reportEquipmentPairs){const serial=document.getElementById(serialId),mac=document.getElementById(macId),modelId=serialId.replace(/Sn$/,'Model'),model=document.getElementById(modelId);if(!serial||!mac)continue;serial.value=normalizeEquipmentValue(serial,serial.value);mac.value=normalizeEquipmentValue(mac,mac.value);eqClearError(mac);eqClearError(document.getElementById(modelId+'-btn'));const label=(serialId.startsWith('tr-tv')?'Приставка ':'Роутер ')+serialId.match(/[1-3]/)[0];for(const error of eqDeviceErrors_(model?.value,serial.value,mac.value,label))errors.push({node:document.getElementById(error.field==='model'?modelId+'-btn':macId),message:error.message});}
+        if(errors.length){for(const e of errors)eqShowError(e.node,e.message);eqFocusError(errors[0].node);return false;}
+        try{if(/^Сервис /.test(document.getElementById('tr-reportType')?.value||''))sxMainMount()?.validate();}catch(error){eqHandleExchangeError(document.getElementById('tr-step-equipment'),error);return false;}return true;
     }
+    document.addEventListener('click',event=>{if(event.target.closest?.('#tr-step-equipment .custom-dropdown'))queueMicrotask(syncReportEquipmentRequired);});
 
     document.addEventListener('input', event => {
         const field = event.target;
@@ -10874,6 +10857,19 @@ document.addEventListener('blur', (e) => {
         syncReportEquipmentRequired();
     });
 
+// Серийный номер требует фактическую модель и MAC, во всех формах.
+function eqModelValid_(model){var v=String(model||'').trim();return !!v&&!/^(?:Роутер абонента|Без приставки|Не выбрано|Не определено|Не определена|—|-)$/i.test(v)&&!/^Выберите(?:\s|…|\.)/i.test(v);}
+function eqDeviceErrors_(model,sn,mac,label){
+ var out=[],serial=String(sn||'').trim(),address=String(mac||'').trim().toUpperCase();label=label||'Оборудование';
+ if(serial&&!eqModelValid_(model))out.push({field:'model',message:label+': выберите модель устройства'});
+ if(serial&&!address)out.push({field:'mac',message:label+': если указан серийный номер, MAC адрес обязателен'});
+ else if(address&&!/^(?:[0-9A-F]{12}|(?:[0-9A-F]{2}:){5}[0-9A-F]{2}|(?:[0-9A-F]{2}-){5}[0-9A-F]{2})$/.test(address))out.push({field:'mac',message:label+': MAC должен содержать 12 шестнадцатеричных символов'});
+ return out;
+}
+function eqSchemaErrors_(schema,values){
+ if(!schema||!schema.fields)return [];var errors=[],get=function(col){if(!col)return '';return Array.isArray(values)?values[String(col).split('').reduce(function(v,c){return v*26+c.charCodeAt(0)-64;},0)-1]:values[col];};
+ schema.fields.filter(function(f){return f.type==='router'||f.type==='stb';}).forEach(function(model){var title=model.label.split(' · ')[0],stock=model.label.indexOf(' · ')<0,sn=schema.fields.find(function(f){return f.label===(stock?'S/N':title+' · S/N');}),mac=schema.fields.find(function(f){return f.label===(stock?'MAC':title+' · MAC');});if(!sn||!mac)return;eqDeviceErrors_(get(model.col),get(sn.col),get(mac.col),title).forEach(function(e){errors.push({col:e.field==='model'?model.col:mac.col,message:e.message});});});return errors;
+}
 var SX_MODEL_NAMES={"D-Link Dir 615":"D-Link Dir 615","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"TP-Link DEKO M4 (Ultimate)","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TURBO":"Роутер Wi-Fi TURBO / router Wi-Fi TURBO","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001"};
 function sxReturnModel_(model){var text=String(model||'').trim();return SX_MODEL_NAMES[text]||text;}
 function sxDisplayModel_(model){var text=String(model||'').trim();if(text==='Маршрутизатор беспроводной 840 TP-Link')return 'TP-Link WR840N';return Object.keys(SX_MODEL_NAMES).find(function(key){return SX_MODEL_NAMES[key]===text;})||text;}
@@ -10888,7 +10884,7 @@ function sxManual_(text){var out=String(text||'');sxParse_(out).forEach(function
 function sxValidate_(d){
  var label=(d.kind==='stb'?'Приставка ':'Роутер ')+d.index,serial=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/,mac=/^[A-F0-9]{12}$/;
  if(['router','stb'].indexOf(d.kind)<0||!Number.isInteger(d.index)||d.index<1||d.index>3)throw new Error('Некорректная позиция замены');
- [d.model,d.provided&&d.provided.model].forEach(function(v){if(!v||String(v).length>250||/[\r\n]/.test(v))throw new Error(label+': выберите модель старого и нового устройства');});
+ [d.model,d.provided&&d.provided.model].forEach(function(v){if(!eqModelValid_(v)||String(v).length>250||/[\r\n]/.test(v))throw new Error(label+': выберите модель старого и нового устройства');});
  if(!serial.test(d.sn)||!serial.test(d.provided.sn))throw new Error(label+': укажите полный серийный номер обоих устройств');
  if(!mac.test(d.mac)||!mac.test(d.provided.mac))throw new Error(label+': MAC обоих устройств должен содержать 12 символов A–F и 0–9');
  if(d.sn===d.provided.sn||d.mac===d.provided.mac)throw new Error(label+': забираемое и предоставляемое устройства должны отличаться');
@@ -10898,6 +10894,25 @@ function sxValidate_(d){
  var parts=String(d.kit||'').split(', ');if(!d.kit||parts.some(function(p){return SX_KITS[d.kind].indexOf(p)<0;})||parts.indexOf('Без комплектации')>=0&&parts.length!==1)throw new Error(label+': укажите комплектацию или «Без комплектации»');return d;
 }
 
+// Ошибки оборудования показываются рядом с полями, без модальных окон.
+let eqFeedbackId=0;
+function eqClearError(node){if(!node)return;node.classList.remove('equipment-required-error');node.removeAttribute('aria-invalid');node.setCustomValidity?.('');if(node.eqNote){const id=node.eqNote.id;node.eqNote.remove();node.eqNote=null;const refs=(node.getAttribute('aria-describedby')||'').split(' ').filter(v=>v&&v!==id);if(refs.length)node.setAttribute('aria-describedby',refs.join(' '));else node.removeAttribute('aria-describedby');}}
+function eqShowError(node,message){if(!node)return;eqClearError(node);node.classList.add('equipment-required-error');node.setAttribute('aria-invalid','true');node.setCustomValidity?.(message);const note=document.createElement('div');note.className='equipment-field-error';note.id='eq-feedback-'+(++eqFeedbackId);note.textContent=message;note.setAttribute('role','alert');const anchor=node.closest('.custom-dropdown,.sx-code,.input-group')||node;anchor.after(note);node.eqNote=note;node.setAttribute('aria-describedby',((node.getAttribute('aria-describedby')||'')+' '+note.id).trim());}
+function eqFocusError(node){if(!node)return;for(let p=node.parentElement;p;p=p.parentElement){if(p.tagName==='DETAILS')p.open=true;if(p.classList.contains('accordion-item'))p.classList.add('open');}if(node.closest('#tr-step-equipment')&&!document.getElementById('tr-step-equipment').classList.contains('active'))showStep(3);node.scrollIntoView?.({block:'center',behavior:'smooth'});node.focus();if(node.tagName==='INPUT'||node.tagName==='TEXTAREA')node.reportValidity?.();}
+function eqValidateRecord(root,schema,values){const errors=eqSchemaErrors_(schema,values);if(errors.length)root?.eqMountEquipment?.();root?.querySelectorAll('.equipment-required-error').forEach(eqClearError);let first=null;for(const e of errors){const field=schema.fields.find(f=>f.col===e.col),node=root?.querySelector('[aria-label="'+field.label+'"]');if(node){eqShowError(node,e.message);first||=node;}}if(first)eqFocusError(first);return !errors.length;}
+function eqHandleExchangeError(root,error){if(error.inlineEquipment)return;const slot=root?.sxExchange?.slots.find(s=>s.active);if(slot){eqShowError(slot.sn,error.message);eqFocusError(slot.sn);}}
+function eqSlotErrors(slot){
+ const d=slot.data(),errors=[],add=(node,message)=>errors.push({node,message}),label=slot.title+' '+slot.index;
+ if(!eqModelValid_(d.model))add(slot.model.input,label+': выберите модель забранного устройства');
+ if(!/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/.test(d.sn))add(slot.sn,label+': укажите полный серийный номер');
+ if(!/^[A-F0-9]{12}$/.test(d.mac))add(slot.mac,label+': MAC должен содержать 12 шестнадцатеричных символов');
+ if(!d.kit)add(slot.kit.input,label+': укажите комплектацию или «Без комплектации»');
+ if(!d.reason)add(slot.reason.input,label+': выберите причину возврата');
+ if(d.reason==='Другая причина'&&!d.detail)add(slot.detail,label+': опишите другую причину');
+ if(!d.status)add(slot.status.input,label+': выберите статус');return errors;
+}
+document.addEventListener('input',event=>eqClearError(event.target));
+document.addEventListener('change',event=>eqClearError(event.target));
 // Сервисные замены: общая форма для нового отчёта и обоих редакторов.
 let sxInstance=0,sxMain=null;
 function sxNode(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
@@ -10924,9 +10939,9 @@ function sxAttach(root,adapter){
    if(!active)continue;if(sxDisposal_(slot.model.get()))slot.reason.set('Утилизация');const reason=slot.reason.get(),status=sxRule_(slot.model.get(),reason,slot.status.get());slot.status.set(status);slot.status.input.disabled=reason!=='Другая причина';slot.detailWrap.hidden=reason!=='Другая причина';
    const d=slot.data();if(slot.active){try{sxValidate_(d);lines.push(sxFormat_(d));slot.button.textContent='🔄 '+slot.title+' абонента · '+d.model+' · '+d.sn;}catch(_){slot.button.textContent='🔄 '+slot.title+' абонента · заполните данные';}}else slot.button.textContent='🔄 '+slot.title+' абонента';
   }
-  ctx.generated=lines.join('\n\n');const next=ctx.generated+(ctx.generated&&manual?'\n\n':'')+manual;if(next!==adapter.comment())adapter.setComment(next);
+  for(const slot of ctx.slots){const invalid=new Set(slot.active?eqSlotErrors(slot).map(e=>e.node):[]);slot.wrap.querySelectorAll('.equipment-required-error').forEach(node=>{if(!invalid.has(node))eqClearError(node);});}ctx.generated=lines.join('\n\n');const next=ctx.generated+(ctx.generated&&manual?'\n\n':'')+manual;if(next!==adapter.comment())adapter.setComment(next);
  }finally{ctx.updating=false;}}
- ctx.sync=save;ctx.validate=()=>{save();const devices=ctx.slots.filter(s=>s.active).map(s=>sxValidate_(s.data()));if(!/^Сервис /.test(adapter.type())&&devices.length)return true;const seen=new Set();for(const d of devices){for(const key of ['sn:'+d.sn,'mac:'+d.mac]){if(seen.has(key))throw new Error('Одно забираемое устройство указано в нескольких заменах');seen.add(key);}if(ctx.slots.some(other=>{const p=adapter.provided(other.kind,other.index);return p.sn===d.sn||p.mac===d.mac;}))throw new Error('Забираемое устройство совпадает с предоставляемым');}return true;};
+ ctx.sync=save;ctx.validate=()=>{save();const errors=[];for(const slot of ctx.slots){slot.wrap.querySelectorAll('.equipment-required-error').forEach(eqClearError);if(slot.active)errors.push(...eqSlotErrors(slot));}if(errors.length){for(const e of errors)eqShowError(e.node,e.message);eqFocusError(errors[0].node);const error=new Error(errors[0].message);error.inlineEquipment=true;throw error;}const devices=ctx.slots.filter(s=>s.active).map(s=>sxValidate_(s.data()));if(!/^Сервис /.test(adapter.type())&&devices.length)return true;const seen=new Set();for(const d of devices){for(const key of ['sn:'+d.sn,'mac:'+d.mac]){if(seen.has(key))throw new Error('Одно забираемое устройство указано в нескольких заменах');seen.add(key);}if(ctx.slots.some(other=>{const p=adapter.provided(other.kind,other.index);return p.sn===d.sn||p.mac===d.mac;}))throw new Error('Забираемое устройство совпадает с предоставляемым');}return true;};
  for(const kind of ['router','stb'])for(let index=1;index<=3;index++){
   const host=adapter.host(kind,index);if(!host)continue;const title=kind==='stb'?'Приставка':'Роутер',wrap=sxNode('section','sx-exchange'),button=sxNode('button','btn action-btn sx-toggle','🔄 '+title+' абонента'),body=sxNode('div','sx-body'),grid=sxNode('div','sx-grid'),slot={kind,index,title,wrap,button,body,active:false};button.type='button';body.hidden=true;wrap.append(button,body);body.append(sxNode('h4','',title+' абонента — забираемое оборудование'),grid);
   const changed=()=>save(),deviceLabel=(kind==='stb'?'приставки ':'роутера ')+index;slot.model=sxChoice('Модель '+deviceLabel,()=>{const models=(kind==='stb'?standardTvBoxes:standardRouterModels).filter(v=>v!=='Без приставки');return [...new Set([...models,...(slot.model.get()?[slot.model.get()]:[])])];},changed);grid.append(slot.model.wrap);
@@ -13013,6 +13028,7 @@ async function handleReturnEquipment(e) {
     if(retDraftState.loading){showBeelineModal('Поиск оборудования','Дождитесь завершения поиска по вашему серийному номеру.','⏳');return;}
     if(retDraftState.items.length&&!retDraftState.selection){showBeelineModal('Выберите устройство','Выберите нужную запись из найденных возвратов.','⚠️');return;}
     for(const id of ['retSerial','retMac'])equipmentNormalizeInput(document.getElementById(id));
+    {const model=document.getElementById('retNomenclature'),sn=document.getElementById('retSerial'),mac=document.getElementById('retMac'),modelField=document.getElementById('retNomenclatureSearch');eqClearError(modelField);eqClearError(mac);const errors=eqDeviceErrors_(model.value,sn.value,mac.value,'Возврат оборудования');for(const e of errors)eqShowError(e.field==='model'?modelField:mac,e.message);if(errors.length){eqFocusError(errors[0].field==='model'?modelField:mac);return;}}
     if(!/^[A-F0-9]{12}$/.test(document.getElementById('retMac').value)){showBeelineModal('Проверьте MAC','MAC должен содержать 12 символов A–F и 0–9.','⚠️');return;}
     updateKitSelection();
     if(!document.getElementById('retNomenclature').value||!document.getElementById('retKit').value||!document.getElementById('retStatus').value||!document.getElementById('retReason').value.trim()){showBeelineModal('Обязательные поля','Заполните номенклатуру, комплектацию, статус и причину возврата.','⚠️');return;}
@@ -14480,7 +14496,7 @@ function ctArticle(record,schema){
  if(ctPart!=='acts')controls.append(arrow);if(schema.act){const ack=ctNode('button','btn main-btn',ctActOpen(record)?'📄 Сдать акт':'✅ АКТ Сдан');ack.type='button';ack.dataset.ctAck='true';ack.title=record.actReadonly?'АКТ вычисляется формулой':ctActOpen(record)?'Отметить акт как сданный':'Изменить отметку: акт не сдан';ack.onclick=()=>ctConfirm(ctActOpen(record)?'Сдать акт?':'Изменить отметку АКТ?',ctActOpen(record)?'Подтвердить сдачу акта этой записи?':'Отметить этот акт как несданный?',()=>ctMutate(ctActOpen(record)?'ack':'unack',[record]));controls.append(ack);}if(ctPart==='acts')controls.append(arrow);visible.append(controls);
 
  function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const device=ctNode('div','ct-device');const start=(kind==='router'?0:9)+index*3;fields.slice(start,start+3).forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}sxEditorMount(article,record,schema,()=>ctDraft(record).values,(col,v)=>{const draft=ctDraft(record);draft.values[col]=v;if(v===String(record.values[col]||''))delete draft.changes[col];else draft.changes[col]=v;ctUpdateDraft(article,record);});if(typeof mountAppCalendars==='function')mountAppCalendars();}
- const footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.dataset.ctSave='true';save.onclick=()=>ctMutate('save',[record]);footer.append(status,save);article.append(visible,hidden,footer);ctUpdateDraft(article,record);return article;
+ article.eqMountEquipment=()=>{if(!hidden.childElementCount)mountHidden();hidden.hidden=false;arrow.setAttribute('aria-expanded','true');};const footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.dataset.ctSave='true';save.onclick=()=>ctMutate('save',[record]);footer.append(status,save);article.append(visible,hidden,footer);ctUpdateDraft(article,record);return article;
 }
 // Выполняет все записи — модуль городской таблицы.
 function ctActRecordVisible(record){
@@ -14545,7 +14561,7 @@ async function ctRefreshKeepingDrafts(){
 }
 // Выполняет mutate — модуль городской таблицы.
 async function ctMutate(operation,records){
- if(operation==='save'){try{for(const record of records){const node=[...document.querySelectorAll('[data-ct-key]')].find(n=>n.dataset.ctKey===ctIdentity(record));node?.sxExchange?.validate();}}catch(e){showBeelineModal('Оборудование абонента',e.message,'⚠️');return;}}
+ if(operation==='save'){try{for(const record of records){const node=[...document.querySelectorAll('[data-ct-key]')].find(n=>n.dataset.ctKey===ctIdentity(record));const schema=ctState.sheets.find(s=>s.name===record.sheet)?.schema;if(!eqValidateRecord(node,schema,ctDraft(record).values))return;try{node?.sxExchange?.validate();}catch(e){eqHandleExchangeError(node,e);return;}}}catch(e){ctSetMessage(e.message);return;}}
  if(ctState.busy||ctState.owner!==managementOwnerKey())return;const owner=ctState.owner,group=ctState.group,requestId=ctRequestId();
  const items=records.map(r=>({sheet:r.sheet,row:r.row,version:r.version,changes:operation==='save'?{...ctDraft(r).changes}:{}}));
  if(operation==='save'&&!Object.keys(items[0].changes).length)return;ctCloseDropdowns();ctSetBusy(true);ctSetMessage(operation==='save'?'Сохраняем изменения…':'Подтверждаем сдачу актов…',true);
