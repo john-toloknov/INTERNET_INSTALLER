@@ -15175,12 +15175,30 @@ function rfId(){return 'rf_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random(
 function rfDraftKey(){return 'refarb_drafts_'+managementOwnerKey();}
 function rfRemember(){try{sessionStorage.setItem(rfDraftKey(),JSON.stringify([...rfUi.drafts]));sessionStorage.setItem('refarb_pending_'+managementOwnerKey(),JSON.stringify(rfUi.pending));}catch(e){}}
 function rfRestoreDrafts(){try{return new Map(JSON.parse(sessionStorage.getItem(rfDraftKey())||'[]'));}catch(e){return new Map();}}
+async function rfReadApiResponse(response){
+ if(!response.ok){const error=new Error('Сервер рефарба: HTTP '+response.status);error.retryRead=response.status===429||response.status>=500;throw error;}
+ const body=(await response.text()).replace(/^\uFEFF/,'').trim();
+ if(!body){const error=new Error('Сервер Рефарба вернул пустой ответ. Нажмите «Обновить». Если ошибка повторится, проверьте публикацию скрипта Рефарба.');error.retryRead=true;throw error;}
+ if(body.startsWith('<'))throw new Error('Вместо данных Рефарба получена веб-страница. Проверьте адрес /exec и доступ к опубликованному скрипту Рефарба.');
+ let result;try{result=JSON.parse(body);}catch(cause){const error=new Error('Ответ сервера Рефарба получен не полностью или имеет неверный формат. Нажмите «Обновить».');error.retryRead=true;throw error;}
+ if(!result||typeof result!=='object'||Array.isArray(result)||!['success','error'].includes(result.status))throw new Error('Скрипт вернул неверный формат данных Рефарба. Проверьте адрес и версию публикации.');
+ return result;
+}
 async function rfApi(operation,fields={},timeout=35000){
  const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user?.city]?.refarbScriptUrl;
  if(!user||!isConfiguredCityUrl(url))throw new Error('Для этого участка не заполнен refarbScriptUrl в карте городов');
  if(frontendDistricts().filter(c=>c.refarbScriptUrl===url).length!==1)throw new Error('Адрес рефарба повторяется у нескольких участков. У каждого участка должен быть свой адрес');
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
- try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('Сервер рефарба: HTTP '+response.status);const result=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success'){const e=new Error(result.message||'Операция не выполнена');e.code=result.code;e.confirmed=true;throw e;}return result;}catch(e){if(e.name==='AbortError')throw new Error('Ответ не получен вовремя. Повторите сохранение для проверки того же запроса');throw e;}finally{clearTimeout(timer);}
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout),attempts=operation==='list'?2:1;
+ try{
+  for(let attempt=0;attempt<attempts;attempt++){
+   if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
+   try{
+    const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal}),result=await rfReadApiResponse(response);
+    if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
+    if(result.status!=='success'){const error=new Error(result.message||'Операция не выполнена');error.code=result.code;error.confirmed=true;throw error;}return result;
+   }catch(error){if(attempt+1<attempts&&error.retryRead&&!controller.signal.aborted&&owner===managementOwnerKey())continue;throw error;}
+  }
+ }catch(error){if(error.name==='AbortError')throw new Error(operation==='list'?'Рефарб не ответил вовремя. Нажмите «Обновить».':'Ответ не получен вовремя. Повторите сохранение для проверки того же запроса');throw error;}finally{clearTimeout(timer);}
 }
 async function openRefarb(manager=false){
  if(manager?!rfUiManager():!rfUiAssigned())return;
