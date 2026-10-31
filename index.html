@@ -230,7 +230,17 @@ html[data-app-layout=mobile] .sx-choices{grid-template-columns:minmax(0,1fr)}
 /* Единый раздел возврата оборудования. */
 .return-hub-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:20px}.return-hub-tabs .btn{margin:0!important;width:100%!important;font-size:13px!important;white-space:normal;min-height:44px;padding:10px!important;line-height:1.5}
 .return-hub-tools{display:flex;gap:10px;align-items:center;margin-bottom:16px}.return-hub-tools input{flex:1;min-width:0;margin:0}.return-hub-tools .btn{width:auto!important;margin:0!important;flex:none}
-.return-hub-content .return-check-entry{margin-bottom:10px;box-sizing:border-box;width:100%}.return-hub-content .return-check-entry summary{overflow-wrap:anywhere}.return-hub-content .return-check-extra p{overflow-wrap:anywhere;font-size:13px;line-height:1.5}.return-hub-content .return-check-extra .btn{width:100%;margin-top:12px}
+.return-hub-content .return-check-entry{margin-bottom:10px;box-sizing:border-box;width:100%}
+.return-hub-content .return-check-entry summary{overflow-wrap:anywhere;gap:4px}
+.return-hub-content .return-check-extra{gap:4px;padding:8px 12px;font-size:12px;line-height:1.45}
+.return-hub-content .return-hub-detail{margin:0!important;padding:0;overflow-wrap:anywhere;min-width:0}
+.return-hub-content .return-hub-detail b{display:inline}
+.return-hub-details[open] .act-debts-arrow{transform:rotate(180deg)}
+.return-hub-content .return-hub-card-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px 12px}
+.return-hub-content .return-hub-submit{width:auto!important;min-width:110px;min-height:40px;margin:0!important;padding:8px 18px!important;flex:none;font-size:13px!important}
+.return-hub-content .return-hub-pending{font-size:12px;color:var(--text-secondary);min-width:0;overflow-wrap:anywhere}
+html[data-app-layout=mobile] .return-hub-content .return-hub-card-actions{gap:8px}
+html[data-app-layout=mobile] .return-hub-content .return-hub-submit{min-height:44px;min-width:100px}
 #screen-return-equipment>.card{max-width:100%!important}.return-hub-list[hidden],#screen-return-equipment form[hidden]{display:none!important}
 html[data-app-layout=mobile] .return-hub-tabs{gap:5px}.return-hub-tabs .btn[aria-pressed=false]{box-shadow:none}html[data-app-layout=mobile] .return-hub-tabs .btn{font-size:11px!important;padding:8px 4px!important}
 html[data-app-layout=mobile] .return-hub-tools{flex-wrap:wrap}html[data-app-layout=mobile] .return-hub-tools input{flex-basis:100%}
@@ -10942,7 +10952,35 @@ function retHubInit(){const root=document.getElementById('screen-return-equipmen
 function openReturnsHub(tab='form'){if(!currentUser||currentUser.role==='Стажер')return;if(tab==='form')return openReturnEquipmentForm();const hub=retHubInit();if(!hub)return;retHubSelect(tab);switchScreen('screen-return-equipment');}
 function retHubSelect(tab,load=true){const hub=retHubInit();if(!hub)return;retHubState.tab=tab;retHubState.limit=50;hub.form.hidden=tab!=='form';hub.list.hidden=tab==='form';retHubRender();if(load)retHubLoad();}
 async function retHubLoad(force=false){const owner=managementOwnerKey();if(retHubState.owner!==owner){retHubState.items=[];retHubState.owner=owner;retHubState.loadedAt=0;retHubState.error='';}if(!force&&Date.now()-retHubState.loadedAt<30000)return retHubRender();const epoch=++retHubState.epoch;retHubState.loading=true;retHubState.error='';retHubRender();try{const url=CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Скрипт участка не настроен');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);let data;try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'returnOverview'}),signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);data=await response.json();}finally{clearTimeout(timer);}if(owner!==managementOwnerKey()||epoch!==retHubState.epoch)return;if(data.status!=='success'||!Array.isArray(data.items))throw new Error(data.message||'Не удалось загрузить возвраты');retHubState.items=data.items;retHubState.loadedAt=Date.now();}catch(e){if(owner===managementOwnerKey()&&epoch===retHubState.epoch)retHubState.error=e.name==='AbortError'?'Не получен ответ. Нажмите «Обновить».':e.message;}finally{if(owner===managementOwnerKey()&&epoch===retHubState.epoch){retHubState.loading=false;retHubRender();}}}
-function retHubRender(){const hub=retHubInit();if(!hub)return;hub.nav.replaceChildren();for(const [id,label] of [['form','📝 Оформить возврат'],['pending','⏳ Ожидают оформления'],['confirmed','✅ Оформленные возвраты']]){const b=sxNode('button','btn '+(retHubState.tab===id?'main-btn':'action-btn'),label+(id==='form'?'':' · '+retHubState.items.filter(r=>id==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed').length));b.type='button';b.setAttribute('aria-pressed',String(retHubState.tab===id));b.onclick=()=>retHubSelect(id);hub.nav.append(b);}hub.refresh.disabled=retHubState.loading;if(retHubState.tab==='form')return;hub.content.replaceChildren();if(retHubState.loading){hub.content.innerHTML=liveLoading('Загружаем возвраты…','📦');return;}if(retHubState.error){hub.content.append(sxNode('p','', '⚠️ '+retHubState.error));return;}const q=hub.search.value.trim().toLowerCase(),rows=retHubState.items.filter(r=>(retHubState.tab==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed')&&(!q||[r.series,r.mac,r.model,r.ticket,r.address].some(v=>String(v||'').toLowerCase().includes(q))));if(!rows.length)hub.content.append(sxNode('p','','Записей по выбранным условиям нет.'));for(const r of rows.slice(0,retHubState.limit)){const card=sxNode('details','return-check-entry'),summary=sxNode('summary'),extra=sxNode('div','return-check-extra');summary.append(sxNode('strong','return-check-title',r.model||'Оборудование'),sxNode('span','','S/N: '+r.series),sxNode('span','','MAC: '+r.mac),sxNode('span','','Дата: '+r.date),sxNode('span','return-check-status',r.status||'Не указан'));extra.append(sxNode('p','','Источник: '+r.source+(r.ticket?' · Заявка №'+r.ticket:'')),sxNode('p','','Адрес: '+(r.address||'—')),sxNode('p','','Комплектация: '+(r.kit||'—')),sxNode('p','','Причина: '+(r.reason||'—')));if(r.boxNumber)extra.append(sxNode('p','','Коробка №'+r.boxNumber));if(r.state==='pending'){const b=sxNode('button','btn main-btn','📝 Оформить возврат');b.type='button';b.onclick=()=>{openReturnEquipmentForm();retDraftState.items=[r];retDraftApply(r);};extra.append(b);}else if(r.state==='confirming')extra.append(sxNode('p','','Оформление проверяется. Обновите список.'));card.append(summary,extra);hub.content.append(card);}if(rows.length>retHubState.limit){const more=sxNode('button','btn main-btn','Показать ещё');more.type='button';more.onclick=()=>{retHubState.limit+=50;retHubRender();};hub.content.append(more);}}
+function retHubCard(r){
+ const card=sxNode('article','return-check-entry return-hub-record'),details=sxNode('details','return-hub-details'),summary=sxNode('summary'),extra=sxNode('div','return-check-extra');
+ const status=String(r.status||'').trim(),model=String(r.model||'Оборудование').replace(/\|+$/,'').trim(),icon=/rasse001|zxv10b860h/.test(model.toLowerCase().replace(/[^a-z0-9]/g,''))?'📺':'🛜';
+ card.dataset.status=status;
+ summary.append(sxNode('span','return-check-title',icon+' '+model));
+ function line(parent,label,value,cls=''){const row=sxNode('span',cls);row.append(document.createTextNode(label+' '),sxNode('b','',String(value||'—')));parent.append(row);return row;}
+ line(summary,'Серийный номер:',r.series);line(summary,'МАК адрес:',r.mac);line(summary,r.state==='confirmed'?'Дата возврата:':'Дата отчёта:',r.date);
+ const state=line(summary,'Статус:',status,'return-check-status');state.dataset.status=status;
+ const arrow=sxNode('span','act-debts-arrow','▼');arrow.setAttribute('aria-hidden','true');state.append(arrow);
+ function field(label,value){const row=sxNode('div','return-hub-detail');row.append(sxNode('b','',label+' '),document.createTextNode(String(value||'—')));extra.append(row);}
+ field('Источник:',(r.source||'—')+(r.ticket?' · Заявка №'+r.ticket:''));field('Адрес:',r.address);field('Комплектация:',r.kit);field('Причина возврата:',r.reason);if(r.boxNumber)field('Коробка №',r.boxNumber);
+ details.append(summary,extra);card.append(details);
+ if(r.state==='pending'){
+  const actions=sxNode('div','return-hub-card-actions'),button=sxNode('button','btn main-btn return-hub-submit','📦 Сдать');button.type='button';button.setAttribute('aria-label','Сдать оборудование '+model+', серийный номер '+r.series);
+  button.onclick=()=>{openReturnEquipmentForm();retDraftState.items=[r];retDraftApply(r);};actions.append(sxNode('span','return-hub-pending','⏳ Ожидает оформления'),button);card.append(actions);
+ }else if(r.state==='confirming'){const notice=sxNode('div','return-hub-card-actions');notice.append(sxNode('span','return-hub-pending','⏳ Оформление проверяется. Обновите список.'));card.append(notice);}
+ return card;
+}
+function retHubRender(){
+ const hub=retHubInit();if(!hub)return;hub.nav.replaceChildren();
+ for(const [id,label] of [['form','📝 Оформить возврат'],['pending','⏳ Ожидают оформления'],['confirmed','✅ Оформленные возвраты']]){const b=sxNode('button','btn '+(retHubState.tab===id?'main-btn':'action-btn'),label+(id==='form'?'':' · '+retHubState.items.filter(r=>id==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed').length));b.type='button';b.setAttribute('aria-pressed',String(retHubState.tab===id));b.onclick=()=>retHubSelect(id);hub.nav.append(b);}
+ hub.refresh.disabled=retHubState.loading;if(retHubState.tab==='form')return;hub.content.replaceChildren();
+ if(retHubState.loading){hub.content.innerHTML=liveLoading('Загружаем возвраты…','📦');return;}
+ if(retHubState.error){hub.content.append(sxNode('p','', '⚠️ '+retHubState.error));return;}
+ const q=hub.search.value.trim().toLowerCase(),rows=retHubState.items.filter(r=>(retHubState.tab==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed')&&(!q||[r.series,r.mac,r.model,r.ticket,r.address].some(v=>String(v||'').toLowerCase().includes(q))));
+ if(!rows.length)hub.content.append(sxNode('p','','Записей по выбранным условиям нет.'));
+ for(const r of rows.slice(0,retHubState.limit))hub.content.append(retHubCard(r));
+ if(rows.length>retHubState.limit){const more=sxNode('button','btn main-btn','Показать ещё');more.type='button';more.onclick=()=>{retHubState.limit+=50;retHubRender();};hub.content.append(more);}
+}
 
 // Комплектация каждого демонтируемого устройства; в таблицу уходит обычный комментарий AC.
 const dismantleKitSlots=['r1','r2','r3','tv1','tv2','tv3'];
