@@ -256,6 +256,12 @@ html[data-app-layout=mobile] .return-hub-tools{flex-wrap:wrap}html[data-app-layo
 html[data-app-layout] .equipment-required-error{border:1px solid var(--danger,#ff4545)!important;box-shadow:0 0 0 1px var(--danger,#ff4545)!important}
 .equipment-field-error{display:block!important;color:var(--danger,#ff4545)!important;font-size:12px;line-height:1.4;margin:5px 0 8px;overflow-wrap:anywhere;grid-column:1/-1}
 
+
+/* Песочные часы Рефарба используют общую анимацию прыжка и поворота. */
+.rf-message.rf-message-loading,.rf-scan-message.rf-message-loading{display:flex;align-items:center;gap:8px;min-height:28px}
+.rf-message-loading .rf-hourglass{font-size:20px;line-height:1.2;color:var(--accent-ink);flex:none}
+@media(prefers-reduced-motion:reduce){.rf-message-loading .rf-hourglass{animation:none}}
+
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -15170,7 +15176,9 @@ function rfUiAssigned(){return !engineerAllowed()&&currentUser?.refarbEnabled===
 function rfVisibility(){const b=document.getElementById('refarbWorkerBtn');if(b){b.hidden=!rfUiAssigned();b.style.display=rfUiAssigned()?'':'none';}}
 function rfElement(tag,cls='',text=''){const n=document.createElement(tag);n.className=cls;if(text)n.textContent=text;return n;}
 function rfRoot(){return document.querySelector((rfUi.manager?'#screen-admin-refarb':'#screen-refarb')+' .rf-root');}
-function rfNote(message){rfRoot()?.querySelectorAll('.rf-message,.rf-scan-message').forEach(el=>el.textContent=message);}
+function rfNote(message,loading=false){
+ rfRoot()?.querySelectorAll('.rf-message,.rf-scan-message').forEach(el=>{el.replaceChildren();el.classList.toggle('rf-message-loading',loading&&!!message);if(!message)return;if(loading){const icon=rfElement('span','pw-hourglass rf-hourglass','⏳');icon.setAttribute('aria-hidden','true');el.append(icon);}el.append(document.createTextNode(message));});
+}
 function rfId(){return 'rf_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));}
 function rfDraftKey(){return 'refarb_drafts_'+managementOwnerKey();}
 function rfRemember(){try{sessionStorage.setItem(rfDraftKey(),JSON.stringify([...rfUi.drafts]));sessionStorage.setItem('refarb_pending_'+managementOwnerKey(),JSON.stringify(rfUi.pending));}catch(e){}}
@@ -15258,7 +15266,7 @@ function rfBuild(){
  if(rfUi.manager)root.append(toolbar,state,counters,info,scan,payment,search.wrap,bulk,lists,save,nav);else root.append(toolbar,state,counters,info,scan,search.wrap,lists,save,payment,nav);rfRender();
 }
 async function rfLoad(force=true){
- if(rfUi.busy)return;const owner=managementOwnerKey(),version=++rfUi.version;rfUi.busy=true;rfNote('Загружаем рефарб…');rfBusyControls();
+ if(rfUi.busy)return;const owner=managementOwnerKey(),version=++rfUi.version;rfUi.busy=true;rfNote('Загружаем рефарб…',true);rfBusyControls();
  try{const data=await rfApi('list',{month:rfUi.month,force});if(version!==rfUi.version||owner!==managementOwnerKey())return;if(rfUi.data&&rfUi.data.month!==data.month)rfUi.selected?.clear();rfUi.data=data;rfPruneSelection();rfUi.month=data.month;rfRoot().querySelector('input[type=month]').value=data.month;rfUi.limit=100;rfRender();rfNote('');}
  catch(e){if(owner===managementOwnerKey())rfNote('⚠️ '+e.message);}finally{if(owner===managementOwnerKey()&&version===rfUi.version){rfUi.busy=false;rfBusyControls();}}
 }
