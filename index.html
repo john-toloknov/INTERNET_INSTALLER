@@ -210,6 +210,31 @@ html[data-app-layout=mobile] .ct-act-selection{bottom:calc(90px + env(safe-area-
 html[data-app-layout=mobile] .ct-act-selection strong{width:100%;text-align:center}html[data-app-layout=mobile] .ct-act-selection .btn{flex:1 1 125px}
 html[data-app-layout=mobile] #cityTableEditor:has(.ct-act-selection) #cityTableRows{padding-bottom:250px}
 html[data-app-theme=light] .ct-act-selection{background:#e7ecf1;color:#222}
+/* Оборудование абонента при сервисной замене. */
+.sx-exchange{width:100%;min-width:0;grid-column:1/-1;margin:12px 0 0;box-sizing:border-box}
+.sx-exchange .sx-toggle{width:100%!important;margin:0!important;text-align:left;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+.sx-body{margin-top:10px;padding:14px;border:1px solid var(--card-border);border-radius:12px;background:var(--card-bg);min-width:0}
+.sx-body h4{margin:0 0 14px;color:var(--text-main);font-size:14px}.sx-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
+.sx-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;min-width:0}.sx-grid .sx-field{min-width:0;display:block!important;margin:0!important}.sx-field>label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.35px;margin:0 0 6px;font-weight:600;color:var(--text-secondary)}
+.sx-exchange .custom-dropdown{width:100%;margin:0;min-width:0}.sx-exchange .dropdown-select-btn{margin:0!important;width:100%!important;min-width:0;min-height:42px;white-space:normal;text-align:left;font-size:13px!important;line-height:1.5}
+.sx-exchange .dropdown-select-btn>span:first-child{min-width:0;overflow-wrap:anywhere}.sx-exchange .dropdown-list{min-width:100%;max-width:100%;box-sizing:border-box}
+.sx-grid input{width:100%;min-width:0;box-sizing:border-box;margin:0;font-size:13px}.sx-code{display:flex;gap:8px;align-items:stretch}.sx-code input{flex:1;min-width:0}.sx-code .btn{width:44px!important;min-width:44px;flex:none;margin:0!important;padding:6px!important}
+.sx-exchange .dropdown-list{padding:4px;border-color:var(--accent);background:var(--card-bg)}
+.sx-exchange .checkbox-container{display:flex!important;flex-direction:row!important;gap:10px;align-items:center;position:relative;padding:7px 8px!important;min-height:36px;margin:0!important;width:100%;box-sizing:border-box;cursor:pointer;text-transform:none;letter-spacing:normal;line-height:1.4}
+.sx-exchange .checkbox-container input[type=checkbox]{display:block;position:absolute;opacity:0;width:1px!important;height:1px!important;margin:0;padding:0}
+.sx-exchange .custom-checkbox{display:flex;flex:0 0 20px;box-sizing:border-box;width:20px;height:20px}.sx-exchange .checkbox-label{display:block;min-width:0;white-space:normal;font-size:14px;line-height:1.4}
+.sx-exchange input:focus-visible+.custom-checkbox{outline:2px solid var(--accent-ink,var(--accent));outline-offset:3px}
+html[data-app-layout=mobile] .sx-exchange .checkbox-container{min-height:44px}
+.sx-remove{margin:14px 0 0!important;width:auto!important;font-size:12px!important}.sx-body[hidden],.sx-exchange[hidden],.sx-field[hidden]{display:none!important}
+html[data-app-layout=mobile] .sx-choices{grid-template-columns:minmax(0,1fr)}
+/* Единый раздел возврата оборудования. */
+.return-hub-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:20px}.return-hub-tabs .btn{margin:0!important;width:100%!important;font-size:13px!important;white-space:normal;min-height:44px;padding:10px!important;line-height:1.5}
+.return-hub-tools{display:flex;gap:10px;align-items:center;margin-bottom:16px}.return-hub-tools input{flex:1;min-width:0;margin:0}.return-hub-tools .btn{width:auto!important;margin:0!important;flex:none}
+.return-hub-content .return-check-entry{margin-bottom:10px;box-sizing:border-box;width:100%}.return-hub-content .return-check-entry summary{overflow-wrap:anywhere}.return-hub-content .return-check-extra p{overflow-wrap:anywhere;font-size:13px;line-height:1.5}.return-hub-content .return-check-extra .btn{width:100%;margin-top:12px}
+#screen-return-equipment>.card{max-width:100%!important}.return-hub-list[hidden],#screen-return-equipment form[hidden]{display:none!important}
+html[data-app-layout=mobile] .return-hub-tabs{gap:5px}.return-hub-tabs .btn[aria-pressed=false]{box-shadow:none}html[data-app-layout=mobile] .return-hub-tabs .btn{font-size:11px!important;padding:8px 4px!important}
+html[data-app-layout=mobile] .return-hub-tools{flex-wrap:wrap}html[data-app-layout=mobile] .return-hub-tools input{flex-basis:100%}
+
 </style>
 <style id="tmcUnifiedSectionTabsStyle">
 .tmc-section-tabs.ct-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;box-sizing:border-box;margin:0 0 16px}
@@ -5115,7 +5140,7 @@ function myReportsEdit(record){if(!myReportsCurrent(managementOwnerKey())||myRep
   if(!locked&&['router','stb','method','theme'].includes(field.type)){const select=ctNode('div','custom-dropdown'),button=ctNode('button','dropdown-select-btn'),list=ctNode('div','dropdown-list');button.type='button';const text=ctNode('span','',value||'— Выберите —');button.append(text,ctNode('span','dropdown-arrow','▼'));button.setAttribute('aria-label',field.label);button.setAttribute('aria-expanded','false');button.onclick=event=>{event.stopPropagation();myReportsToggleDropdown(select);};label.myReportSetValue=next=>{const note=label.querySelector('.my-report-model-note');if(note)note.textContent='';text.textContent=next||'— Выберите —';if(next===value)delete changes[field.col];else changes[field.col]=next;list.querySelectorAll('[role=option]').forEach(n=>n.setAttribute('aria-selected',String(n.dataset.modelValue===next)));};for(const choice of ctOptions(field,record.sheet,value)){const option=ctNode('div','dropdown-item',choice.label);option.tabIndex=0;option.setAttribute('role','option');option.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();option.click();}};option.dataset.modelValue=choice.value;option.onclick=()=>{label.myReportSetValue(choice.value);setDropdownOpen(select,false);};list.append(option);}select.append(button,list);label.append(select);controls.push(button);grid.append(label);continue;}
   input=ctNode(field.label==='Комментарий'?'textarea':'input');if(input.tagName==='INPUT'){input.type=field.type==='date'?'date':'text';if(field.type==='number')input.inputMode='decimal';}input.value=field.type==='date'?ctNormalizeDate(value):value;input.disabled=locked;input.setAttribute('aria-label',field.label);if(locked)input.title='Не изменяется при исправлении отчёта';input.oninput=()=>{if(input.value===value)delete changes[field.col];else changes[field.col]=input.value;};controls.push(input);label.append(input);grid.append(label);
  }
- myReportsDetectModels(record,grid,changes);myReportsKits(record,grid,changes,controls);myReportsArrangeFields(grid);
+ myReportsDetectModels(record,grid,changes);myReportsKits(record,grid,changes,controls);myReportsArrangeFields(grid);sxEditorMount(grid,record,record.schema,()=>({...record.values,...changes}),(col,v)=>{if(v===String(record.values[col]||''))delete changes[col];else changes[col]=v;});controls.push(...grid.querySelectorAll('.sx-exchange input,.sx-exchange button'));
  const actions=ctNode('div','my-report-save'),cancel=document.getElementById('myReportsBack'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.onclick=()=>myReportsSave(record,changes,controls,save,cancel);actions.append(save);host.append(grid,actions);}
 // Серийники в комментарии нужны, если устройств одного вида больше одного.
 function dismantleKitLines(devices){
@@ -5148,7 +5173,7 @@ function myReportsKits(record,grid,changes,controls){
 
 function myReportsFriendlyError(message){const text=String(message||'');if(/fetch|abort|network|timeout/i.test(text))return 'Связь с приложением прервалась. Обновите список и проверьте результат сохранения.';if(/лист|ячейк|таблиц|spreadsheet|https?:|Exception|Error|HTTP|getRange/i.test(text))return 'Не удалось сохранить изменения. Обратитесь к руководителю для проверки отчёта.';return text||'Не удалось выполнить действие. Повторите позже.';}
 function myReportsResult(result){const telegram=result.telegram||{};return telegram.status==='updated'?'✅ Изменения сохранены. Отчёт в Telegram обновлён.'+(result.warning?' Данные оборудования требуют проверки руководителем.':''):'⚠️ Изменения сохранены, но сообщение в Telegram не обновлено. Обратитесь к руководителю.';}
-async function myReportsSave(record,changes,controls,save,cancel){if(myReportsState.busy||!myReportsCurrent(managementOwnerKey()))return;if(myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsRender();myReportsStatus('Редактирование закрыто в 00:00. Обратитесь к руководителю.');return;}document.querySelectorAll('#myReportsContent input').forEach(field=>{if(equipmentNormalizeInput(field))equipmentDispatchNormalized(field);});if(!Object.keys(changes).length){myReportsStatus('Нет изменений для сохранения.');return;}const invalidMac=myReportsErrorField('');if(invalidMac){myReportsShowOutcome('MAC должен содержать ровно 12 символов A–F и 0–9.',true,invalidMac);return;}const owner=managementOwnerKey(),requestId=ctRequestId();myReportsCloseDropdowns();myReportsState.busy=true;save.disabled=cancel.disabled=true;const before=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);myReportsStatus('Сохраняем исправления…',true);showBeelineModal('Сохранение отчёта','Сохраняем изменения и обновляем сообщение в группе…','⏳');
+async function myReportsSave(record,changes,controls,save,cancel){if(myReportsState.busy||!myReportsCurrent(managementOwnerKey()))return;if(myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsRender();myReportsStatus('Редактирование закрыто в 00:00. Обратитесь к руководителю.');return;}try{document.querySelector('.my-report-fields')?.sxExchange?.validate();}catch(e){myReportsShowOutcome(e.message,true);return;}document.querySelectorAll('#myReportsContent input').forEach(field=>{if(equipmentNormalizeInput(field))equipmentDispatchNormalized(field);});if(!Object.keys(changes).length){myReportsStatus('Нет изменений для сохранения.');return;}const invalidMac=myReportsErrorField('');if(invalidMac){myReportsShowOutcome('MAC должен содержать ровно 12 символов A–F и 0–9.',true,invalidMac);return;}const owner=managementOwnerKey(),requestId=ctRequestId();myReportsCloseDropdowns();myReportsState.busy=true;save.disabled=cancel.disabled=true;const before=controls.map(n=>n.disabled);controls.forEach(n=>n.disabled=true);myReportsStatus('Сохраняем исправления…',true);showBeelineModal('Сохранение отчёта','Сохраняем изменения и обновляем сообщение в группе…','⏳');
  try{let result;try{result=await myReportsApi('save',{id:record.id,version:record.version,changes,requestId});}catch(error){if(error.confirmed)throw error;result=await myReportsApi('status',{requestId});if(result.status==='pending')throw new Error('Сохранение ещё проверяется. Обновите список перед новой попыткой.');}if(!myReportsCurrent(owner))return;myReportsState.edit=null;myReportsState.busy=false;await myReportsLoad();if(myReportsCurrent(owner)){const outcome=myReportsResult(result);myReportsStatus('');myReportsShowOutcome(outcome,result.telegram?.status!=='updated'||!!result.warning);}}
  catch(error){if(myReportsCurrent(owner)){myReportsStatus('');myReportsShowOutcome(myReportsFriendlyError(error.message),true,myReportsErrorField(error.message));if(!error.confirmed){myReportsState.pending=requestId;save.disabled=true;save.textContent='Обновите список';}else save.disabled=false;}}
  finally{if(myReportsCurrent(owner)){myReportsState.busy=false;cancel.disabled=false;controls.forEach((n,i)=>n.disabled=before[i]);if(!myReportsState.pending)save.disabled=false;}}
@@ -6063,8 +6088,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
                 <button class="btn action-btn" onclick="openMySalary()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">💰 Моя зарплата</button>
                 <button class="btn action-btn" onclick="openMyHours()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🕐 Часы и дни</button>
                 
-                <button class="btn action-btn" onclick="openReturnEquipmentForm()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔄 Возврат</button>
-                <button class="btn action-btn" onclick="openCheckReturnScreen()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">🔍 Проверить возврат</button>
+                <button class="btn action-btn" onclick="openReturnEquipmentForm()" style="margin-top: 0; font-size: 13px; padding: 12px 6px;">📦 Возврат оборудования</button>
             </div>
             
             <button class="btn danger-btn" onclick="switchScreen('screen-main')" style="margin-top: 10px;">🔚 Главное меню</button>
@@ -8034,7 +8058,7 @@ function engineerSchedulePresentation(){
         ownerCityController = null;
         ownerCityBusy = false;
         cancelUsersLoad();
-        invalidateEquipmentSnapshots();
+        retHubState.loadedAt=0;invalidateEquipmentSnapshots();
         clearFastReads();
         currentUser = null;
         Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);verifiedDistrictConnections.clear();
@@ -10804,6 +10828,7 @@ document.addEventListener('blur', (e) => {
     }
     // Проверяет пары серийный номер/MAC и формат MAC адресов.
     function validateEquipmentStep() {
+        try{if(/^Сервис /.test(document.getElementById('tr-reportType')?.value||''))sxMainMount()?.validate();}catch(e){showBeelineModal('Оборудование абонента',e.message,'⚠️');return false;}
         syncReportEquipmentRequired();
         for (const [serialId, macId] of reportEquipmentPairs) {
             const serial = document.getElementById(serialId);
@@ -10831,6 +10856,93 @@ document.addEventListener('blur', (e) => {
         field.setCustomValidity('');
         syncReportEquipmentRequired();
     });
+
+var SX_MODEL_NAMES={"D-Link Dir 615":"D-Link Dir 615","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"TP-Link DEKO M4 (Ultimate)","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TURBO":"Роутер Wi-Fi TURBO / router Wi-Fi TURBO","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001"};
+function sxReturnModel_(model){var text=String(model||'').trim();return SX_MODEL_NAMES[text]||text;}
+function sxDisplayModel_(model){var text=String(model||'').trim();if(text==='Маршрутизатор беспроводной 840 TP-Link')return 'TP-Link WR840N';return Object.keys(SX_MODEL_NAMES).find(function(key){return SX_MODEL_NAMES[key]===text;})||text;}
+// Сервисная замена: читаемый комментарий — единый формат для формы и возвратов.
+var SX_REASONS={router:['Не включается','Перезагружается / зависает','Не работает Wi-Fi','Низкая скорость по Wi-Fi','Не работает WAN / LAN-порт','Обрывы соединения','Повреждение корпуса / разъёмов','Сгорел роутер','Утилизация','Другая причина'],stb:['Не включается','Перезагружается / зависает','Нет изображения / звука','Не работает HDMI / AV','Не подключается к сети','Ошибка загрузки / обновления','Повреждение корпуса / разъёмов','Сгорела приставка','Утилизация','Другая причина']};
+var SX_KITS={router:['Блок питания','Патч-корд','Коробка','Без комплектации'],stb:['Блок питания','Пульт','HDMI','RCA','Коробка','Батарейки','Без комплектации']};
+function sxDisposal_(model){return ['dlinkdir615','tplinkwr840n','маршрутизаторбеспроводной840tplink','роутерwifiturborouterwifiturbo','rasse001','turbo'].indexOf(sxReturnModel_(model).toLowerCase().replace(/[^a-zа-яё0-9]/g,''))>=0;}
+function sxRule_(model,reason,status){return sxDisposal_(model)||reason==='Утилизация'?'Утилизация':reason==='Другая причина'?status:'Брак';}
+function sxFormat_(d){var kind=d.kind==='stb'?'приставку':'роутер';return 'Заменил '+kind+' '+d.index+': '+d.model+' (S/N: '+d.sn+'; MAC: '+d.mac+') на '+d.provided.model+' (S/N: '+d.provided.sn+'; MAC: '+d.provided.mac+').\nПричина возврата: '+d.reason+(d.reason==='Другая причина'?' — '+d.detail:'')+'\nКомплектация забранного: '+d.kit+'\nНаправление: '+d.status;}
+function sxParse_(text){var re=/^Заменил (роутер|приставку) ([1-3]): ([^\n]+?) \(S\/N: ([^;\n]+); MAC: ([^)\n]+)\) на ([^\n]+?) \(S\/N: ([^;\n]+); MAC: ([^)\n]+)\)\.\r?\nПричина возврата: ([^\n]+)\r?\nКомплектация забранного: ([^\n]+)\r?\nНаправление: ([^\n]+)/gm,items=[],m;while((m=re.exec(String(text||'')))){var reason=m[9].trim(),detail='';if(reason.indexOf('Другая причина — ')===0){detail=reason.slice('Другая причина — '.length);reason='Другая причина';}items.push({kind:m[1]==='роутер'?'router':'stb',index:Number(m[2]),model:m[3],sn:m[4],mac:m[5],provided:{model:m[6],sn:m[7],mac:m[8]},reason:reason,detail:detail,kit:m[10].trim(),status:m[11].trim(),block:m[0]});}return items;}
+function sxManual_(text){var out=String(text||'');sxParse_(out).forEach(function(d){out=out.replace(d.block,'');});return out.replace(/^(?:\s*\n)+/,'').replace(/\n{3,}/g,'\n\n');}
+function sxValidate_(d){
+ var label=(d.kind==='stb'?'Приставка ':'Роутер ')+d.index,serial=/^[A-Z0-9][A-Z0-9._:/-]{2,99}$/,mac=/^[A-F0-9]{12}$/;
+ if(['router','stb'].indexOf(d.kind)<0||!Number.isInteger(d.index)||d.index<1||d.index>3)throw new Error('Некорректная позиция замены');
+ [d.model,d.provided&&d.provided.model].forEach(function(v){if(!v||String(v).length>250||/[\r\n]/.test(v))throw new Error(label+': выберите модель старого и нового устройства');});
+ if(!serial.test(d.sn)||!serial.test(d.provided.sn))throw new Error(label+': укажите полный серийный номер обоих устройств');
+ if(!mac.test(d.mac)||!mac.test(d.provided.mac))throw new Error(label+': MAC обоих устройств должен содержать 12 символов A–F и 0–9');
+ if(d.sn===d.provided.sn||d.mac===d.provided.mac)throw new Error(label+': забираемое и предоставляемое устройства должны отличаться');
+ if(SX_REASONS[d.kind].indexOf(d.reason)<0)throw new Error(label+': выберите причину возврата');
+ if(d.reason==='Другая причина'&&(!String(d.detail||'').trim()||String(d.detail).length>500||/[\r\n]/.test(d.detail)))throw new Error(label+': опишите другую причину возврата одной строкой');
+ if(['Рефарб','Брак','Утилизация'].indexOf(d.status)<0||sxRule_(d.model,d.reason,d.status)!==d.status||sxDisposal_(d.model)&&d.reason!=='Утилизация')throw new Error(label+': проверьте причину и направление возврата');
+ var parts=String(d.kit||'').split(', ');if(!d.kit||parts.some(function(p){return SX_KITS[d.kind].indexOf(p)<0;})||parts.indexOf('Без комплектации')>=0&&parts.length!==1)throw new Error(label+': укажите комплектацию или «Без комплектации»');return d;
+}
+
+// Сервисные замены: общая форма для нового отчёта и обоих редакторов.
+let sxInstance=0,sxMain=null;
+function sxNode(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
+function sxChoice(label,options,onChange,search=false){
+ const wrap=sxNode('div','sx-field'),caption=sxNode('label','',label),dropdown=sxNode('div','custom-dropdown'),input=search?sxNode('input','dropdown-select-btn'):sxNode('button','dropdown-select-btn'),list=sxNode('div','dropdown-list');let value='';
+ if(search){input.type='search';input.placeholder='Выберите или найдите модель';}else{input.type='button';input.append(sxNode('span','','Выберите…'),sxNode('span','dropdown-arrow','▼'));}
+ input.setAttribute('aria-label',label);input.setAttribute('aria-expanded','false');
+ function set(v,notify=false){value=String(v||'');if(search)input.value=value;else input.firstChild.textContent=value||'Выберите…';if(notify)onChange();}
+ function fill(q=''){list.replaceChildren();const values=typeof options==='function'?options():options;for(const v of values.filter(v=>!q||v.toLowerCase().includes(q.toLowerCase()))){const option=sxNode('div','dropdown-item',v);option.tabIndex=0;option.setAttribute('role','option');option.onclick=e=>{e.stopPropagation();set(v,true);setDropdownOpen(dropdown,false);};option.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();option.click();}};list.append(option);}if(!list.childElementCount)list.append(sxNode('div','dropdown-item','Совпадений нет'));}
+ function open(){document.querySelectorAll('.custom-dropdown.open').forEach(d=>{if(d!==dropdown)setDropdownOpen(d,false);});fill();setDropdownOpen(dropdown,true);}
+ input.onclick=e=>{e.stopPropagation();if(!search&&dropdown.classList.contains('open'))setDropdownOpen(dropdown,false);else open();};
+ if(search){input.onfocus=open;input.oninput=()=>{value=input.value.trim();fill(value);setDropdownOpen(dropdown,true);onChange();};}
+ dropdown.addEventListener('keydown',e=>{if(e.key==='Escape'){setDropdownOpen(dropdown,false);input.focus();}});
+ dropdown.append(input,list);wrap.append(caption,dropdown);return {wrap,input,set,get:()=>value};
+}
+function sxKit(kind,changed){const widget=sxChoice('Комплектация',[],changed),dropdown=widget.wrap.querySelector('.custom-dropdown'),list=widget.wrap.querySelector('.dropdown-list'),checks=[];widget.input.onclick=e=>{e.stopPropagation();document.querySelectorAll('.custom-dropdown.open').forEach(d=>{if(d!==dropdown)setDropdownOpen(d,false);});setDropdownOpen(dropdown,!dropdown.classList.contains('open'));};
+ for(const part of SX_KITS[kind]){const label=sxNode('label','checkbox-container'),input=sxNode('input');input.type='checkbox';input.value=part;label.append(input,sxNode('span','custom-checkbox'),sxNode('span','checkbox-label',part));label.onclick=e=>e.stopPropagation();input.onchange=()=>{if(input.checked){if(part==='Без комплектации')checks.forEach(n=>{if(n!==input)n.checked=false;});else checks.find(n=>n.value==='Без комплектации').checked=false;}widget.set(checks.filter(n=>n.checked).map(n=>n.value).join(', '));changed();};checks.push(input);list.append(label);}
+ const originalSet=widget.set;widget.set=v=>{checks.forEach(n=>n.checked=String(v||'').split(', ').includes(n.value));originalSet(v);};return widget;
+}
+function sxAttach(root,adapter){
+ if(root.sxExchange)return root.sxExchange;const initial=sxParse_(adapter.comment()),ctx={slots:[],adapter,updating:false};root.sxExchange=ctx;
+ function save(){if(ctx.updating)return;ctx.updating=true;try{const active=/^Сервис (FTTB|GPON)$/.test(adapter.type()),manual=sxManual_(adapter.comment()),lines=[];
+  for(const slot of ctx.slots){const provided=adapter.provided(slot.kind,slot.index),ready=!!provided.model&&!!provided.sn&&/^[A-F0-9]{12}$/.test(provided.mac);slot.wrap.hidden=!active||!ready&&!slot.active;slot.body.hidden=!slot.active||slot.body.dataset.collapsed==='true';slot.button.setAttribute('aria-expanded',String(!slot.body.hidden));
+   if(!active)continue;if(sxDisposal_(slot.model.get()))slot.reason.set('Утилизация');const reason=slot.reason.get(),status=sxRule_(slot.model.get(),reason,slot.status.get());slot.status.set(status);slot.status.input.disabled=reason!=='Другая причина';slot.detailWrap.hidden=reason!=='Другая причина';
+   const d=slot.data();if(slot.active){try{sxValidate_(d);lines.push(sxFormat_(d));slot.button.textContent='🔄 '+slot.title+' абонента · '+d.model+' · '+d.sn;}catch(_){slot.button.textContent='🔄 '+slot.title+' абонента · заполните данные';}}else slot.button.textContent='🔄 '+slot.title+' абонента';
+  }
+  ctx.generated=lines.join('\n\n');const next=ctx.generated+(ctx.generated&&manual?'\n\n':'')+manual;if(next!==adapter.comment())adapter.setComment(next);
+ }finally{ctx.updating=false;}}
+ ctx.sync=save;ctx.validate=()=>{save();const devices=ctx.slots.filter(s=>s.active).map(s=>sxValidate_(s.data()));if(!/^Сервис /.test(adapter.type())&&devices.length)return true;const seen=new Set();for(const d of devices){for(const key of ['sn:'+d.sn,'mac:'+d.mac]){if(seen.has(key))throw new Error('Одно забираемое устройство указано в нескольких заменах');seen.add(key);}if(ctx.slots.some(other=>{const p=adapter.provided(other.kind,other.index);return p.sn===d.sn||p.mac===d.mac;}))throw new Error('Забираемое устройство совпадает с предоставляемым');}return true;};
+ for(const kind of ['router','stb'])for(let index=1;index<=3;index++){
+  const host=adapter.host(kind,index);if(!host)continue;const title=kind==='stb'?'Приставка':'Роутер',wrap=sxNode('section','sx-exchange'),button=sxNode('button','btn action-btn sx-toggle','🔄 '+title+' абонента'),body=sxNode('div','sx-body'),grid=sxNode('div','sx-grid'),slot={kind,index,title,wrap,button,body,active:false};button.type='button';body.hidden=true;wrap.append(button,body);body.append(sxNode('h4','',title+' абонента — забираемое оборудование'),grid);
+  const changed=()=>save(),deviceLabel=(kind==='stb'?'приставки ':'роутера ')+index;slot.model=sxChoice('Модель '+deviceLabel,()=>{const models=(kind==='stb'?standardTvBoxes:standardRouterModels).filter(v=>v!=='Без приставки');return [...new Set([...models,...(slot.model.get()?[slot.model.get()]:[])])];},changed);grid.append(slot.model.wrap);
+  function codeField(label,mac){const field=sxNode('div','sx-field'),caption=sxNode('label','',label),row=sxNode('div','sx-code'),input=sxNode('input'),scan=sxNode('button','btn action-btn','📷');input.id='sx-'+(++sxInstance)+(mac?'-mac':'-sn');input.setAttribute('aria-label',label);input.autocomplete='off';input.placeholder=mac?'12 символов A–F и 0–9':'Введите или отсканируйте';scan.type='button';scan.setAttribute('aria-label','Сканировать '+label);scan.onclick=()=>openUniversalScanner(input.id,decoded=>{input.value=mac?deviceInputMac(decoded):deviceInputSerial(decoded);input.dispatchEvent(new Event('input',{bubbles:true}));});input.oninput=()=>{input.value=mac?deviceInputMac(input.value):deviceInputSerial(input.value);if(!mac){const model=sxDisplayModel_(detectModelBySerial(input.value));if(model)slot.model.set(model);}changed();};row.append(input,scan);field.append(caption,row);grid.append(field);return input;}
+  slot.sn=codeField('Серийный номер '+deviceLabel,false);slot.mac=codeField('MAC адрес '+deviceLabel,true);slot.kit=sxKit(kind,changed);slot.reason=sxChoice('Причина возврата',SX_REASONS[kind],()=>{if(slot.reason.get()==='Другая причина')slot.status.set('');changed();});slot.status=sxChoice('Направление',['Рефарб','Брак','Утилизация'],changed);slot.detailWrap=sxNode('div','sx-field');slot.detailWrap.append(sxNode('label','','Опишите другую причину'));slot.detail=sxNode('input');slot.detail.type='text';slot.detail.maxLength=500;slot.detail.placeholder='Почему заменили устройство';slot.detail.oninput=changed;slot.detailWrap.append(slot.detail);const choices=sxNode('div','sx-choices');choices.append(slot.kit.wrap,slot.status.wrap,slot.reason.wrap);grid.append(choices,slot.detailWrap);
+  const remove=sxNode('button','btn danger-btn sx-remove','Убрать замену');remove.type='button';remove.onclick=()=>{showBeelineModal('Убрать замену?','Забираемое устройство будет убрано из отчёта. Уже оформленный возврат изменить нельзя.','⚠️','<button type="button" class="btn danger-btn" id="sxRemoveConfirm">Убрать замену</button>');document.getElementById('sxRemoveConfirm').onclick=()=>{closeBeelineModal();slot.active=false;slot.sn.value=slot.mac.value=slot.detail.value='';for(const w of [slot.model,slot.kit,slot.reason,slot.status])w.set('');save();};};body.append(remove);
+  slot.data=()=>({kind,index,model:slot.model.get().trim(),sn:deviceInputSerial(slot.sn.value),mac:deviceInputMac(slot.mac.value),provided:adapter.provided(kind,index),kit:slot.kit.get(),reason:slot.reason.get(),detail:slot.detail.value.trim(),status:slot.status.get()});
+  const old=initial.find(d=>d.kind===kind&&d.index===index);if(old){slot.active=true;slot.model.set(sxDisplayModel_(old.model));slot.sn.value=old.sn;slot.mac.value=old.mac;slot.kit.set(old.kit);slot.reason.set(old.reason);slot.detail.value=old.detail;slot.status.set(old.status);}
+  button.onclick=()=>{if(!slot.active){slot.active=true;body.dataset.collapsed='false';}else body.dataset.collapsed=body.dataset.collapsed==='true'?'false':'true';save();};ctx.slots.push(slot);host.append(wrap);
+ }
+ function defer(){queueMicrotask(()=>{if(root.isConnected)save();});}
+ root.addEventListener('input',defer);root.addEventListener('change',defer);root.addEventListener('click',defer,true);
+ const comment=adapter.commentNode();if(comment){const tail=()=>{if(!ctx.generated)return;const manual=sxManual_(comment.value);adapter.setComment(ctx.generated+'\n\n'+manual);comment.setSelectionRange(comment.value.length,comment.value.length);};comment.addEventListener('focus',tail);comment.addEventListener('click',()=>{if(ctx.generated&&comment.selectionStart<ctx.generated.length+2)tail();});}
+ save();return ctx;
+}
+function sxMainMount(){
+ const root=document.getElementById('tr-step-equipment');if(!root)return null;
+ if(sxMain)return sxMain;const provided=(kind,index)=>{const p=(kind==='stb'?'tv':'r')+index;return {model:getTrimmedReportValue('tr-'+p+'Model'),sn:deviceInputSerial(getTrimmedReportValue('tr-'+p+'Sn')),mac:deviceInputMac(getTrimmedReportValue('tr-'+p+'Mac'))};};
+ sxMain=sxAttach(root,{type:()=>document.getElementById('tr-reportType').value,comment:()=>document.getElementById('tr-comment').value,setComment:v=>document.getElementById('tr-comment').value=v,commentNode:()=>document.getElementById('tr-comment'),provided,host:(kind,index)=>document.getElementById('tr-'+(kind==='stb'?'tv':'r')+index+'Mac')?.closest('.accordion-content')});
+ const comment=document.getElementById('tr-comment');comment.addEventListener('input',()=>sxMain.sync());document.getElementById('tr-reportType').addEventListener('change',()=>sxMain.sync());return sxMain;
+}
+function sxResetMain(){if(!sxMain)return;for(const s of sxMain.slots){s.active=false;s.sn.value=s.mac.value=s.detail.value='';for(const w of [s.model,s.kit,s.reason,s.status])w.set('');}sxMain.generated='';sxMain.sync();}
+function sxEditorMount(root,record,schema,values,setValue){
+ if(!/^Сервис (FTTB|GPON)$/.test(record.sheet))return;const col=label=>schema.fields.find(f=>f.label===label)?.col,commentCol=col('Комментарий'),find=label=>root.querySelector('[aria-label="'+label+'"]'),comment=find('Комментарий');if(!comment||comment.disabled)return;
+ sxAttach(root,{type:()=>record.sheet,comment:()=>String(values()[commentCol]||''),setComment:v=>{comment.value=v;setValue(commentCol,v);},commentNode:()=>comment,provided:(kind,index)=>{const title=(kind==='stb'?'Приставка ':'Роутер ')+index,v=values();return {model:String(v[col(title+' · Модель')]||''),sn:deviceInputSerial(v[col(title+' · S/N')]||''),mac:deviceInputMac(v[col(title+' · MAC')]||'')};},host:(kind,index)=>{const node=find((kind==='stb'?'Приставка ':'Роутер ')+index+' · MAC');return node?.closest('.my-report-device-fields,.ct-device')||node?.parentElement?.parentElement;}});
+}
+// Единый раздел возвратов, без переноса и копирования полей формы.
+const retHubState={tab:'form',items:[],owner:'',epoch:0,loadedAt:0,loading:false,error:'',limit:50};
+function retHubInit(){const root=document.getElementById('screen-return-equipment'),card=root?.querySelector('.card'),form=root?.querySelector('form');if(!root||!card||!form)return null;if(root.retHub)return root.retHub;root.querySelector('h2').textContent='📦 Возврат оборудования';const nav=sxNode('div','return-hub-tabs'),list=sxNode('section','return-hub-list'),tools=sxNode('div','return-hub-tools'),search=sxNode('input'),refresh=sxNode('button','btn action-btn app-refresh-button','🔄 Обновить'),content=sxNode('div','return-hub-content'),back=sxNode('div','common-nav-row');nav.setAttribute('role','group');nav.setAttribute('aria-label','Разделы возврата оборудования');search.type='search';search.placeholder='Серийник, MAC, модель, заявка или адрес';search.setAttribute('aria-label','Поиск возвратов');search.oninput=()=>{retHubState.limit=50;retHubRender();};refresh.type='button';refresh.onclick=()=>retHubLoad(true);tools.append(search,refresh);for(const [text,id] of [['🔙 Назад','screen-installer-menu'],['🔚 Главное меню','screen-main']]){const b=sxNode('button','btn danger-btn',text);b.type='button';b.onclick=()=>switchScreen(id);back.append(b);}list.append(tools,content,back);card.prepend(nav);card.append(list);root.retHub={root,card,form,nav,list,search,content,refresh};return root.retHub;}
+function openReturnsHub(tab='form'){if(!currentUser||currentUser.role==='Стажер')return;if(tab==='form')return openReturnEquipmentForm();const hub=retHubInit();if(!hub)return;retHubSelect(tab);switchScreen('screen-return-equipment');}
+function retHubSelect(tab,load=true){const hub=retHubInit();if(!hub)return;retHubState.tab=tab;retHubState.limit=50;hub.form.hidden=tab!=='form';hub.list.hidden=tab==='form';retHubRender();if(load)retHubLoad();}
+async function retHubLoad(force=false){const owner=managementOwnerKey();if(retHubState.owner!==owner){retHubState.items=[];retHubState.owner=owner;retHubState.loadedAt=0;retHubState.error='';}if(!force&&Date.now()-retHubState.loadedAt<30000)return retHubRender();const epoch=++retHubState.epoch;retHubState.loading=true;retHubState.error='';retHubRender();try{const url=CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Скрипт участка не настроен');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),30000);let data;try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'returnOverview'}),signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);data=await response.json();}finally{clearTimeout(timer);}if(owner!==managementOwnerKey()||epoch!==retHubState.epoch)return;if(data.status!=='success'||!Array.isArray(data.items))throw new Error(data.message||'Не удалось загрузить возвраты');retHubState.items=data.items;retHubState.loadedAt=Date.now();}catch(e){if(owner===managementOwnerKey()&&epoch===retHubState.epoch)retHubState.error=e.name==='AbortError'?'Не получен ответ. Нажмите «Обновить».':e.message;}finally{if(owner===managementOwnerKey()&&epoch===retHubState.epoch){retHubState.loading=false;retHubRender();}}}
+function retHubRender(){const hub=retHubInit();if(!hub)return;hub.nav.replaceChildren();for(const [id,label] of [['form','📝 Оформить возврат'],['pending','⏳ Ожидают оформления'],['confirmed','✅ Оформленные возвраты']]){const b=sxNode('button','btn '+(retHubState.tab===id?'main-btn':'action-btn'),label+(id==='form'?'':' · '+retHubState.items.filter(r=>id==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed').length));b.type='button';b.setAttribute('aria-pressed',String(retHubState.tab===id));b.onclick=()=>retHubSelect(id);hub.nav.append(b);}hub.refresh.disabled=retHubState.loading;if(retHubState.tab==='form')return;hub.content.replaceChildren();if(retHubState.loading){hub.content.innerHTML=liveLoading('Загружаем возвраты…','📦');return;}if(retHubState.error){hub.content.append(sxNode('p','', '⚠️ '+retHubState.error));return;}const q=hub.search.value.trim().toLowerCase(),rows=retHubState.items.filter(r=>(retHubState.tab==='pending'?['pending','confirming'].includes(r.state):r.state==='confirmed')&&(!q||[r.series,r.mac,r.model,r.ticket,r.address].some(v=>String(v||'').toLowerCase().includes(q))));if(!rows.length)hub.content.append(sxNode('p','','Записей по выбранным условиям нет.'));for(const r of rows.slice(0,retHubState.limit)){const card=sxNode('details','return-check-entry'),summary=sxNode('summary'),extra=sxNode('div','return-check-extra');summary.append(sxNode('strong','return-check-title',r.model||'Оборудование'),sxNode('span','','S/N: '+r.series),sxNode('span','','MAC: '+r.mac),sxNode('span','','Дата: '+r.date),sxNode('span','return-check-status',r.status||'Не указан'));extra.append(sxNode('p','','Источник: '+r.source+(r.ticket?' · Заявка №'+r.ticket:'')),sxNode('p','','Адрес: '+(r.address||'—')),sxNode('p','','Комплектация: '+(r.kit||'—')),sxNode('p','','Причина: '+(r.reason||'—')));if(r.boxNumber)extra.append(sxNode('p','','Коробка №'+r.boxNumber));if(r.state==='pending'){const b=sxNode('button','btn main-btn','📝 Оформить возврат');b.type='button';b.onclick=()=>{openReturnEquipmentForm();retDraftState.items=[r];retDraftApply(r);};extra.append(b);}else if(r.state==='confirming')extra.append(sxNode('p','','Оформление проверяется. Обновите список.'));card.append(summary,extra);hub.content.append(card);}if(rows.length>retHubState.limit){const more=sxNode('button','btn main-btn','Показать ещё');more.type='button';more.onclick=()=>{retHubState.limit+=50;retHubRender();};hub.content.append(more);}}
 
 // Комплектация каждого демонтируемого устройства; в таблицу уходит обычный комментарий AC.
 const dismantleKitSlots=['r1','r2','r3','tv1','tv2','tv3'];
@@ -10875,6 +10987,7 @@ function dismantleKitManual(value,generated){
     return value.split('\n').filter(line=>!lines.has(line)).join('\n').replace(/^\n{1,2}/,'');
 }
 function syncDismantleKits(editing=true){
+    sxMainMount()?.sync();
     if(dismantleKitState.updating)return;mountDismantleKits();
     const comment=document.getElementById('tr-comment');if(!comment)return;
     const before=comment.value,previous=dismantleKitState.generated,oldPrefix=previous?previous.length+2:0;
@@ -10902,6 +11015,7 @@ function syncDismantleKits(editing=true){
     }
 }
 function resetDismantleKits(){
+    sxResetMain();
     dismantleKitState.generated='';dismantleKitState.manual='';
     for(const slot of dismantleKitState.slots.values()){slot.identity='';slot.panel.hidden=true;slot.controls.forEach(input=>input.checked=false);slot.summary.textContent='Выберите комплектацию...';slot.summary.title='Без комплектации';if(slot.dropdown.classList.contains('open'))setDropdownOpen(slot.dropdown,false);}
 }
@@ -12165,7 +12279,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             const targetUrl = cityConf.reportsScriptUrl;
             if (!isConfiguredCityUrl(targetUrl)) throw new Error("Не настроен URL скрипта отчетов для города.");
             const stockCheck = await vsBeforeReport(type,targetUrl);
-            if(stockCheck.receipt){if(stockCheck.receipt.telegram==='queued')kickReportDelivery(targetUrl,stockCheck.requestId);invalidateEquipmentSnapshots();showVerifiedReportResult(type,currentUser.city,stockCheck.receipt,stockCheck.requestId);return;}
+            if(stockCheck.receipt){if(stockCheck.receipt.telegram==='queued')kickReportDelivery(targetUrl,stockCheck.requestId);retHubState.loadedAt=0;invalidateEquipmentSnapshots();showVerifiedReportResult(type,currentUser.city,stockCheck.receipt,stockCheck.requestId);return;}
             const requestId = stockCheck.requestId;
 
             let payload;
@@ -12195,7 +12309,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             const receipt = await sendReportForReceipt(targetUrl,payload);
             if(receipt.telegram==='queued')kickReportDelivery(targetUrl,requestId);
             vsPendingClear();
-            invalidateEquipmentSnapshots();
+            retHubState.loadedAt=0;invalidateEquipmentSnapshots();
             if (receipt.reportType !== type || !Number.isInteger(Number(receipt.rowNumber))) {
                 throw new Error('Сервер вернул некорректное подтверждение отчёта.');
             }
@@ -12832,6 +12946,7 @@ function openReturnEquipmentForm() {
     }
 
     if (typeof initNomenclatureDropdown === 'function') initNomenclatureDropdown();
+    retHubSelect('form');
     switchScreen('screen-return-equipment');
 }
 
@@ -12851,12 +12966,12 @@ function returnEquipmentSavedContinue() {
 // Поиск предварительных возвратов — только в авторизованном участке сотрудника.
 const retDraftState={epoch:0,timer:null,selection:null,items:[],loading:false,requestId:'',fingerprint:'',editVersion:0,completed:false};
 function retDraftMessage(text){const node=document.getElementById('retDraftStatus');if(node)node.textContent=text;}
-function retDraftReset(){clearTimeout(retDraftState.timer);retDraftState.epoch++;retDraftState.selection=null;retDraftState.items=[];retDraftState.loading=false;retDraftState.requestId='';retDraftState.fingerprint='';retDraftState.completed=false;document.getElementById('retDraftMatches')?.replaceChildren();retDraftMessage('Введите полный серийный номер или последние 4 символа. Поиск — только по вашим демонтажам. Для брака доступен ручной ввод.');}
+function retDraftReset(){clearTimeout(retDraftState.timer);retDraftState.epoch++;retDraftState.selection=null;retDraftState.items=[];retDraftState.loading=false;retDraftState.requestId='';retDraftState.fingerprint='';retDraftState.completed=false;document.getElementById('retDraftMatches')?.replaceChildren();retDraftMessage('Введите полный серийный номер или последние 4 символа. Поиск — по вашим демонтажам и сервисным заменам. Для брака доступен ручной ввод.');}
 function retDraftClearAutofill(){for(const id of ['retMac','retNomenclature','retNomenclatureSearch','retKit','retReason','retStatus']){const field=document.getElementById(id);if(field)field.value='';}for(const [id,text]of [['retKitLabel','Выберите комплектацию...'],['retStatusLabel','Выберите статус...']]){const label=document.getElementById(id);if(label)label.textContent=text;}document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=false);}
 function retDraftInput(value){
  const query=deviceInputSerial(value);if(retDraftState.selection&&query!==retDraftState.selection.series){retDraftClearAutofill();retDraftState.selection=null;}
  clearTimeout(retDraftState.timer);const epoch=++retDraftState.epoch;retDraftState.items=[];retDraftState.loading=false;document.getElementById('retDraftMatches')?.replaceChildren();
- if(!currentUser||query.length<4){retDraftMessage('Введите полный серийный номер или последние 4 символа для поиска своего демонтажа.');return;}
+ if(!currentUser||query.length<4){retDraftMessage('Введите полный серийный номер или последние 4 символа для поиска своего демонтажа или сервисной замены.');return;}
  retDraftState.loading=true;retDraftMessage('⏳ Ищем в ваших демонтажах…');retDraftState.timer=setTimeout(()=>retDraftSearch(query,epoch),450);
 }
 async function retDraftSearch(query,epoch){
@@ -12865,7 +12980,7 @@ async function retDraftSearch(query,epoch){
  try{if(!isConfiguredCityUrl(url))throw new Error('Скрипт города не настроен');const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'returnDrafts',query}),signal:controller.signal});if(!response.ok)throw new Error('Поиск временно недоступен');const data=await response.json();if(!current())return;if(data.status!=='success')throw new Error(data.message||'Поиск временно недоступен');retDraftState.items=data.items||[];
   if(!retDraftState.items.length){retDraftMessage('Предварительный возврат не найден. Заполните данные вручную.');return;}
   if(retDraftState.items.length===1&&editVersion===retDraftState.editVersion){retDraftApply(retDraftState.items[0]);return;}
-  retDraftMessage(data.more?'Найдено много устройств. Уточните серийный номер.':'Выберите устройство из своих демонтажей.');const root=document.getElementById('retDraftMatches');root.replaceChildren();for(const item of retDraftState.items){const button=document.createElement('button');button.type='button';button.className='ret-draft-match';button.textContent=[item.series,item.model,item.responsible].filter(Boolean).join(' · ');button.onclick=()=>{if(current())retDraftApply(item);};root.append(button);}
+  retDraftMessage(data.more?'Найдено много устройств. Уточните серийный номер.':'Выберите устройство из своих демонтажей и сервисных замен.');const root=document.getElementById('retDraftMatches');root.replaceChildren();for(const item of retDraftState.items){const button=document.createElement('button');button.type='button';button.className='ret-draft-match';button.textContent=[item.series,item.model,item.responsible].filter(Boolean).join(' · ');button.onclick=()=>{if(current())retDraftApply(item);};root.append(button);}
  }catch(error){if(current())retDraftMessage('Не удалось выполнить поиск. Повторите поиск или заполните возврат вручную.');}
  finally{clearTimeout(timer);if(epoch===retDraftState.epoch)retDraftState.loading=false;}
 }
@@ -12873,10 +12988,10 @@ function retDraftApply(item){
  retDraftState.selection=item;document.getElementById('retSerial').value=item.series;document.getElementById('retMac').value=item.mac;
  document.getElementById('retWarehouse').value=item.warehouse;document.getElementById('retResponsible').value=item.responsible;document.getElementById('retReason').value=item.reason||'Демонтаж';
  document.getElementById('retNomenclature').value='';document.getElementById('retNomenclatureSearch').value='';detectNomenclatureBySerial(item.series);
- if(!document.getElementById('retNomenclature').value&&NOMENCLATURE_LIST.includes(item.model))selectReturnDropdownOption('retNomenclatureDropdown','retNomenclature','retNomenclatureSearch',item.model,item.model);
+ if(String(item.model||'').trim())selectReturnDropdownOption('retNomenclatureDropdown','retNomenclature','retNomenclatureSearch',item.model,item.model);
  const canon=value=>value.trim().replace('Патч-корд','Патч корд').replace(/^Пульт$/,'Пульт ДУ'),parts=String(item.kit||'Без комплектации').split(',').map(canon);
  document.querySelectorAll('.kit-checkbox').forEach(cb=>cb.checked=parts.includes(cb.value));updateKitSelection();if(parts.includes('Без комплектации')){document.getElementById('retKit').value='Без комплектации';document.getElementById('retKitLabel').textContent='Без комплектации';}
- selectReturnDropdownOption('retStatusDropdown','retStatus','retStatusLabel',item.status||'Рефарб',item.status||'Рефарб');document.getElementById('retDraftMatches').replaceChildren();retDraftMessage('Данные из вашего демонтажа подставлены. Проверьте номенклатуру и комплектацию, затем оформите возврат.');
+ selectReturnDropdownOption('retStatusDropdown','retStatus','retStatusLabel',item.status||'Рефарб',item.status||'Рефарб');document.getElementById('retDraftMatches').replaceChildren();retDraftMessage('Данные предварительного возврата подставлены. Проверьте номенклатуру и комплектацию, затем оформите возврат.');
 }
 document.addEventListener('input',event=>{if(event.target.closest?.('#screen-return-equipment')&&event.target.id!=='retSerial')retDraftState.editVersion++;});
 
@@ -12888,7 +13003,7 @@ async function handleReturnEquipment(e) {
     const owner = managementOwnerKey();
     if(retDraftState.completed){showBeelineModal('Возврат оформлен','Для следующего устройства откройте форму возврата заново.','✅');return;}
     if(retDraftState.loading){showBeelineModal('Поиск оборудования','Дождитесь завершения поиска по вашему серийному номеру.','⏳');return;}
-    if(retDraftState.items.length&&!retDraftState.selection){showBeelineModal('Выберите устройство','Выберите нужную запись из найденных демонтажей.','⚠️');return;}
+    if(retDraftState.items.length&&!retDraftState.selection){showBeelineModal('Выберите устройство','Выберите нужную запись из найденных возвратов.','⚠️');return;}
     for(const id of ['retSerial','retMac'])equipmentNormalizeInput(document.getElementById(id));
     if(!/^[A-F0-9]{12}$/.test(document.getElementById('retMac').value)){showBeelineModal('Проверьте MAC','MAC должен содержать 12 символов A–F и 0–9.','⚠️');return;}
     updateKitSelection();
@@ -12931,7 +13046,7 @@ async function handleReturnEquipment(e) {
         if (owner !== managementOwnerKey()) return;
 
         if (res.status === 'success') {
-            invalidateEquipmentSnapshots();retDraftState.completed=true;retDraftState.epoch++;clearTimeout(retDraftState.timer);
+            retHubState.loadedAt=0;invalidateEquipmentSnapshots();retDraftState.completed=true;retDraftState.epoch++;clearTimeout(retDraftState.timer);
             if (document.documentElement.dataset.appLayout === 'desktop') openReturnEquipmentForm();
             showBeelineModal("Успешно", "Возврат оборудования успешно зарегистрирован!", "✅", 
                 `<button class="btn main-btn" onclick="returnEquipmentSavedContinue();" style="margin-top:0;">Понятно</button>`
@@ -12949,76 +13064,7 @@ async function handleReturnEquipment(e) {
 
 // 7. ПРОСМОТР / ПРОВЕРКА ВОЗВРАЩЕННОГО ОБОРУДОВАНИЯ ЗА ТЕКУЩИЙ МЕСЯЦ (ЧЕРЕЗ reportsScriptUrl)
 
-async function openCheckReturnScreen() {
-    if (currentUser?.role === 'Стажер') return;
-    if (!currentUser) return;
-    switchScreen('screen-check-return');
-    const container = document.getElementById('returnedEquipmentListContainer');
-    if (!container) return;
-
-    container.innerHTML = liveLoading('Проверяем возвраты оборудования...');
-
-    const cityConf = CITIES_CONFIG[currentUser.city] || {};
-    const targetUrl = cityConf.reportsScriptUrl;
-    if (!isConfiguredCityUrl(targetUrl)) { container.textContent = "Скрипт вашего города не настроен"; return; }
-
-    // Вспомогательная функция для приведения любой даты к виду ДД.ММ.ГГГГ
-    function formatDateToRu(dateStr) {
-        if (!dateStr) return '—';
-        // Если дата уже приходит в формате ДД.ММ.ГГГГ
-        if (/^\d{2}\.\d{2}\.\d{4}$/.test(dateStr)) return dateStr;
-        
-        // Если дата приходит в формате YYYY-MM-DD или ISO (например, 2026-09-15T...)
-        try {
-            let cleanDate = dateStr.split('T')[0];
-            let parts = cleanDate.split('-');
-            if (parts.length === 3) {
-                return `${parts[2]}.${parts[1]}.${parts[0]}`;
-            }
-        } catch (e) {
-            console.error("Ошибка форматирования даты:", e);
-        }
-        return dateStr;
-    }
-
-    try {
-        const response = await districtFetch(`${targetUrl}?action=getReturns&responsible=${encodeURIComponent(currentUser.fullName)}`, {
-            method: 'GET'
-        });
-        const res = await response.json();
-
-        if (res.status === 'success' && res.data && res.data.length > 0) {
-            let html = '';
-            res.data.forEach(item => {
-                // Применяем красивое форматирование даты
-                let displayDate = formatDateToRu(item.date);
-                const equipmentIcon = /rasse001|zxv10b860h/.test(String(item.nomenclature || '').toLowerCase().replace(/[^a-z0-9]/g, '')) ? '📺' : '🛜';
-
-                html += `
-                    <details class="return-check-entry">
-                        <summary>
-                            <span class="return-check-title">${equipmentIcon} ${escapeScheduleHtml(item.nomenclature || 'Оборудование')}</span>
-                            <span>Серийный номер: <b>${escapeScheduleHtml(item.series || '—')}</b></span>
-                            <span>МАК адрес: <b>${escapeScheduleHtml(item.mac || '—')}</b></span>
-                            <span>Дата возврата: <b>${escapeScheduleHtml(displayDate)}</b></span>
-                            <span class="return-check-status" data-status="${escapeScheduleHtml(String(item.status || '').trim())}">Статус: <b>${escapeScheduleHtml(item.status || '—')}</b><span class="act-debts-arrow" aria-hidden="true">▼</span></span>
-                        </summary>
-                        <div class="return-check-extra">
-                            <div><b>Комплектация:</b> ${escapeScheduleHtml(item.kit || 'Не указана')}</div>
-                            <div><b>Причина возврата:</b> ${escapeScheduleHtml(item.reason || 'Не указана')}</div>
-                        </div>
-                    </details>
-                `;
-            });
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 30px;">За текущий месяц возвращенного оборудования не найдено.</div>`;
-        }
-    } catch (e) {
-        console.error("Ошибка загрузки возвратов:", e);
-        container.innerHTML = `<div style="text-align: center; color: var(--danger); padding: 20px;">⚠️ Ошибка загрузки данных с сервера.</div>`;
-    }
-}
+async function openCheckReturnScreen(){return openReturnsHub('confirmed');}
 
 // 8. ПРИВЯЗКА КНОПОК «ВОЗВРАТ» И «ПРОСМОТР ВОЗВРАТА» В МЕНЮ МОНТАЖНИКА
 
@@ -14197,7 +14243,7 @@ function activateDistrict(config){
  if(!config||!config.configured||String(config.city)!==String(currentUser?.city)||String(config.district)!==String(currentUser?.district))throw new Error('Подключение участка не подтверждено');
  Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);
  CITIES_CONFIG[config.city]={...config,district:String(config.district)};
- clearFastReads();cancelUsersLoad();usersDb=usersDb.filter(districtSameUser);usersDirectoryReady=false;usersLoadedAt=0;staffIndexSource=null;invalidateEquipmentSnapshots();scheduleDayDetailsCache.clear();scheduleSourceByDate.clear();scheduleRequestVersion++;scheduleDayRequest++;myEquipmentRequest++;myHoursRequest++;accessSearchVersion++;staffBoardVersion++;
+ clearFastReads();cancelUsersLoad();usersDb=usersDb.filter(districtSameUser);usersDirectoryReady=false;usersLoadedAt=0;staffIndexSource=null;retHubState.loadedAt=0;invalidateEquipmentSnapshots();scheduleDayDetailsCache.clear();scheduleSourceByDate.clear();scheduleRequestVersion++;scheduleDayRequest++;myEquipmentRequest++;myHoursRequest++;accessSearchVersion++;staffBoardVersion++;
 }
 // Добавляет контекст участка только к его двум доверенным скриптам.
 function districtReadUrl(value){
@@ -14302,9 +14348,9 @@ const ctTabCache=new Map();let ctCacheOwner='';
 // Выполняет кэш текущий — модуль городской таблицы.
 function ctCacheCurrent(){if(ctState.loaded&&ctState.owner===managementOwnerKey())ctTabCache.set(ctState.group,{sheets:ctState.sheets,staff:ctState.staff,options:ctState.options});}
 // Очищает группы — модуль городской таблицы.
-function ctInvalidateGroups(groups){invalidateEquipmentSnapshots();for(const group of groups)ctTabCache.delete(group);if(groups.includes(ctState.group))ctState.loaded=false;}
+function ctInvalidateGroups(groups){retHubState.loadedAt=0;invalidateEquipmentSnapshots();for(const group of groups)ctTabCache.delete(group);if(groups.includes(ctState.group))ctState.loaded=false;}
 // Очищает Other вкладки — модуль городской таблицы.
-function ctInvalidateOtherTabs(){invalidateEquipmentSnapshots();for(const key of ctTabCache.keys())if(key!==ctState.group)ctTabCache.delete(key);ctCacheCurrent();}
+function ctInvalidateOtherTabs(){retHubState.loadedAt=0;invalidateEquipmentSnapshots();for(const key of ctTabCache.keys())if(key!==ctState.group)ctTabCache.delete(key);ctCacheCurrent();}
 // Получает данные — модуль городской таблицы.
 function ctListData(result){
  if(!result||!Array.isArray(result.sheets))throw new Error(result?.message||'Скрипт города не вернул список записей. Проверьте актуальную версию развёртывания и нажмите «Обновить».');
@@ -14425,7 +14471,7 @@ function ctArticle(record,schema){
  const arrow=ctNode('button','ct-toggle');arrow.type='button';arrow.setAttribute('aria-label','Раскрыть поля заявки');arrow.setAttribute('aria-expanded','false');arrow.append(ctNode('span','dropdown-arrow','▼'));arrow.onclick=()=>{if(hidden.hidden&&!hidden.dataset.ctMounted){mountHidden();hidden.dataset.ctMounted='true';}hidden.hidden=!hidden.hidden;arrow.setAttribute('aria-expanded',String(!hidden.hidden));arrow.setAttribute('aria-label',hidden.hidden?'Раскрыть поля заявки':'Скрыть поля заявки');ctCloseDropdowns();};
  if(ctPart!=='acts')controls.append(arrow);if(schema.act){const ack=ctNode('button','btn main-btn',ctActOpen(record)?'📄 Сдать акт':'✅ АКТ Сдан');ack.type='button';ack.dataset.ctAck='true';ack.title=record.actReadonly?'АКТ вычисляется формулой':ctActOpen(record)?'Отметить акт как сданный':'Изменить отметку: акт не сдан';ack.onclick=()=>ctConfirm(ctActOpen(record)?'Сдать акт?':'Изменить отметку АКТ?',ctActOpen(record)?'Подтвердить сдачу акта этой записи?':'Отметить этот акт как несданный?',()=>ctMutate(ctActOpen(record)?'ack':'unack',[record]));controls.append(ack);}if(ctPart==='acts')controls.append(arrow);visible.append(controls);
 
- function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const device=ctNode('div','ct-device');const start=(kind==='router'?0:9)+index*3;fields.slice(start,start+3).forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}if(typeof mountAppCalendars==='function')mountAppCalendars();}
+ function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const device=ctNode('div','ct-device');const start=(kind==='router'?0:9)+index*3;fields.slice(start,start+3).forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}sxEditorMount(article,record,schema,()=>ctDraft(record).values,(col,v)=>{const draft=ctDraft(record);draft.values[col]=v;if(v===String(record.values[col]||''))delete draft.changes[col];else draft.changes[col]=v;ctUpdateDraft(article,record);});if(typeof mountAppCalendars==='function')mountAppCalendars();}
  const footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.dataset.ctSave='true';save.onclick=()=>ctMutate('save',[record]);footer.append(status,save);article.append(visible,hidden,footer);ctUpdateDraft(article,record);return article;
 }
 // Выполняет все записи — модуль городской таблицы.
@@ -14491,6 +14537,7 @@ async function ctRefreshKeepingDrafts(){
 }
 // Выполняет mutate — модуль городской таблицы.
 async function ctMutate(operation,records){
+ if(operation==='save'){try{for(const record of records){const node=[...document.querySelectorAll('[data-ct-key]')].find(n=>n.dataset.ctKey===ctIdentity(record));node?.sxExchange?.validate();}}catch(e){showBeelineModal('Оборудование абонента',e.message,'⚠️');return;}}
  if(ctState.busy||ctState.owner!==managementOwnerKey())return;const owner=ctState.owner,group=ctState.group,requestId=ctRequestId();
  const items=records.map(r=>({sheet:r.sheet,row:r.row,version:r.version,changes:operation==='save'?{...ctDraft(r).changes}:{}}));
  if(operation==='save'&&!Object.keys(items[0].changes).length)return;ctCloseDropdowns();ctSetBusy(true);ctSetMessage(operation==='save'?'Сохраняем изменения…':'Подтверждаем сдачу актов…',true);
@@ -14498,7 +14545,7 @@ async function ctMutate(operation,records){
   let result;try{result=await ctRequest(operation,{group,requestId,items});}catch(error){if(error.confirmed)throw error;ctSetMessage('Проверяем результат сохранения…',true);for(let i=0;i<4;i++){await new Promise(resolve=>setTimeout(resolve,1500));result=await ctRequest('status',{requestId},20000);if(result.status!=='pending')break;}if(!result||result.status==='pending')throw new Error('Результат ещё не подтверждён. Не повторяйте сдачу: обновите список через несколько секунд.');}
   if(owner!==managementOwnerKey())return;
   if(result.status!=='success')throw new Error(result.message||'Таблица не подтвердила изменение');
-  invalidateEquipmentSnapshots();
+  retHubState.loadedAt=0;invalidateEquipmentSnapshots();
   if(['ackBatch','unackBatch'].includes(operation))ctActSelection.clear();
   if(operation==='save'){const s=ctState.sheets.find(s=>s.name===result.record.sheet),index=s.rows.findIndex(r=>r.row===result.record.row);s.rows[index]=result.record;ctState.drafts.delete(ctIdentity(result.record));}
   else if(result.record){const sheet=ctState.sheets.find(s=>s.name===result.record.sheet);sheet.rows[sheet.rows.findIndex(r=>r.row===result.record.row)]=result.record;ctState.drafts.delete(ctIdentity(result.record));}else{ctSetBusy(false);await ctLoad();}
@@ -14630,7 +14677,7 @@ async function ctSubmitNewIssue(){
  const seen=new Set();for(const record of rows){const values=ctDraft(record).values,serial=String(values[serialCol]).trim().toUpperCase().replace(/\s+/g,'');if(seen.has(serial)){showBeelineModal('Выдача ТМЦ','Повтор серийного номера: '+serial,'⚠️');return;}seen.add(serial);if(!values[issue.isCable?'C':'A']||issue.isCable&&!(Number(String(values.D||'').replace(',','.'))>0)){record.node.querySelector('[data-ct-serial]').focus();showBeelineModal('Выдача ТМЦ','Выберите модель для всех позиций. Для кабеля укажите метраж больше нуля.','⚠️');return;}}
  ctSetBusy(true);ctSetMessage('Записываем выдачу: '+rows.length+'…',true);
  try{const result=await ctIssueRequest({installer,batchData:rows.map(r=>({mode:{stockRouters:'router',stockStbs:'stb',stockCable:'cable'}[group],values:{...ctDraft(r).values}}))},issue.requestId);if(owner!==managementOwnerKey()||group!==ctState.group)return;if(result.status!=='success')throw new Error(result.message||'Выдача не подтверждена');
- const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});invalidateEquipmentSnapshots();ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(!result.notification?.sent)ctShowIssueNotificationError(result,issue.requestId);
+ const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});retHubState.loadedAt=0;invalidateEquipmentSnapshots();ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(!result.notification?.sent)ctShowIssueNotificationError(result,issue.requestId);
  }catch(error){ctSetMessage('⚠️ '+error.message);showBeelineModal('Выдача ТМЦ',error.message,'⚠️');}finally{if(owner===managementOwnerKey())ctSetBusy(false);}
 }
 
@@ -15056,7 +15103,7 @@ async function openVirtualWarehouse(){if(!vsManagerAllowed()){showBeelineModal('
 function vsMessage(text){const el=document.getElementById('vsWarehouseState');if(el)el.textContent=text;}
 async function vsLoadWarehouses(){if(vsScreenState.busy)return;vsScreenState.busy=true;vsMessage('Загружаем остатки участка…');try{const data=await vsApi('list');vsScreenState.warehouses=data.warehouses;vsScreenState.manager=data.manager;vsScreenState.owner=managementOwnerKey();vsRenderWarehouses();vsMessage('Складов: '+data.warehouses.length+' · нулевые позиции доступны при редактировании');}catch(e){vsMessage('⚠️ '+e.message);}finally{vsScreenState.busy=false;}}
 function vsRenderWarehouses(){const list=document.getElementById('vsWarehouseList');if(!list)return;list.replaceChildren();const query=(document.getElementById('vsWarehouseSearch').value||'').toLocaleLowerCase('ru');for(const w of vsScreenState.warehouses.filter(w=>(w.name+' '+w.warehouse).toLocaleLowerCase('ru').includes(query))){const card=ctNode('details','tmr-record vs-warehouse'),summary=ctNode('summary');summary.append(ctNode('strong','',w.name),ctNode('span','dropdown-arrow','▼'));card.append(summary,ctNode('p','tmr-summary','Состояние: '+w.state));const positive=ctNode('div','vs-stock-lines');for(const m of w.materials.filter(m=>m.quantity>0))positive.append(ctNode('p','',m.name+': '+m.quantity+' '+m.unit+(m.reserved?' · резерв '+m.reserved:'')));if(!positive.children.length)positive.append(ctNode('p','tmr-empty','Положительных остатков нет'));card.append(positive);const edit=ctNode('button','btn main-btn','✏️ Изменить остатки');edit.type='button';edit.disabled=w.state!=='Активен';edit.onclick=()=>vsEditWarehouse(card,w,edit);card.append(edit);list.append(card);}if(!list.children.length)list.append(ctNode('p','tmr-empty','Склады не найдены'));}
-function vsEditWarehouse(card,w,edit){edit.hidden=true;const form=ctNode('form','vs-stock-edit'),grid=ctNode('div','vs-stock-grid'),inputs={};for(const m of w.materials){const field=tmrField(m.name+' · '+m.unit,m.quantity),input=field.input;input.type='number';input.inputMode='numeric';input.min=String(m.reserved||0);input.step='1';input.required=true;inputs[m.key]=input;grid.append(field.wrap);}const actions=ctNode('div','vs-toolbar'),save=ctNode('button','btn main-btn','💾 Сохранить остатки'),cancel=ctNode('button','btn danger-btn','Отмена');save.type='submit';cancel.type='button';cancel.onclick=()=>{form.remove();edit.hidden=false;};actions.append(save,cancel);form.append(grid,actions);let pending=null;form.onsubmit=async e=>{e.preventDefault();if(vsScreenState.busy)return;try{const quantities=Object.fromEntries(w.materials.map(m=>[m.key,Number(inputs[m.key].value)]));for(const m of w.materials)if(!Number.isSafeInteger(quantities[m.key])||quantities[m.key]<m.reserved)throw new Error(m.name+': целое количество, не меньше резерва '+m.reserved);if(!pending)pending={login:w.login,version:w.version,quantities,requestId:ctRequestId()};vsScreenState.busy=true;save.disabled=cancel.disabled=true;vsMessage('Сохраняем остатки…');const data=await vsApi('adjust',pending);pending=null;vsScreenState.warehouses=vsScreenState.warehouses.map(old=>old.login===w.login?data.warehouse:old);invalidateEquipmentSnapshots();vsRenderWarehouses();vsMessage('✅ Остатки сохранены');}catch(e){if(e.confirmed)pending=null;vsMessage('⚠️ '+e.message);save.disabled=cancel.disabled=false;}finally{vsScreenState.busy=false;}};card.append(form);}
+function vsEditWarehouse(card,w,edit){edit.hidden=true;const form=ctNode('form','vs-stock-edit'),grid=ctNode('div','vs-stock-grid'),inputs={};for(const m of w.materials){const field=tmrField(m.name+' · '+m.unit,m.quantity),input=field.input;input.type='number';input.inputMode='numeric';input.min=String(m.reserved||0);input.step='1';input.required=true;inputs[m.key]=input;grid.append(field.wrap);}const actions=ctNode('div','vs-toolbar'),save=ctNode('button','btn main-btn','💾 Сохранить остатки'),cancel=ctNode('button','btn danger-btn','Отмена');save.type='submit';cancel.type='button';cancel.onclick=()=>{form.remove();edit.hidden=false;};actions.append(save,cancel);form.append(grid,actions);let pending=null;form.onsubmit=async e=>{e.preventDefault();if(vsScreenState.busy)return;try{const quantities=Object.fromEntries(w.materials.map(m=>[m.key,Number(inputs[m.key].value)]));for(const m of w.materials)if(!Number.isSafeInteger(quantities[m.key])||quantities[m.key]<m.reserved)throw new Error(m.name+': целое количество, не меньше резерва '+m.reserved);if(!pending)pending={login:w.login,version:w.version,quantities,requestId:ctRequestId()};vsScreenState.busy=true;save.disabled=cancel.disabled=true;vsMessage('Сохраняем остатки…');const data=await vsApi('adjust',pending);pending=null;vsScreenState.warehouses=vsScreenState.warehouses.map(old=>old.login===w.login?data.warehouse:old);retHubState.loadedAt=0;invalidateEquipmentSnapshots();vsRenderWarehouses();vsMessage('✅ Остатки сохранены');}catch(e){if(e.confirmed)pending=null;vsMessage('⚠️ '+e.message);save.disabled=cancel.disabled=false;}finally{vsScreenState.busy=false;}};card.append(form);}
 function vsClientMap(type){if(type.startsWith('Демонтаж'))return {};const map={},base=type.startsWith('ППР')?8:9;['clips','connectors','ties','tape','uy2'].forEach((k,i)=>map[k]=base+i);if(type.startsWith('ППР'))Object.assign(map,{cc4025:13,cc6040:14,dowels:15});else if(type.endsWith('GPON')){const start=type.startsWith('Переезд')?17:35;['cc2010','cc1015','extCorner','intCorner','turnCorner','tail','dowels','ftthClip','wallIn','optMeters','optCount','soc','fast','kdzs','adapter'].forEach((k,i)=>{if(k!=='optCount')map[k]=start+i;});}return map;}
 function vsReportBuilt(type){return type.includes('ППР')?buildPprReportRow():buildStandardReportRow(type,getReportFormValues());}
 function vsPendingKey(){return 'vs_report_pending_'+managementOwnerKey();}
