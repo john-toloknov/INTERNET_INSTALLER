@@ -3514,6 +3514,17 @@ html[data-app-layout=desktop] #cityTableFilters[data-ct-layout=cable]{grid-templ
  html[data-app-layout=desktop] #cityTableEditor .ct-hidden-two>.ct-group-equipment .ct-fields{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 </style>
+
+<style id="cityTableActsPolish53">
+/* The same checkbox mark used by the rest of the application; state belongs to the listbox option. */
+#cityTableFilters .ct-multi-item>.custom-checkbox{width:20px;height:20px;flex:0 0 20px;box-sizing:border-box}
+#cityTableFilters .ct-multi-item[aria-selected=true]>.custom-checkbox{background-color:var(--accent);border-color:var(--accent)}
+#cityTableFilters .ct-multi-item[aria-selected=true]>.custom-checkbox::after{transform:rotate(45deg) scale(1)}
+#cityTableFilters .ct-multi-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+@container ct-record (min-width:950px){
+ html[data-app-layout=desktop] #screen-admin-table #cityTableEditor .ct-record[data-ct-acts=true][data-ct-equipment=true]>.ct-visible{grid-template-columns:minmax(80px,.5fr) minmax(0,1.2fr) 80px minmax(0,1.2fr) 96px minmax(0,1.2fr) 188px}
+}
+</style>
 <style>
 /* Компактная общая доска сотрудников. */
 #screen-admin-board > .card{padding:16px!important}
@@ -4479,7 +4490,7 @@ function openTmcSection(key){
    sidebar.replaceChildren();if(auth)return;
    const user=document.createElement('div');user.className='view-sidebar-user';user.textContent=document.getElementById('userInfoHeader')?.textContent||'Разделы приложения';sidebar.append(user);
    const visible=button=>!!button&&!button.hidden&&button.style.display!=='none';
-   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openPayrollManagement:'screen-admin-payroll',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
+   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openEntertainment:'screen-entertainment',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openPayrollManagement:'screen-admin-payroll',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
    function matches(original){
     if(original.id==='scannerAppBtn')return ['screen-tmc-requests-management','screen-scanner','screen-form','screen-virtual-warehouse'].includes(active.id);
     if(original.dataset.viewTarget)return original.dataset.viewTarget===active.id;
@@ -5432,6 +5443,7 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
             <button class="btn main-btn" id="equipmentAccessBtn" style="display: none;" onclick="checkStagerAccess('Доступ к оборудованию', 'screen-equipment-access')">🔑 Доступ к оборудованию</button>
             
             <!-- Программное обеспечение: встроенный экран -->
+            <button class="btn main-btn" id="entertainmentBtn" type="button" onclick="openEntertainment()">🎮 Развлечения</button>
             <button class="btn main-btn" id="softwareBtn" type="button" onclick="openSoftwareScreen()">💿 Программное обеспечение</button>
             
             <button class="btn main-btn" id="engineerPprBtn" type="button" hidden onclick="openPprPlans()">📈 Планы по ППР</button>
@@ -7453,7 +7465,7 @@ function engineerSelectDistrict(section,value){
     if(section==='access'){for(const id of ['screen-equipment-access','screen-access-search','screen-access-record'])engineerMountDistrict(id,'access');accessSearchController?.abort();++accessSearchVersion;document.getElementById('accessSearchResultsContainer').replaceChildren();handleSearchAccess();}
     if(section==='event'){managementEventRequest='';managementEventFingerprint='';engineerMountDistrict('screen-management-event','event');updateManagementPreview();}
 }
-function engineerScreenAllowed(id){return id.startsWith('screen-software')||id==='screen-channel-catalog'||['screen-main','screen-login','screen-forgot','screen-reset','screen-software','screen-ppr-plans','screen-equipment-access','screen-access-search','screen-access-record','screen-admin-work-schedule','screen-management-event'].includes(id);}
+function engineerScreenAllowed(id){return id.startsWith('screen-software')||id==='screen-channel-catalog'||['screen-main','screen-login','screen-forgot','screen-reset','screen-software','screen-ppr-plans','screen-equipment-access','screen-access-search','screen-access-record','screen-admin-work-schedule','screen-management-event','screen-entertainment'].includes(id);}
 function mainRoleButtonVisibility(id,visible){
     const button=document.getElementById(id);if(!button)return;
     button.hidden=!visible;button.style.display=visible?'':'none';
@@ -7508,6 +7520,8 @@ function engineerSchedulePresentation(){
 
     // Выполняет смена экран.
     function switchScreen(screenId) {
+        if(typeof egStopPoll==='function')egStopPoll();
+        if(screenId!=='screen-entertainment'&&typeof egCloseGame==='function')egCloseGame(false);
         if(currentUser?.role==='Супервайзер'&&['screen-installer-menu','screen-technician-reports'].includes(screenId))screenId='screen-main';
         if(engineerAllowed()&&!engineerScreenAllowed(screenId))screenId="screen-main";
         if(screenId==='screen-main')engineerApplyMenu();
@@ -7591,7 +7605,7 @@ function engineerSchedulePresentation(){
                 showOwnerCityPicker();
             } else {
                 switchScreen('screen-main');
-                if(new URLSearchParams(location.search).has('swapId'))maybeOpenShiftSwapDeepLink();else if(!maybeOpenManagementDeepLink())maybeOpenPprDeepLink();
+                if(typeof maybeOpenGameDeepLink==='function'&&maybeOpenGameDeepLink()){}else if(new URLSearchParams(location.search).has('swapId'))maybeOpenShiftSwapDeepLink();else if(!maybeOpenManagementDeepLink())maybeOpenPprDeepLink();
             }
         } else {
             switchScreen('screen-login');
@@ -14411,7 +14425,7 @@ function ctInvalidateOtherTabs(){retHubState.loadedAt=0;invalidateEquipmentSnaps
 function ctListData(result){
  if(!result||!Array.isArray(result.sheets))throw new Error(result?.message||'Скрипт города не вернул список записей. Проверьте актуальную версию развёртывания и нажмите «Обновить».');
  if(result.sheets.some(sheet=>!sheet||!Array.isArray(sheet.rows)||!Array.isArray(sheet.schema?.fields)))throw new Error('Некорректный формат записей от скрипта города. Обновите список.');
- return {sheets:result.sheets,staff:Array.isArray(result.staff)?result.staff:[],options:result.options||{}};
+ return {sheets:result.sheets.map(sheet=>!['Роутеры','Приставки'].includes(sheet.name)?sheet:{...sheet,schema:{...sheet.schema,fields:sheet.schema.fields.map(field=>field.col==='H'?{...field,label:'Номер заявки'}:field)}}),staff:Array.isArray(result.staff)?result.staff:[],options:result.options||{}};
 }
 // Выполняет navigate — модуль городской таблицы.
 function ctNavigate(action){if(ctState.busy)return;if(ctDirty())ctConfirm('Несохранённые изменения','При переходе несохранённые изменения будут потеряны. Продолжить?',()=>{ctClearNewIssue();ctState.drafts.clear();action();});else action();}
@@ -14439,7 +14453,7 @@ function ctChangeGroup(group){if(ctState.busy||group===ctState.group)return;if(c
 function ctFilterFields(){if(ctPart==='returns')return ctrFilterFields();if(ctPart==='acts')return [['Номер заявки'],['Логин'],['Дата монтажа','date'],['АКТ','act'],['Адрес'],['ФИО абонента'],['ФИО монтажника','staffMulti']];if(ctState.group==='stockCable')return [['Наименование кабеля','modelMulti','C'],['Серийный номер','text','B'],['Метраж','number','D'],['ФИО Монтажника','staffMulti','E']];return [['Марка оборудования','modelMulti','A'],['Серийный номер','text','C'],['MAC адрес','text','B'],['ФИО Монтажника','staffMulti','J'],['Логин','text','E'],['Дата выдачи','date','G'],['АКТ','act']];}
 // Выполняет фильтр варианты — модуль городской таблицы.
 function ctFilterOptions(label,type,col){
- if(type==='staffMulti')return (ctState.staff||[]).map(person=>({value:person.value||person.name,label:person.name||person.value,person})).filter(o=>o.value);
+ if(type==='staffMulti')return ctOptions({type:'staff'},ctState.sheets[0]?.name||'','').filter(o=>o.value);
  const cable=ctState.group==='stockCable',field={type:cable?'cableChoice':ctState.group==='stockStbs'?'stb':'router'};
  const options=ctOptions(field,ctState.sheets[0]?.name||'', '').filter(o=>o.value);
  const seen=new Set(options.map(o=>o.value));for(const record of ctAllRecords()){const value=String(ctDraft(record).values[col]||'').trim();if(value&&!seen.has(value)){seen.add(value);options.push({value,label:value});}}return options;
@@ -14452,7 +14466,7 @@ function ctMultiFilter(label,type,col){
  const items=ctNode('div','ct-multi-options');
  const selected=()=>Array.isArray(ctFilters[label])?ctFilters[label]:[];
  const update=()=>{const values=selected();caption.textContent=values.length?values.map(v=>options.find(o=>o.value===v)?.label||v).join(', '):'Все';button.title=caption.textContent;};
- const fill=()=>{items.replaceChildren();const query=search.value.trim().toLowerCase();for(const option of options.filter(o=>(o.label+' '+o.value+' '+(o.person?.role||'')).toLowerCase().includes(query))){const item=ctNode('button','dropdown-item ct-multi-item'),check=ctNode('span','ct-multi-check',selected().includes(option.value)?'✓':''),text=ctNode('span','ct-multi-label',option.label);item.type='button';item.setAttribute('role','option');item.setAttribute('aria-selected',String(selected().includes(option.value)));if(type==='staffMulti')staffDropdownOption(text,option.person);item.append(check,text);item.onclick=e=>{e.stopPropagation();const values=selected();ctFilters[label]=values.includes(option.value)?values.filter(v=>v!==option.value):[...values,option.value];update();fill();ctState.limit=50;ctRender();setDropdownOpen(dropdown,true);};items.append(item);}if(!items.children.length)items.append(ctNode('div','dropdown-item','Совпадений нет'));};
+ const fill=()=>{items.replaceChildren();const query=search.value.trim().toLowerCase();for(const option of options.filter(o=>(o.label+' '+o.value+' '+(o.person?.role||'')).toLowerCase().includes(query))){const item=ctNode('button','dropdown-item ct-multi-item'),check=ctNode('span','custom-checkbox'),text=ctNode('span','ct-multi-label',option.label);item.type='button';item.setAttribute('role','option');item.setAttribute('aria-selected',String(selected().includes(option.value)));if(type==='staffMulti')staffDropdownOption(text,option.person);check.setAttribute('aria-hidden','true');item.append(check,text);item.onclick=e=>{e.stopPropagation();const values=selected();ctFilters[label]=values.includes(option.value)?values.filter(v=>v!==option.value):[...values,option.value];update();fill();ctState.limit=50;ctRender();setDropdownOpen(dropdown,true);};items.append(item);}if(!items.children.length)items.append(ctNode('div','dropdown-item','Совпадений нет'));};
  search.oninput=fill;button.append(caption,arrow);button.onclick=e=>{e.stopPropagation();const open=!dropdown.classList.contains('open');ctCloseDropdowns();if(open)fill();setDropdownOpen(dropdown,open);};dropdown.onkeydown=e=>{if(e.key==='Escape'){setDropdownOpen(dropdown,false);button.focus();}if(e.target===button&&e.key==='ArrowDown'){e.preventDefault();ctCloseDropdowns();fill();setDropdownOpen(dropdown,true);search.focus();}};
  list.append(search,items);dropdown.append(button,list);wrap.append(dropdown);update();return wrap;
 }
@@ -14525,7 +14539,7 @@ function ctField(field,record,article){
  }else{
   input=ctNode(field.label==='Комментарий'&&(ctPart==='acts'||field.group!=='visible')?'textarea':'input');
   if(input.tagName==='INPUT'){input.type=field.type==='date'?'date':'text';if(field.type==='number')input.inputMode='decimal';}
-  input.value=field.type==='date'?ctNormalizeDate(draft.values[field.col]):draft.values[field.col];input.setAttribute('aria-label',field.label);if(['Номер заявки','Логин'].includes(field.label))input.inputMode='numeric';const update=()=>{if(ctPart==='returns'&&field.col==='D')input.value=deviceInputSerial(input.value);if(ctPart==='returns'&&field.col==='E')input.value=deviceInputMac(input.value);changed(input.value);};input.addEventListener('input',update);input.addEventListener('change',update);wrapper.append(input);
+  input.value=field.type==='date'?ctNormalizeDate(draft.values[field.col]):draft.values[field.col];input.setAttribute('aria-label',field.label);if(['Номер заявки','Логин'].includes(field.label)&&!(field.col==='H'&&['Роутеры','Приставки'].includes(record.sheet)))input.inputMode='numeric';const update=()=>{if(ctPart==='returns'&&field.col==='D')input.value=deviceInputSerial(input.value);if(ctPart==='returns'&&field.col==='E')input.value=deviceInputMac(input.value);changed(input.value);};input.addEventListener('input',update);input.addEventListener('change',update);wrapper.append(input);
  }
  if(record.readonly?.includes(field.col)){input.disabled=true;input.title=ctPart==='returns'&&!record.returnEditable?'Возврат ещё не оформлен':'Поле вычисляется формулой в таблице';}
  return wrapper;
@@ -14540,7 +14554,7 @@ function ctArticle(record,schema){
  const arrow=ctNode('button','ct-toggle');arrow.type='button';arrow.setAttribute('aria-label','Раскрыть поля заявки');arrow.setAttribute('aria-expanded','false');arrow.append(ctNode('span','dropdown-arrow','▼'));arrow.onclick=()=>{if(hidden.hidden&&!hidden.dataset.ctMounted){mountHidden();hidden.dataset.ctMounted='true';}hidden.hidden=!hidden.hidden;arrow.setAttribute('aria-expanded',String(!hidden.hidden));arrow.setAttribute('aria-label',hidden.hidden?'Раскрыть поля заявки':'Скрыть поля заявки');ctCloseDropdowns();ctFitCommentFields(article);};
  if(ctPart!=='acts')controls.append(arrow);if(schema.act){const ack=ctNode('button','btn main-btn',ctActOpen(record)?'📄 Сдать акт':'✅ АКТ Сдан');ack.type='button';ack.dataset.ctAck='true';ack.title=record.actReadonly?'АКТ вычисляется формулой':ctActOpen(record)?'Отметить акт как сданный':'Изменить отметку: акт не сдан';ack.onclick=()=>ctConfirm(ctActOpen(record)?'Сдать акт?':'Изменить отметку АКТ?',ctActOpen(record)?'Подтвердить сдачу акта этой записи?':'Отметить этот акт как несданный?',()=>ctMutate(ctActOpen(record)?'ack':'unack',[record]));controls.append(ack);}if(ctPart==='acts')controls.append(arrow);visible.append(controls);
 
- function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasEquipment&&hasMisc)hidden.classList.add(hasMaterials?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':ctPart==='acts'?'📝 Комментарий':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const start=(kind==='router'?0:9)+index*3,parts=fields.slice(start,start+3),device=ctPart==='acts'?ctEquipmentDisclosure(record,parts,article,(kind==='router'?'Роутер ':'Приставка ')+(index+1)):ctNode('div','ct-device');if(ctPart!=='acts')parts.forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else if(ctPart==='acts'&&group==='equipment'&&fields.some(f=>['router','stb'].includes(f.type))){grid.classList.add('ct-single-device');grid.append(ctEquipmentDisclosure(record,fields,article,record.sheet==='Приставки'?'Приставка':'Роутер'));}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}sxEditorMount(article,record,schema,()=>ctDraft(record).values,(col,v)=>{const draft=ctDraft(record);draft.values[col]=v;if(v===String(record.values[col]||''))delete draft.changes[col];else draft.changes[col]=v;ctUpdateDraft(article,record);});if(typeof mountAppCalendars==='function')mountAppCalendars();}
+ function mountHidden(){const hasMaterials=schema.fields.some(f=>f.group==='materials'),hasEquipment=schema.fields.some(f=>f.group==='equipment'),hasMisc=schema.fields.some(f=>f.group==='misc');if(ctPart==='acts'&&hasMisc&&(hasMaterials||hasEquipment))hidden.classList.add(hasMaterials&&hasEquipment?'ct-hidden-three':'ct-hidden-two');for(const [group,label] of [['materials','🧰 Расходные материалы'],['equipment','🛜 Роутеры и приставки'],['misc',ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?'📝 Данные абонента':ctPart==='acts'?'📝 Комментарий':'📝 Остальные поля']]){const fields=schema.fields.filter(f=>f.group===group);if(group==='misc')fields.sort((a,b)=>{const order=ctPart==='stock'&&['Роутеры','Приставки'].includes(record.sheet)?['D','E','G','F','H','L','K']:null;const labels=['Комментарий','Часовая ставка','Статус','Результат решения'];return order?order.indexOf(a.col)-order.indexOf(b.col):labels.indexOf(a.label)-labels.indexOf(b.label);});if(!fields.length)continue;const block=ctNode('section','ct-group ct-group-'+group),grid=ctNode('div','ct-fields');block.append(ctNode('h4','',label));if(group==='equipment'&&fields.length===18){grid.className='ct-device-columns';for(const [kind,label] of [['router','Роутеры'],['stb','Приставки']]){const column=ctNode('div','ct-device-column');column.append(ctNode('h5','',label));for(let index=0;index<3;index++){const start=(kind==='router'?0:9)+index*3,parts=fields.slice(start,start+3),device=ctPart==='acts'?ctEquipmentDisclosure(record,parts,article,(kind==='router'?'Роутер ':'Приставка ')+(index+1)):ctNode('div','ct-device');if(ctPart!=='acts')parts.forEach(f=>device.append(ctField(f,record,article)));column.append(device);}grid.append(column);}}else if(ctPart==='acts'&&group==='equipment'&&fields.some(f=>['router','stb'].includes(f.type))){grid.classList.add('ct-single-device');grid.append(ctEquipmentDisclosure(record,fields,article,record.sheet==='Приставки'?'Приставка':'Роутер'));}else fields.forEach(f=>grid.append(ctField(f,record,article)));block.append(grid);hidden.append(block);}sxEditorMount(article,record,schema,()=>ctDraft(record).values,(col,v)=>{const draft=ctDraft(record);draft.values[col]=v;if(v===String(record.values[col]||''))delete draft.changes[col];else draft.changes[col]=v;ctUpdateDraft(article,record);});if(typeof mountAppCalendars==='function')mountAppCalendars();}
  article.eqMountEquipment=()=>{if(!hidden.childElementCount)mountHidden();hidden.dataset.ctMounted='true';hidden.hidden=false;arrow.setAttribute('aria-expanded','true');ctFitCommentFields(article);};const footer=ctNode('div','ct-footer'),status=ctNode('span','ct-record-state'),save=ctNode('button','btn main-btn','💾 Сохранить');save.type='button';save.dataset.ctSave='true';save.onclick=()=>ctMutate('save',[record]);footer.append(status,save);article.append(visible,hidden,footer);ctUpdateDraft(article,record);return article;
 }
 // Выполняет все записи — модуль городской таблицы.
@@ -15754,6 +15768,239 @@ window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.f
 };
 
 })();
+</script>
+
+<style id="entertainmentStyle">
+#screen-entertainment{width:100%;max-width:1200px;margin:auto}
+#screen-entertainment *{box-sizing:border-box}
+#screen-entertainment .eg-toolbar,#screen-entertainment .eg-actions,#screen-entertainment .eg-tabs{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+#screen-entertainment .eg-toolbar{justify-content:space-between;margin-bottom:18px}
+#screen-entertainment button{min-height:44px;white-space:normal;margin:0}
+#screen-entertainment .eg-tabs{margin:0 0 20px}
+#screen-entertainment .eg-tabs button{flex:1;min-width:120px}
+#screen-entertainment .eg-tabs button[aria-selected=false]{background:var(--card-bg);color:var(--text-main);border:1px solid var(--border-color);box-shadow:none}
+#screen-entertainment .eg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+#screen-entertainment .eg-panel{background:var(--card-bg);border:1px solid var(--border-color);border-radius:18px;padding:22px;min-width:0;margin-bottom:16px}
+#screen-entertainment .eg-hero{border-top:4px solid var(--primary-color,#b5ed46);position:relative;overflow:hidden}
+#screen-entertainment .eg-hero-icon{font-size:42px;margin-bottom:10px}
+#screen-entertainment h3{font-size:20px;margin:0 0 12px;color:var(--accent-ink)}
+#screen-entertainment p{line-height:1.55;margin:8px 0 16px}
+#screen-entertainment .eg-muted{color:var(--text-secondary);font-size:13px;line-height:1.5}
+#screen-entertainment .eg-badge{display:inline-block;padding:5px 10px;border:1px solid var(--border-color);border-radius:30px;font-size:12px;margin-bottom:12px;color:var(--accent-ink)}
+#screen-entertainment .eg-state-disputed{color:var(--danger)}
+#screen-entertainment .eg-state-confirmed{color:var(--success)}
+#screen-entertainment .eg-field{display:block;margin:0 0 16px;min-width:0;font-size:13px;color:var(--text-secondary)}
+#screen-entertainment .eg-field>span{display:block;margin-bottom:7px}
+#screen-entertainment input{width:100%;margin:0;font-size:14px}
+#screen-entertainment .custom-dropdown{margin:0}
+#screen-entertainment .dropdown-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;gap:10px;text-align:left}
+#screen-entertainment .dropdown-trigger>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#screen-entertainment .dropdown-list button{display:block;width:100%;text-align:left;background:var(--card-bg);color:var(--text-main);border:0;border-radius:0;padding:12px}
+#screen-entertainment .dropdown-list button:hover,#screen-entertainment .dropdown-list button:focus{background:var(--surface-dark);color:var(--accent-ink)}
+#screen-entertainment .custom-dropdown.open .dropdown-list{display:block}
+#screen-entertainment .custom-dropdown:not(.open)>.dropdown-list{display:none!important;visibility:hidden;pointer-events:none}
+#screen-entertainment .eg-message{padding:12px 16px;border-left:3px solid var(--accent-ink);border-radius:8px;background:var(--card-bg);margin:0 0 16px;overflow-wrap:anywhere}
+#screen-entertainment .eg-message:empty{display:none}
+#screen-entertainment .eg-message.eg-error{border-color:var(--danger);color:var(--danger)}
+#screen-entertainment .eg-player{padding:16px;border:1px solid var(--border-color);border-radius:12px;overflow-wrap:anywhere}
+#screen-entertainment .eg-player strong{display:block;margin-bottom:8px}
+#screen-entertainment .eg-player small{display:block;line-height:1.6;color:var(--text-secondary)}
+#screen-entertainment .eg-steps{padding-left:22px;line-height:1.65;margin:12px 0 20px}
+#screen-entertainment .eg-steps li{margin-bottom:8px}
+#screen-entertainment .eg-rank{display:grid;grid-template-columns:36px minmax(0,1fr) 60px 70px;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid var(--border-color);font-size:14px}
+#screen-entertainment .eg-rank span{overflow-wrap:anywhere}
+#screen-entertainment .eg-rank strong{color:var(--accent-ink)}
+#screen-entertainment .eg-rank.eg-me{background:var(--surface-dark);border-radius:8px;padding-left:8px;padding-right:8px}
+#screen-entertainment .eg-actions{margin-top:16px}
+#screen-entertainment .eg-actions .btn{width:auto;flex:0 1 auto}
+#screen-entertainment a{color:var(--accent-ink);text-underline-offset:3px}
+#screen-entertainment .eg-code{font:inherit;font-size:24px;font-weight:bold;letter-spacing:2px;overflow-wrap:anywhere;display:block;margin:12px 0}
+#screen-entertainment .eg-achievement{opacity:.6}
+#screen-entertainment .eg-achievement.eg-unlocked{opacity:1;border-color:var(--accent-ink)}
+@media(max-width:700px){#screen-entertainment .eg-grid{grid-template-columns:minmax(0,1fr)}#screen-entertainment .eg-panel{padding:16px}#screen-entertainment .eg-tabs{gap:8px}#screen-entertainment .eg-tabs button{min-width:42%;font-size:13px}#screen-entertainment .eg-actions .btn{flex:1 1 140px}#screen-entertainment .eg-rank{grid-template-columns:26px minmax(0,1fr) 42px 52px;gap:6px;font-size:12px}}
+#screen-entertainment .eg-game-frame{display:block;width:100%;height:min(1000px,calc(100dvh - 170px));min-height:540px;border:0;border-radius:18px;background:#111}
+@media(max-width:700px){#screen-entertainment .eg-game-frame{height:calc(100dvh - 160px);min-height:480px}}
+</style>
+<section id="screen-entertainment" class="app-screen" style="display:none">
+ <div class="eg-toolbar"><h2>🎮 Развлечения</h2><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">↩ Главное меню</button></div>
+ <div class="eg-tabs" role="tablist" aria-label="Развлечения">
+  <button id="egTabGames" type="button" role="tab" class="btn main-btn" onclick="egTab('games')">⚔️ Игры</button>
+  <button id="egTabMatches" type="button" role="tab" class="btn main-btn" onclick="egTab('matches')">🎯 Мои матчи</button>
+  <button id="egTabLeaders" type="button" role="tab" class="btn main-btn" onclick="egTab('leaders')">🏆 Лидеры</button>
+  <button id="egTabBadges" type="button" role="tab" class="btn main-btn" onclick="egTab('badges')">🏅 Достижения</button>
+ </div>
+ <div id="egMessage" class="eg-message" role="status" aria-live="polite"></div>
+ <div id="egRecovery"></div><div id="egContent"></div>
+</section>
+<script id="entertainmentScript">
+// UMK3 browser v1: authenticated launch; secrets are never written to links/history.
+document.getElementById('screen-main')?.parentElement.append(document.getElementById('screen-entertainment'));
+let egState={owner:'',data:null,tab:'games',room:'',busy:false,loading:false,epoch:0,poll:null,pending:null,controller:null,period:'monthly',deepHandled:'',creating:false,editing:false,drafts:{}};
+const EG_STATES={invited:'📨 Ожидает ответа',accepted:'🤝 Вызов принят',playing:'⚔️ Матч начат',pending_result:'⏳ Подтверждение результата',disputed:'⚠️ Результаты не совпали',confirmed:'🏆 Матч завершён',declined:'🙅 Вызов отклонён',cancelled:'↩️ Вызов отменён',expired:'⌛ Время вызова истекло'};
+const EG_BROWSER_EDITION='md-original-v1';
+let egGame=null,egLaunchEpoch=0;
+function egOwner(){return currentUser?[currentUser.city,currentUser.district,String(currentUser.dwLogin).toLowerCase()].join('|'):'';}
+function egLogin(){return String(currentUser?.dwLogin||'').trim().toLowerCase();}
+function egNode(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function egButton(text,fn,cls='main-btn'){const b=egNode('button',text,'btn '+cls);b.type='button';b.onclick=fn;b.disabled=egState.busy;return b;}
+function egPanel(title){const p=egNode('div',undefined,'eg-panel');if(title)p.append(egNode('h3',title));return p;}
+function egMessage(text,error=false){const n=document.getElementById('egMessage');n.className='eg-message'+(error?' eg-error':'');n.textContent=text;}
+function egVisible(){return document.getElementById('screen-entertainment').classList.contains('active')&&!document.hidden;}
+function egStopPoll(){clearInterval(egState.poll);egState.poll=null;egState.epoch++;if(egState.controller)egState.controller.abort();egState.controller=null;egState.loading=false;}
+function egStartPoll(){clearInterval(egState.poll);egState.poll=setInterval(()=>{const root=document.getElementById('egContent'),typing=root.contains(document.activeElement)&&document.activeElement.matches('input,textarea,[contenteditable=true]');if(!egGame&&egVisible()&&!egState.busy&&!egState.loading&&!egState.editing&&!egState.creating&&!typing&&!root.querySelector('.custom-dropdown.open'))void egLoad(true);},20000);}
+function egPendingKey(){return 'ii-games-pending:'+egOwner();}
+function egRememberPending(value){egState.pending=value;try{if(value)sessionStorage.setItem(egPendingKey(),JSON.stringify(value));else sessionStorage.removeItem(egPendingKey());}catch(e){}}
+function egRecovery(){
+ const p=document.getElementById('egRecovery');p.replaceChildren();if(!egState.pending)return;
+ const box=egPanel('⏳ Проверка последнего действия');box.append(egNode('p','Ответ мог потеряться. Повторная проверка использует тот же номер запроса: второй матч и второе приглашение не создаются.','eg-muted'));
+ box.append(egButton('Проверить и повторить',()=>egMutate(egState.pending.op,egState.pending.fields,true)));p.append(box);
+}
+async function egApi(fields,signal){
+ const user=currentUser,owner=egOwner();if(!user)throw Error('Войдите в приложение');
+ const r=await requestAuthJson({action:'games',...fields,city:user.city,district:String(user.district),actorLogin:user.dwLogin,actorPassword:user.password},20000,signal);
+ if(owner!==egOwner())throw Error('Учётная запись или участок изменились');
+ if(r.status!=='ok')throw Object.assign(Error(r.message||'Не удалось выполнить действие'),{definite:true});return r;
+}
+async function openEntertainment(matchId=''){
+ if(!currentUser)return;
+ if(egState.owner!==egOwner()){
+  egState.data=null;egState.room='';egState.tab='games';egState.pending=null;egState.owner=egOwner();egState.busy=false;egState.creating=false;egState.editing=false;egState.drafts={};
+  try{const saved=JSON.parse(sessionStorage.getItem(egPendingKey())||'null');if(saved&&typeof saved.op==='string'&&saved.fields&&/^[a-zA-Z0-9_-]{16,90}$/.test(saved.fields.requestId||''))egState.pending=saved;}catch(e){}
+ }
+ switchScreen('screen-entertainment');if(matchId){egState.room=matchId;egState.tab='matches';}
+ egRecovery();egRender();await egLoad();if(egVisible())egStartPoll();
+}
+function maybeOpenGameDeepLink(){
+ const p=new URLSearchParams(location.search),id=p.get('gameMatch');if(!id||!currentUser||egState.deepHandled===egOwner()+'|'+id)return false;
+ egState.deepHandled=egOwner()+'|'+id;
+ const same=(!p.get('gameCity')||p.get('gameCity')===currentUser.city)&&(!p.get('gameDistrict')||p.get('gameDistrict')===String(currentUser.district));
+ void openEntertainment(same?id:'').then(()=>{const m=egState.data?.matches.find(m=>m.id===id);if(same&&m?.edition===EG_BROWSER_EDITION&&['invited','accepted','playing'].includes(m.state))void egLaunch('match',id);if(!same)egMessage('Приглашение относится к другому городу или участку. Войдите в соответствующий профиль.',true);});return true;
+}
+async function egLoad(quiet=false){
+ if(egGame||egState.loading||egState.busy)return;
+ const epoch=egState.epoch,owner=egOwner(),controller=new AbortController();egState.controller=controller;egState.loading=true;
+ if(!quiet)egMessage('⏳ Загружаем матчи и рейтинг…');
+ try{const r=await egApi({op:'list'},controller.signal);if(epoch!==egState.epoch||owner!==egOwner())return false;egState.data=r;egRender();if(!quiet)egMessage('');return true;}
+ catch(e){if(e.name!=='AbortError'&&epoch===egState.epoch&&owner===egOwner())egMessage(e.message,true);return false;}
+ finally{if(epoch===egState.epoch){egState.loading=false;egState.controller=null;}}
+}
+async function egMutate(op,fields={},recover=false){
+ if(egState.busy)return;if(egState.pending&&!recover){egMessage('Сначала проверьте последнее действие выше.',true);return;}
+ const owner=egOwner(),request={op,fields:recover?fields:{...fields,requestId:'eg_'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+'_'+Math.random().toString(36).slice(2))}};egStopPoll();
+ egRememberPending(request);egState.busy=true;document.getElementById('egContent').querySelectorAll('button,input').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
+ try{
+  const r=await egApi({op:request.op,...request.fields});if(owner!==egOwner())return;
+  egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};if(r.match){egState.room=r.match.id;egState.tab='matches';if(egState.data){const index=egState.data.matches.findIndex(m=>m.id===r.match.id);if(index<0)egState.data.matches.unshift(r.match);else egState.data.matches[index]=r.match;}}
+  egState.busy=false;const refreshed=await egLoad();if(owner===egOwner())egMessage(refreshed?'✅ Сохранено':'✅ Действие сохранено. Список и рейтинг пока не обновились — нажмите «Обновить».');return r;
+ }catch(e){if(owner!==egOwner())return;if(e.definite)egRememberPending(null);egMessage(e.definite?e.message:e.message+' Действие могло сохраниться — проверьте его выше.',true);}
+ finally{if(owner===egOwner()){egState.busy=false;egRecovery();egRender();if(egVisible())egStartPoll();}}
+}
+function egTab(tab){egCloseGame(false);egState.tab=tab;egState.room='';egState.creating=false;egState.editing=false;egMessage('');egRender();}
+function egField(label,placeholder='',value='',max=80){const wrap=egNode('label',undefined,'eg-field'),input=egNode('input');input.type='text';input.placeholder=placeholder;input.value=value;input.maxLength=max;input.disabled=egState.busy;wrap.append(egNode('span',label),input);return {wrap,input};}
+function egPick(label,options,initial=''){
+ const field=egNode('div',undefined,'eg-field'),box=egNode('div',undefined,'custom-dropdown'),trigger=egNode('button',undefined,'dropdown-trigger'),list=egNode('div',undefined,'dropdown-list');
+ let value=initial;trigger.type='button';trigger.disabled=egState.busy;trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');list.setAttribute('aria-label',label);
+ const text=egNode('span',options.find(o=>o[0]===value)?.[1]||'Выберите…');trigger.append(text,egNode('span','▼','dropdown-arrow'));trigger.onclick=e=>{e.stopPropagation();setDropdownOpen(box,!box.classList.contains('open'));};
+ options.forEach(([key,title])=>{const option=egButton(title,()=>{value=key;egState.editing=true;field.dispatchEvent(new CustomEvent('egchange',{detail:key}));text.textContent=title;list.querySelectorAll('button').forEach(b=>b.setAttribute('aria-selected',String(b===option)));setDropdownOpen(box,false);trigger.focus();});option.setAttribute('role','option');option.setAttribute('aria-selected',String(value===key));list.append(option);});
+ box.addEventListener('keydown',e=>{const choices=[...list.querySelectorAll('button')];if(e.key==='Escape'){setDropdownOpen(box,false);trigger.focus();}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();setDropdownOpen(box,true);let i=choices.indexOf(document.activeElement);i=(i+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;choices[i]?.focus();}});
+ box.append(trigger,list);field.append(egNode('span',label),box);return {field,value:()=>value,trigger};
+}
+function egRender(){
+ if(egGame)return;
+ const content=document.getElementById('egContent');content.replaceChildren();
+ for(const [id,tab] of [['Games','games'],['Matches','matches'],['Leaders','leaders'],['Badges','badges']])document.getElementById('egTab'+id).setAttribute('aria-selected',String(egState.tab===tab));
+ if(!egState.data){const p=egPanel('Арена вашего участка');p.append(egNode('p','Откройте вызовы, рейтинг и достижения после загрузки данных.','eg-muted'),egButton('🔄 Обновить',()=>egLoad()));content.append(p);return;}
+ if(egState.tab==='games'){if(egState.creating)egRenderCreate(content);else egRenderGames(content);}
+ else if(egState.tab==='matches')egRenderMatches(content);
+ else if(egState.tab==='leaders')egRenderLeaders(content);
+ else egRenderBadges(content);
+}
+function egRenderGames(root){
+ const grid=egNode('div',undefined,'eg-grid'),mk=egPanel('Ultimate Mortal Kombat 3'),rr=egPanel('Road Rash II');mk.classList.add('eg-hero');mk.prepend(egNode('div','⚔️','eg-hero-icon'));
+ mk.append(egNode('span','Mega Drive · Игра в браузере','eg-badge'),egNode('p','Выбирайте бойца и играйте здесь: одному, вдвоём рядом или с коллегой по сети. На телефоне доступны экранные кнопки.'));
+ const actions=egNode('div',undefined,'eg-actions'),available=egState.data.capabilities?.browser;
+ if(available){actions.append(egButton('▶ Играть',()=>egLaunch('solo')),egButton('🎮 Двое рядом',()=>egLaunch('local')));}
+ else mk.append(egNode('p','Игровые файлы ещё не подключены администратором.','eg-muted'));
+ if(egState.data.capabilities?.network)actions.append(egButton('🔥 Пригласить коллегу',()=>egRenderCreate(root)));
+ else mk.append(egNode('p','Сетевые матчи появятся после подключения игрового сервера.','eg-muted'));
+ mk.append(actions);rr.prepend(egNode('div','🏍️','eg-hero-icon'));rr.append(egNode('span','В планах','eg-badge'),egNode('p','Road Rash II пока не подключена.'));grid.append(mk,rr);root.append(grid);
+ const info=egPanel('🏆 Правила арены');info.append(egNode('p','Один вызов — один матч. Победа приносит 3 очка после подтверждения обоими игроками. Тренировка и игра вдвоём рядом в рейтинг не входят.','eg-muted'));root.append(info);
+}
+function egRenderCreate(root){
+ egState.creating=true;const d=egState.drafts.create||(egState.drafts.create={});root.replaceChildren();
+ const p=egPanel('🔥 Вызов на UMK3'),opponent=egPick('Соперник',egState.data.people.map(u=>[u.login,u.name]),d.opponent||'');opponent.field.addEventListener('egchange',e=>d.opponent=e.detail);
+ p.append(opponent.field,egNode('p','Коллега получит приглашение в Telegram. Игра откроется в нашем приложении.','eg-muted'));
+ const a=egNode('div',undefined,'eg-actions');a.append(egButton('📨 Пригласить и открыть игру',async()=>{if(!opponent.value()){opponent.trigger.focus();egMessage('Выберите соперника.',true);return;}const result=await egMutate('create',{game:'umk3',opponent:opponent.value(),platform:'Browser',edition:EG_BROWSER_EDITION});const m=result?.match;if(m?.edition===EG_BROWSER_EDITION)void egLaunch('match',m.id);}),egButton('↩ Назад',()=>{egState.creating=false;egState.editing=false;egRender();},'danger-btn'));p.append(a);root.append(p);
+}
+function egCloseGame(render=true){
+ egLaunchEpoch++;const g=egGame;egGame=null;if(g){try{g.frame?.contentWindow.postMessage({type:'umk3-close',nonce:g.nonce},location.origin);}catch{}g.frame?.remove();}
+ if(render&&egVisible()){egRender();void egLoad();egStartPoll();}
+}
+async function egLaunch(mode,matchId=''){
+ egCloseGame(false);egStopPoll();const epoch=++egLaunchEpoch,owner=egOwner();egGame={owner,epoch,frame:null};
+ const root=document.getElementById('egContent');root.replaceChildren();root.append(egNode('p','⏳ Подготавливаем Ultimate MK3…','eg-muted'),egButton('↩ Назад',()=>egCloseGame()));
+ try{
+  const r=await egApi({op:'launch',mode,matchId});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
+  const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title='Ultimate Mortal Kombat 3';frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
+  const url=new URL('./games/umk3/index.html',location.href);url.searchParams.set('embed',nonce);frame.src=url.href;
+  egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
+  frame.onload=()=>{if(egGame?.frame===frame)frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);};
+ }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
+}
+window.addEventListener('message',async event=>{
+ const g=egGame;if(!g||event.origin!==location.origin||event.source!==g.frame?.contentWindow||event.data?.nonce!==g.nonce)return;
+ if(g.owner!==egOwner()){egCloseGame(false);return;}
+ if(event.data.type==='umk3-ready')g.frame.contentWindow.postMessage({type:'umk3-start',nonce:g.nonce,config:g.config},location.origin);
+ else if(event.data.type==='umk3-closed')egCloseGame();
+ else if(event.data.type==='umk3-error')egMessage(event.data.message||'Ошибка запуска игры',true);
+ else if(event.data.type==='umk3-connected'&&g.matchId&&!g.started){g.started=true;try{await egApi({op:'browserReady',matchId:g.matchId,requestId:'eg_'+crypto.randomUUID()});}catch(e){egMessage('Игра подключена, но статус матча не обновлён: '+e.message,true);}}
+});
+const egGameGuard=setInterval(()=>{if(egGame&&(egGame.owner!==egOwner()||!document.getElementById('screen-entertainment').classList.contains('active')))egCloseGame(false);},1000);
+window.addEventListener('pagehide',()=>egCloseGame(false));
+function egDate(value){return new Date(value).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function egRenderMatches(root){
+ if(egState.room){const m=egState.data.matches.find(m=>m.id===egState.room);if(m){egRenderRoom(root,m);return;}egState.room='';egMessage('Матч не найден или недоступен этому профилю и участку.',true);}
+ const toolbar=egNode('div',undefined,'eg-toolbar');toolbar.append(egNode('p','Сначала активные вызовы, затем история.','eg-muted'),egButton('🔄 Обновить',()=>egLoad()));root.append(toolbar);
+ const active=m=>['invited','accepted','playing','pending_result','disputed'].includes(m.state),matches=[...egState.data.matches].sort((a,b)=>Number(active(b))-Number(active(a))||b.createdAt-a.createdAt);
+ if(!matches.length){const empty=egPanel('🎯 Здесь будут ваши матчи');empty.append(egNode('p','Выберите UMK3 во вкладке «Игры» и бросьте первый вызов.','eg-muted'));root.append(empty);}
+ matches.slice(0,100).forEach(m=>{const p=egPanel(m.host.name+' ⚔️ '+m.guest.name);p.append(egNode('span',EG_STATES[m.state]||m.state,'eg-badge eg-state-'+m.state),egNode('p','UMK3 · '+egDate(m.createdAt),'eg-muted'),egButton('Открыть матч',()=>{egState.room=m.id;egRender();}));root.append(p);});
+ if(matches.length>100)root.append(egNode('p','Показаны последние 100 матчей. Рейтинг учитывает всю историю.','eg-muted'));
+}
+function egRenderRoom(root,m){
+ const me=egLogin(),host=m.host.login===me,p=egPanel('⚔️ Ultimate Mortal Kombat 3');
+ p.append(egNode('span',EG_STATES[m.state]||m.state,'eg-badge eg-state-'+m.state));
+ const players=egNode('div',undefined,'eg-grid');[m.host,m.guest].forEach(u=>{const b=egNode('div',undefined,'eg-player');b.append(egNode('strong',u.name+(u.login===me?' · Вы':'')),egNode('small',m.ready[u.login]?'✅ Подключался к матчу':'⏳ Ожидает подключения'));players.append(b);});p.append(players);
+ const browser=m.edition===EG_BROWSER_EDITION;
+ if(browser&&['invited','accepted','playing'].includes(m.state))p.append(egButton('▶ Играть',()=>egLaunch('match',m.id)));
+ if(!browser)p.append(egNode('p','Это матч из предыдущей версии раздела. Для игры в браузере создайте новый вызов.','eg-muted'));
+ const a=egNode('div',undefined,'eg-actions');a.append(egButton('🔗 Скопировать ссылку',async()=>{const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('gameMatch',m.id);url.searchParams.set('gameCity',m.city);url.searchParams.set('gameDistrict',m.district);try{await navigator.clipboard.writeText(url.href);egMessage('Ссылка на матч скопирована');}catch(e){egMessage('Ссылка на матч: '+url.href);}}));
+ if(host&&m.state==='invited'){
+  const notices={sent:'✅ Приглашение отправлено в Telegram',failed:'⚠️ Telegram недоступен или не настроен. Можно передать ссылку вручную.',sending:'⏳ Отправка была начата. Проверьте Telegram; ссылка доступна вручную.',unknown:'⚠️ Подтверждение доставки не получено. Проверьте Telegram или передайте ссылку вручную.',check:'⏳ Обновите матч для проверки доставки.'};p.append(egNode('p',notices[m.notification.state]||'Проверьте приглашение в Telegram.','eg-muted'));
+  if(m.notification.state==='failed')a.append(egButton('📨 Повторить приглашение',()=>egMutate('retryNotice',{matchId:m.id})));
+ }
+ if(m.state==='invited'&&!host)a.append(egButton('🤝 Принять вызов',()=>egMutate('accept',{matchId:m.id})),egButton('Отклонить',()=>egMutate('decline',{matchId:m.id}),'danger-btn'));
+ if(host&&['invited','accepted'].includes(m.state))a.append(egButton('Отменить вызов',()=>egMutate('cancel',{matchId:m.id}),'danger-btn'));
+ if(['playing','pending_result','disputed'].includes(m.state)){
+  const result=egPanel('Кто выиграл матч?');result.append(egNode('p','Укажите итог только после завершения игры. При ошибке можно изменить свой ответ до совпадения подтверждений.','eg-muted'));
+  if(m.claims[me])result.append(egNode('p','Ваш выбор: '+([m.host,m.guest].find(u=>u.login===m.claims[me])?.name||''),'eg-muted'));
+  if(m.state==='disputed')result.append(egNode('p','Вы указали разных победителей. Обсудите итог и исправьте свой ответ. Очки пока не начислены.','eg-state-disputed'));
+  const draft=egState.drafts[m.id]||(egState.drafts[m.id]={}),choice=egPick('Победитель',[[m.host.login,m.host.name],[m.guest.login,m.guest.name]],draft.winner||m.claims[me]||'');choice.field.addEventListener('egchange',e=>draft.winner=e.detail);result.append(choice.field,egButton('Подтвердить результат',()=>{if(!choice.value()){egMessage('Выберите победителя.',true);choice.trigger.focus();return;}void egMutate('result',{matchId:m.id,winner:choice.value()});}));p.append(result);
+ }
+ if(m.state==='confirmed')p.append(egNode('p','🏆 Победитель: '+[m.host,m.guest].find(u=>u.login===m.winner)?.name+' · +3 очка. Оба игрока подтвердили результат.'));
+ if(['invited','accepted','playing'].includes(m.state))p.append(egNode('p','Срок действия: '+egDate(m.expiresAt),'eg-muted'));
+ a.append(egButton('🔄 Обновить',()=>egLoad()),egButton('↩ Мои матчи',()=>{egState.room='';egRender();},'danger-btn'));p.append(a);root.append(p);
+}
+function egRenderLeaders(root){
+ const p=egPanel('🏆 Лидеры участка'),period=egPick('Период',[['monthly','За месяц · '+egState.data.rankings.month],['all','За всё время']],egState.period),a=egNode('div',undefined,'eg-actions');a.append(egButton('Показать',()=>{egState.period=period.value();egState.editing=false;egRender();}),egButton('🔄 Обновить',()=>egLoad()));p.append(period.field,a,egNode('p','3 очка за победу · только подтверждённые обоими игроками результаты. При равенстве очков: победы, затем меньше поражений.','eg-muted'));
+ const header=egNode('div',undefined,'eg-rank');['#','Игрок','Очки','В / П'].forEach(t=>header.append(egNode('span',t)));p.append(header);
+ egState.data.rankings[egState.period].forEach((r,i)=>{const line=egNode('div',undefined,'eg-rank'+(r.login===egLogin()?' eg-me':''));line.append(egNode('span',i<3?['🥇','🥈','🥉'][i]:String(i+1)),egNode('span',r.name),egNode('strong',String(r.points)),egNode('span',r.wins+' / '+r.losses));p.append(line);});root.append(p);
+}
+function egRenderBadges(root){
+ const stats=egState.data.rankings.all.find(u=>u.login===egLogin())||{wins:0,played:0,bestStreak:0},grid=egNode('div',undefined,'eg-grid');
+ [['🏆 Первая победа','Выиграть один подтверждённый матч',stats.wins>=1,Math.min(stats.wins,1)+'/1'],['🔥 На волне','Выиграть три матча подряд',stats.bestStreak>=3,Math.min(stats.bestStreak,3)+'/3'],['🥊 Постоянный участник','Завершить десять подтверждённых матчей',stats.played>=10,Math.min(stats.played,10)+'/10']].forEach(([title,hint,unlocked,progress])=>{const p=egPanel(title);p.classList.add('eg-achievement');if(unlocked)p.classList.add('eg-unlocked');p.append(egNode('p',hint,'eg-muted'),egNode('strong',unlocked?'✅ Получено':progress));grid.append(p);});root.append(grid);
+}
+document.addEventListener('click',e=>document.querySelectorAll('#screen-entertainment .custom-dropdown.open').forEach(box=>{if(!box.contains(e.target))setDropdownOpen(box,false);}));
+queueMicrotask(()=>{if(currentUser&&document.getElementById('screen-main')?.classList.contains('active'))maybeOpenGameDeepLink();});
 </script>
 
 </body>
