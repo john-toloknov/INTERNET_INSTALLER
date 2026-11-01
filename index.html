@@ -4544,6 +4544,7 @@ function openTmcSection(key){
      matching.forEach(choice=>{const index=softwareChoices.indexOf(choice);group.append(buttons[index]);});group.addEventListener('toggle',()=>{if(group.isConnected)openGroups.set('software-'+kind,group.open);});items.append(group);
     }softwareChoices.filter(choice=>choice.kind==='channels').forEach(choice=>items.append(buttons[softwareChoices.indexOf(choice)]));}
    }
+   const entertainment=document.getElementById('entertainmentBtn');if(visible(entertainment))addButton(entertainment,sidebar);
    const scanner=document.getElementById('scannerAppBtn');if(visible(scanner))addButton(scanner,sidebar);
    if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event'||active.id==='screen-tmc-requests-management',{allow:()=>visible(admin)});
    const tools=document.createElement('div');tools.className='view-sidebar-tools';sidebar.append(tools);
