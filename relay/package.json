@@ -1,1 +1,0 @@
-{"name":"internet-installer-umk3-relay","version":"1.0.0","private":true,"description":"Authenticated UMK3 canvas/audio and player-two input relay","engines":{"node":">=22"},"scripts":{"start":"node server.cjs"},"dependencies":{"ws":"8.22.1"}}
