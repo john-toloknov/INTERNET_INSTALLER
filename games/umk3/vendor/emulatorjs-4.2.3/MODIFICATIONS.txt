@@ -1,2 +1,0 @@
-EmulatorJS 4.2.3, GPL-3.0. Upstream: https://github.com/EmulatorJS/EmulatorJS/tree/v4.2.3
-One local modification: checkForUpdates() is disabled. Runtime and cores are pinned and bundled. Other source files unchanged.
