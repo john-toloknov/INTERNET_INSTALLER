@@ -21,5 +21,6 @@
     }
   },
   "playerVersion": "20261102-stream2",
-  "controlsVersion": "20261102-controls1"
+  "controlsVersion": "20261102-controls1",
+  "uiVersion": "20261102-restore1"
 }

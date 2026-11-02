@@ -10,8 +10,6 @@ const notify=(type,fields={})=>{if(parent!==window)parent.postMessage({type,nonc
 // event.code keeps these physical keys usable with either English or Russian keyboard layout.
 const BASE_KEYMAP={KeyW:4,KeyS:5,KeyA:6,KeyD:7,KeyT:10,KeyG:1,KeyY:9,KeyH:0,KeyU:11,KeyJ:8,Enter:3};
 const P2_KEYMAP={ArrowUp:4,ArrowDown:5,ArrowLeft:6,ArrowRight:7,Digit1:1,Numpad1:1,Digit4:10,Numpad4:10,Digit2:0,Numpad2:0,Digit5:9,Numpad5:9,Digit3:8,Numpad3:8,Digit6:11,Numpad6:11,NumpadEnter:3};
-const KEY_HINT_P1='W/A/S/D — движение. T — верхний удар рукой; G — нижний удар рукой; Y — бег; H — блок; U — верхний удар ногой; J — нижний удар ногой. Enter — Start.';
-const KEY_HINT_P2='Стрелки — движение. 4 — верхний удар рукой; 1 — нижний удар рукой; 5 — бег; 2 — блок; 6 — верхний удар ногой; 3 — нижний удар ногой. Цифры работают на NumPad и в верхнем ряду клавиатуры.';
 function keyBinding(code){if(BASE_KEYMAP[code]!==undefined)return [0,BASE_KEYMAP[code]];if(P2_KEYMAP[code]!==undefined)return [U.mode==='local'?1:0,P2_KEYMAP[code]];return null;}
 function input(player,mask){
  if(!U.ready||U.closed)return;
@@ -53,7 +51,7 @@ function gamepads(){
  }applyLocal();U.padLoop=requestAnimationFrame(gamepads);
 }
 async function decodeRom(config){
- const response=await fetch('roms/umk3-v1.enc',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось загрузить файлы игры');const packed=new Uint8Array(await response.arrayBuffer());
+ const response=await fetch('roms/umk3-v1.enc?v=20261102-restore1',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось загрузить файлы игры');const packed=new Uint8Array(await response.arrayBuffer());
  if(packed.length!==4194304+28)throw Error('Размер игрового файла не совпадает с выпуском');
  const raw=Uint8Array.from(atob(config.key),c=>c.charCodeAt(0));if(raw.length!==32)throw Error('Некорректный ключ игры');
  const key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);raw.fill(0);
@@ -63,10 +61,10 @@ async function decodeRom(config){
  const url=URL.createObjectURL(new Blob([decoded],{type:'application/octet-stream'}));U.objects.push(url);return url;
 }
 async function decodeStartState(config){
- const response=await fetch('release.json',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось проверить выпуск игры');const release=await response.json();
+ const response=await fetch('release.json?v=20261102-restore1',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось проверить выпуск игры');const release=await response.json();
  if(release.release!=='umk3-md-original-v1'||release.romSha256!==config.romSha256)throw Error('Файлы разных выпусков игры');
  const meta=release.states[config.mode==='solo'?'title':'versus'];
- const state=await fetch(meta.url,{signal:U.controller.signal});if(!state.ok)throw Error('Не удалось подготовить начало игры');const packed=new Uint8Array(await state.arrayBuffer());
+ const state=await fetch(meta.url+'?v=20261102-restore1',{signal:U.controller.signal});if(!state.ok)throw Error('Не удалось подготовить начало игры');const packed=new Uint8Array(await state.arrayBuffer());
  if(packed.length!==meta.bytes+28)throw Error('Повреждён файл начала игры');
  const raw=Uint8Array.from(atob(config.key),c=>c.charCodeAt(0)),key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);raw.fill(0);
  const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:packed.slice(0,12)},key,packed.slice(12));
@@ -77,7 +75,7 @@ async function boot(config){
  if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;
  if(config.theme==='light')document.body.classList.add('light');
  $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':'Матч · Игрок 1','net-guest':'Матч · Игрок 2'})[U.mode];
- $('p2Btn').hidden=U.mode!=='local';$('p2Hint').hidden=U.mode!=='local';$('p1Hint').textContent=U.mode==='net-guest'?KEY_HINT_P2+' Enter — Start.':KEY_HINT_P1+(U.mode==='solo'||U.mode==='net-host'?' Также доступны стрелки и цифры.':'');$('p2Hint').textContent='Игрок 2: '+KEY_HINT_P2+' Enter на NumPad — Start.';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем Mortal Kombat 3 Ultimate…');
+ $('p2Btn').hidden=U.mode!=='local';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем Mortal Kombat 3 Ultimate…');
  if(U.mode.startsWith('net-')){
   if(!config.relay||config.relay.role!==(U.mode==='net-host'?'host':'guest'))throw Error('Некорректная сетевая сессия');U.netWaiting=true;
   const waiting=text=>{release();U.netWaiting=true;if(U.mode==='net-guest')U.ready=false;else if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);$('curtain').hidden=false;$('curtain').textContent=text;status(text);};
