@@ -47,18 +47,25 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
      const auth=JSON.parse(data.toString());if(auth.type!=='auth')throw Error();const c=verifyToken(auth.token,secret);room=rooms.get(c.room);
      if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,generation:0,host:null,guest:null,playing:false,lastSeen:Date.now()};rooms.set(c.room,room);}
      const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
-     member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;if(c.role==='host')room.generation++;
-     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL});peerStatus(room);
+     member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;room.generation++;
+     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1']});peerStatus(room);
     }catch{ws.close(4001,'Invalid or expired authentication');}return;
    }
    if(room[member.role]!==member)return;
    const now=Date.now();if(now>=member.claims.exp){ws.close(4003,'Session expired');return;}room.lastSeen=now;
    if(now-member.at>=1000){member.at=now;member.counts={frame:0,audio:0,input:0,control:0};}
    if(!binary){
-    if(data.length>300||++member.counts.control>20){ws.close(4005,'Control limit');return;}
+    if(data.length>65536||++member.counts.control>140){ws.close(4005,'Control limit');return;}
     let event;try{event=JSON.parse(data.toString());}catch{ws.close(4005,'Invalid control');return;}
     if(event.type==='ready'){member.ready=true;peerStatus(room);}
     else if(event.type==='visibility'&&typeof event.visible==='boolean'){member.visible=event.visible;peerStatus(room);}
+    else if(event.type==='rtc'){
+     if(!room.playing||event.generation!==room.generation)return;
+     const d=event.description,c=event.candidate;
+     const valid=event.disabled===true||d&&typeof d.sdp==='string'&&d.sdp.length<=60000&&d.type===(member.role==='host'?'offer':'answer')||c&&typeof c.candidate==='string'&&c.candidate.length<=2048&&(c.sdpMid===null||typeof c.sdpMid==='string'&&c.sdpMid.length<100)&&(c.sdpMLineIndex===null||Number.isInteger(c.sdpMLineIndex)&&c.sdpMLineIndex>=0&&c.sdpMLineIndex<20);
+     if(!valid){ws.close(4005,'Invalid peer signal');return;}
+     text(room[member.role==='host'?'guest':'host']?.ws,{type:'rtc',generation:room.generation,...(event.disabled===true?{disabled:true}:d?{description:{type:d.type,sdp:d.sdp}}:{candidate:c})});
+    }
     else if(event.type==='ping')text(ws,{type:'pong',at:event.at});
     else ws.close(4005,'Unsupported control');return;
    }

@@ -1,14 +1,14 @@
 'use strict';
-class Umk3Relay {
+class Umk3RelayBase {
  constructor(config,hooks){this.config=config;this.hooks=hooks;this.closed=false;this.ready=false;this.playing=false;this.attempt=0;this.seq=0;this.lastFrame=0;this.frames=0;this.bytes=0;this.mask=0;this.lastInputAt=0;this.decodeBusy=false;this.pending=null;this.audioAt=0;this.gains=new Set();this.audioPackets=0;this.audioPeak=0;this.receivedAudio=0;this.lastDrawAt=0;this.lastPongAt=Date.now();this.lastPingAt=0;this.rtt=0;this.reconnects=0;this.connection=0;this.slowLinkUntil=0;}
  connect(){
   const url=new URL(this.config.url);if(url.protocol!=='wss:'&&!(url.protocol==='ws:'&&['127.0.0.1','localhost'].includes(url.hostname)))throw Error('Нужен защищённый адрес сетевой игры');
   const connection=++this.connection;this.socket=new WebSocket(url.href);this.socket.binaryType='arraybuffer';
   this.socket.onopen=()=>{if(this.closed||connection!==this.connection)return;this.lastPongAt=Date.now();this.socket.send(JSON.stringify({type:'auth',token:this.config.token}));};
-  this.socket.onmessage=event=>{if(this.closed||connection!==this.connection)return;if(typeof event.data==='string'){this.control(JSON.parse(event.data));return;}const data=new Uint8Array(event.data);if(data[0]===1&&this.config.role==='guest')this.frame(data);else if(data[0]===2&&this.config.role==='host'){this.lastInputAt=Date.now();this.hooks.input(new DataView(data.buffer).getUint16(1,true));}else if(data[0]===3&&this.config.role==='guest')this.audio(data);};
+  this.socket.onmessage=event=>{if(this.closed||connection!==this.connection)return;if(typeof event.data==='string'){this.control(JSON.parse(event.data));return;}const data=new Uint8Array(event.data);if(data[0]===1&&this.config.role==='guest')this.frame(data);else if(data[0]===2&&this.config.role==='host'){this.lastInputAt=Date.now();this.hooks.input(new DataView(data.buffer).getUint16(1,true));}else if(data[0]===3&&this.config.role==='guest'&&!this.direct)this.audio(data);};
   this.socket.onclose=event=>{if(this.closed||connection!==this.connection)return;this.playing=false;this.hooks.waiting('Связь прервалась. Восстанавливаем соединение…');this.hooks.input?.(0);if(this.closed)return;if([4001,4003,4004,4005].includes(event.code)){this.hooks.failed('Сессия завершена. Откройте матч заново.');return;}if(this.attempt++<3){this.reconnects++;this.retry=setTimeout(()=>this.connect(),1000*Math.pow(2,this.attempt-1));}else this.hooks.failed('Не удалось восстановить связь. Откройте матч заново.');};
   this.socket.onerror=()=>{};
-  if(!this.heartbeat)this.heartbeat=setInterval(()=>{const now=Date.now();if(this.config.role==='guest'&&this.mask)this.input(this.mask);if(this.config.role==='host'&&now-this.lastInputAt>1500)this.hooks.input(0);if(this.socket?.readyState!==WebSocket.OPEN)return;if(now-this.lastPingAt>2000){this.lastPingAt=now;this.send({type:'ping',at:now});}if(!document.hidden&&(now-this.lastPongAt>16000||(this.config.role==='guest'&&this.playing&&this.lastDrawAt&&now-this.lastDrawAt>6000))){this.lastDrawAt=now;this.lastPongAt=now;this.socket.close(4000,'Recover stalled stream');}},250);
+  if(!this.heartbeat)this.heartbeat=setInterval(()=>{const now=Date.now();if(this.config.role==='guest')this.input(this.mask);if(this.config.role==='host'&&now-this.lastInputAt>1500)this.hooks.input(0);if(this.socket?.readyState!==WebSocket.OPEN)return;if(now-this.lastPingAt>2000){this.lastPingAt=now;this.send({type:'ping',at:now});}if(!document.hidden&&(now-this.lastPongAt>16000||(this.config.role==='guest'&&this.playing&&this.lastDrawAt&&now-this.lastDrawAt>6000))){this.lastDrawAt=now;this.lastPongAt=now;this.socket.close(4000,'Recover stalled stream');}},50);
  }
  control(message){
   if(message.type==='pong'){this.lastPongAt=Date.now();this.rtt=Math.max(0,Date.now()-Number(message.at||Date.now()));if(this.rtt>500)this.slowLinkUntil=Date.now()+5000;return;}
@@ -22,11 +22,11 @@ class Umk3Relay {
  input(mask){if(this.config.role!=='guest')return;this.mask=mask&4095;this.unlockAudio();if(!this.playing||this.socket?.readyState!==WebSocket.OPEN||this.socket.bufferedAmount>16384)return;const p=new Uint8Array(3);p[0]=2;new DataView(p.buffer).setUint16(1,this.mask,true);this.socket.send(p);}
  publish(canvas,emulator){
   const capture=document.createElement('canvas'),ctx=capture.getContext('2d',{alpha:false});let at=0,busy=false;
-  const tick=now=>{if(this.closed)return;this.animation=requestAnimationFrame(tick);const slow=Date.now()<this.slowLinkUntil;if(!this.playing||busy||now-at<1000/(slow?15:24)||this.socket?.readyState!==WebSocket.OPEN||this.socket.bufferedAmount>49152)return;if(!canvas.width||!canvas.height)return;at=now;busy=true;const connection=this.connection;
+  const tick=now=>{if(this.closed)return;this.animation=requestAnimationFrame(tick);const slow=Date.now()<this.slowLinkUntil;if(!this.playing||this.direct||busy||now-at<1000/(slow?15:24)||this.socket?.readyState!==WebSocket.OPEN||this.socket.bufferedAmount>49152)return;if(!canvas.width||!canvas.height)return;at=now;busy=true;const connection=this.connection;
    try{const scale=Math.min(1,(slow?256:320)/canvas.width,(slow?192:240)/canvas.height);const width=Math.max(1,Math.round(canvas.width*scale)),height=Math.max(1,Math.round(canvas.height*scale));if(capture.width!==width)capture.width=width;if(capture.height!==height)capture.height=height;ctx.drawImage(canvas,0,0,capture.width,capture.height);
    capture.toBlob(async blob=>{try{if(!blob||this.closed||!this.playing||this.socket?.readyState!==WebSocket.OPEN)return;const bytes=new Uint8Array(await blob.arrayBuffer());if(this.closed||!this.playing||connection!==this.connection||this.socket?.readyState!==WebSocket.OPEN)return;if(bytes.length>65536||this.socket.bufferedAmount>49152)return;const p=new Uint8Array(bytes.length+5);p[0]=1;new DataView(p.buffer).setUint32(1,++this.seq,true);p.set(bytes,5);this.socket.send(p);}catch{}finally{busy=false;}},'image/jpeg',slow?.48:.60);}catch{busy=false;}
   };this.animation=requestAnimationFrame(tick);
-  this.audioAttach=setInterval(()=>this.captureAudio(emulator),1000);this.captureAudio(emulator);
+  this.audioAttach=setInterval(()=>this.captureAudio(emulator),250);this.captureAudio(emulator);
  }
  frame(packet){
   if(packet.length<6)return;const seq=new DataView(packet.buffer).getUint32(1,true);if(seq<=this.lastFrame)return;this.lastFrame=seq;this.pending=packet.slice(5);if(!this.decodeBusy)void this.decode();
@@ -49,4 +49,4 @@ class Umk3Relay {
  }
  close(){if(this.closed)return;this.input(0);this.closed=true;this.playing=false;clearTimeout(this.retry);clearInterval(this.heartbeat);clearInterval(this.audioAttach);cancelAnimationFrame(this.animation);this.socket?.close();this.pending=null;for(const gain of this.gains){try{gain.disconnect(this.processor);}catch{}}this.processor?.disconnect();this.silent?.disconnect();if(this.config.role==='guest')void this.audioContext?.close().catch(()=>{});}
 }
-window.Umk3Relay=Umk3Relay;
+window.Umk3RelayBase=Umk3RelayBase;

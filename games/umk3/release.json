@@ -20,7 +20,8 @@
       "url": "roms/versus-v1.enc"
     }
   },
-  "playerVersion": "20261102-stream2",
+  "playerVersion": "20261104-direct1",
   "controlsVersion": "20261102-controls1",
-  "uiVersion": "20261102-restore1"
+  "uiVersion": "20261104-direct1",
+  "networkVersion": "rtc-v1-pcm1"
 }
