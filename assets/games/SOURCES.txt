@@ -1,4 +1,12 @@
+Game artwork used by the current arcade9 catalogue:
 Mortal Kombat: existing dragon logo from the project.
 Road Rash 3: https://thumbnails.libretro.com/Sega%20-%20Mega%20Drive%20-%20Genesis/Named_Logos/Road%20Rash%203%20(USA,%20Europe).png
-Rock n' Roll Racing: https://thumbnails.libretro.com/Sega%20-%20Mega%20Drive%20-%20Genesis/Named_Logos/Rock%20n'%20Roll%20Racing%20(USA).png
-Unmodified PNG logo assets; no gameplay screenshots or Base64 image data in the game catalogue.
+Rock n’ Roll Racing: user-provided maxresdefault.jpg, approved 05.11.2026.
+Streets of Rage 3: user-provided maxresdefault (1).jpg.
+Battletoads & Double Dragon: user-provided maxresdefault (2).jpg.
+RoboCop 3: user-provided maxresdefault (3).jpg.
+TMNT The Hyperstone Heist: user-provided maxresdefault (4).jpg.
+Comix Zone: user-provided bf29703c6cd263a191ad6d15f91f2c7d.jpg.
+Golden Axe III: approved https://retrofullgames.com/images/GAMES%20img/Sega%20img/Sega%20Mega%20Drive%20img/Beat%20%27em%20up%20img/Golden%20Axe%203/Golden%20Axe%203%20logo.png
+WWF WrestleMania: approved https://d1lss44hh2trtw.cloudfront.net/assets/article/2018/01/25/WWF-Wrestlemania_1200x500.png
+All approved source images are stored as separate files and used without visual editing. Historical image aliases are retained for compatibility.
