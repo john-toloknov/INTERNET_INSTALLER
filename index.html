@@ -15973,7 +15973,7 @@ async function egLaunch(mode,matchId=''){
   const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
   if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
   const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=r.config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
-  const url=new URL('./games/umk3/index.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade1');frame.src=url.href;
+  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade2');frame.src=url.href;
   egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
   frame.onload=()=>{if(egGame?.frame===frame)frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);};
  }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
@@ -16173,4 +16173,3 @@ html[data-app-layout] #cityTableEditor #cityTableFilters .ct-filter-actions .ct-
 #iiReportMeasure{margin:12px 0;padding:12px;font-size:12px;}#iiReportMeasure>summary{cursor:pointer;font-weight:600;}#iiReportMeasure>pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.5 monospace;max-width:100%;margin:12px 0 0;}
 </style></body>
 </html>
-
