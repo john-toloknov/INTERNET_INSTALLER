@@ -1,20 +1,4 @@
 {
-  "rr3": {
-    "title": "Road Rash 3",
-    "release": "rr3-md-v1",
-    "romSha256": "1da6a37c09ab87370334cb26dc0339bee85a6b581d3dc7216dc880a71a52aae6",
-    "romBytes": 2097152,
-    "romUrl": "roms/rr3-v1.enc",
-    "gameId": 31002
-  },
-  "rock": {
-    "title": "Rock n’ Roll Racing",
-    "release": "rock-md-v1",
-    "romSha256": "bb39df582c0c7caf615f44cfdf6afd395abbd27d5ea7b60d97f30b74ff808e04",
-    "romBytes": 1048576,
-    "romUrl": "roms/rock-v1.enc",
-    "gameId": 31003
-  },
   "umk3": {
     "release": "umk3-md-original-v1",
     "title": "Mortal Kombat 3 Ultimate",
@@ -37,10 +21,139 @@
         "url": "roms/versus-v1.enc"
       }
     },
-    "playerVersion": "20261105-arcade1",
-    "controlsVersion": "20261105-stick1",
-    "uiVersion": "20261105-arcade1",
+    "playerVersion": "20261105-arcade9",
+    "controlsVersion": "20261105-large-landscape-round-buttons",
+    "uiVersion": "20261105-arcade9",
     "networkVersion": "rtc-v1-low-buffer-metrics1",
-    "gameId": 31001
+    "gameId": 31001,
+    "kind": "versus",
+    "shortTitle": "Mortal Kombat",
+    "logo": "umk3.png",
+    "formats": [
+      "versus"
+    ]
+  },
+  "rr3": {
+    "title": "Road Rash 3",
+    "release": "rr3-md-v1",
+    "romSha256": "1da6a37c09ab87370334cb26dc0339bee85a6b581d3dc7216dc880a71a52aae6",
+    "romBytes": 2097152,
+    "romUrl": "roms/rr3-v1.enc",
+    "gameId": 31002,
+    "kind": "versus",
+    "shortTitle": "Road Rash",
+    "logo": "rr3-logo-877bb161.png",
+    "formats": [
+      "versus"
+    ]
+  },
+  "rock": {
+    "title": "Rock n’ Roll Racing",
+    "release": "rock-md-v1",
+    "romSha256": "bb39df582c0c7caf615f44cfdf6afd395abbd27d5ea7b60d97f30b74ff808e04",
+    "romBytes": 1048576,
+    "romUrl": "roms/rock-v1.enc",
+    "gameId": 31003,
+    "kind": "versus",
+    "shortTitle": "Rock n’ Roll Racing",
+    "logo": "rock-art-dcee2879.jpg",
+    "formats": [
+      "versus"
+    ]
+  },
+  "ga3": {
+    "title": "Golden Axe III",
+    "release": "ga3-md-v1",
+    "romSha256": "a9e8a07772d6acb7d2d101b63bc5be4dd4e71a11c86bbb4d1139788337ffec15",
+    "romBytes": 1048576,
+    "romUrl": "roms/ga3-v1.enc",
+    "gameId": 31004,
+    "kind": "coop",
+    "shortTitle": "Golden Axe",
+    "logo": "ga3-art-1481b64c.png",
+    "formats": [
+      "coop"
+    ]
+  },
+  "sor3": {
+    "title": "Streets of Rage 3",
+    "release": "sor3-md-v1",
+    "romSha256": "320ab6630612d53305e648bc6b16dcb59dadbc6b994a690e293960924dc48ded",
+    "romBytes": 3145728,
+    "romUrl": "roms/sor3-v1.enc",
+    "gameId": 31005,
+    "kind": "coop",
+    "shortTitle": "Streets of Rage",
+    "logo": "sor3-art-921147f2.jpg",
+    "formats": [
+      "coop"
+    ]
+  },
+  "tmnt": {
+    "title": "TMNT: The Hyperstone Heist",
+    "release": "tmnt-md-v1",
+    "romSha256": "4cc710345300456b934bedc557048772f9176b2cc46a01e1e3a40105a20a88ae",
+    "romBytes": 1048576,
+    "romUrl": "roms/tmnt-v1.enc",
+    "gameId": 31006,
+    "kind": "coop",
+    "shortTitle": "TMNT",
+    "logo": "tmnt-art-62349549.jpg",
+    "formats": [
+      "coop"
+    ]
+  },
+  "btd": {
+    "title": "Battletoads & Double Dragon",
+    "release": "btd-md-v1",
+    "romSha256": "b012cc212583144c6e5dea7b2057736452836fb45ed0ef8e1a5a57a78388e4bc",
+    "romBytes": 1048576,
+    "romUrl": "roms/btd-v1.enc",
+    "gameId": 31007,
+    "kind": "coop",
+    "shortTitle": "Battletoads",
+    "logo": "btd-art-f116182f.jpg",
+    "formats": [
+      "coop"
+    ]
+  },
+  "wwf": {
+    "title": "WWF WrestleMania: The Arcade Game",
+    "release": "wwf-md-v1",
+    "romSha256": "30fa4f7c414c5b92c945508283bd7de640cd172358176e13e330cf7f2931c389",
+    "romBytes": 4194304,
+    "romUrl": "roms/wwf-v1.enc",
+    "gameId": 31008,
+    "kind": "mixed",
+    "shortTitle": "WrestleMania",
+    "logo": "wwf-art-03850f15.png",
+    "formats": [
+      "versus",
+      "coop"
+    ]
+  },
+  "comix": {
+    "title": "Comix Zone",
+    "release": "comix-md-v1",
+    "romSha256": "5a57aceebbf961f738e8e39fb2847636fa5ec0067e26f1629cc71881735571a2",
+    "romBytes": 2097152,
+    "romUrl": "roms/comix-v1.enc",
+    "gameId": 31009,
+    "kind": "solo",
+    "shortTitle": "Comix Zone",
+    "logo": "comix-art-257e7ff3.jpg",
+    "formats": []
+  },
+  "robo3": {
+    "title": "RoboCop 3",
+    "release": "robo3-md-v1",
+    "romSha256": "66a1a32cd4410c760a5ee0920a1baa97c7e39d17e983f55ab5649fe36c1ca724",
+    "romBytes": 524288,
+    "romUrl": "roms/robo3-v1.enc",
+    "gameId": 31010,
+    "kind": "solo",
+    "shortTitle": "RoboCop 3",
+    "logo": "robo3-art-89809996.jpg",
+    "formats": []
   }
 }

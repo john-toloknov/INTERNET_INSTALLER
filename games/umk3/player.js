@@ -1,4 +1,5 @@
 'use strict';
+const PLAYER_GAMES={"umk3": {"release": "umk3-md-original-v1", "logo": "umk3.png", "kind": "versus", "formats": ["versus"]}, "rr3": {"release": "rr3-md-v1", "logo": "rr3-logo-877bb161.png", "kind": "versus", "formats": ["versus"]}, "rock": {"release": "rock-md-v1", "logo": "rock-art-dcee2879.jpg", "kind": "versus", "formats": ["versus"]}, "ga3": {"release": "ga3-md-v1", "logo": "ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"]}, "sor3": {"release": "sor3-md-v1", "logo": "sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"]}, "tmnt": {"release": "tmnt-md-v1", "logo": "tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"]}, "btd": {"release": "btd-md-v1", "logo": "btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"]}, "wwf": {"release": "wwf-md-v1", "logo": "wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"]}, "comix": {"release": "comix-md-v1", "logo": "comix-art-257e7ff3.jpg", "kind": "solo", "formats": []}, "robo3": {"release": "robo3-md-v1", "logo": "robo3-art-89809996.jpg", "kind": "solo", "formats": []}};
 const U={started:false,ready:false,closed:false,mode:'solo',mask:[0,0],keys:[0,0],held:new Set(),pulses:[0,0],touch:0,touchResets:[],stick:0,pads:[0,0],objects:[],pause:false,controller:new AbortController(),nonce:new URLSearchParams(location.search).get('embed')||'',romKey:null,relay:null};
 // RetroArch requests an optional screen wake lock. Iframes/background tabs can
 // legitimately be denied it; this does not affect emulation or controls.
@@ -69,7 +70,7 @@ function gamepads(){
  }applyLocal();U.padLoop=requestAnimationFrame(gamepads);
 }
 async function decodeRom(config){
- const response=await fetch((config.romUrl||'roms/umk3-v1.enc')+'?v=20261105-arcade3',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось загрузить файлы игры');const packed=new Uint8Array(await response.arrayBuffer());
+ const response=await fetch((config.romUrl||'roms/umk3-v1.enc')+'?v=20261105-arcade9',{signal:U.controller.signal});if(!response.ok)throw Error('Не удалось загрузить файлы игры');const packed=new Uint8Array(await response.arrayBuffer());
  if(packed.length!==(config.romBytes||4194304)+28)throw Error('Размер игрового файла не совпадает с выпуском');
  const raw=Uint8Array.from(atob(config.key),c=>c.charCodeAt(0));if(raw.length!==32)throw Error('Некорректный ключ игры');
  const key=await crypto.subtle.importKey('raw',raw,'AES-GCM',false,['decrypt']);raw.fill(0);
@@ -90,9 +91,9 @@ async function decodeStartState(config){
 }
 async function boot(config){
  if(U.started||U.closed)return;U.started=true;
- if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+({umk3:'umk3.png',rr3:'rr3-logo-877bb161.png',rock:'rock-logo-f7058328.png'}[U.game]);document.body.dataset.game=U.game;
+ if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';const spec=PLAYER_GAMES[U.game];if(!spec||spec.release!==config.release)throw Error('Неизвестный выпуск игры');if(spec.kind==='solo'&&U.mode!=='solo')throw Error('В этой игре доступен только одиночный режим');U.coop=config.format==='coop';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+spec.logo;document.body.dataset.game=U.game;
  if(config.theme==='light')document.body.classList.add('light');
- $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':'Матч · Игрок 1','net-guest':'Матч · Игрок 2'})[U.mode];
+ $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':(U.coop?'Вместе':'Матч')+' · Игрок 1','net-guest':(U.coop?'Вместе':'Матч')+' · Игрок 2'})[U.mode];
  $('p2Btn').hidden=U.mode!=='local';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем '+U.title+'…');
  if(U.mode.startsWith('net-')){
   if(!config.relay||config.relay.role!==(U.mode==='net-host'?'host':'guest'))throw Error('Некорректная сетевая сессия');U.netWaiting=true;
@@ -103,7 +104,7 @@ async function boot(config){
    transport:direct=>status(direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер'),diagnostics:d=>{const n=$('networkStats');n.hidden=false;n.textContent=(d.direct?'Напрямую':'Через сервер')+' · Связь: '+Math.round(d.rtt||0)+' мс'+(d.bufferMs==null?'':' · Видеобуфер: '+Math.round(d.bufferMs)+' мс');},
    audio:running=>{$('soundBtn').hidden=running;},
    frame:()=>{if(U.relay.playing){$('curtain').hidden=true;status(U.relay.direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер');}}
-  });U.relay.connect();waiting('Ждём подключения соперника…');
+  });U.relay.connect();waiting('Ждём подключения '+(U.coop?'напарника':'соперника')+'…');
   if(U.mode==='net-guest'){$('game').hidden=true;$('remote').hidden=false;U.relay.gameReady();focusGame();gamepads();notify('umk3-started',{mode:U.mode});return;}
  }
  const url=await decodeRom(config);
@@ -111,7 +112,7 @@ async function boot(config){
  Object.assign(window,{EJS_player:'#game',EJS_core:'genesis_plus_gx',EJS_controlScheme:'segaMD',EJS_gameUrl:url,EJS_gameName:config.release||'umk3-md-original-v1',EJS_gameID:config.gameId||31001,
   EJS_pathtodata:new URL('vendor/emulatorjs-4.2.3/data/',location.href).href,EJS_DEBUG_XX:true,EJS_startOnLoaded:true,EJS_threads:false,EJS_disableLocalStorage:true,EJS_disableDatabases:true,EJS_language:'ru-RU',EJS_color:'#b7ed55',EJS_defaultControls:{0:{},1:{},2:{},3:{}},
   EJS_defaultOptions:{'virtual-gamepad':'disabled','shader':'disabled'},EJS_Buttons:{playPause:false,restart:false,mute:false,settings:false,fullscreen:false,saveState:false,loadState:false,screenRecord:false,gamepad:false,cheat:false,volume:false,saveSavFiles:false,loadSavFiles:false,quickSave:false,quickLoad:false,screenshot:false,cacheManager:false,exitEmulation:false},
-  EJS_onGameStart:()=>{U.restoreContext?.();if(U.closed)return;if(startState)EJS_emulator.gameManager.loadState(startState);U.ready=true;focusGame();unlockSound();status(U.game==='umk3'?'Выбирайте бойца · Start / A / B / C':'Start — меню игры · Для двух игроков выберите режим 2 Players');if(U.relay){EJS_emulator.gameManager.toggleMainLoop(0);U.relay.publish($('game').querySelector('canvas'),EJS_emulator);U.relay.gameReady();}gamepads();notify('umk3-started',{mode:U.mode});}
+  EJS_onGameStart:()=>{U.restoreContext?.();if(U.closed)return;if(startState)EJS_emulator.gameManager.loadState(startState);U.ready=true;focusGame();unlockSound();status(U.game==='umk3'?'Выбирайте бойца · Start / A / B / C':U.mode==='solo'?'Start — меню игры':U.game==='wwf'?(U.mode==='local'?'Выберите Head to Head или Cooperative в меню игры':'Выберите в игре '+(U.coop?'Cooperative':'Head to Head')):U.game==='rr3'?'Game Options → Set Player Mode → Split Screen':'Start — меню игры · Выберите режим двух игроков');if(U.relay){EJS_emulator.gameManager.toggleMainLoop(0);U.relay.publish($('game').querySelector('canvas'),EJS_emulator);U.relay.gameReady();}gamepads();notify('umk3-started',{mode:U.mode});}
 
  });
  // Video capture needs the last completed WebGL frame after presentation.
