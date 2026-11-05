@@ -1,0 +1,4 @@
+Mortal Kombat: existing dragon logo from the project.
+Road Rash 3: original title artwork from the supplied retail UE ROM.
+Rock n’ Roll Racing: original title logo from the supplied Russian Genesis ROM.
+Game title captures are static PNG assets. No Base64 game logos remain in index.html.
