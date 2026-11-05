@@ -7,7 +7,7 @@ function verifyToken(token,secret,now=Date.now()){
  if(typeof token!=='string'||token.length>2400)throw Error('Invalid token');const parts=token.split('.');if(parts.length!==2)throw Error('Invalid token');
  const expected=crypto.createHmac('sha256',secret).update(parts[0]).digest(),given=Buffer.from(parts[1],'base64url');if(given.length!==expected.length||!crypto.timingSafeEqual(expected,given))throw Error('Invalid signature');
  const c=JSON.parse(Buffer.from(parts[0],'base64url').toString());
- if(c.v!==PROTOCOL||!['host','guest'].includes(c.role)||!/^mk_[A-Za-z0-9_-]{20,100}$/.test(c.room)||!/^\w{32,100}$/.test(c.sub)||typeof c.jti!=='string'||c.jti.length<16||c.jti.length>100||c.release!=='umk3-md-original-v1'||!Number.isFinite(c.iat)||!Number.isFinite(c.exp)||c.iat>now+30000||c.exp<=now||c.exp-c.iat>7200000)throw Error('Expired or invalid claims');
+ if(c.v!==PROTOCOL||!['host','guest'].includes(c.role)||!/^mk_[A-Za-z0-9_-]{20,100}$/.test(c.room)||!/^\w{32,100}$/.test(c.sub)||typeof c.jti!=='string'||c.jti.length<16||c.jti.length>100||!["umk3-md-original-v1", "rr3-md-v1", "rock-md-v1", "ga3-md-v1", "sor3-md-v1", "tmnt-md-v1", "btd-md-v1", "wwf-md-v1", "comix-md-v1", "robo3-md-v1"].includes(c.release)||!Number.isFinite(c.iat)||!Number.isFinite(c.exp)||c.iat>now+30000||c.exp<=now||c.exp-c.iat>7200000)throw Error('Expired or invalid claims');
  return c;
 }
 function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
@@ -45,8 +45,8 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
     if(binary||data.length>3000){ws.close(4001,'Invalid authentication');return;}
     try{
      const auth=JSON.parse(data.toString());if(auth.type!=='auth')throw Error();const c=verifyToken(auth.token,secret);room=rooms.get(c.room);
-     if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,generation:0,host:null,guest:null,playing:false,lastSeen:Date.now()};rooms.set(c.room,room);}
-     const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
+     if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,generation:0,host:null,guest:null,playing:false,lastSeen:Date.now()};rooms.set(c.room,room);}
+     if(room.release!==c.release){ws.close(4001,'Game mismatch');return;}const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
      member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;room.generation++;
      clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1']});peerStatus(room);
     }catch{ws.close(4001,'Invalid or expired authentication');}return;
