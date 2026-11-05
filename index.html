@@ -15832,6 +15832,7 @@ window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.f
  </div>
  <div id="egMessage" class="eg-message" role="status" aria-live="polite"></div>
  <div id="egRecovery"></div><div id="egContent"></div>
+ <nav class="eg-bottom-navigation" aria-label="Навигация по играм"><button id="egMobileBack" type="button" class="btn danger-btn" onclick="egNavigateBack()">⬅️ Назад</button><button id="egMobileHome" type="button" class="btn danger-btn" onclick="egNavigateHome()">🔚 Главное меню</button></nav>
 </section>
 
 <style id="gamesSettingsPolish">
@@ -15855,8 +15856,18 @@ body[data-view-auth=true] .app-settings-heading .app-settings-game{display:none}
 #screen-entertainment .eg-score-row{display:grid;grid-template-columns:54px minmax(160px,1fr) repeat(4,80px);align-items:center;gap:12px;padding:14px 10px;border-bottom:1px solid var(--card-border);font-size:13px}#screen-entertainment .eg-score-row.eg-me{background:var(--surface-dark);border-radius:10px;box-shadow:inset 3px 0 var(--accent)}#screen-entertainment .eg-score-head{color:var(--text-muted);font-size:12px}#screen-entertainment .eg-score-stat:last-child strong{color:var(--accent-ink)}#screen-entertainment .eg-score-label{display:none}#screen-entertainment .eg-unplayed{margin:22px 0 0;color:var(--text-muted);font-size:13px}#screen-entertainment .eg-unplayed summary{cursor:pointer}#screen-entertainment .eg-unplayed p{padding:6px 10px;margin:0}
 @media(max-width:800px){#screen-entertainment .eg-game-catalog{grid-template-columns:1fr}#screen-entertainment .eg-game-tile{min-height:220px}#screen-entertainment .eg-score-head{display:none}#screen-entertainment .eg-score-row{grid-template-columns:32px repeat(4,minmax(0,1fr));gap:10px;margin:10px 0;padding:14px;border:1px solid var(--card-border);border-radius:12px}#screen-entertainment .eg-score-place{grid-row:1/3;align-self:start}#screen-entertainment .eg-score-name{grid-column:2/6;overflow-wrap:anywhere}#screen-entertainment .eg-score-stat{display:flex;flex-direction:column;gap:4px}#screen-entertainment .eg-score-label{display:block;font-size:10px;color:var(--text-muted)}#screen-entertainment .eg-rating-tools{flex-wrap:wrap}#screen-entertainment .eg-rating-tools .eg-field{flex:1;min-width:170px}#screen-entertainment .eg-rating-tools>.btn{font-size:12px;padding:10px}#screen-entertainment .eg-toolbar h2{font-size:20px}}
 </style>
+<style id="arcadeMobileNavigation">
+.eg-bottom-navigation{display:none}
+html[data-app-layout=mobile] #screen-entertainment.active{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}
+html[data-app-layout=mobile] #screen-entertainment>.eg-toolbar>.btn,html[data-app-layout=mobile] #screen-entertainment [data-eg-back]{display:none!important}
+html[data-app-layout=mobile] #screen-entertainment.active>.eg-bottom-navigation{position:fixed;left:12px;right:12px;bottom:0;z-index:910;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:var(--view-width,1200px);margin:0 auto;box-sizing:border-box;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));background:var(--bg-color);border:1px solid var(--card-border);border-bottom:0;border-radius:16px 16px 0 0;box-shadow:0 -4px 18px #0002}
+html[data-app-layout=mobile] #screen-entertainment .eg-bottom-navigation>#egMobileBack,html[data-app-layout=mobile] #screen-entertainment .eg-bottom-navigation>#egMobileHome{grid-column:auto!important;flex:1 1 0%!important;min-width:0!important;width:100%!important;height:44px!important;min-height:44px!important;margin:0!important;padding:10px 6px!important;font-size:13px!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;line-height:1.3!important}
+html[data-app-layout=mobile] body:has(#screen-entertainment.active) #appMobileNavigation{display:none!important}
+@media(max-width:360px){html[data-app-layout=mobile] .eg-bottom-navigation>.btn{font-size:12px;padding:10px 5px}}
+</style>
+<style id="arcadeLandscapeViewport">@media(orientation:landscape) and (max-height:650px){html[data-app-layout=mobile] #screen-entertainment .eg-game-frame{height:calc(100dvh - 76px - env(safe-area-inset-bottom,0px));min-height:0}}</style>
 <script id="entertainmentScript">
-const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры."}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3.png", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock.png", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}};
+const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры."}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3.png?v=20261105-arcade5", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock.png?v=20261105-arcade5", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}};
 function egRenderCatalog(root){
  const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>{egState.game=game;egState.tab='games';egState.room='';egRender();},'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span','Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
 }
@@ -15870,7 +15881,7 @@ let egGame=null,egLaunchEpoch=0;
 function egOwner(){return currentUser?[currentUser.city,currentUser.district,String(currentUser.dwLogin).toLowerCase()].join('|'):'';}
 function egLogin(){return String(currentUser?.dwLogin||'').trim().toLowerCase();}
 function egNode(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
-function egButton(text,fn,cls='main-btn'){const b=egNode('button',text,'btn '+cls);b.type='button';b.onclick=fn;b.disabled=egState.busy;return b;}
+function egButton(text,fn,cls='main-btn'){const b=egNode('button',text,'btn '+cls);b.type='button';b.onclick=fn;b.disabled=egState.busy;if(/^(?:↩|⬅)/.test(text))b.dataset.egBack='true';return b;}
 function egPanel(title){const p=egNode('div',undefined,'eg-panel');if(title)p.append(egNode('h3',title));return p;}
 function egMessage(text,error=false){const n=document.getElementById('egMessage');n.className='eg-message'+(error?' eg-error':'');n.textContent=text;}
 function egVisible(){return document.getElementById('screen-entertainment').classList.contains('active')&&!document.hidden;}
@@ -15915,7 +15926,7 @@ async function egLoad(quiet=false){
 async function egMutate(op,fields={},recover=false){
  if(egState.busy)return;if(egState.pending&&!recover){egMessage('Сначала проверьте последнее действие выше.',true);return;}
  const owner=egOwner(),request={op,fields:recover?fields:{...fields,requestId:'eg_'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+'_'+Math.random().toString(36).slice(2))}};egStopPoll();
- egRememberPending(request);egState.busy=true;document.getElementById('egContent').querySelectorAll('button,input').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
+ egRememberPending(request);egState.busy=true;document.querySelectorAll('#egContent button,#egContent input,.eg-bottom-navigation button').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
  try{
   const r=await egApi({op:request.op,...request.fields});if(owner!==egOwner())return;
   egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};if(r.match){egState.room=r.match.id;egState.game=r.match.game||'umk3';egState.tab='matches';if(egState.data){const index=egState.data.matches.findIndex(m=>m.id===r.match.id);if(index<0)egState.data.matches.unshift(r.match);else egState.data.matches[index]=r.match;}}
@@ -15934,6 +15945,7 @@ function egPick(label,options,initial=''){
  box.append(trigger,list);field.append(egNode('span',label),box);return {field,value:()=>value,trigger};
 }
 function egRender(){
+ document.querySelectorAll('.eg-bottom-navigation button').forEach(b=>b.disabled=egState.busy);
  if(egGame)return;
  const content=document.getElementById('egContent');content.replaceChildren();const selected=EG_GAMES[egState.game];
  document.querySelector('#screen-entertainment h2').textContent=selected?selected.title:'🎮 Развлечения';
@@ -15967,20 +15979,21 @@ function egCloseGame(render=true){
  if(render&&egVisible()){egRender();void egLoad();egStartPoll();}
 }
 async function egLaunch(mode,matchId=''){
- egCloseGame(false);egStopPoll();const epoch=++egLaunchEpoch,owner=egOwner();egGame={owner,epoch,frame:null};
+ egCloseGame(false);egStopPoll();const epoch=++egLaunchEpoch,owner=egOwner();egGame={owner,epoch,frame:null,matchId};
  const root=document.getElementById('egContent');root.replaceChildren();root.append(egNode('p','⏳ Подготавливаем '+EG_GAMES[egState.game||'umk3'].title+'…','eg-muted'),egButton('↩ Назад',()=>egCloseGame()));
  try{
   const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
   if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
   const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=r.config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
-  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade2');frame.src=url.href;
-  egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
-  frame.onload=()=>{if(egGame?.frame===frame)frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);};
+  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade5');frame.src=url.href;
+  r.config.mobileNavigation=document.documentElement.dataset.appLayout==='mobile';egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
+  frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);egAlignLandscapeGame();}};
  }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
 }
 window.addEventListener('message',async event=>{
  const g=egGame;if(!g||event.origin!==location.origin||event.source!==g.frame?.contentWindow||event.data?.nonce!==g.nonce)return;
  if(g.owner!==egOwner()){egCloseGame(false);return;}
+ if(event.data.type==='umk3-navigate'){if(event.data.action==='home')egNavigateHome();else if(event.data.action==='back')egNavigateBack();return;}
  if(event.data.type==='umk3-ready')g.frame.contentWindow.postMessage({type:'umk3-start',nonce:g.nonce,config:g.config},location.origin);
  else if(event.data.type==='umk3-closed')egCloseGame();
  else if(event.data.type==='umk3-error')egMessage(event.data.message||'Ошибка запуска игры',true);
@@ -15988,6 +16001,24 @@ window.addEventListener('message',async event=>{
 });
 const egGameGuard=setInterval(()=>{if(egGame&&(egGame.owner!==egOwner()||!document.getElementById('screen-entertainment').classList.contains('active')))egCloseGame(false);},1000);
 window.addEventListener('pagehide',()=>egCloseGame(false));
+function egAlignLandscapeGame(){
+ if(!egGame?.frame||document.documentElement.dataset.appLayout!=='mobile'||!window.matchMedia('(orientation:landscape) and (max-height:650px)').matches)return;
+ const frame=egGame.frame;requestAnimationFrame(()=>{if(egGame?.frame===frame)frame.scrollIntoView({block:'start',behavior:'auto'});});
+}
+window.addEventListener('resize',()=>egAlignLandscapeGame());
+function egNavigateHome(){
+ if(egState.busy)return;egCloseGame(false);egStopPoll();egState.room='';egState.game='';egState.tab='games';egState.creating=false;egState.editing=false;egMessage('');switchScreen('screen-main');
+}
+function egNavigateBack(){
+ if(egState.busy)return;
+ if(egGame){const matchId=egGame.matchId||'';egCloseGame(false);egState.room=matchId;egState.tab=matchId?'matches':'games';egState.creating=false;egState.editing=false;egRender();egStartPoll();void egLoad(true);return;}
+ if(egState.creating){egState.creating=false;egState.editing=false;egState.tab='games';}
+ else if(egState.room){egState.room='';egState.tab='matches';egState.editing=false;}
+ else if(egState.tab!=='games'){egState.tab='games';egState.editing=false;}
+ else if(egState.game){egState.game='';egState.room='';egState.tab='games';}
+ else{egNavigateHome();return;}
+ egMessage('');egRender();
+}
 function egDate(value){return new Date(value).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
 function egRenderMatches(root){
  if(egState.room){const m=egState.data.matches.find(m=>m.id===egState.room);if(m){egRenderRoom(root,m);return;}egState.room='';egMessage('Матч не найден или недоступен этому профилю и участку.',true);}
