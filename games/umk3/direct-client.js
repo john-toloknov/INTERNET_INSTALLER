@@ -28,8 +28,9 @@ class Umk3Relay extends Umk3RelayBase {
     void (async()=>{await pc.setLocalDescription(await pc.createOffer());if(current())this.send({type:'rtc',generation,description:{type:'offer',sdp:pc.localDescription.sdp}});})().catch(()=>{if(current())this.peerFallback();});
    }else{
     pc.ondatachannel=e=>{if(current())this.bindChannel(e.channel,pc);};
-    pc.ontrack=e=>{if(current()&&e.track.kind==='video')this.showPeerVideo(e.track,pc);};
+    pc.ontrack=e=>{if(current()&&e.track.kind==='video'){try{if('jitterBufferTarget' in e.receiver)e.receiver.jitterBufferTarget=0;if('playoutDelayHint' in e.receiver)e.receiver.playoutDelayHint=0;}catch{}this.showPeerVideo(e.track,pc);}};
    }
+   this.metricsTimer=setInterval(()=>void this.measureNetwork(),2000);
    this.peerTimer=setTimeout(()=>{if(current()&&!this.direct)this.peerFallback();},12000);
   }catch{this.peerFallback();}
  }
@@ -40,6 +41,7 @@ class Umk3Relay extends Umk3RelayBase {
    if(e.data instanceof ArrayBuffer){const bytes=new Uint8Array(e.data);if(this.config.role==='guest'&&this.direct&&bytes[0]===4&&bytes.length>=11&&bytes.length<=4096){const seq=new DataView(bytes.buffer).getUint32(1,true);if(seq<=this.lastAudioSeq)return;this.lastAudioSeq=seq;const packet=new Uint8Array(bytes.length-4);packet[0]=3;packet.set(bytes.subarray(5),1);this.audio(packet);}return;}
    if(typeof e.data!=='string'||e.data.length>200)return;
    let m;try{m=JSON.parse(e.data);}catch{return;}
+   if(m.type==='latency-ping'){this.peerSend({type:'latency-pong',at:m.at});return;}if(m.type==='latency-pong'&&Number.isFinite(m.at)){this.inputRtt=Math.max(0,Date.now()-m.at);return;}
    if(m.type==='media-ready'&&this.config.role==='host'){this.direct=true;clearTimeout(this.peerTimer);this.hooks.transport?.(true);return;}
    if(m.type==='input'&&this.config.role==='host'&&Number.isInteger(m.seq)&&m.seq>this.remoteInputSeq&&Number.isInteger(m.mask)&&m.mask>=0&&m.mask<=4095){this.remoteInputSeq=m.seq;this.lastInputAt=Date.now();this.hooks.input(m.mask);}
   };
@@ -67,7 +69,7 @@ class Umk3Relay extends Umk3RelayBase {
  }
  peerFallback(){if(this.closed)return;const generation=this.generation;this.stopPeer();if(this.playing)this.send({type:'rtc',generation,disabled:true});}
  stopPeer(){
-  this.direct=false;clearTimeout(this.peerTimer);cancelAnimationFrame(this.peerPaint);const pc=this.pc;this.pc=null;this.channel=null;pc?.close();
+  this.direct=false;clearTimeout(this.peerTimer);clearInterval(this.metricsTimer);cancelAnimationFrame(this.peerPaint);const pc=this.pc;this.pc=null;this.channel=null;pc?.close();
   this.mediaStream?.getTracks().forEach(t=>t.stop());this.mediaStream=null;this.peerVideo?.pause();if(this.peerVideo)this.peerVideo.srcObject=null;this.peerVideo?.remove();this.peerVideo=null;
   if(this.config.role==='guest')this.hooks.canvas.hidden=false;this.hooks.transport?.(false);
  }
@@ -89,7 +91,7 @@ class Umk3Relay extends Umk3RelayBase {
   if(!this.processor&&!this.tapLoading){
    this.tapLoading=true;
    try{
-    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261104-direct1');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
+    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261105-arcade1');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
    }catch{}
    if(!this.processor&&!this.closed&&this.audioContext===ctx){this.processor=ctx.createScriptProcessor(1024,2,1);this.processor.onaudioprocess=e=>{e.outputBuffer.getChannelData(0).fill(0);const channels=Array.from({length:e.inputBuffer.numberOfChannels},(_,i)=>e.inputBuffer.getChannelData(i)),mono=new Float32Array(e.inputBuffer.length);for(let i=0;i<mono.length;i++)for(const c of channels)mono[i]+=c[i]/channels.length;this.sendAudioSamples(mono,ctx.sampleRate);};}
    this.tapLoading=false;if(this.closed||!this.processor)return;this.processor.connect(ctx.destination);
@@ -107,9 +109,18 @@ class Umk3Relay extends Umk3RelayBase {
  }
  audio(packet){
   if(!this.playing||packet.length<7||packet.length%2!==1)return;const view=new DataView(packet.buffer,packet.byteOffset,packet.byteLength),rate=view.getUint32(1,true),n=(packet.length-5)/2;if(n>8192||rate<16000||rate>48000)return;
-  this.receivedAudio++;this.unlockAudio();const ctx=this.audioContext;if(!ctx||ctx.state!=='running')return;const now=ctx.currentTime;if(this.audioAt>now+.18)return;this.audioAt=Math.max(this.audioAt,now+.025);
+  this.receivedAudio++;this.unlockAudio();const ctx=this.audioContext;if(!ctx||ctx.state!=='running')return;const now=ctx.currentTime;if(this.audioAt>now+.10){this.clearAudio();}this.audioAt=Math.max(this.audioAt,now+.025);
   const buffer=ctx.createBuffer(1,n,rate),target=buffer.getChannelData(0);for(let i=0;i<n;i++)target[i]=view.getInt16(5+i*2,true)/32768;
   const source=ctx.createBufferSource();source.buffer=buffer;source.connect(ctx.destination);this.audioSources.add(source);source.onended=()=>{source.disconnect();this.audioSources.delete(source);};source.start(this.audioAt);this.audioAt+=n/rate;
+ }
+
+ async measureNetwork(){
+  if(this.closed||!this.playing)return;const pc=this.pc;
+  if(this.direct)this.peerSend({type:'latency-ping',at:Date.now()});
+  let bufferMs=null;
+  try{if(pc){const stats=await pc.getStats();if(this.pc!==pc)return;stats.forEach(s=>{if(s.type==='inbound-rtp'&&s.kind==='video'&&s.jitterBufferEmittedCount){const old=this.videoMetric;this.videoMetric={delay:s.jitterBufferDelay,count:s.jitterBufferEmittedCount};if(old&&s.jitterBufferEmittedCount>old.count)bufferMs=1000*(s.jitterBufferDelay-old.delay)/(s.jitterBufferEmittedCount-old.count);}});}}catch{}
+  if(!Number.isFinite(bufferMs))bufferMs=null;
+  this.hooks.diagnostics?.({direct:this.direct,rtt:this.direct?(this.inputRtt||0):this.rtt,bufferMs});
  }
  clearAudio(){this.audioAt=0;for(const source of this.audioSources){try{source.stop();source.disconnect();}catch{}}this.audioSources.clear();}
  disposeTap(){for(const gain of this.gains){try{gain.disconnect(this.processor);}catch{}}this.gains.clear();if(this.processor?.port){this.processor.port.onmessage=null;this.processor.port.close();}if(this.processor)this.processor.onaudioprocess=null;this.processor?.disconnect();this.processor=null;}
