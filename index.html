@@ -15830,6 +15830,7 @@ window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.f
   <button id="egTabLeaders" type="button" role="tab" class="btn main-btn" onclick="egTab('leaders')">🏆 Рейтинг</button>
   <button id="egTabBadges" type="button" role="tab" class="btn main-btn" onclick="egTab('badges')">🏅 Достижения</button>
  </div>
+ <nav id="egGameSwitcher" class="eg-game-switcher" aria-label="Выбор игры" hidden></nav>
  <div id="egMessage" class="eg-message" role="status" aria-live="polite"></div>
  <div id="egRecovery"></div><div id="egContent"></div>
  <nav class="eg-bottom-navigation" aria-label="Навигация по играм"><button id="egMobileBack" type="button" class="btn danger-btn" onclick="egNavigateBack()">⬅️ Назад</button><button id="egMobileHome" type="button" class="btn danger-btn" onclick="egNavigateHome()">🔚 Главное меню</button></nav>
@@ -15866,10 +15867,26 @@ html[data-app-layout=mobile] body:has(#screen-entertainment.active) #appMobileNa
 @media(max-width:360px){html[data-app-layout=mobile] .eg-bottom-navigation>.btn{font-size:12px;padding:10px 5px}}
 </style>
 <style id="arcadeLandscapeViewport">@media(orientation:landscape) and (max-height:650px){html[data-app-layout=mobile] #screen-entertainment .eg-game-frame{height:calc(100dvh - 76px - env(safe-area-inset-bottom,0px));min-height:0}}</style>
+<style id="arcadeGameSwitching">
+#screen-entertainment .eg-game-switcher[hidden]{display:none!important}
+#screen-entertainment .eg-game-switcher{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;margin:0 0 16px;padding:10px;border:1px solid var(--card-border);border-radius:14px;background:var(--card-bg)}
+#screen-entertainment .eg-game-switcher>.eg-switcher-button{display:flex;align-items:center;justify-content:center;width:100%!important;min-width:0!important;height:100%;min-height:44px;margin:0!important;padding:10px 8px!important;white-space:normal!important;overflow-wrap:anywhere;font:600 13px/1.3 system-ui,sans-serif;border:1px solid var(--card-border);border-radius:9px;background:var(--surface-dark);color:var(--text-main);box-shadow:none}
+#screen-entertainment .eg-game-switcher>.eg-switcher-button[aria-current=page]{background:var(--accent);color:#111;border-color:var(--accent)}
+html[data-app-layout=desktop] #screen-entertainment>.eg-toolbar>.eg-catalog-return{display:inline-flex!important;width:auto!important;min-height:40px;margin:0!important;padding:9px 16px!important}
+html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;padding:8px}html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher>.eg-switcher-button{min-height:60px;font-size:11px}
+</style>
 <script id="entertainmentScript">
-const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры."}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3.png?v=20261105-arcade5", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock.png?v=20261105-arcade5", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}};
+const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры."}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3-logo-877bb161.png", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock-logo-f7058328.png", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}};
+function egSelectGame(game){
+ if(egState.busy||!Object.hasOwn(EG_GAMES,game))return;egCloseGame(false);egStopPoll();egState.catalogRequested=false;egState.game=game;egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;egState.drafts={};egMessage('');egRender();egStartPoll();if(!egState.data)void egLoad();
+}
+function egRenderGameSwitcher(){
+ const root=document.getElementById('egGameSwitcher');root.replaceChildren();root.hidden=!egState.game;if(root.hidden)return;
+ const entries=Object.keys(EG_GAMES),selected=entries.indexOf(egState.game),labels={umk3:'Mortal Kombat',rr3:'Road Rash',rock:'Rock n’ Roll Racing'};
+ entries.forEach((game,i)=>{const label=(i<selected?'◀︎ ':'')+labels[game]+(i>selected?' ▶︎':''),button=egButton(label,()=>egSelectGame(game),'main-btn eg-switcher-button');button.setAttribute('aria-label','Открыть '+EG_GAMES[game].title);if(i===selected)button.setAttribute('aria-current','page');root.append(button);});
+}
 function egRenderCatalog(root){
- const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>{egState.game=game;egState.tab='games';egState.room='';egRender();},'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span','Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
+ const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>egSelectGame(game),'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span','Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
 }
 function egGameRankings(){return egState.data?.gameRankings?.[egState.game]||(egState.game==='umk3'?egState.data?.rankings:null)||{month:'',monthly:[],all:[]};}
 // UMK3 browser v1: authenticated launch; secrets are never written to links/history.
@@ -15901,11 +15918,12 @@ async function egApi(fields,signal){
  if(r.status!=='ok')throw Object.assign(Error(r.message||'Не удалось выполнить действие'),{definite:true});return r;
 }
 async function openEntertainment(matchId=''){
- if(!currentUser)return;
+ if(!currentUser)return;egCloseGame(false);egStopPoll();
  if(egState.owner!==egOwner()){
   egState.data=null;egState.room='';egState.tab='games';egState.game='';egState.pending=null;egState.owner=egOwner();egState.busy=false;egState.creating=false;egState.editing=false;egState.drafts={};
   try{const saved=JSON.parse(sessionStorage.getItem(egPendingKey())||'null');if(saved&&typeof saved.op==='string'&&saved.fields&&/^[a-zA-Z0-9_-]{16,90}$/.test(saved.fields.requestId||''))egState.pending=saved;}catch(e){}
  }
+ egState.catalogRequested=!matchId;egState.game='';egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;
  switchScreen('screen-entertainment');if(matchId){egState.room=matchId;egState.tab='matches';}
  egRecovery();egRender();await egLoad();if(egVisible())egStartPoll();
 }
@@ -15929,7 +15947,7 @@ async function egMutate(op,fields={},recover=false){
  egRememberPending(request);egState.busy=true;document.querySelectorAll('#egContent button,#egContent input,.eg-bottom-navigation button').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
  try{
   const r=await egApi({op:request.op,...request.fields});if(owner!==egOwner())return;
-  egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};if(r.match){egState.room=r.match.id;egState.game=r.match.game||'umk3';egState.tab='matches';if(egState.data){const index=egState.data.matches.findIndex(m=>m.id===r.match.id);if(index<0)egState.data.matches.unshift(r.match);else egState.data.matches[index]=r.match;}}
+  egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};if(r.match){if(!egState.catalogRequested){egState.room=r.match.id;egState.game=r.match.game||'umk3';egState.tab='matches';}if(egState.data){const index=egState.data.matches.findIndex(m=>m.id===r.match.id);if(index<0)egState.data.matches.unshift(r.match);else egState.data.matches[index]=r.match;}}
   egState.busy=false;const refreshed=await egLoad();if(owner===egOwner())egMessage(refreshed?'✅ Сохранено':'✅ Действие сохранено. Список и рейтинг пока не обновились — нажмите «Обновить».');return r;
  }catch(e){if(owner!==egOwner())return;if(e.definite)egRememberPending(null);egMessage(e.definite?e.message:e.message+' Действие могло сохраниться — проверьте его выше.',true);}
  finally{if(owner===egOwner()){egState.busy=false;egRecovery();egRender();if(egVisible())egStartPoll();}}
@@ -15949,7 +15967,7 @@ function egRender(){
  if(egGame)return;
  const content=document.getElementById('egContent');content.replaceChildren();const selected=EG_GAMES[egState.game];
  document.querySelector('#screen-entertainment h2').textContent=selected?selected.title:'🎮 Развлечения';
- const back=document.querySelector('#screen-entertainment .eg-toolbar button');back.textContent=selected?'↩ Все игры':'↩ Главное меню';back.onclick=()=>{if(selected){egState.game='';egState.room='';egState.creating=false;egState.editing=false;egRender();}else switchScreen('screen-main');};
+ const back=document.querySelector('#screen-entertainment .eg-toolbar button');back.textContent=selected?'🎮 Все игры':'🔚 Главное меню';back.classList.toggle('eg-catalog-return',!!selected);if(selected)delete back.dataset.viewMainMenu;back.onclick=()=>{if(selected)void openEntertainment();else egNavigateHome();};egRenderGameSwitcher();
  document.querySelector('#screen-entertainment .eg-tabs').hidden=!selected;
  for(const [id,tab] of [['Games','games'],['Matches','matches'],['Leaders','leaders'],['Badges','badges']])document.getElementById('egTab'+id).setAttribute('aria-selected',String(egState.tab===tab));
  if(!selected){egRenderCatalog(content);return;}
@@ -15985,7 +16003,7 @@ async function egLaunch(mode,matchId=''){
   const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
   if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
   const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=r.config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
-  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade5');frame.src=url.href;
+  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade8');frame.src=url.href;
   r.config.mobileNavigation=document.documentElement.dataset.appLayout==='mobile';egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
   frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);egAlignLandscapeGame();}};
  }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
