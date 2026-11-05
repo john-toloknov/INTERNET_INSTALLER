@@ -15875,18 +15875,19 @@ html[data-app-layout=mobile] body:has(#screen-entertainment.active) #appMobileNa
 html[data-app-layout=desktop] #screen-entertainment>.eg-toolbar>.eg-catalog-return{display:inline-flex!important;width:auto!important;min-height:40px;margin:0!important;padding:9px 16px!important}
 html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;padding:8px}html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher>.eg-switcher-button{min-height:60px;font-size:11px}
 </style>
+<style id="arcadeTenGames">#screen-entertainment .eg-tabs button[hidden]{display:none!important}</style>
 <script id="entertainmentScript">
-const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры."}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3-logo-877bb161.png", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock-logo-f7058328.png", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд."}};
+const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры.", "kind": "versus", "formats": ["versus"], "shortTitle": "Mortal Kombat"}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3-logo-877bb161.png", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд.", "kind": "versus", "formats": ["versus"], "shortTitle": "Road Rash"}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock-art-dcee2879.jpg", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд.", "kind": "versus", "formats": ["versus"], "shortTitle": "Rock n’ Roll Racing"}, "ga3": {"title": "Golden Axe III", "logo": "assets/games/ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"], "shortTitle": "Golden Axe", "description": "Фэнтезийное приключение: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "sor3": {"title": "Streets of Rage 3", "logo": "assets/games/sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "Streets of Rage", "description": "Уличные бои: один игрок или совместное прохождение вдвоём. Выберите режим двух игроков в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "tmnt": {"title": "TMNT: The Hyperstone Heist", "logo": "assets/games/tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "TMNT", "description": "Черепашки-ниндзя: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "btd": {"title": "Battletoads & Double Dragon", "logo": "assets/games/btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "Battletoads", "description": "Battletoads и Double Dragon: один игрок или совместное прохождение вдвоём. Версия Sega Mega Drive.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "wwf": {"title": "WWF WrestleMania: The Arcade Game", "logo": "assets/games/wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"], "shortTitle": "WrestleMania", "description": "Рестлинг: один игрок, матч друг против друга или командное прохождение вдвоём против компьютера. Режим выбирается в игре.", "rules": "Друг против друга: согласуйте один поединок, победитель получает 3 очка после подтверждения обоими игроками. Вместе против компьютера: совместное прохождение без рейтинговых очков."}, "comix": {"title": "Comix Zone", "logo": "assets/games/comix-art-257e7ff3.jpg", "kind": "solo", "formats": [], "shortTitle": "Comix Zone", "description": "Одиночное приключение по страницам комикса. Управляйте Скетчем и выбирайтесь из нарисованного мира.", "rules": "Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."}, "robo3": {"title": "RoboCop 3", "logo": "assets/games/robo3-art-89809996.jpg", "kind": "solo", "formats": [], "shortTitle": "RoboCop 3", "description": "Одиночный боевик: защищайте жителей Детройта вместе с Робокопом.", "rules": "Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."}};
 function egSelectGame(game){
  if(egState.busy||!Object.hasOwn(EG_GAMES,game))return;egCloseGame(false);egStopPoll();egState.catalogRequested=false;egState.game=game;egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;egState.drafts={};egMessage('');egRender();egStartPoll();if(!egState.data)void egLoad();
 }
 function egRenderGameSwitcher(){
  const root=document.getElementById('egGameSwitcher');root.replaceChildren();root.hidden=!egState.game;if(root.hidden)return;
- const entries=Object.keys(EG_GAMES),selected=entries.indexOf(egState.game),labels={umk3:'Mortal Kombat',rr3:'Road Rash',rock:'Rock n’ Roll Racing'};
- entries.forEach((game,i)=>{const label=(i<selected?'◀︎ ':'')+labels[game]+(i>selected?' ▶︎':''),button=egButton(label,()=>egSelectGame(game),'main-btn eg-switcher-button');button.setAttribute('aria-label','Открыть '+EG_GAMES[game].title);if(i===selected)button.setAttribute('aria-current','page');root.append(button);});
+ const entries=Object.keys(EG_GAMES),selected=entries.indexOf(egState.game),first=Math.max(0,Math.min(selected-1,entries.length-3));
+ entries.slice(first,first+3).forEach(game=>{const i=entries.indexOf(game),label=(i<selected?'◀︎ ':'')+EG_GAMES[game].shortTitle+(i>selected?' ▶︎':''),button=egButton(label,()=>egSelectGame(game),'main-btn eg-switcher-button');button.setAttribute('aria-label','Открыть '+EG_GAMES[game].title);if(i===selected)button.setAttribute('aria-current','page');root.append(button);});
 }
 function egRenderCatalog(root){
- const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>egSelectGame(game),'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span','Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
+ const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>egSelectGame(game),'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span',spec.kind==='solo'?'Один игрок':spec.kind==='coop'?'Один игрок · Вместе':'Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
 }
 function egGameRankings(){return egState.data?.gameRankings?.[egState.game]||(egState.game==='umk3'?egState.data?.rankings:null)||{month:'',monthly:[],all:[]};}
 // UMK3 browser v1: authenticated launch; secrets are never written to links/history.
@@ -15952,7 +15953,7 @@ async function egMutate(op,fields={},recover=false){
  }catch(e){if(owner!==egOwner())return;if(e.definite)egRememberPending(null);egMessage(e.definite?e.message:e.message+' Действие могло сохраниться — проверьте его выше.',true);}
  finally{if(owner===egOwner()){egState.busy=false;egRecovery();egRender();if(egVisible())egStartPoll();}}
 }
-function egTab(tab){egCloseGame(false);egState.tab=tab;egState.room='';egState.creating=false;egState.editing=false;egMessage('');egRender();}
+function egTab(tab){const spec=EG_GAMES[egState.game];if(spec&&(spec.kind==='solo'&&tab!=='games'||!spec.formats.includes('versus')&&['leaders','badges'].includes(tab)))return;egCloseGame(false);egState.tab=tab;egState.room='';egState.creating=false;egState.editing=false;egMessage('');egRender();}
 function egField(label,placeholder='',value='',max=80){const wrap=egNode('label',undefined,'eg-field'),input=egNode('input');input.type='text';input.placeholder=placeholder;input.value=value;input.maxLength=max;input.disabled=egState.busy;wrap.append(egNode('span',label),input);return {wrap,input};}
 function egPick(label,options,initial=''){
  const field=egNode('div',undefined,'eg-field'),box=egNode('div',undefined,'custom-dropdown'),trigger=egNode('button',undefined,'dropdown-trigger'),list=egNode('div',undefined,'dropdown-list');
@@ -15968,7 +15969,11 @@ function egRender(){
  const content=document.getElementById('egContent');content.replaceChildren();const selected=EG_GAMES[egState.game];
  document.querySelector('#screen-entertainment h2').textContent=selected?selected.title:'🎮 Развлечения';
  const back=document.querySelector('#screen-entertainment .eg-toolbar button');back.textContent=selected?'🎮 Все игры':'🔚 Главное меню';back.classList.toggle('eg-catalog-return',!!selected);if(selected)delete back.dataset.viewMainMenu;back.onclick=()=>{if(selected)void openEntertainment();else egNavigateHome();};egRenderGameSwitcher();
- document.querySelector('#screen-entertainment .eg-tabs').hidden=!selected;
+ document.querySelector('#screen-entertainment .eg-tabs').hidden=!selected||selected.kind==='solo';
+ const ranked=!!selected&&selected.formats.includes('versus');
+ document.getElementById('egTabMatches').textContent=selected?.kind==='coop'?'🤝 Совместные игры':'🎯 Мои матчи';
+ document.getElementById('egTabLeaders').hidden=!ranked;document.getElementById('egTabBadges').hidden=!ranked;
+ if(selected&&((selected.kind==='solo'&&egState.tab!=='games')||(!ranked&&['leaders','badges'].includes(egState.tab))))egState.tab='games';
  for(const [id,tab] of [['Games','games'],['Matches','matches'],['Leaders','leaders'],['Badges','badges']])document.getElementById('egTab'+id).setAttribute('aria-selected',String(egState.tab===tab));
  if(!selected){egRenderCatalog(content);return;}
  if(!egState.data){content.append(egNode('p','⏳ Загружаем раздел игры…','eg-muted'),egButton('Обновить',()=>egLoad()));return;}
@@ -15981,16 +15986,20 @@ function egRender(){
 function egGameLogo(game){const box=egNode('div',undefined,'eg-hero-icon'),img=egNode('img');img.src=EG_GAMES[game].logo;img.alt=EG_GAMES[game].title;img.width=240;img.height=112;img.decoding='async';box.append(img);return box;}
 function egRenderGames(root){
  const spec=EG_GAMES[egState.game],p=egPanel('');p.classList.add('eg-play-panel');p.append(egGameLogo(egState.game),egNode('h3',spec.title),egNode('p',spec.description,'eg-muted'));
- const actions=egNode('div',undefined,'eg-actions');const browser=egState.data.capabilities?.browser,network=egState.data.capabilities?.network;
- actions.append(egButton('▶ Один игрок',()=>egLaunch('solo')),egButton('🎮 Двое рядом',()=>egLaunch('local')),egButton('🔥 Пригласить коллегу',()=>{egState.creating=true;egRender();}));
- if(!browser){actions.querySelectorAll('button').forEach(b=>b.disabled=true);p.append(egNode('p','Игровые файлы ещё не подключены.','eg-muted'));}else if(!network){actions.lastChild.disabled=true;p.append(egNode('p','Сетевой сервер ещё не подключён.','eg-muted'));}p.append(actions);root.append(p);
- const rules=egPanel('🏆 Правила игры');rules.append(egNode('p',spec.rules),egNode('p','Победа приносит 3 очка после подтверждения обоими игроками. Тренировка и «Двое рядом» в рейтинг не входят.','eg-muted'));root.append(rules);
+ const actions=egNode('div',undefined,'eg-actions'),caps=egState.data.capabilities||{},known=caps.games||['umk3','rr3','rock'],browser=caps.browser&&known.includes(egState.game),network=caps.network;
+ actions.append(egButton('▶ Один игрок',()=>egLaunch('solo')));
+ if(spec.kind!=='solo')actions.append(egButton('🎮 Двое рядом',()=>egLaunch('local')),egButton('🔥 Пригласить коллегу',()=>{egState.creating=true;egRender();}));
+ if(!browser){actions.querySelectorAll('button').forEach(b=>b.disabled=true);p.append(egNode('p',known.includes(egState.game)?'Игровые файлы ещё не подключены.':'Для этой игры обновите скрипт «Сотрудники».','eg-muted'));}
+ else if(!network&&spec.kind!=='solo'){actions.lastChild.disabled=true;p.append(egNode('p','Сетевой сервер ещё не подключён.','eg-muted'));}p.append(actions);root.append(p);
+ const rules=egPanel('🎮 Правила игры');rules.append(egNode('p',spec.rules));if(spec.formats.includes('versus'))rules.append(egNode('p','Тренировка, «Двое рядом» и совместные прохождения в соревновательный рейтинг не входят.','eg-muted'));root.append(rules);
 }
 function egRenderCreate(root){
+ const spec=EG_GAMES[egState.game];if(spec.kind==='solo'){egState.creating=false;egRenderGames(root);return;}
  egState.creating=true;const d=egState.drafts.create||(egState.drafts.create={});root.replaceChildren();
- const p=egPanel('🔥 Вызов на '+EG_GAMES[egState.game].title),opponent=egPick('Соперник',egState.data.people.map(u=>[u.login,u.name]),d.opponent||'');opponent.field.addEventListener('egchange',e=>d.opponent=e.detail);
- p.append(opponent.field,egNode('p','Коллега получит приглашение в Telegram. Игра откроется в нашем приложении.','eg-muted'));
- const a=egNode('div',undefined,'eg-actions');a.append(egButton('📨 Пригласить и открыть игру',async()=>{if(!opponent.value()){opponent.trigger.focus();egMessage('Выберите соперника.',true);return;}const result=await egMutate('create',{game:egState.game,opponent:opponent.value(),platform:'Browser',edition:EG_BROWSER_EDITION});const m=result?.match;if(m?.edition===EG_BROWSER_EDITION)void egLaunch('match',m.id);}),egButton('↩ Назад',()=>{egState.creating=false;egState.editing=false;egRender();},'danger-btn'));p.append(a);root.append(p);
+ const p=egPanel('🔥 Приглашение · '+spec.title),opponent=egPick('Коллега',egState.data.people.map(u=>[u.login,u.name]),d.opponent||'');opponent.field.addEventListener('egchange',e=>d.opponent=e.detail);p.append(opponent.field);
+ let format=d.format||spec.formats[0];if(spec.formats.length>1){const choice=egPick('Режим',[['versus','⚔️ Друг против друга'],['coop','🤝 Вместе против компьютера']],format);choice.field.addEventListener('egchange',e=>{format=d.format=e.detail;});p.append(choice.field);}
+ p.append(egNode('p',spec.kind==='coop'?'Совместное прохождение без побед и поражений между напарниками.':'Выбранный режим нужно также включить в меню самой игры.','eg-muted'),egNode('p','Коллега получит приглашение в Telegram.','eg-muted'));
+ const a=egNode('div',undefined,'eg-actions');a.append(egButton('📨 Пригласить и открыть игру',async()=>{if(!opponent.value()){opponent.trigger.focus();egMessage('Выберите коллегу.',true);return;}const result=await egMutate('create',{game:egState.game,format,opponent:opponent.value(),platform:'Browser',edition:EG_BROWSER_EDITION});const m=result?.match;if(m?.edition===EG_BROWSER_EDITION)void egLaunch('match',m.id);}),egButton('↩ Назад',()=>{egState.creating=false;egState.editing=false;egRender();},'danger-btn'));p.append(a);root.append(p);
 }
 function egCloseGame(render=true){
  egLaunchEpoch++;const g=egGame;egGame=null;if(g){try{g.frame?.contentWindow.postMessage({type:'umk3-close',nonce:g.nonce},location.origin);}catch{}g.frame?.remove();}
@@ -16003,7 +16012,7 @@ async function egLaunch(mode,matchId=''){
   const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
   if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
   const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=r.config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
-  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade8');frame.src=url.href;
+  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade9');frame.src=url.href;
   r.config.mobileNavigation=document.documentElement.dataset.appLayout==='mobile';egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
   frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);egAlignLandscapeGame();}};
  }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
@@ -16043,12 +16052,12 @@ function egRenderMatches(root){
  const toolbar=egNode('div',undefined,'eg-toolbar');toolbar.append(egNode('p','Сначала активные вызовы, затем история.','eg-muted'),egButton('🔄 Обновить',()=>egLoad()));root.append(toolbar);
  const active=m=>['invited','accepted','playing','pending_result','disputed'].includes(m.state),matches=egState.data.matches.filter(m=>(m.game||'umk3')===egState.game).sort((a,b)=>Number(active(b))-Number(active(a))||b.createdAt-a.createdAt);
  if(!matches.length){const empty=egPanel('🎯 Здесь будут ваши матчи');empty.append(egNode('p','Откройте вкладку «Играть» и пригласите коллегу.','eg-muted'));root.append(empty);}
- matches.slice(0,100).forEach(m=>{const p=egPanel(m.host.name+' ⚔️ '+m.guest.name);p.append(egNode('span',EG_STATES[m.state]||m.state,'eg-badge eg-state-'+m.state),egNode('p',EG_GAMES[m.game||'umk3'].title+' · '+egDate(m.createdAt),'eg-muted'),egButton('Открыть матч',()=>{egState.room=m.id;egRender();}));root.append(p);});
+ matches.slice(0,100).forEach(m=>{const p=egPanel(m.host.name+(m.format==='coop'?' 🤝 ':' ⚔️ ')+m.guest.name);p.append(egNode('span',egSessionState(m),'eg-badge eg-state-'+m.state),egNode('p',EG_GAMES[m.game||'umk3'].title+' · '+egDate(m.createdAt),'eg-muted'),egButton('Открыть матч',()=>{egState.room=m.id;egRender();}));root.append(p);});
  if(matches.length>100)root.append(egNode('p','Показаны последние 100 матчей. Рейтинг учитывает всю историю.','eg-muted'));
 }
 function egRenderRoom(root,m){
- const me=egLogin(),host=m.host.login===me,p=egPanel(EG_GAMES[m.game||'umk3'].title);
- p.append(egNode('span',EG_STATES[m.state]||m.state,'eg-badge eg-state-'+m.state));
+ const me=egLogin(),host=m.host.login===me,coop=m.format==='coop',p=egPanel(EG_GAMES[m.game||'umk3'].title);
+ p.append(egNode('span',egSessionState(m),'eg-badge eg-state-'+m.state),egNode('p',coop?'🤝 Совместное прохождение':'⚔️ Друг против друга','eg-muted'));
  const players=egNode('div',undefined,'eg-grid');[m.host,m.guest].forEach(u=>{const b=egNode('div',undefined,'eg-player');b.append(egNode('strong',u.name+(u.login===me?' · Вы':'')),egNode('small',m.ready[u.login]?'✅ Подключался к матчу':'⏳ Ожидает подключения'));players.append(b);});p.append(players);
  const browser=m.edition===EG_BROWSER_EDITION;
  if(browser&&['invited','accepted','playing'].includes(m.state))p.append(egButton('▶ Играть',()=>egLaunch('match',m.id)));
@@ -16061,12 +16070,13 @@ function egRenderRoom(root,m){
  if(m.state==='invited'&&!host)a.append(egButton('🤝 Принять вызов',()=>egMutate('accept',{matchId:m.id})),egButton('Отклонить',()=>egMutate('decline',{matchId:m.id}),'danger-btn'));
  if(host&&['invited','accepted'].includes(m.state))a.append(egButton('Отменить вызов',()=>egMutate('cancel',{matchId:m.id}),'danger-btn'));
  if(['playing','pending_result','disputed'].includes(m.state)){
-  const result=egPanel('Кто выиграл матч?');result.append(egNode('p','Укажите итог только после завершения игры. При ошибке можно изменить свой ответ до совпадения подтверждений.','eg-muted'));
-  if(m.claims[me])result.append(egNode('p','Ваш выбор: '+([m.host,m.guest].find(u=>u.login===m.claims[me])?.name||''),'eg-muted'));
-  if(m.state==='disputed')result.append(egNode('p','Вы указали разных победителей. Обсудите итог и исправьте свой ответ. Очки пока не начислены.','eg-state-disputed'));
-  const draft=egState.drafts[m.id]||(egState.drafts[m.id]={}),choice=egPick('Победитель',[[m.host.login,m.host.name],[m.guest.login,m.guest.name]],draft.winner||m.claims[me]||'');choice.field.addEventListener('egchange',e=>draft.winner=e.detail);result.append(choice.field,egButton('Подтвердить результат',()=>{if(!choice.value()){egMessage('Выберите победителя.',true);choice.trigger.focus();return;}void egMutate('result',{matchId:m.id,winner:choice.value()});}));p.append(result);
+  const result=egPanel(coop?'Итог совместной игры':'Кто выиграл матч?'),options=coop?[['completed','Прошли игру'],['stopped','Завершили сеанс']]:[[m.host.login,m.host.name],[m.guest.login,m.guest.name]];
+  result.append(egNode('p',coop?'Оба участника подтверждают одинаковый итог. Рейтинговые очки не начисляются.':'Укажите итог только после завершения игры. При ошибке можно изменить свой ответ до совпадения подтверждений.','eg-muted'));
+  if(m.claims[me])result.append(egNode('p','Ваш выбор: '+(options.find(o=>o[0]===m.claims[me])?.[1]||''),'eg-muted'));
+  if(m.state==='disputed')result.append(egNode('p','Вы указали разные итоги. Обсудите результат и исправьте свой ответ.','eg-state-disputed'));
+  const draft=egState.drafts[m.id]||(egState.drafts[m.id]={}),choice=egPick(coop?'Итог':'Победитель',options,draft.answer||m.claims[me]||'');choice.field.addEventListener('egchange',e=>draft.answer=e.detail);result.append(choice.field,egButton('Подтвердить результат',()=>{if(!choice.value()){egMessage('Выберите итог игры.',true);choice.trigger.focus();return;}void egMutate('result',{matchId:m.id,...(coop?{outcome:choice.value()}:{winner:choice.value()})});}));p.append(result);
  }
- if(m.state==='confirmed')p.append(egNode('p','🏆 Победитель: '+[m.host,m.guest].find(u=>u.login===m.winner)?.name+' · +3 очка. Оба игрока подтвердили результат.'));
+ if(m.state==='confirmed')p.append(egNode('p',coop?(m.outcome==='completed'?'✅ Прошли игру. Оба участника подтвердили результат.':'✅ Сеанс завершён. Оба участника подтвердили результат.'):'🏆 Победитель: '+[m.host,m.guest].find(u=>u.login===m.winner)?.name+' · +3 очка. Оба игрока подтвердили результат.'));
  if(['invited','accepted','playing'].includes(m.state))p.append(egNode('p','Срок действия: '+egDate(m.expiresAt),'eg-muted'));
  a.append(egButton('🔄 Обновить',()=>egLoad()),egButton('↩ Мои матчи',()=>{egState.room='';egRender();},'danger-btn'));p.append(a);root.append(p);
 }
@@ -16086,6 +16096,11 @@ function egRenderBadges(root){
 }
 document.addEventListener('click',e=>document.querySelectorAll('#screen-entertainment .custom-dropdown.open').forEach(box=>{if(!box.contains(e.target))setDropdownOpen(box,false);}));
 queueMicrotask(()=>{if(currentUser&&document.getElementById('screen-main')?.classList.contains('active'))maybeOpenGameDeepLink();});
+
+function egSessionState(m){
+ if(m.format!=='coop')return EG_STATES[m.state]||m.state;
+ return ({invited:'📨 Ожидает ответа',accepted:'🤝 Приглашение принято',playing:'🤝 Совместная игра начата',confirmed:m.outcome==='completed'?'✅ Игра пройдена':'✅ Сеанс завершён'})[m.state]||EG_STATES[m.state]||m.state;
+}
 </script>
 
 <script id="iiTableFilterExtensions">
