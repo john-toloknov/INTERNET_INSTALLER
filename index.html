@@ -12206,8 +12206,8 @@ function ctDetectStbModel(serial) {
         if(!requestId||!currentUser)return;const key='ii_report_measure_v2_'+managementOwnerKey();let record;
         try{record=JSON.parse(sessionStorage.getItem(key)||'null');}catch(ignore){}
         if(record&&record.id!==requestId&&stage!=='start')return;
-        if(stage==='start'||!record||record.id!==requestId)record={id:requestId,started:Number(data.started)||Date.now(),frontend:'2026-11-05-perf2',busyReplies:0};
-        if(stage==='save'){if(data.status==='busy')record.busyReplies++;else if(data.status==='success'){record.save={...record.save,...Object.fromEntries(Object.entries(data).filter(([,v])=>v!==undefined))};record.savedMs=Date.now()-record.started;}}
+        if(stage==='start'||!record||record.id!==requestId)record={id:requestId,started:Number(data.started)||Date.now(),frontend:'2026-11-05-perf3',busyReplies:0};
+        if(stage==='save'){if(data.status==='busy')record.busyReplies++;else if(data.status==='success'){record.save={...record.save,...Object.fromEntries(Object.entries(data).filter(([,v])=>v!==undefined))};if(record.savedMs==null)record.savedMs=Date.now()-record.started;}}
         if(stage==='delivery'){record.delivery=data;if(data.telegram==='sent')record.totalMs=Date.now()-record.started;}
         try{sessionStorage.setItem(key,JSON.stringify(record));}catch(ignore){}iiRenderReportMeasure_();
     }
@@ -12215,10 +12215,10 @@ function ctDetectStbModel(serial) {
         const host=document.getElementById('screen-technician-reports');if(!host)return;
         let panel=document.getElementById('iiReportMeasure');
         if(!['Старший Техник','Старший техник','Супервайзер','Владелец'].includes(currentUser?.role)){panel?.remove();return;}
-        if(!panel){panel=ctNode('details','card');panel.id='iiReportMeasure';panel.append(ctNode('summary','','Время последней отправки · сборка 05.11 perf2'),ctNode('pre'));host.querySelector('h2')?.after(panel);}
+        if(!panel){panel=ctNode('details','card');panel.id='iiReportMeasure';panel.append(ctNode('summary','','Время последней отправки · сборка 05.11 perf3'),ctNode('pre'));host.querySelector('h2')?.after(panel);}
         let record;try{record=JSON.parse(sessionStorage.getItem('ii_report_measure_v2_'+managementOwnerKey())||'null');}catch(ignore){}
         const seconds=v=>Number.isFinite(v)?(v/1000).toFixed(2)+' с':'нет данных';
-        const text=record?'До подтверждения записи: '+seconds(record.savedMs)+'\nДо подтверждения Telegram: '+seconds(record.totalMs)+'\nОтветов «таблица занята»: '+record.busyReplies+'\nСервер записи: '+seconds(record.save?.serverMs)+'\nСервер доставки: '+seconds(record.delivery?.serverMs)+'\nВерсия сервера: '+(record.delivery?.revision||record.save?.revision||'сервер не передал версию')+'\n\nЭтапы записи (мс):\n'+JSON.stringify(record.save?.phases||{},null,2)+'\nЭтапы доставки (мс):\n'+JSON.stringify(record.delivery?.phases||{},null,2):'Здесь появятся замеры после отправки отчёта. Сборка 05.11 perf2.';
+        const text=record?'До ответа о записи: '+seconds(record.savedMs)+'\nДо подтверждения Telegram: '+seconds(record.totalMs)+'\nОтветов «таблица занята»: '+record.busyReplies+'\nСервер записи: '+seconds(record.save?.serverMs)+'\nСервер доставки: '+seconds(record.delivery?.serverMs)+'\nВерсия сервера: '+(record.delivery?.revision||record.save?.revision||'сервер не передал версию')+'\n\nЭтапы записи (мс):\n'+JSON.stringify(record.save?.phases||{},null,2)+'\nЭтапы доставки (мс):\n'+JSON.stringify(record.delivery?.phases||{},null,2):'Здесь появятся замеры после отправки отчёта. Сборка 05.11 perf3.';
         panel.querySelector('pre').textContent=text;
         const summary=document.querySelector('[data-report-measure-summary]');if(summary&&summary.dataset.reportMeasureSummary===record?.id)summary.textContent='Подтверждение записи: '+seconds(record.savedMs)+' · Полная отправка: '+(record.totalMs==null?'ожидается':seconds(record.totalMs));
     }
@@ -12231,9 +12231,10 @@ function ctDetectStbModel(serial) {
         const queued = receipt.telegram==='queued';
         const message = `Отчёт <b>${reportName}</b> записан в таблицу <b>${sheetName}</b> (г. ${cityName}), строка <b>${rowNumber}</b>.` +
             (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : '') + (requestId?'<div role="status" aria-live="polite" data-report-delivery="'+safe(requestId)+'">'+(queued?'⏳ Продолжаем доставку отчёта и фотографий…':receipt.telegram==='sent'?'✅ Telegram подтвердил доставку отчёта и фотографий.':'Проверьте состояние доставки.')+'</div>':'');
+        const followupNote=receipt.followups==='queued'?'<div style="margin-top:8px">АКТ и подсказки обновятся в фоне.</div>':'';
         const timingNote=requestId?'<div data-report-measure-summary="'+safe(requestId)+'" style="margin-top:10px;font-size:12px"></div>':'';
         const buttons = '<button type="button" class="btn main-btn" onclick="finishReportAndStartNext()">📝 Следующий отчёт</button>';
-        showBeelineModal('Отчёт сохранён', message+timingNote, '✅', buttons);iiRenderReportMeasure_();
+        showBeelineModal('Отчёт сохранён', message+followupNote+timingNote, '✅', buttons);iiRenderReportMeasure_();
     }
 
 // Ограничивает всю отправку, включая чтение JSON; потеря ответа не означает отказ записи.
@@ -12241,7 +12242,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
     const owner=managementOwnerKey(),started=Date.now(),controller=new AbortController();let timer;
     const expired=new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();const error=new Error('Время ожидания ответа истекло. Результат записи необходимо проверить.');error.name='TimeoutError';reject(error);},timeoutMs);});
     try{
-        return await Promise.race([(async()=>{const response=await districtFetch(url,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(payload.action==='report'&&owner===managementOwnerKey()){console.info('Report timing',{httpMs:Date.now()-started,serverMs:result.serverSaveMs,phases:result.timings});iiReportMeasure_(payload.requestId,'save',{status:result.status,httpMs:Date.now()-started,serverMs:result.serverSaveMs,phases:result.timings,revision:result.reportRevision});}return result;})(),expired]);
+        return await Promise.race([(async()=>{const response=await districtFetch(url,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',cache:'no-store',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(payload.action==='report'&&owner===managementOwnerKey()){console.info('Report timing',{httpMs:Date.now()-started,serverMs:result.serverSaveMs,phases:result.timings});iiReportMeasure_(payload.requestId,'save',{status:result.status,httpMs:Date.now()-started,serverMs:result.serverSaveMs,phases:result.timings,revision:result.reportRevision});if(result.inlineDelivery)iiReportMeasure_(payload.requestId,'delivery',{httpMs:Date.now()-started,serverMs:result.deliveryServerMs,phases:result.deliveryTimings,telegram:result.telegram,revision:result.reportRevision});}return result;})(),expired]);
     }finally{clearTimeout(timer);}
 }
 
@@ -12360,7 +12361,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 };
             }
 
-            payload.deferTelegram = true;
+            payload.deferTelegram = true;payload.inlineDelivery=true;
             const receipt = await sendReportForReceipt(targetUrl,payload);
             if(receipt.telegram==='queued')kickReportDelivery(targetUrl,requestId);
             vsPendingClear();
