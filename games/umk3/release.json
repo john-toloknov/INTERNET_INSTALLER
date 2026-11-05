@@ -20,8 +20,8 @@
       "url": "roms/versus-v1.enc"
     }
   },
-  "playerVersion": "20261105-arcade1",
-  "controlsVersion": "20261105-stick1",
-  "uiVersion": "20261105-arcade1",
+  "playerVersion": "20261105-arcade5",
+  "controlsVersion": "20261105-landscape-three-columns",
+  "uiVersion": "20261105-arcade5",
   "networkVersion": "rtc-v1-low-buffer-metrics1"
 }

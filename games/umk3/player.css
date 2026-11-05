@@ -6,6 +6,34 @@
 #joystick{position:relative;flex:none;width:152px;height:152px;border:2px solid var(--border);border-radius:50%;background:radial-gradient(circle,var(--panel) 42%,var(--bg) 70%);box-shadow:inset 0 0 0 12px #7771;touch-action:none;user-select:none;-webkit-user-select:none}
 #stickKnob{position:absolute;left:calc(50% - 27px);top:calc(50% - 27px);width:54px;height:54px;border-radius:50%;background:var(--accent);border:3px solid #85b738;box-shadow:0 4px 14px #0005;pointer-events:none}
 #joystick.pressed{border-color:var(--accent)}#networkStats{font:11px/1.5 system-ui;color:var(--muted);margin:2px 0 8px}#networkStats[hidden]{display:none}
-:is(body[data-game="rr3"],body[data-game="rock"]) .six button:is([data-pad="10"],[data-pad="9"],[data-pad="11"]){display:none}
 @media(max-width:600px){#joystick{width:132px;height:132px}.player-heading #gameTitle{display:inline;font-size:14px}.player-heading img{width:30px;height:30px}}
 @media(max-height:500px) and (orientation:landscape){#joystick{width:100px;height:100px}#stickKnob{width:42px;height:42px;left:calc(50% - 21px);top:calc(50% - 21px)}#networkStats{grid-column:1/-1;margin:0}main:has(#networkStats:not([hidden])) #display{grid-row:4/8}}
+
+.control-layout{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:10px 0}.control-layout button{min-height:36px;padding:8px 12px;font-size:12px;background:var(--panel);color:var(--fg);border:1px solid var(--border);font-weight:500}.control-layout button[aria-checked="true"]{background:var(--accent);color:#111;border-color:var(--accent);font-weight:700}
+#joystick[hidden],#arrows[hidden]{display:none!important}.six>button{display:block}.dpad{flex:none}.dpad button{padding:6px}
+@media(max-width:600px){.control-layout{gap:6px}.control-layout button{font-size:11px;padding:9px 10px}.dpad{grid-template-columns:repeat(3,40px);grid-template-rows:repeat(3,38px);gap:3px}}
+@media(max-height:500px) and (orientation:landscape){.control-layout{grid-column:2;display:grid;grid-template-columns:1fr;gap:4px;margin:0}.control-layout button{min-height:28px;padding:5px 6px;font-size:10px}#display{grid-row:3/9}.dpad{grid-template-columns:repeat(3,34px);grid-template-rows:repeat(3,27px)}main:has(#networkStats:not([hidden])) #display{grid-row:4/10}}
+@media(max-height:500px) and (orientation:landscape){main{grid-template-columns:minmax(0,1fr) clamp(260px,38vw,320px);padding:6px;gap:5px}header strong{font-size:14px}#status{font-size:11px;min-height:16px}.toolbar{flex-wrap:nowrap;justify-content:center;gap:5px}.toolbar button{min-width:0;min-height:30px;font-size:10px;padding:5px 8px}.control-layout{display:flex;flex-wrap:nowrap;gap:4px}.control-layout button{flex:1;min-width:0;min-height:30px;font-size:10px;padding:5px}#touchControls{flex-direction:row;justify-content:space-between;gap:6px}#joystick{width:90px;height:90px}#stickKnob{width:38px;height:38px;left:calc(50% - 19px);top:calc(50% - 19px)}.six{grid-template-columns:repeat(3,42px);gap:5px}.six button{min-height:30px;padding:5px}}
+
+#gameMobileNavigation{display:none}body.embedded.app-mobile-nav #closeBtn{display:none}
+body.app-mobile-nav #app:fullscreen{overflow:auto;padding-bottom:calc(80px + env(safe-area-inset-bottom,0px));background:var(--bg)}
+body.app-mobile-nav #app:fullscreen #gameMobileNavigation{position:fixed;left:8px;right:8px;bottom:0;z-index:100;display:flex;gap:10px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));border:1px solid var(--border);border-bottom:0;border-radius:14px 14px 0 0;background:var(--panel)}
+#gameMobileNavigation button{flex:1;min-width:0;min-height:44px;background:#371c1e;color:var(--danger);border:1px solid #653238;font-size:13px;padding:10px 6px}body.light #gameMobileNavigation button{background:#fff0f1;border-color:#e9adb3}
+
+/* Shared mobile landscape layout: movement / native-ratio screen / six actions. */
+#screenSlot{display:contents}
+@media(orientation:landscape) and (max-width:1100px) and (max-height:650px){
+ body.app-mobile-nav #app{--game-side:clamp(126px,19vw,170px);display:grid;grid-template-columns:var(--game-side) minmax(0,1fr) var(--game-side);grid-template-rows:auto auto auto minmax(0,1fr) auto auto;grid-template-areas:"heading heading heading" "status status status" "stats stats stats" "left screen right" ". tools ." ". layout .";gap:4px 8px;width:100%;height:100dvh;min-height:0;max-width:none;margin:0;padding:4px max(6px,env(safe-area-inset-right,0px)) 6px max(6px,env(safe-area-inset-left,0px));box-sizing:border-box;overflow:hidden}
+ body.app-mobile-nav #app>header{grid-area:heading;margin:0;min-width:0;gap:8px;min-height:24px}body.app-mobile-nav header strong{font-size:13px;min-width:0}body.app-mobile-nav .player-heading img{width:26px;height:24px}body.app-mobile-nav .player-heading #gameTitle{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}body.app-mobile-nav #modeLabel{display:none}body.app-mobile-nav #closeBtn{width:30px;min-height:28px;padding:2px;margin-left:auto}
+ body.app-mobile-nav #status{grid-area:status;min-height:14px;max-height:28px;overflow:hidden;margin:0;font-size:10px;line-height:14px}body.app-mobile-nav #networkStats{grid-area:stats;margin:0;font-size:10px;line-height:12px}
+ body.app-mobile-nav #screenSlot{grid-area:screen;display:grid;place-items:center;min-width:0;min-height:0;width:100%;height:100%;container-type:size}
+ body.app-mobile-nav #display,body.app-mobile-nav #app:has(#networkStats:not([hidden])) #display{grid-area:auto;grid-row:auto;position:relative;width:min(100cqw,calc(100cqh * 4 / 3));height:min(100cqh,calc(100cqw * 3 / 4));min-width:0;min-height:0;max-width:100%;max-height:100%;aspect-ratio:4/3;margin:auto}
+ body.app-mobile-nav #touchControls{display:contents}
+ body.app-mobile-nav #joystick,body.app-mobile-nav #arrows{grid-area:left;align-self:center;justify-self:center}
+ body.app-mobile-nav #joystick{width:clamp(106px,15vw,140px);height:clamp(106px,15vw,140px)}body.app-mobile-nav #stickKnob{width:46px;height:46px;left:calc(50% - 23px);top:calc(50% - 23px)}
+ body.app-mobile-nav #arrows{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:4px}body.app-mobile-nav #arrows button{min-height:36px;padding:3px;font-size:18px}
+ body.app-mobile-nav .six{grid-area:right;align-self:center;justify-self:center;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px}body.app-mobile-nav .six button{min-width:0;min-height:44px;height:44px;padding:6px 0;font-size:16px}
+ body.app-mobile-nav .toolbar{grid-area:tools;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:0;min-width:0}body.app-mobile-nav .toolbar button{min-width:0;min-height:30px;padding:5px 7px;font-size:10px;line-height:1.2}
+ body.app-mobile-nav .control-layout{grid-area:layout;display:flex;flex-wrap:nowrap;gap:4px;margin:0;min-width:0}body.app-mobile-nav .control-layout button{flex:1;min-width:0;min-height:28px;padding:5px 4px;font-size:9px;line-height:1.2}
+ body.app-mobile-nav #app:fullscreen{height:100dvh;max-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));overflow:hidden}
+}
