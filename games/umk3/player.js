@@ -23,7 +23,7 @@ function release(){U.held.clear();U.pulses=[0,0];U.keys=[0,0];U.touch=0;U.touchR
 function pulse(player,button){if(!U.ready)return;U.pulses[player]|=1<<button;applyLocal();setTimeout(()=>{U.pulses[player]&=~(1<<button);applyLocal();},100);}
 function closeGame(){if(U.closed)return;release();U.closed=true;U.restoreContext?.();U.controller.abort();cancelAnimationFrame(U.padLoop);U.relay?.close();for(const url of U.objects)URL.revokeObjectURL(url);U.objects=[];if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);notify('umk3-closed');}
 function keyboard(event,down){
- if(!U.ready||U.closed||event.target?.closest?.('.control-layout')||(/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName||'')||event.target?.isContentEditable))return;
+ if(!U.ready||U.closed||event.target?.closest?.('.control-layout,.eg-game-switcher,.eg-bottom-navigation,.eg-catalog-return,#gameMobileNavigation')||(/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName||'')||event.target?.isContentEditable))return;
  if(!keyBinding(event.code))return;event.preventDefault();event.stopImmediatePropagation();
  if(down)U.held.add(event.code);else U.held.delete(event.code);
  U.keys=[0,0];for(const code of U.held){const binding=keyBinding(code);if(binding)U.keys[binding[0]]|=1<<binding[1];}applyLocal();
@@ -90,7 +90,7 @@ async function decodeStartState(config){
 }
 async function boot(config){
  if(U.started||U.closed)return;U.started=true;
- if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+U.game+'.png?v=20261105-arcade3';document.body.dataset.game=U.game;
+ if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+({umk3:'umk3.png',rr3:'rr3-logo-877bb161.png',rock:'rock-logo-f7058328.png'}[U.game]);document.body.dataset.game=U.game;
  if(config.theme==='light')document.body.classList.add('light');
  $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':'Матч · Игрок 1','net-guest':'Матч · Игрок 2'})[U.mode];
  $('p2Btn').hidden=U.mode!=='local';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем '+U.title+'…');
@@ -156,5 +156,5 @@ $('gameBack').addEventListener('click',()=>void playerNavigate('back'),{signal:U
 $('gameHome').addEventListener('click',()=>void playerNavigate('home'),{signal:U.controller.signal});
 
 // Rotation cancels held touch input; the same DOM nodes retain their listeners.
-const landscapeControls=window.matchMedia('(orientation:landscape) and (max-width:1100px) and (max-height:650px)');
+const landscapeControls=window.matchMedia('(orientation:landscape) and (max-width:1400px) and (max-height:650px)');
 landscapeControls.addEventListener('change',()=>release(),{signal:U.controller.signal});

@@ -20,20 +20,41 @@ body.app-mobile-nav #app:fullscreen{overflow:auto;padding-bottom:calc(80px + env
 body.app-mobile-nav #app:fullscreen #gameMobileNavigation{position:fixed;left:8px;right:8px;bottom:0;z-index:100;display:flex;gap:10px;padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));border:1px solid var(--border);border-bottom:0;border-radius:14px 14px 0 0;background:var(--panel)}
 #gameMobileNavigation button{flex:1;min-width:0;min-height:44px;background:#371c1e;color:var(--danger);border:1px solid #653238;font-size:13px;padding:10px 6px}body.light #gameMobileNavigation button{background:#fff0f1;border-color:#e9adb3}
 
-/* Shared mobile landscape layout: movement / native-ratio screen / six actions. */
+/* Shared mobile landscape: larger native-ratio screen, controls under the thumbs. */
 #screenSlot{display:contents}
-@media(orientation:landscape) and (max-width:1100px) and (max-height:650px){
- body.app-mobile-nav #app{--game-side:clamp(126px,19vw,170px);display:grid;grid-template-columns:var(--game-side) minmax(0,1fr) var(--game-side);grid-template-rows:auto auto auto minmax(0,1fr) auto auto;grid-template-areas:"heading heading heading" "status status status" "stats stats stats" "left screen right" ". tools ." ". layout .";gap:4px 8px;width:100%;height:100dvh;min-height:0;max-width:none;margin:0;padding:4px max(6px,env(safe-area-inset-right,0px)) 6px max(6px,env(safe-area-inset-left,0px));box-sizing:border-box;overflow:hidden}
- body.app-mobile-nav #app>header{grid-area:heading;margin:0;min-width:0;gap:8px;min-height:24px}body.app-mobile-nav header strong{font-size:13px;min-width:0}body.app-mobile-nav .player-heading img{width:26px;height:24px}body.app-mobile-nav .player-heading #gameTitle{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}body.app-mobile-nav #modeLabel{display:none}body.app-mobile-nav #closeBtn{width:30px;min-height:28px;padding:2px;margin-left:auto}
- body.app-mobile-nav #status{grid-area:status;min-height:14px;max-height:28px;overflow:hidden;margin:0;font-size:10px;line-height:14px}body.app-mobile-nav #networkStats{grid-area:stats;margin:0;font-size:10px;line-height:12px}
+@media(orientation:landscape) and (max-width:1400px) and (max-height:650px){
+ body.app-mobile-nav #app{--game-side:clamp(142px,20vw,190px);display:grid;grid-template-columns:var(--game-side) minmax(0,1fr) var(--game-side);grid-template-rows:auto auto auto minmax(0,1fr) auto auto;grid-template-areas:"heading heading heading" "status status status" "stats stats stats" "left screen right" ". tools ." ". layout .";gap:0 8px;width:100%;height:100dvh;min-height:0;max-width:none;margin:0;padding:4px max(6px,env(safe-area-inset-right,0px)) 6px max(6px,env(safe-area-inset-left,0px));box-sizing:border-box;overflow:hidden}
+ body.app-mobile-nav #app>header{grid-area:heading;margin:0 0 3px;min-width:0;gap:8px;min-height:20px}body.app-mobile-nav header strong{font-size:12px;min-width:0}body.app-mobile-nav .player-heading img{width:22px;height:20px}body.app-mobile-nav .player-heading #gameTitle{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}body.app-mobile-nav #modeLabel{display:none}body.app-mobile-nav #closeBtn{width:26px;min-height:24px;padding:2px;margin-left:auto}
+ body.app-mobile-nav #status:not(.error){display:none}body.app-mobile-nav #status.error{grid-area:status;min-height:14px;max-height:28px;overflow:hidden;margin:0;font-size:10px;line-height:14px}
+ body.app-mobile-nav #networkStats{position:absolute;right:max(8px,env(safe-area-inset-right,0px));top:6px;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin:0;padding:2px 4px;background:var(--bg);font-size:9px;line-height:12px;pointer-events:none}
  body.app-mobile-nav #screenSlot{grid-area:screen;display:grid;place-items:center;min-width:0;min-height:0;width:100%;height:100%;container-type:size}
  body.app-mobile-nav #display,body.app-mobile-nav #app:has(#networkStats:not([hidden])) #display{grid-area:auto;grid-row:auto;position:relative;width:min(100cqw,calc(100cqh * 4 / 3));height:min(100cqh,calc(100cqw * 3 / 4));min-width:0;min-height:0;max-width:100%;max-height:100%;aspect-ratio:4/3;margin:auto}
  body.app-mobile-nav #touchControls{display:contents}
- body.app-mobile-nav #joystick,body.app-mobile-nav #arrows{grid-area:left;align-self:center;justify-self:center}
+ body.app-mobile-nav #joystick,body.app-mobile-nav #arrows{grid-area:left;grid-row:4/7;align-self:end;justify-self:center;margin:0 0 6px}
  body.app-mobile-nav #joystick{width:clamp(106px,15vw,140px);height:clamp(106px,15vw,140px)}body.app-mobile-nav #stickKnob{width:46px;height:46px;left:calc(50% - 23px);top:calc(50% - 23px)}
  body.app-mobile-nav #arrows{grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:4px}body.app-mobile-nav #arrows button{min-height:36px;padding:3px;font-size:18px}
- body.app-mobile-nav .six{grid-area:right;align-self:center;justify-self:center;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:6px}body.app-mobile-nav .six button{min-width:0;min-height:44px;height:44px;padding:6px 0;font-size:16px}
- body.app-mobile-nav .toolbar{grid-area:tools;display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:0;min-width:0}body.app-mobile-nav .toolbar button{min-width:0;min-height:30px;padding:5px 7px;font-size:10px;line-height:1.2}
- body.app-mobile-nav .control-layout{grid-area:layout;display:flex;flex-wrap:nowrap;gap:4px;margin:0;min-width:0}body.app-mobile-nav .control-layout button{flex:1;min-width:0;min-height:28px;padding:5px 4px;font-size:9px;line-height:1.2}
- body.app-mobile-nav #app:fullscreen{height:100dvh;max-height:100dvh;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));overflow:hidden}
+ body.app-mobile-nav .six{grid-area:right;grid-row:4/7;align-self:end;justify-self:center;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:clamp(12px,1.8vw,18px);margin:0 0 6px}
+ body.app-mobile-nav .six button{display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-width:0;min-height:0;aspect-ratio:1;border-radius:50%;padding:0;font-size:16px;line-height:1;box-shadow:0 3px 0 #78a12d}
+ body.app-mobile-nav .six button.pressed{box-shadow:0 1px 0 #78a12d;transform:translateY(2px)}
+ body.app-mobile-nav .toolbar{grid-area:tools;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);grid-template-columns:none;justify-self:center;width:min(100%,420px);min-width:0;gap:6px;margin:4px 0 0}
+ body.app-mobile-nav .toolbar button{width:100%;height:34px;min-height:34px;min-width:0;margin:0;padding:4px;font-size:10px;line-height:1.1;white-space:normal;overflow-wrap:anywhere}
+ body.app-mobile-nav .control-layout{grid-area:layout;display:flex;flex-wrap:nowrap;gap:4px;margin:4px 0 0;min-width:0}body.app-mobile-nav .control-layout button{flex:1;min-width:0;height:24px;min-height:24px;padding:3px 4px;font-size:9px;line-height:1.2}
+ body.app-mobile-nav #app:fullscreen{height:100dvh;max-height:100dvh;padding-bottom:calc(60px + env(safe-area-inset-bottom,0px));overflow:hidden}
+ body.app-mobile-nav #app:fullscreen>header{display:none}
+ body.app-mobile-nav #app:fullscreen #gameMobileNavigation{padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+ body.app-mobile-nav #app:fullscreen #gameMobileNavigation button{height:40px;min-height:40px;padding:8px 6px}
+ body.app-mobile-nav .toolbar:has(#p2Btn:not([hidden])):has(#soundBtn:not([hidden])) button{font-size:9px;padding:3px;line-height:1}
+
+ body.app-mobile-nav #app:fullscreen #networkStats{left:max(8px,env(safe-area-inset-left,0px));right:auto;top:6px;max-width:calc(var(--game-side) - 12px);max-height:32px;white-space:normal;font-size:9px;line-height:10px}
+
 }
+
+/* Compact navigation only in the phone's fullscreen player. */
+body.app-mobile-nav #app:fullscreen{padding-bottom:max(8px,env(safe-area-inset-bottom,0px))}
+body.app-mobile-nav #app:fullscreen>header{padding-right:94px}
+body.app-mobile-nav #app:fullscreen .player-heading{min-width:0}
+body.app-mobile-nav #app:fullscreen .player-heading #gameTitle{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.app-mobile-nav #app:fullscreen #gameMobileNavigation{top:max(8px,env(safe-area-inset-top,0px));right:max(8px,env(safe-area-inset-right,0px));bottom:auto;left:auto;width:auto;max-width:none;display:flex;gap:6px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none}
+body.app-mobile-nav #app:fullscreen #gameMobileNavigation button{display:grid;place-items:center;flex:none;width:40px;height:40px;min-width:40px;min-height:40px;max-width:40px;margin:0;padding:0;font-size:20px;line-height:1;border-radius:10px;background:#371c1ee8;box-shadow:0 2px 8px #0003}
+body.app-mobile-nav #app:fullscreen #gameMobileNavigation .game-nav-caption{display:none}
+body.light.app-mobile-nav #app:fullscreen #gameMobileNavigation button{background:#fff0f1ef}
