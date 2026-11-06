@@ -3030,6 +3030,19 @@ html[data-app-layout=desktop] #screen-management-debts { max-width:var(--view-wi
 .return-selection-row #retKitDropdown > .dropdown-list { width:100%; }
 .return-selection-row #retKitDropdown .checkbox-label { min-width:0; white-space:normal; overflow-wrap:anywhere; }
 </style>
+<style id="managementStatusPolish">
+/* Статусы руководства: яркие плашки с чёрными подписями в обеих темах. */
+#screen-management-debts .city-debt-badge:not(.is-clear){background:#ff3038!important;color:#000!important;font-weight:700}
+#screen-management-debts .act-debts-status{background:#ff3038!important;color:#000!important;border-radius:8px;padding:5px 9px;font-weight:700}
+#screen-admin-returns .ctr-equipment-status:is([data-status="Брак"],[data-status="Рефарб"]){color:#000!important;padding:4px 8px;border-radius:7px;font-weight:700;display:inline-block}
+#screen-admin-returns .ctr-equipment-status[data-status="Брак"]{background:#ff3038!important}
+#screen-admin-returns .ctr-equipment-status[data-status="Рефарб"]{background:#b7ed55!important}
+.ctr-export-months .dropdown-item.ctr-month-option{display:flex;align-items:center;gap:10px;white-space:normal}
+.ctr-month-option>.custom-checkbox{box-sizing:border-box;width:20px;height:20px;flex:0 0 20px}
+.ctr-month-option[aria-selected=true]>.custom-checkbox{background:var(--accent);border-color:var(--accent)}
+.ctr-month-option[aria-selected=true]>.custom-checkbox::after{transform:rotate(45deg) scale(1);border-color:#000}
+:is(#screen-refarb,#screen-admin-refarb) .rf-toolbar>.app-refresh-button{margin-left:auto!important;order:10}
+</style>
 <style id="cityTableStyles">
 /* City table: compact rows, shared yellow controls and calendar. */
 :is(#screen-admin-table,#screen-admin-returns,#screen-admin-stock-routers,#screen-admin-stock-stbs,#screen-admin-stock-cable){width:100%;max-width:none;margin:0 auto;min-width:0}
@@ -3674,6 +3687,70 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 <style>
 #screen-admin-board .staff-board-consolidated thead th:first-child{border-top-left-radius:8px}
 #screen-admin-board .staff-board-consolidated thead th:last-child{border-top-right-radius:8px}
+</style>
+<style id="boardOverviewStyles">
+/* Показатели: общие данные, таблица на компьютере и аккордеоны на телефоне. */
+#screen-admin-board .board-overview{--bo-border:var(--ui-border-414141,#414141);--bo-bg:var(--surface-dark,#1b1b1b);--bo-alt:var(--ui-bg-202020,#202020);--bo-head:var(--ui-bg-292929,#292929);--bo-accent:rgba(183,237,85,.1);--bo-selected:#354c1c;--bo-hover:#27341d;color:var(--text-main);min-width:0}
+html[data-app-theme=light] #screen-admin-board .board-overview{--bo-border:#b5c4d2;--bo-bg:#e7edf2;--bo-alt:#dce5ed;--bo-head:#d6e0e9;--bo-accent:#e4efcf;--bo-selected:#d2eca1;--bo-hover:#e0ebce}
+#screen-admin-board .board-overview-legend,#screen-admin-board .board-overview-hint{font-size:12px;line-height:1.5;color:var(--text-secondary);margin:10px 0 14px}
+#screen-admin-board .board-overview-hint{margin-bottom:0}
+#screen-admin-board .board-overview-table{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:0;border:1px solid var(--bo-border);border-radius:10px;overflow:hidden;background:var(--bo-bg);color:inherit;font-size:clamp(11px,.9vw,13px);font-variant-numeric:tabular-nums}
+#screen-admin-board .board-overview-table col:first-child{width:21%}
+#screen-admin-board .board-overview-table :is(th,td){box-sizing:border-box;border:0;border-right:1px solid var(--bo-border);border-bottom:1px solid var(--bo-border);padding:10px 4px;text-align:center;line-height:1.35;white-space:normal;overflow-wrap:normal}
+#screen-admin-board .board-overview-table tr>:last-child{border-right:0}
+#screen-admin-board .board-overview-table thead th{background:var(--bo-head);color:var(--text-main);font-weight:700;font-size:inherit;vertical-align:middle}
+#screen-admin-board .board-overview-table thead tr:first-child th{padding-top:15px;padding-bottom:15px;overflow-wrap:normal}
+#screen-admin-board .board-overview-table tbody tr>:first-child{padding:5px;text-align:left;font-weight:500;overflow-wrap:anywhere}
+#screen-admin-board .board-overview-table tbody tr:nth-child(even)>*{background:var(--bo-alt)}
+#screen-admin-board .board-overview-table .board-overview-accent{background:var(--bo-accent)}
+#screen-admin-board .board-overview-table tbody tr:nth-child(even)>.board-overview-accent{background:var(--bo-accent)}
+#screen-admin-board .board-overview-table tfoot :is(th,td){background:var(--bo-head);color:var(--accent-ink);font-weight:700;border-bottom:0}
+#screen-admin-board .board-overview-table tfoot th{text-align:left;overflow-wrap:anywhere;padding:10px}
+#screen-admin-board .board-overview-table tbody tr{cursor:pointer;outline:0}
+#screen-admin-board .board-overview-table tbody tr:hover>*{background:var(--bo-hover)}
+#screen-admin-board .board-overview-table tbody tr.is-selected>*{background:var(--bo-selected);box-shadow:inset 0 2px 0 var(--accent),inset 0 -2px 0 var(--accent)}
+#screen-admin-board .board-overview-table tbody tr:focus-visible>*{outline:2px solid var(--accent);outline-offset:-2px}
+#screen-admin-board .board-overview-table .board-employee-choice{box-sizing:border-box;width:100%;min-width:0;max-width:none;margin:0!important;padding:8px 6px;min-height:38px;background:transparent;color:inherit;font-size:inherit;line-height:1.35;border:1px solid var(--bo-border);border-radius:8px;text-align:left;white-space:normal;box-shadow:none}
+#screen-admin-board .board-overview-table .board-employee-choice:disabled{opacity:1;border-color:transparent;cursor:inherit}
+#screen-admin-board .board-overview-table .gs-name-label{overflow-wrap:anywhere;min-width:0}
+#screen-admin-board .board-overview-mobile{display:none}
+#screen-admin-board .board-overview-card{border:1px solid var(--bo-border);border-radius:12px;background:var(--bo-bg);margin:0 0 12px;min-width:0;overflow:visible}
+#screen-admin-board .board-overview-card[open]{border-color:var(--accent)}
+#screen-admin-board .board-overview-card>summary{display:block;list-style:none;cursor:pointer;padding:14px;text-align:left;color:var(--text-main)}
+#screen-admin-board .board-overview-card>summary::-webkit-details-marker{display:none}
+#screen-admin-board .board-overview-card>summary:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:12px}
+#screen-admin-board .board-overview-card-heading{display:flex;align-items:center;gap:12px;justify-content:space-between;font-size:16px;line-height:1.35}
+#screen-admin-board .board-overview-card-heading>strong{min-width:0;overflow-wrap:anywhere}
+#screen-admin-board .board-overview-card-heading>.dropdown-arrow{flex:none;font-size:12px}
+#screen-admin-board .board-overview-card[open] .board-overview-card-heading>.dropdown-arrow{transform:rotate(180deg)}
+#screen-admin-board .board-overview-card-stats{display:grid;grid-template-columns:1.1fr 1.2fr .7fr;gap:8px;margin-top:12px;font-size:12px;line-height:1.5;font-variant-numeric:tabular-nums}
+#screen-admin-board .board-overview-stat{min-width:0}
+#screen-admin-board .board-overview-stat+.board-overview-stat{border-left:1px solid var(--bo-border);padding-left:8px}
+#screen-admin-board .board-overview-stat strong{white-space:nowrap}
+#screen-admin-board .board-overview-card-body{padding:0 12px 12px;min-width:0}
+#screen-admin-board .board-overview-work{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;border:1px solid var(--bo-border);border-radius:8px;overflow:hidden;color:inherit;font-size:13px;font-variant-numeric:tabular-nums}
+#screen-admin-board .board-overview-work :is(th,td){padding:8px 6px;border:0;border-bottom:1px solid var(--bo-border);border-right:1px solid var(--bo-border);text-align:center;line-height:1.4}
+#screen-admin-board .board-overview-work tr>:first-child{width:48%;text-align:left;font-weight:500}
+#screen-admin-board .board-overview-work thead th{background:var(--bo-head);font-weight:700}
+#screen-admin-board .board-overview-work tbody tr:nth-child(even)>*{background:var(--bo-alt)}
+#screen-admin-board .board-overview-work tr>:last-child{border-right:0}
+#screen-admin-board .board-overview-work tbody tr:last-child>*{border-bottom:0}
+#screen-admin-board .board-overview-lines{margin:10px 0;border:1px solid var(--bo-border);border-radius:8px;overflow:hidden;font-size:13px}
+#screen-admin-board .board-overview-lines>div{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 10px;border-bottom:1px solid var(--bo-border)}
+#screen-admin-board .board-overview-lines>div:last-child{border-bottom:0}
+#screen-admin-board .board-overview-lines :is(dt,dd){margin:0;padding:0;min-width:0}
+#screen-admin-board .board-overview-lines dt{flex:1;line-height:1.4}
+#screen-admin-board .board-overview-lines dd{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:4px 12px;font-variant-numeric:tabular-nums;text-align:right}
+#screen-admin-board .board-overview-lines dd>span{white-space:nowrap}
+#screen-admin-board .board-overview-subtitle{font-size:14px;margin:12px 0 0;padding:9px 10px;background:var(--bo-accent);border-radius:8px;color:var(--accent-ink);text-align:left}
+#screen-admin-board .board-overview-employee-edit{margin-top:12px;font-size:12px}
+#screen-admin-board .board-overview-employee-edit>.board-employee-choice{width:100%;margin-top:6px;font-size:13px}
+html[data-app-layout=mobile] #screen-admin-board .board-overview-desktop{display:none}
+html[data-app-layout=mobile] #screen-admin-board .board-overview-mobile{display:block}
+html[data-app-layout=mobile] #screen-admin-board .board-overview-legend{display:none}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-tabs button{min-height:48px;font-size:11px;line-height:1.35;padding:7px 4px;overflow-wrap:normal}
+@media(max-width:700px){html:not([data-app-layout=desktop]) #screen-admin-board .board-overview-desktop{display:none}html:not([data-app-layout=desktop]) #screen-admin-board .board-overview-mobile{display:block}html:not([data-app-layout=desktop]) #screen-admin-board .board-overview-legend{display:none}}
+
 </style>
 <style id="district-performance-fixes">
 #beelineModal { z-index:200000; }
@@ -14208,6 +14285,53 @@ function boardMetricColumns(){return [
  ].map(c=>({...c,metric:true,title:[c.label,c.subLabel].filter(Boolean).join(' · ')}));}
 // Сопоставляет исходные колонки по буквам; сохраняет готовые проценты и строку итогов.
 function boardMetricCells(columns,values,name){const byColumn=new Map(columns.map((c,i)=>[c.column,values?.[i]]));return boardMetricColumns().map(c=>c.cols[0]==='A'?name:c.cols.map(col=>{const value=byColumn.get(col);return value==null||value===''?'0':String(value);}).join(' / '));}
+// Единое сопоставление показателей для таблицы и телефонных карточек.
+function boardOverviewGroups(){return [
+ {label:'Включение',cols:['I','B'],units:['шт.','ч']},
+ {label:'Переезд',cols:['J','C'],units:['шт.','ч']},
+ {label:'Сервис',cols:['K','D'],units:['шт.','ч']},
+ {label:'Демонтаж',cols:['N','E'],units:['шт.','ч']},
+ {label:'ППР',cols:['F'],units:['ч']},
+ {label:'Всего',cols:['G'],units:['ч'],accent:true},
+ {label:'Удалённо',cols:['M','S'],units:['шт.','%']},
+ {label:'Повторный сервис',cols:['O'],units:['шт.']},
+ {label:'Не включено',cols:['P'],units:['шт.']},
+ {label:'KPI',cols:['R'],units:['%'],accent:true},
+ {label:'Количество дней',cols:['Q'],units:['дн.']}
+];}
+function boardOverviewValues(columns,values){
+ const map=new Map(columns.map((column,i)=>[column.column,values?.[i]]));
+ return Object.fromEntries(boardOverviewGroups().flatMap(group=>group.cols.map(col=>{const value=map.get(col);return [col,value==null||value===''?'0':String(value)];})));
+}
+function boardOverviewUnit(value,unit){const text=String(value);return unit==='%'?(text.includes('%')?text:text+'%'):text+' '+unit;}
+function boardOverviewView(result){
+ const root=adminToolsText('div','','board-overview'),groups=boardOverviewGroups(),columns=result.columns||[];
+ root.append(adminToolsText('p','Количество и часы — в отдельных колонках. Удалённо — количество и процент.','board-overview-legend'));
+ const desktop=adminToolsText('div','','board-overview-desktop'),table=adminToolsText('table','','board-overview-table'),caption=adminToolsText('caption','Показатели сотрудников: количество работ, часы и остальные показатели','staff-board-caption');
+ table.append(caption);const widths=document.createElement('colgroup');for(const width of [21,4,4,4,4,4,4,4,4,4,5,5,5,8,7,6,7]){const col=document.createElement('col');col.style.width=width+'%';widths.append(col);}table.append(widths);
+ const head=document.createElement('thead'),titles=document.createElement('tr'),units=document.createElement('tr'),name=adminToolsText('th','ФИО монтажников');name.rowSpan=2;name.scope='col';titles.append(name);
+ for(const group of groups){const title=adminToolsText('th',group.label);title.colSpan=group.cols.length;title.scope=group.cols.length>1?'colgroup':'col';if(group.accent)title.classList.add('board-overview-accent');titles.append(title);group.cols.forEach((col,i)=>{const unit=adminToolsText('th',group.units[i]);unit.scope='col';unit.setAttribute('aria-label',group.label+' · '+group.units[i]);if(i===0)unit.classList.add('board-overview-group-start');if(group.accent)unit.classList.add('board-overview-accent');units.append(unit);});}
+ head.append(titles,units);table.append(head);
+ const body=document.createElement('tbody');
+ function fillRow(row,values,identity){const label=document.createElement('th');label.scope='row';if(identity?.nodeType)label.append(identity);else label.textContent=String(identity||'Итоговые подсчёты по столбцам');row.append(label);for(const group of groups)group.cols.forEach((col,i)=>{const cell=adminToolsText('td',values[col]);cell.dataset.boardColumn=col;cell.title=group.label+' · '+boardOverviewUnit(values[col],group.units[i]);if(i===0)cell.classList.add('board-overview-group-start');if(group.accent)cell.classList.add('board-overview-accent');row.append(cell);});}
+ function selectRow(row){const selected=!row.classList.contains('is-selected');for(const other of body.rows){other.classList.remove('is-selected');other.removeAttribute('aria-current');}if(selected){row.classList.add('is-selected');row.setAttribute('aria-current','true');}}
+ const mobile=adminToolsText('div','','board-overview-mobile');
+ for(const employee of result.employees||[]){const values=boardOverviewValues(columns,employee.boardValues),row=document.createElement('tr');row.tabIndex=0;row.dataset.boardEmployee=employee.id;row.setAttribute('aria-label',employee.name+' · выделить строку');row.onclick=()=>selectRow(row);row.onkeydown=event=>{if(event.target===row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();selectRow(row);}};fillRow(row,values,boardEmployeeCell(employee,result,0));body.append(row);mobile.append(boardOverviewCard(employee.name,values,employee,result));}
+ table.append(body);
+ if(result.boardTotals){const foot=document.createElement('tfoot'),row=document.createElement('tr'),values=boardOverviewValues(columns,result.boardTotals.values);fillRow(row,values,result.boardTotals.label);foot.append(row);table.append(foot);mobile.append(boardOverviewCard('Итоги по столбцам',values));}
+ desktop.append(table,adminToolsText('p','Нажмите на строку, чтобы выделить сотрудника. Повторное нажатие снимает выделение.','board-overview-hint'));root.append(desktop,mobile);return root;
+}
+function boardOverviewCard(name,values,employee=null,result=null){
+ const card=adminToolsText('details','','board-overview-card'),summary=document.createElement('summary'),heading=adminToolsText('div','','board-overview-card-heading'),arrow=adminToolsText('span','▼','dropdown-arrow');arrow.setAttribute('aria-hidden','true');heading.append(adminToolsText('strong',name),arrow);summary.append(heading);
+ const stats=adminToolsText('div','','board-overview-card-stats');for(const [label,col,unit] of [['Всего, ч','G',''],['KPI','R','%'],['Дней','Q','']]){const stat=adminToolsText('span','','board-overview-stat');stat.append(adminToolsText('span',label+': '),adminToolsText('strong',unit?boardOverviewUnit(values[col],unit):values[col]));stats.append(stat);}summary.append(stats);card.append(summary);
+ const content=adminToolsText('div','','board-overview-card-body'),work=adminToolsText('table','','board-overview-work');work.append(adminToolsText('caption','Количество работ и затраченные часы','staff-board-caption'));const head=document.createElement('thead'),header=document.createElement('tr');for(const label of ['Вид работ','шт.','часы']){const cell=adminToolsText('th',label);cell.scope='col';header.append(cell);}head.append(header);work.append(head);const body=document.createElement('tbody');for(const group of boardOverviewGroups().slice(0,4)){const row=document.createElement('tr'),label=adminToolsText('th',group.label);label.scope='row';row.append(label,...group.cols.map(col=>adminToolsText('td',values[col])));body.append(row);}work.append(body);content.append(work);
+ const hours=adminToolsText('dl','','board-overview-lines');for(const [label,col] of [['ППР','F'],['Всего','G']]){const line=document.createElement('div');line.append(adminToolsText('dt',label),adminToolsText('dd',boardOverviewUnit(values[col],'ч')));hours.append(line);}content.append(hours,adminToolsText('h3','Остальные показатели','board-overview-subtitle'));
+ const rest=adminToolsText('dl','','board-overview-lines');for(const group of boardOverviewGroups().slice(6)){const line=document.createElement('div'),value=document.createElement('dd');group.cols.forEach((col,i)=>value.append(adminToolsText('span',boardOverviewUnit(values[col],group.units[i]))));line.append(adminToolsText('dt',group.label),value);rest.append(line);}content.append(rest);
+ // Выбор ФИО сохранён отдельным действием, чтобы раскрытие карточки не меняло сотрудника.
+ if(employee&&Array.isArray(employee.nameRefs)&&employee.nameRefs.length&&!employee.nameRefs.some(ref=>ref.readonly)){const edit=adminToolsText('div','','board-overview-employee-edit');edit.append(adminToolsText('span','Изменить сотрудника'),boardEmployeeCell(employee,result,0));content.append(edit);}
+ card.append(content);return card;
+}
+
 // Показывает сотрудники доска.
 function renderStaffBoard(result,activeTab=0){
  if(boardResizeObserver){boardResizeObserver.disconnect();boardResizeObserver=null;}
@@ -14219,7 +14343,7 @@ function renderStaffBoard(result,activeTab=0){
  const panels=[],buttons=[];
  function addTab(title,content){const index=panels.length,button=adminToolsText('button',title),panel=document.createElement('section');button.type='button';button.id='staffBoardTab'+index;button.setAttribute('role','tab');panel.id='staffBoardPanel'+index;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby',button.id);button.setAttribute('aria-controls',panel.id);panel.hidden=index!==activeTab;button.setAttribute('aria-selected',String(index===activeTab));button.onclick=()=>{panels.forEach((p,i)=>{p.hidden=i!==index;buttons[i].setAttribute('aria-selected',String(i===index));});};panel.append(content);panels.push(panel);buttons.push(button);tabs.append(button);}
  const columns=result.columns||[];
- if(columns.length&&employees.every(e=>Array.isArray(e.boardValues))){addTab('📊 Показатели',boardTable(boardMetricColumns(),employees.map(e=>boardMetricCells(columns,e.boardValues,boardEmployeeCell(e,result,0))), 'Показатели сотрудников',false,result.boardTotals?boardMetricCells(columns,result.boardTotals.values,result.boardTotals.label):null));}
+ if(columns.length&&employees.every(e=>Array.isArray(e.boardValues))){addTab('📊 Показатели',boardOverviewView(result));}
  else{const labels=[...new Set(employees.flatMap(e=>(e.metrics||[]).map(m=>m.label)))];addTab('📊 Показатели',boardTable(['ФИО монтажника',...labels],employees.map(e=>[boardEmployeeCell(e,result,0),...labels.map(label=>(e.metrics||[]).find(m=>m.label===label)?.value??'—')]),'Показатели сотрудников'));}
  const dates=[...new Set(employees.flatMap(e=>(e.days||[]).map(d=>d.date)))].sort();
  const dailyRows=employees.map(e=>[boardEmployeeCell(e,result,1),...dates.map(date=>{const day=(e.days||[]).find(d=>d.date===date);if(!day)return '—';const button=adminToolsText('button',day.value||'—','staff-board-day '+boardHourClass(day.value));button.type='button';button.setAttribute('aria-label',e.name+', отчёты за '+date.split('-').reverse().join('.'));button.onclick=()=>openBoardDay(e,day,button);return button;}),boardMonthTotal(e)]);
@@ -14646,8 +14770,8 @@ function ctrExportToolbar(){
  controls.replaceChildren();const dropdown=ctNode('div','custom-dropdown ct-select ctr-export-months'),button=ctNode('button','dropdown-select-btn'),caption=ctNode('span'),list=ctNode('div','dropdown-list'),download=ctNode('button','btn main-btn','📥 Выгрузить Excel');
  button.type=download.type='button';button.setAttribute('aria-label','Месяцы выгрузки возвратов');button.setAttribute('aria-haspopup','listbox');button.setAttribute('aria-expanded','false');list.setAttribute('role','listbox');list.setAttribute('aria-multiselectable','true');download.title='Все возвраты выбранных месяцев';download.disabled=!ctState.loaded||ctState.busy;download.onclick=ctrDownloadExcel;
  const months=[...new Set([ctIssueToday().slice(0,7),...ctrExportMonths,...ctAllRecords().map(r=>ctrMonthKey(r.values.A)).filter(Boolean)])].sort().reverse();
- function sync(){const selected=[...ctrExportMonths].sort();caption.textContent=selected.length===1?pwPeriodLabel(selected[0]):selected.length?'Месяцев: '+selected.length:'📅 Выберите месяцы';for(const item of list.children){const on=ctrExportMonths.has(item.dataset.month);item.setAttribute('aria-selected',String(on));item.textContent=(on?'☑ ':'☐ ')+pwPeriodLabel(item.dataset.month);}}
- for(const month of months){const item=ctNode('div','dropdown-item');item.dataset.month=month;item.tabIndex=0;item.setAttribute('role','option');item.onclick=event=>{event.stopPropagation();ctrExportMonths.has(month)?ctrExportMonths.delete(month):ctrExportMonths.add(month);sync();};item.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();item.onclick(event);}};list.append(item);}
+ function sync(){const selected=[...ctrExportMonths].sort();caption.textContent=selected.length===1?pwPeriodLabel(selected[0]):selected.length?'Месяцев: '+selected.length:'📅 Выберите месяцы';for(const item of list.children){const on=ctrExportMonths.has(item.dataset.month);item.setAttribute('aria-selected',String(on));item.querySelector('.ctr-month-label').textContent=pwPeriodLabel(item.dataset.month);}}
+ for(const month of months){const item=ctNode('div','dropdown-item ctr-month-option'),check=ctNode('span','custom-checkbox');check.setAttribute('aria-hidden','true');item.append(check,ctNode('span','ctr-month-label'));item.dataset.month=month;item.tabIndex=0;item.setAttribute('role','option');item.onclick=event=>{event.stopPropagation();ctrExportMonths.has(month)?ctrExportMonths.delete(month):ctrExportMonths.add(month);sync();};item.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();item.onclick(event);}};list.append(item);}
  button.append(caption,ctNode('span','dropdown-arrow','▼'));button.onclick=event=>{event.stopPropagation();const open=!dropdown.classList.contains('open');ctCloseDropdowns();setDropdownOpen(dropdown,open);};dropdown.onkeydown=event=>{if(event.key==='Escape'){setDropdownOpen(dropdown,false);button.focus();}};dropdown.append(button,list);controls.append(dropdown,download);sync();
 }
 function ctrExportData(months){
@@ -15307,13 +15431,13 @@ function rfModelSuggestions(field){
  const input=field.input,dropdown=rfElement('div','custom-dropdown rf-dropdown rf-model-dropdown'),list=rfElement('div','dropdown-list'),arrow=rfElement('span','dropdown-arrow','▼');
  dropdown.id=input.id+'-models';list.id=dropdown.id+'-list';list.setAttribute('role','listbox');list.setAttribute('aria-label','Номенклатура');arrow.setAttribute('aria-hidden','true');
  input.classList.add('dropdown-trigger','dropdown-search-trigger');input.setAttribute('role','combobox');input.setAttribute('aria-autocomplete','list');input.setAttribute('aria-expanded','false');input.setAttribute('aria-controls',list.id);input.before(dropdown);dropdown.append(input,arrow,list);
- const render=()=>{if(input.disabled)return;const query=input.value.trim().toLowerCase(),names=(typeof NOMENCLATURE_LIST==='undefined'?[]:NOMENCLATURE_LIST).filter(name=>name.toLowerCase().includes(query)).slice(0,40);list.replaceChildren();
+ const render=(filter=false)=>{if(input.disabled)return;const query=filter?input.value.trim().toLowerCase():'',names=(typeof NOMENCLATURE_LIST==='undefined'?[]:NOMENCLATURE_LIST).filter(name=>name.toLowerCase().includes(query)).slice(0,40);list.replaceChildren();
   for(const name of names){const item=rfElement('button','dropdown-item',name);item.type='button';item.tabIndex=-1;item.setAttribute('role','option');item.onmousedown=e=>e.preventDefault();item.onclick=e=>{e.stopPropagation();if(input.disabled)return;input.value=name;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));input.focus();setDropdownOpen(dropdown,false);};list.append(item);}
   if(!names.length)list.append(rfElement('div','rf-empty','Совпадений нет. Можно ввести модель вручную.'));
   document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,true);
  };
- input.addEventListener('focus',render);input.addEventListener('click',e=>{e.stopPropagation();render();});input.addEventListener('input',render);
- dropdown.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();if(!dropdown.classList.contains('open'))render();const current=[...list.querySelectorAll('[role=option]')],index=current.indexOf(document.activeElement);current[(index+(e.key==='ArrowDown'?1:-1)+current.length)%current.length]?.focus();}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();input.focus();setDropdownOpen(dropdown,false);}else if(e.key==='Tab')setDropdownOpen(dropdown,false);else if(e.key==='Enter'&&e.target!==input){e.stopPropagation();}});
+ input.addEventListener('focus',()=>render());input.addEventListener('click',e=>{e.stopPropagation();render();});input.addEventListener('input',()=>render(true));
+ dropdown.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();e.stopPropagation();if(!dropdown.classList.contains('open'))render();const current=[...list.querySelectorAll('[role=option]')],index=current.indexOf(document.activeElement);current[index<0?(e.key==='ArrowDown'?0:current.length-1):(index+(e.key==='ArrowDown'?1:-1)+current.length)%current.length]?.focus();}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();input.focus();setDropdownOpen(dropdown,false);}else if(e.key==='Tab')setDropdownOpen(dropdown,false);else if(e.key==='Enter'&&e.target!==input){e.stopPropagation();}});
 }
 function rfBuild(){
  const root=rfRoot();root.replaceChildren();const toolbar=rfElement('div','rf-toolbar'),month=rfField('Месяц',rfUi.month,'month');month.input.onchange=()=>{if(rfUi.pending){month.input.value=rfUi.month;rfNote('Сначала проверьте результат предыдущего сохранения');return;}rfUi.month=month.input.value;rfLoad();};toolbar.append(month.wrap);
@@ -15346,6 +15470,7 @@ function rfRender(){
 }
 // Общие правила с ручной выдачей оборудования в ежедневном.
 function rfSerialInfo(value){const sn=rfUiSerial(value),router=ctDetectRouterModel(sn),stb=router?'':ctDetectStbModel(sn);return {sn,model:detectModelBySerial(sn).replace(/\|+$/,''),type:stb?'stb':'router'};}
+function rfModelType(model){return /пристав|iptv|rasse|b860|stb/i.test(String(model))?'stb':'router';}
 function rfWorkDate(){return ctIssueToday();}
 function rfApplySerialHints(record){
  const copy={...record},info=rfSerialInfo(copy.sn);
@@ -15360,14 +15485,17 @@ function rfRenderScan(){
  const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-span2');mac.wrap.classList.add('rf-span2');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
  sn.input.placeholder='Сканируйте следующий серийный номер';mac.input.placeholder='Сканируйте MAC-адрес';
  const detectedModel=rfField('Модель по серийному номеру',''),detectedDate=rfField('Дата работы','');detectedModel.wrap.classList.add('rf-span4');detectedDate.wrap.classList.add('rf-span2');
- detectedModel.input.readOnly=detectedDate.input.readOnly=true;detectedModel.input.tabIndex=detectedDate.input.tabIndex=-1;detectedModel.input.dataset.rfDetectedModel='true';detectedDate.input.dataset.rfDetectedDate='true';
- detectedModel.input.placeholder='Определится по серийному номеру';detectedDate.input.placeholder='Сегодня';
- const updateScanDetails=()=>{const info=rfSerialInfo(sn.input.value);detectedModel.input.value=info.model;detectedModel.input.title=info.model||'Если модель не определилась, укажите её вручную в строке пачки';detectedDate.input.value=info.sn.length>=3?rfWorkDate().split('-').reverse().join('.'):'';};
+ rfModelSuggestions(detectedModel);detectedDate.input.readOnly=true;detectedDate.input.tabIndex=-1;detectedModel.input.dataset.rfDetectedModel='true';detectedDate.input.dataset.rfDetectedDate='true';
+ detectedModel.input.placeholder='Определится автоматически · можно выбрать вручную';detectedDate.input.placeholder='Сегодня';
+ let manualModelSerial=null;
+ const updateScanDetails=()=>{const info=rfSerialInfo(sn.input.value);if(manualModelSerial!==info.sn){manualModelSerial=null;detectedModel.input.value=info.model;}detectedModel.input.title=detectedModel.input.value||'Выберите номенклатуру, если модель определилась неверно';detectedDate.input.value=info.sn.length>=3?rfWorkDate().split('-').reverse().join('.'):'';};
+ detectedModel.input.addEventListener('input',()=>{manualModelSerial=rfUiSerial(sn.input.value);detectedModel.input.title=detectedModel.input.value;});
+ detectedModel.input.addEventListener('keydown',e=>{if(e.key==='Enter')e.stopPropagation();});
  sn.input.addEventListener('input',updateScanDetails);sn.input.addEventListener('change',updateScanDetails);
 
  let autoTimer=null;const owner=managementOwnerKey(),add=rfButton('➕ Добавить',()=>accept(),'btn action-btn rf-span2');
  const show=(r)=>{rfUi.lastAddedId=r.id;rfUi.search='';const search=rfRoot().querySelector('.rf-search input');if(search)search.value='';rfUi.limit=Math.max(100,rfUi.limit);rfRenderRows();};
- const ready=()=>{sn.input.value=mac.input.value='';rfUi.scanTarget=null;updateScanDetails();sn.input.focus();};
+ const ready=()=>{sn.input.value=mac.input.value='';manualModelSerial=null;rfUi.scanTarget=null;updateScanDetails();sn.input.focus();};
  const accept=()=>{clearTimeout(autoTimer);autoTimer=null;try{
   if(owner!==managementOwnerKey()||rfUi.data!==d||!sn.input.isConnected)return false;
   if(rfUi.busy||rfUi.pending)throw new Error('Сначала проверьте предыдущее сохранение');if(!d.canAdd)throw new Error('Добавление устройств сейчас закрыто');
@@ -15375,9 +15503,9 @@ function rfRenderScan(){
   if(d.rows.some(r=>rfUiSerial(r.sn)===serial))throw new Error('Серийный номер '+serial+' уже сохранён в таблице за этот месяц');
   const old=d.pending.find(r=>r.id===rfUi.scanTarget)||d.pending.find(r=>rfUiSerial(r.sn)===serial),duplicate=[...rfUi.drafts.values()].find(r=>r.id!==old?.id&&(r.month||String(r.date||'').slice(0,7))===d.currentMonth&&rfUiSerial(r.sn)===serial);
   if(duplicate){show(duplicate);if(rfUiMac(duplicate.mac)!==m)throw new Error('Серийный номер '+serial+' уже в пачке с другим MAC-адресом. Исправьте его карточку ниже');ready();rfNote('Серийный номер '+serial+' уже в пачке. Дубль не добавлен. Следующая строка готова к сканированию');return true;}
-  const previous=old&&(rfUi.drafts.get(old.id)||old),detected=rfSerialInfo(serial),model=detected.model,day=rfWorkDate();
-  const r={...(previous||{}),id:previous?.id||rfId(),version:previous?.version||0,sn:serial,mac:m,model:model||previous?.model||'',type:model?detected.type:previous?.type||'router',origin:previous?.origin||origin.input.value,psu:previous?previous.psu:0,box:previous?previous.box:0,reason:previous?.reason||'',operation:previous?.operation||'Демонтаж',date:day,month:day.slice(0,7),completed:true};
-  if(model)r._rfAutoModel=model;r.owner=r.owner||String(currentUser.dwLogin||'').trim().toLowerCase();r.ownerName=r.ownerName||currentUser.fullName;
+  const previous=old&&(rfUi.drafts.get(old.id)||old),detected=rfSerialInfo(serial),manual=manualModelSerial===serial,model=manual?detectedModel.input.value.trim():detected.model,day=rfWorkDate();
+  const r={...(previous||{}),id:previous?.id||rfId(),version:previous?.version||0,sn:serial,mac:m,model:model||previous?.model||'',type:model?(manual?rfModelType(model):detected.type):previous?.type||'router',origin:previous?.origin||origin.input.value,psu:previous?previous.psu:0,box:previous?previous.box:0,reason:previous?.reason||'',operation:previous?.operation||'Демонтаж',date:day,month:day.slice(0,7),completed:true};
+  if(model&&!manual)r._rfAutoModel=model;else delete r._rfAutoModel;r.owner=r.owner||String(currentUser.dwLogin||'').trim().toLowerCase();r.ownerName=r.ownerName||currentUser.fullName;
   rfUi.drafts.set(r.id,r);rfRemember();show(r);ready();rfNote('Добавлено: '+serial+' · MAC-адрес '+m+'. Следующая строка готова.'+(r.model?'':' Выберите модель в этой строке пачки.'));return true;
  }catch(e){rfNote('⚠️ '+e.message);return false;}};host._rfAcceptScan=accept;
  sn.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey&&rfUiSerial(sn.input.value).length>=3){e.preventDefault();e.stopPropagation();sn.input.value=rfUiSerial(sn.input.value);updateScanDetails();mac.input.focus();}};
