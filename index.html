@@ -3688,6 +3688,31 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 #screen-admin-board .staff-board-consolidated thead th:first-child{border-top-left-radius:8px}
 #screen-admin-board .staff-board-consolidated thead th:last-child{border-top-right-radius:8px}
 </style>
+<style id="boardStaffFilterStyles">
+#screen-admin-board .board-staff-filter{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:8px 0 18px}
+#screen-admin-board .board-staff-filter-field{width:420px;max-width:100%;min-width:0}
+#screen-admin-board .board-staff-filter-field>label{display:block;margin:0 0 7px;padding-left:8px;font-size:11px;color:var(--text-muted)}
+#screen-admin-board .board-staff-dropdown{margin:0;width:100%}
+#screen-admin-board .board-staff-dropdown>.dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-height:44px;padding:10px 12px;margin:0;text-align:left;font-size:13px;background:var(--surface-dark);color:var(--text-main);border:1px solid var(--border-color);border-radius:10px;box-shadow:none}
+#screen-admin-board .board-staff-dropdown>.dropdown-select-btn>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#screen-admin-board .board-staff-dropdown>.dropdown-list{padding:0;max-height:360px;overflow:auto;width:100%;box-sizing:border-box}
+#screen-admin-board .board-staff-search{position:sticky;top:0;z-index:1;box-sizing:border-box;width:100%;margin:0;min-height:44px;padding:10px 12px;border:0;border-bottom:1px solid var(--border-color);border-radius:0;background:var(--surface-dark);color:var(--text-main);font-size:13px}
+#screen-admin-board .board-staff-option.dropdown-item{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;white-space:normal;padding:12px;text-align:left;font:inherit;color:var(--text-main);background:var(--surface-dark);border:0;border-bottom:1px solid var(--border-color);border-radius:0;box-shadow:none}
+#screen-admin-board .board-staff-option>.custom-checkbox{flex:0 0 20px;box-sizing:border-box}
+#screen-admin-board .board-staff-option[aria-selected=true]>.custom-checkbox{background:var(--accent);border-color:var(--accent)}
+#screen-admin-board .board-staff-option[aria-selected=true]>.custom-checkbox::after{transform:rotate(45deg) scale(1);border-color:#000}
+#screen-admin-board .board-staff-option[aria-selected=true]{background:rgba(183,237,85,.12)}
+#screen-admin-board .board-staff-option:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+#screen-admin-board .board-staff-identity{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:13px;overflow-wrap:anywhere}
+#screen-admin-board .board-staff-identity small{font-size:11px;color:var(--text-secondary)}
+#screen-admin-board .board-staff-reset{margin:0!important;width:auto!important;min-height:44px;padding:10px 14px!important;font-size:12px}
+#screen-admin-board .board-staff-empty{padding:12px;font-size:13px;color:var(--text-secondary)}
+#screen-admin-board [data-board-person-key][hidden]{display:none!important}
+html[data-app-layout=mobile] #screen-admin-board .board-staff-filter{gap:8px;margin-bottom:14px}
+html[data-app-layout=mobile] #screen-admin-board .board-staff-filter-field{width:100%}
+html[data-app-layout=mobile] #screen-admin-board .board-staff-reset{min-height:36px;padding:7px 12px!important}
+
+</style>
 <style id="boardOverviewStyles">
 /* Показатели: общие данные, таблица на компьютере и аккордеоны на телефоне. */
 #screen-admin-board .board-overview{--bo-border:var(--ui-border-414141,#414141);--bo-bg:var(--surface-dark,#1b1b1b);--bo-alt:var(--ui-bg-202020,#202020);--bo-head:var(--ui-bg-292929,#292929);--bo-accent:rgba(183,237,85,.1);--bo-selected:#354c1c;--bo-hover:#27341d;color:var(--text-main);min-width:0}
@@ -14260,9 +14285,36 @@ function initializeAppTime(){if(document.getElementById('appTimePicker'))return;
  document.addEventListener('keydown',e=>{if(!appTimeInput)return;if(e.key==='Escape'){e.preventDefault();closeAppTime(true);}if(e.key==='Tab'){const elements=[...box.querySelectorAll('input,button')],first=elements[0],last=elements.at(-1);if(e.shiftKey&&(document.activeElement===first||document.activeElement===box)){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});addEventListener('resize',positionAppTime);addEventListener('scroll',positionAppTime,true);
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initializeAppTime);else initializeAppTime();
+let boardStaffFilterState={scope:'',selected:new Set(),updatedAt:0};
+function boardStaffKey(employee){return String(employee.name||employee.fullName||'').trim().replace(/\s+/g,' ').toLocaleLowerCase('ru');}
+function boardStaffChoices(result){
+ return (result.employees||[]).map(employee=>{const key=boardStaffKey(employee),city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru'),known=[...(result.staff||[]),...(typeof usersDb==='undefined'?[]:usersDb)].find(person=>boardStaffKey(person)===key&&(!person.city||String(person.city).trim().toLocaleLowerCase('ru')===city));return {...employee,role:employee.role||known?.role||''};}).filter(isEligibleEquipmentEmployee);
+}
+function boardRefreshLabel(period,updatedAt){
+ const match=/^(\d{4})-(\d{2})$/.exec(String(period||'')),date=match?new Date(Date.UTC(Number(match[1]),Number(match[2])-1,1)):new Date(updatedAt);
+ const month=new Intl.DateTimeFormat('ru-RU',{month:'long',timeZone:match?'UTC':'Asia/Qyzylorda'}).format(date),time=new Intl.DateTimeFormat('ru-RU',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Asia/Qyzylorda'}).format(new Date(updatedAt));
+ return month.charAt(0).toLocaleUpperCase('ru')+month.slice(1)+' · Обновлено: '+time;
+}
+function boardApplyStaffFilter(root){
+ const selected=boardStaffFilterState.selected;
+ root.querySelectorAll('[data-board-person-key]').forEach(node=>{node.hidden=selected.size>0&&!selected.has(node.dataset.boardPersonKey);});
+}
+function boardStaffFilter(result,root){
+ const options=boardStaffChoices(result),allowed=new Set(options.map(boardStaffKey));
+ for(const key of boardStaffFilterState.selected)if(!allowed.has(key))boardStaffFilterState.selected.delete(key);
+ const wrap=adminToolsText('div','','board-staff-filter'),field=adminToolsText('div','','board-staff-filter-field'),caption=adminToolsText('label','Найти сотрудника'),dropdown=adminToolsText('div','','custom-dropdown board-staff-dropdown'),trigger=adminToolsText('button','','dropdown-select-btn'),triggerText=adminToolsText('span'),arrow=adminToolsText('span','▼','dropdown-arrow'),list=adminToolsText('div','','dropdown-list'),search=adminToolsText('input','','board-staff-search'),items=adminToolsText('div','','board-staff-options'),reset=adminToolsText('button','Сбросить выбор','btn danger-btn board-staff-reset');
+ trigger.id='boardStaffFilterTrigger';caption.htmlFor=trigger.id;trigger.type=reset.type='button';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-label','Найти сотрудника');list.id='boardStaffFilterList';trigger.setAttribute('aria-controls',list.id);items.setAttribute('role','listbox');items.setAttribute('aria-label','Сотрудники');items.setAttribute('aria-multiselectable','true');search.type='search';search.autocomplete='off';search.placeholder='🔍 Поиск по ФИО';search.setAttribute('aria-label','Поиск по ФИО');arrow.setAttribute('aria-hidden','true');trigger.append(triggerText,arrow);
+ function sync(){const selected=boardStaffFilterState.selected;triggerText.textContent=selected.size===1?options.find(p=>selected.has(boardStaffKey(p)))?.name||'Выбран 1 сотрудник':selected.size?'Выбрано сотрудников: '+selected.size:'Все сотрудники';reset.disabled=selected.size===0;items.querySelectorAll('[data-person-key]').forEach(item=>item.setAttribute('aria-selected',String(selected.has(item.dataset.personKey))));boardApplyStaffFilter(root);}
+ function render(){items.replaceChildren();const query=search.value.trim().toLocaleLowerCase('ru');for(const person of options.filter(p=>boardStaffKey(p).includes(query))){const item=adminToolsText('button','','dropdown-item board-staff-option'),check=adminToolsText('span','','custom-checkbox'),identity=adminToolsText('span','','board-staff-identity');item.type='button';item.setAttribute('role','option');item.dataset.personKey=boardStaffKey(person);check.setAttribute('aria-hidden','true');identity.append(adminToolsText('strong',person.name),adminToolsText('small',person.role));item.append(check,identity);item.onclick=event=>{event.stopPropagation();if(item.disabled)return;const selected=boardStaffFilterState.selected,key=item.dataset.personKey;selected.has(key)?selected.delete(key):selected.add(key);sync();};items.append(item);}if(!items.children.length)items.append(adminToolsText('p',options.length?'Совпадений нет':'Нет сотрудников с подходящими ролями','board-staff-empty'));sync();}
+ function open(){document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,true);search.focus({preventScroll:true});}
+ trigger.onclick=event=>{event.stopPropagation();if(dropdown.classList.contains('open'))setDropdownOpen(dropdown,false);else{search.value='';render();open();}};search.onclick=event=>event.stopPropagation();search.oninput=render;
+ dropdown.onkeydown=event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setDropdownOpen(dropdown,false);trigger.focus();}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();event.stopPropagation();if(!dropdown.classList.contains('open'))open();const choices=[...items.querySelectorAll('[role=option]')],index=choices.indexOf(document.activeElement),step=event.key==='ArrowDown'?1:-1;choices[index<0?(step===1?0:choices.length-1):(index+step+choices.length)%choices.length]?.focus();}};
+ reset.onclick=()=>{boardStaffFilterState.selected.clear();sync();};list.append(search,items);dropdown.append(trigger,list);field.append(caption,dropdown);wrap.append(field,reset);render();return wrap;
+}
+
 // Доска получает только отображаемые показатели, без паролей и идентификаторов.
 async function openStaffBoard(){if(!managementAllowed())return;switchScreen('screen-admin-board');const version=++staffBoardVersion,root=document.getElementById('staffBoardResult'),state=document.getElementById('staffBoardState'),button=document.getElementById('staffBoardRefresh');root.replaceChildren();state.innerHTML=liveLoading('Загружаем показатели…','📊');button.disabled=true;
- try{const reply=await adminToolsRequest('view',{kind:'board'});if(version!==staffBoardVersion)return;renderStaffBoard(reply.result);state.textContent='';}catch(error){if(version===staffBoardVersion)state.textContent=error.message;}finally{if(version===staffBoardVersion)button.disabled=false;}
+ try{const reply=await adminToolsRequest('view',{kind:'board'});if(version!==staffBoardVersion)return;renderStaffBoard(reply.result,0,Date.now());state.textContent='';}catch(error){if(version===staffBoardVersion)state.textContent=error.message;}finally{if(version===staffBoardVersion)button.disabled=false;}
 }
 // Выполняет доска показатели.
 function boardMetrics(items){const grid=document.createElement('div');grid.className='board-metrics';items.forEach(item=>{const cell=document.createElement('div');cell.className='board-metric'+(item.wide?' board-metric-wide':'');cell.append(adminToolsText('span',item.label),adminToolsText('strong',item.value==null||item.value===''?'—':String(item.value)));if(item.hint)cell.append(adminToolsText('small',item.hint,'board-metric-hint'));grid.append(cell);});return grid;}
@@ -14310,13 +14362,13 @@ function boardOverviewView(result){
  const desktop=adminToolsText('div','','board-overview-desktop'),table=adminToolsText('table','','board-overview-table'),caption=adminToolsText('caption','Показатели сотрудников: количество работ, часы и остальные показатели','staff-board-caption');
  table.append(caption);const widths=document.createElement('colgroup');for(const width of [21,4,4,4,4,4,4,4,4,4,5,5,5,8,7,6,7]){const col=document.createElement('col');col.style.width=width+'%';widths.append(col);}table.append(widths);
  const head=document.createElement('thead'),titles=document.createElement('tr'),units=document.createElement('tr'),name=adminToolsText('th','ФИО монтажников');name.rowSpan=2;name.scope='col';titles.append(name);
- for(const group of groups){const title=adminToolsText('th',group.label);title.colSpan=group.cols.length;title.scope=group.cols.length>1?'colgroup':'col';if(group.accent)title.classList.add('board-overview-accent');titles.append(title);group.cols.forEach((col,i)=>{const unit=adminToolsText('th',group.units[i]);unit.scope='col';unit.setAttribute('aria-label',group.label+' · '+group.units[i]);if(i===0)unit.classList.add('board-overview-group-start');if(group.accent)unit.classList.add('board-overview-accent');units.append(unit);});}
+ for(const group of groups){const title=adminToolsText('th',group.label);title.colSpan=group.cols.length;title.scope=group.cols.length>1?'colgroup':'col';if(group.accent)title.classList.add('board-overview-accent');titles.append(title);group.cols.forEach((col,i)=>{const unit=adminToolsText('th',group.units[i]==='шт.'?'Штук':group.units[i]==='ч'?'Часов':group.units[i]);unit.scope='col';unit.setAttribute('aria-label',group.label+' · '+group.units[i]);if(i===0)unit.classList.add('board-overview-group-start');if(group.accent)unit.classList.add('board-overview-accent');units.append(unit);});}
  head.append(titles,units);table.append(head);
  const body=document.createElement('tbody');
  function fillRow(row,values,identity){const label=document.createElement('th');label.scope='row';if(identity?.nodeType)label.append(identity);else label.textContent=String(identity||'Итоговые подсчёты по столбцам');row.append(label);for(const group of groups)group.cols.forEach((col,i)=>{const cell=adminToolsText('td',values[col]);cell.dataset.boardColumn=col;cell.title=group.label+' · '+boardOverviewUnit(values[col],group.units[i]);if(i===0)cell.classList.add('board-overview-group-start');if(group.accent)cell.classList.add('board-overview-accent');row.append(cell);});}
  function selectRow(row){const selected=!row.classList.contains('is-selected');for(const other of body.rows){other.classList.remove('is-selected');other.removeAttribute('aria-current');}if(selected){row.classList.add('is-selected');row.setAttribute('aria-current','true');}}
  const mobile=adminToolsText('div','','board-overview-mobile');
- for(const employee of result.employees||[]){const values=boardOverviewValues(columns,employee.boardValues),row=document.createElement('tr');row.tabIndex=0;row.dataset.boardEmployee=employee.id;row.setAttribute('aria-label',employee.name+' · выделить строку');row.onclick=()=>selectRow(row);row.onkeydown=event=>{if(event.target===row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();selectRow(row);}};fillRow(row,values,boardEmployeeCell(employee,result,0));body.append(row);mobile.append(boardOverviewCard(employee.name,values,employee,result));}
+ for(const employee of result.employees||[]){const values=boardOverviewValues(columns,employee.boardValues),row=document.createElement('tr');row.tabIndex=0;row.dataset.boardEmployee=employee.id;row.dataset.boardPersonKey=boardStaffKey(employee);row.setAttribute('aria-label',employee.name+' · выделить строку');row.onclick=()=>selectRow(row);row.onkeydown=event=>{if(event.target===row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();selectRow(row);}};fillRow(row,values,boardEmployeeCell(employee,result,0));body.append(row);const card=boardOverviewCard(employee.name,values,employee,result);card.dataset.boardPersonKey=boardStaffKey(employee);mobile.append(card);}
  table.append(body);
  if(result.boardTotals){const foot=document.createElement('tfoot'),row=document.createElement('tr'),values=boardOverviewValues(columns,result.boardTotals.values);fillRow(row,values,result.boardTotals.label);foot.append(row);table.append(foot);mobile.append(boardOverviewCard('Итоги по столбцам',values));}
  desktop.append(table,adminToolsText('p','Нажмите на строку, чтобы выделить сотрудника. Повторное нажатие снимает выделение.','board-overview-hint'));root.append(desktop,mobile);return root;
@@ -14333,10 +14385,10 @@ function boardOverviewCard(name,values,employee=null,result=null){
 }
 
 // Показывает сотрудники доска.
-function renderStaffBoard(result,activeTab=0){
+function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(boardResizeObserver){boardResizeObserver.disconnect();boardResizeObserver=null;}
  const root=document.getElementById('staffBoardResult');root.replaceChildren();
- document.getElementById('staffBoardPeriod').textContent=result.period?'Месяц: '+result.period.split('-').reverse().join('.'):'Месяц не указан';
+ const scope=managementOwnerKey()+'|'+String(result.period||'');if(boardStaffFilterState.scope!==scope){boardStaffFilterState={scope,selected:new Set(),updatedAt:0};}if(updatedAt!==null||!boardStaffFilterState.updatedAt)boardStaffFilterState.updatedAt=updatedAt??Date.now();document.getElementById('staffBoardPeriod').textContent=boardRefreshLabel(result.period,boardStaffFilterState.updatedAt);
  const employees=result.employees||[];
  if(!employees.length){root.append(adminToolsText('p','На листе пока нет показателей сотрудников.'));return;}
  const tabs=document.createElement('div');tabs.className='staff-board-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Показатели сотрудников');
@@ -14354,7 +14406,7 @@ function renderStaffBoard(result,activeTab=0){
  if(materialLabels.length)materials.append(boardTable(['ФИО монтажника',...materialLabels],employees.map(e=>[boardEmployeeCell(e,result,2),...materialLabels.map(label=>(e.materials||[]).find(m=>m.label===label)?.value??'0')]),'Оборудование и кабель сотрудников'));
  else materials.append(adminToolsText('p','Нет данных об оборудовании и кабеле.'));
  if(result.materialTotals?.length)materials.append(boardDetails('📦 Траты ТМЦ · итоги',boardMaterials(result.materialTotals)));
- addTab('📦 Оборудование и кабель',materials);root.append(tabs,...panels);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
+ addTab('📦 Оборудование и кабель',materials);root.append(boardStaffFilter(result,root),tabs,...panels);panels.forEach(panel=>panel.querySelector('.staff-board-table tbody')?.querySelectorAll(':scope>tr').forEach((row,i)=>{if(employees[i])row.dataset.boardPersonKey=boardStaffKey(employees[i]);}));boardApplyStaffFilter(root);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
 }
 // Открывает существующий список графика для выбора ФИО в любой вкладке показателей.
 function boardEmployeeCell(employee,result,tab){
