@@ -3688,6 +3688,19 @@ html[data-app-layout=desktop] #screen-admin-board .staff-board-consolidated thea
 #screen-admin-board .staff-board-consolidated thead th:first-child{border-top-left-radius:8px}
 #screen-admin-board .staff-board-consolidated thead th:last-child{border-top-right-radius:8px}
 </style>
+<style id="boardReadonlyStyles">
+#screen-admin-board .board-employee-name{display:block;padding:7px 6px;line-height:1.4;overflow-wrap:anywhere;color:inherit;font-size:inherit}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar{display:flex;align-items:flex-end;justify-content:flex-start;gap:12px;flex-wrap:nowrap}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar>#staffBoardPeriod{flex:none;white-space:nowrap;display:flex;align-items:center;min-height:44px;margin:0}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar>.board-staff-filter{display:contents}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar .board-staff-filter-field{flex:0 0 420px}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar .board-staff-reset{margin-left:auto!important;flex:none}
+html[data-app-layout=desktop] #screen-admin-board .staff-board-toolbar>#staffBoardRefresh{flex:none;margin-left:0!important;align-self:flex-end!important}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-toolbar>#staffBoardPeriod{order:1;margin:0}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-toolbar>#staffBoardRefresh{order:2}
+html[data-app-layout=mobile] #screen-admin-board .staff-board-toolbar>.board-staff-filter{order:3;flex:0 0 100%;margin:8px 0 0}
+</style>
 <style id="boardStaffFilterStyles">
 #screen-admin-board .board-staff-filter{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:8px 0 18px}
 #screen-admin-board .board-staff-filter-field{width:420px;max-width:100%;min-width:0}
@@ -14379,15 +14392,13 @@ function boardOverviewCard(name,values,employee=null,result=null){
  const content=adminToolsText('div','','board-overview-card-body'),work=adminToolsText('table','','board-overview-work');work.append(adminToolsText('caption','Количество работ и затраченные часы','staff-board-caption'));const head=document.createElement('thead'),header=document.createElement('tr');for(const label of ['Вид работ','шт.','часы']){const cell=adminToolsText('th',label);cell.scope='col';header.append(cell);}head.append(header);work.append(head);const body=document.createElement('tbody');for(const group of boardOverviewGroups().slice(0,4)){const row=document.createElement('tr'),label=adminToolsText('th',group.label);label.scope='row';row.append(label,...group.cols.map(col=>adminToolsText('td',values[col])));body.append(row);}work.append(body);content.append(work);
  const hours=adminToolsText('dl','','board-overview-lines');for(const [label,col] of [['ППР','F'],['Всего','G']]){const line=document.createElement('div');line.append(adminToolsText('dt',label),adminToolsText('dd',boardOverviewUnit(values[col],'ч')));hours.append(line);}content.append(hours,adminToolsText('h3','Остальные показатели','board-overview-subtitle'));
  const rest=adminToolsText('dl','','board-overview-lines');for(const group of boardOverviewGroups().slice(6)){const line=document.createElement('div'),value=document.createElement('dd');group.cols.forEach((col,i)=>value.append(adminToolsText('span',boardOverviewUnit(values[col],group.units[i]))));line.append(adminToolsText('dt',group.label),value);rest.append(line);}content.append(rest);
- // Выбор ФИО сохранён отдельным действием, чтобы раскрытие карточки не меняло сотрудника.
- if(employee&&Array.isArray(employee.nameRefs)&&employee.nameRefs.length&&!employee.nameRefs.some(ref=>ref.readonly)){const edit=adminToolsText('div','','board-overview-employee-edit');edit.append(adminToolsText('span','Изменить сотрудника'),boardEmployeeCell(employee,result,0));content.append(edit);}
  card.append(content);return card;
 }
 
 // Показывает сотрудники доска.
 function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(boardResizeObserver){boardResizeObserver.disconnect();boardResizeObserver=null;}
- const root=document.getElementById('staffBoardResult');root.replaceChildren();
+ const root=document.getElementById('staffBoardResult');root.replaceChildren();const toolbar=document.getElementById('staffBoardRefresh').closest('.staff-board-toolbar');toolbar?.querySelector('.board-staff-filter')?.remove();
  const scope=managementOwnerKey()+'|'+String(result.period||'');if(boardStaffFilterState.scope!==scope){boardStaffFilterState={scope,selected:new Set(),updatedAt:0};}if(updatedAt!==null||!boardStaffFilterState.updatedAt)boardStaffFilterState.updatedAt=updatedAt??Date.now();document.getElementById('staffBoardPeriod').textContent=boardRefreshLabel(result.period,boardStaffFilterState.updatedAt);
  const employees=result.employees||[];
  if(!employees.length){root.append(adminToolsText('p','На листе пока нет показателей сотрудников.'));return;}
@@ -14406,20 +14417,10 @@ function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(materialLabels.length)materials.append(boardTable(['ФИО монтажника',...materialLabels],employees.map(e=>[boardEmployeeCell(e,result,2),...materialLabels.map(label=>(e.materials||[]).find(m=>m.label===label)?.value??'0')]),'Оборудование и кабель сотрудников'));
  else materials.append(adminToolsText('p','Нет данных об оборудовании и кабеле.'));
  if(result.materialTotals?.length)materials.append(boardDetails('📦 Траты ТМЦ · итоги',boardMaterials(result.materialTotals)));
- addTab('📦 Оборудование и кабель',materials);root.append(boardStaffFilter(result,root),tabs,...panels);panels.forEach(panel=>panel.querySelector('.staff-board-table tbody')?.querySelectorAll(':scope>tr').forEach((row,i)=>{if(employees[i])row.dataset.boardPersonKey=boardStaffKey(employees[i]);}));boardApplyStaffFilter(root);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
+ addTab('📦 Оборудование и кабель',materials);const staffFilter=boardStaffFilter(result,root);if(toolbar)toolbar.insertBefore(staffFilter,document.getElementById('staffBoardRefresh'));else root.append(staffFilter);root.append(tabs,...panels);panels.forEach(panel=>panel.querySelector('.staff-board-table tbody')?.querySelectorAll(':scope>tr').forEach((row,i)=>{if(employees[i])row.dataset.boardPersonKey=boardStaffKey(employees[i]);}));boardApplyStaffFilter(root);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
 }
-// Открывает существующий список графика для выбора ФИО в любой вкладке показателей.
-function boardEmployeeCell(employee,result,tab){
- const button=adminToolsText('button','','board-employee-choice gs-choice gs-name gs-name-choice');button.type='button';button.append(adminToolsText('span',employee.name,'gs-name-label'),adminToolsText('span','▼','dropdown-arrow'));button.setAttribute('aria-label','Изменить сотрудника: '+employee.name);button.setAttribute('aria-haspopup','listbox');
- button.disabled=!Array.isArray(employee.nameRefs)||!employee.nameRefs.length||employee.nameRefs.some(ref=>ref.readonly);
- if(button.disabled)button.title='ФИО вычисляется формулой или требуется обновить городской скрипт';
- button.onclick=()=>{const city=String(currentUser?.city||'').trim().toLocaleLowerCase('ru');const staff=(result.staff||[]).filter(p=>city&&String(p.city||'').trim().toLocaleLowerCase('ru')===city&&!(result.employees||[]).some(e=>e.id!==employee.id&&String(e.name).trim().toLocaleLowerCase('ru')===String(p.name).trim().toLocaleLowerCase('ru')));if(!staff.length){document.getElementById('staffBoardState').textContent='Нет доступных сотрудников города. Обновите показатели.';return;}gsPick(button,staff.map(p=>[p.name,p.name,p]),employee.name,name=>boardSaveEmployee(employee,name,tab),true);};return button;
-}
-// Записывает ФИО в городскую таблицу и обновляет три вкладки только после успешного сохранения.
-async function boardSaveEmployee(employee,name,tab){
- const owner=managementOwnerKey(),version=++staffBoardVersion,root=document.getElementById('staffBoardResult'),state=document.getElementById('staffBoardState'),refresh=document.getElementById('staffBoardRefresh');refresh.disabled=true;root.querySelectorAll('button').forEach(b=>{b.dataset.boardWasDisabled=String(b.disabled);b.disabled=true;});state.textContent='Сохраняем сотрудника…';
- try{const reply=await adminToolsRequest('boardEmployee',{employeeId:employee.id,employeeName:name,nameRefs:employee.nameRefs});if(version!==staffBoardVersion||owner!==managementOwnerKey())return;renderStaffBoard(reply.result,tab);state.textContent='Сотрудник изменён во всех трёх вкладках';}catch(error){if(version===staffBoardVersion&&owner===managementOwnerKey())state.textContent=error.message||'Не удалось сохранить сотрудника';}finally{if(version===staffBoardVersion&&owner===managementOwnerKey()){refresh.disabled=false;root.querySelectorAll('[data-board-was-disabled]').forEach(b=>{b.disabled=b.dataset.boardWasDisabled==='true';delete b.dataset.boardWasDisabled;});}}
-}
+// ФИО показателей доступны только для просмотра; фильтр сотрудников остаётся отдельным.
+function boardEmployeeCell(employee,result,tab){return adminToolsText('span',employee.name,'board-employee-name');}
 // Цвет часов и зелёный выходной; пустые ячейки остаются нейтральными.
 function boardHourClass(value){const text=String(value??'').trim().replace(/\s+/g,'').replace(',','.');if(['В','ВЫХОДНОЙ','ОТДЫХ','ОТДЫХАЕТ'].includes(text.toUpperCase()))return 'board-hours-rest';if(!/^[+-]?\d+(?:\.\d+)?$/.test(text))return '';const hours=Number(text);return hours<8?'board-hours-low':hours<11?'board-hours-medium':'board-hours-high';}
 // Месячная норма из роли общей базы сотрудников.
