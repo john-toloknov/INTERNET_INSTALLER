@@ -10404,37 +10404,39 @@ document.addEventListener('blur', (e) => {
     // Список сотрудников для отчётов формируется динамически из usersDb.
 
     const standardRouterModels = [
-        "TP-Link EX222 (AX-1800)",
-        "ZXHN H3601P V7 (ZTE Router)",
-        "TP Link EC225-G5 (AC-1300)",
-        "AC1200 - G12-B",
-        "Basic (Модель F1O-D)",
-        "TP-Link Archer C20",
-        "TP-Link Archer C24",
-        "DGP X3000TR (GPON)",
-        "TP-Link HC220-G5 (Ultimate White)",
-        "AX3000 (Ultimate Black)",
-        "TP-Link DEKO M4 (Ultimate)",
-        "Роутер абонента"
-    ];
+    "TP-Link EX222 (AX-1800)",
+    "ZXHN H3601P V7 (ZTE Router)",
+    "TP Link EC225-G5 (AC-1300)",
+    "AC1200 - G12-B",
+    "Basic (Модель F1O-D)",
+    "TP-Link Archer C20",
+    "TP-Link Archer C24",
+    "DGP X3000TR (GPON)",
+    "OptiXstar HG8145X6-10",
+    "TP-Link HC220-G5 (Ultimate White)",
+    "AX3000 (Ultimate Black)",
+    "TP-Link DEKO M4 (Ultimate)",
+    "Роутер абонента"
+];
 
     const demontazhRouterModels = [
-        "TP-Link EX222 (AX-1800)",
-        "ZXHN H3601P V7 (ZTE Router)",
-        "TP Link EC225-G5 (AC-1300)",
-        "AC1200 - G12-B",
-        "Basic (Модель F1O-D)",
-        "TURBO",
-        "TP-Link Archer C20",
-        "TP-Link Archer C24",
-        "DGP X3000TR (GPON)",
-        "TP-Link HC220-G5 (Ultimate White)",
-        "AX3000 (Ultimate Black)",
-        "TP-Link DEKO M4 (Ultimate)",
-        "TP-Link WR840N",
-        "D-Link Dir 615",
-        "Роутер абонента"
-    ];
+    "TP-Link EX222 (AX-1800)",
+    "ZXHN H3601P V7 (ZTE Router)",
+    "TP Link EC225-G5 (AC-1300)",
+    "AC1200 - G12-B",
+    "Basic (Модель F1O-D)",
+    "TURBO",
+    "TP-Link Archer C20",
+    "TP-Link Archer C24",
+    "DGP X3000TR (GPON)",
+    "OptiXstar HG8145X6-10",
+    "TP-Link HC220-G5 (Ultimate White)",
+    "AX3000 (Ultimate Black)",
+    "TP-Link DEKO M4 (Ultimate)",
+    "TP-Link WR840N",
+    "D-Link Dir 615",
+    "Роутер абонента"
+];
 
     const standardTvBoxes = [
         "Приставка IPTV ZXV10 B860H",
@@ -11050,9 +11052,9 @@ function eqSchemaErrors_(schema,values){
  if(!schema||!schema.fields)return [];var errors=[],get=function(col){if(!col)return '';return Array.isArray(values)?values[String(col).split('').reduce(function(v,c){return v*26+c.charCodeAt(0)-64;},0)-1]:values[col];};
  schema.fields.filter(function(f){return f.type==='router'||f.type==='stb';}).forEach(function(model){var title=model.label.split(' · ')[0],stock=model.label.indexOf(' · ')<0,sn=schema.fields.find(function(f){return f.label===(stock?'S/N':title+' · S/N');}),mac=schema.fields.find(function(f){return f.label===(stock?'MAC':title+' · MAC');});if(!sn||!mac)return;eqDeviceErrors_(get(model.col),get(sn.col),get(mac.col),title).forEach(function(e){errors.push({col:e.field==='model'?model.col:mac.col,message:e.message});});});return errors;
 }
-var SX_MODEL_NAMES={"D-Link Dir 615":"D-Link Dir 615","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"TP-Link DEKO M4 (Ultimate)","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TURBO":"Роутер Wi-Fi TURBO / router Wi-Fi TURBO","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001"};
+var SX_MODEL_NAMES={"D-Link Dir 615":"D-Link Dir 615","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"Wi-fi  система TP-LINK Deco M4 2-pack","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TURBO":"Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001","DGP X3000TR (GPON)":"Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st","OptiXstar HG8145X6-10":"Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC"};
 function sxReturnModel_(model){const text=String(model||'').trim();return iiReturnModel(SX_MODEL_NAMES[text]||text);}
-function sxDisplayModel_(model){var text=String(model||'').trim();if(text==='Маршрутизатор беспроводной 840 TP-Link')return 'TP-Link WR840N';return Object.keys(SX_MODEL_NAMES).find(function(key){return SX_MODEL_NAMES[key]===text;})||text;}
+function sxDisplayModel_(model){const text=String(model||'').trim(),normal=value=>iiReturnModel(value).replace(/\s+/g,' '),key=normal(text);if(key==='Маршрутизатор беспроводной 840 TP-Link')return 'TP-Link WR840N';return Object.keys(SX_MODEL_NAMES).find(name=>normal(name)===key||normal(SX_MODEL_NAMES[name])===key)||text;}
 // Сервисная замена: читаемый комментарий — единый формат для формы и возвратов.
 var SX_REASONS={router:['Не включается','Перезагружается / зависает','Не работает Wi-Fi','Низкая скорость по Wi-Fi','Не работает WAN / LAN-порт','Обрывы соединения','Повреждение корпуса / разъёмов','Сгорел роутер','Утилизация','Другая причина'],stb:['Не включается','Перезагружается / зависает','Нет изображения / звука','Не работает HDMI / AV','Не подключается к сети','Ошибка загрузки / обновления','Повреждение корпуса / разъёмов','Сгорела приставка','Утилизация','Другая причина']};
 var SX_KITS={router:['Блок питания','Патч-корд','Коробка','Без комплектации'],stb:['Блок питания','Пульт','HDMI','RCA','Коробка','Батарейки','Без комплектации']};
@@ -11748,7 +11750,7 @@ function ctDetectRouterModel(s) {
   if (s.indexOf("22161K")===0) return "TP-Link DEKO M4 (Ultimate)";
   if (s === "220A0T6003469" || /^(220B|220A3B|2227126)/.test(s)) return "TP-Link Archer C24";
   if (/^(2184545|2212252|2211846|2211477|2211225)/.test(s)) return "TP-Link Archer C20";
-  if (/^(318|317|218|216)/.test(s)) return "Маршрутизатор беспроводной 840 TP-Link";
+  if (/^(318|317|218|216)/.test(s)) return "TP-Link WR840N";
   if (s.indexOf("BRDM")!==-1) return "TURBO";
   if (s.indexOf("DDM")!==-1) return "AC1200 - G12-B";
   if (s.indexOf("ZTEPHAG")===0) return "ZXHN H3601P V7 (ZTE Router)";
@@ -12940,6 +12942,8 @@ const NOMENCLATURE_LIST = [
     "Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP",
     "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5",
     "Роутер СРЕ / Router СРЕ (Модель F1O-D)",
+    "Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st",
+    "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC",
     "Приставка IPTV ZXV10 B860H|||",
     "RASSE-001"
 ];
@@ -12992,26 +12996,8 @@ function filterNomenclature(query) {
 // 2. АВТООПРЕДЕЛЕНИЕ МОДЕЛИ ПО СЕРИЙНОМУ НОМЕРУ
 
 function detectModelBySerial(s) {
-    const routerModel = ctDetectRouterModel(s);
-    const routerNomenclature = {
-        "D-Link Dir 615": "D-Link Dir 615",
-        "Маршрутизатор беспроводной 840 TP-Link": "Маршрутизатор беспроводной 840 TP-Link",
-        "AX3000 (Ultimate Black)": "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000",
-        "TP-Link DEKO M4 (Ultimate)": "TP-Link DEKO M4 (Ultimate)",
-        "TP-Link Archer C24": "Маршрутизатор беспроводной двухдиапазонный Archer C24",
-        "TP-Link Archer C20": "Маршрутизатор беспроводной двухдиапазонный Archer C20",
-        "TURBO": "Роутер Wi-Fi TURBO / router Wi-Fi TURBO",
-        "AC1200 - G12-B": "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B",
-        "ZXHN H3601P V7 (ZTE Router)": "Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre",
-        "TP-Link HC220-G5 (Ultimate White)": "Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi",
-        "TP-Link EX222 (AX-1800)": "Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP",
-        "TP Link EC225-G5 (AC-1300)": "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5",
-        "Basic (Модель F1O-D)": "Роутер СРЕ / Router СРЕ (Модель F1O-D)",
-    };
-    if (routerModel) return iiReturnModel(routerNomenclature[routerModel] || routerModel);
-    const stbModel = ctDetectStbModel(s);
-    if (stbModel) return stbModel === "RASSE-001" ? stbModel : stbModel + "|||";
-    return "";
+    const model = ctDetectRouterModel(s) || ctDetectStbModel(s);
+    return model ? sxReturnModel_(model) : '';
 }
 
 // Выполняет detect Nomenclature по серийный номер.
@@ -16315,7 +16301,7 @@ function egSessionState(m){
 <script id="iiTableFilterExtensions">
 function ctThemeOptions(){const values=[];for(const sheet of ctState.sheets){const field=sheet.schema.fields.find(f=>f.type==='theme');if(!field)continue;for(const o of ctOptions(field,sheet.name,'').filter(o=>o.value)){const value=typeof o==='string'?o:o.value;if(value)values.push(value);}for(const record of sheet.rows){const value=ctDraft({...record,sheet:record.sheet||sheet.name}).values[field.col];if(value)values.push(String(value));}}return [...new Set(values)].sort((a,b)=>a.localeCompare(b,'ru')).map(value=>({value,label:value}));}
 function ctPruneThemes(){if(ctPart!=='acts'||!ctState.loaded)return;const allowed=new Set(ctThemeOptions().map(o=>o.value));ctFilters['Тематика решения']=(ctFilters['Тематика решения']||[]).filter(v=>allowed.has(v));}
-function iiReturnModel(value){const key=String(value||'').trim().replace(/\s+/g,' ');if(key==='Роутер Wi-Fi TURBO / router Wi-Fi TURBO'||key==='TURBO')return 'Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO';if(key==='TP-Link DEKO M4 (Ultimate)'||key==='Wi-fi система TP-LINK Deco M4 2-pack')return 'Wi-fi  система TP-LINK Deco M4 2-pack';return String(value||'').trim();}
+function iiReturnModel(value){const key=String(value||'').trim().replace(/\s+/g,' ');if(key==="DGP X3000TR (GPON)")return "Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st";if(key==="OptiXstar HG8145X6-10")return "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC";if(key==='Роутер Wi-Fi TURBO / router Wi-Fi TURBO'||key==='TURBO')return 'Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO';if(key==='TP-Link DEKO M4 (Ultimate)'||key==='Wi-fi система TP-LINK Deco M4 2-pack')return 'Wi-fi  система TP-LINK Deco M4 2-pack';return String(value||'').trim();}
 function iiWarehouseEquipment(host,items){for(const type of ['Роутеры','Приставки','Кабель']){const rows=items.filter(i=>i.type===type),group=ctNode('details','act-debts-group'),title=ctNode('summary','act-debts-group-title',type+' · '+rows.length);group.append(title);for(const item of rows){const card=ctNode('div','vs-material-card');card.append(ctNode('strong','',item.name||'Без модели'),ctNode('p','','Серийный номер: '+(item.serial||'—')));if(item.mac)card.append(ctNode('p','','MAC: '+item.mac));if(type==='Кабель')card.append(ctNode('p','','Остаток: '+item.meters+' м'));group.append(card);}if(!rows.length)group.append(ctNode('p','tmr-empty','Нет в наличии'));host.append(group);}}
 </script><script id="iiRemoteServiceImage">
 const II_REMOTE_IMAGE='./assets/images/remote-service.jpg';
