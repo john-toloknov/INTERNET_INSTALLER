@@ -16544,6 +16544,11 @@ html[data-app-layout=mobile] #cityTableEditor #cityTableFilters .ct-filter-actio
 #cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=move]{background:#c38bff!important}
 #cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=inclusion]{background:#7b9cff!important}
 #cityTableEditor .ct-record[data-ct-key^="Сервис "]:is([data-pu-tone=zero],[data-pu-tone=remote],[data-pu-tone=service],[data-pu-tone=move],[data-pu-tone=inclusion])>.pu-category,#cityTableEditor .ct-record[data-ct-key^="Сервис "]:is([data-pu-tone=zero],[data-pu-tone=remote],[data-pu-tone=service],[data-pu-tone=move],[data-pu-tone=inclusion]) .ct-field>span{color:#171717!important}
+/* Desktop act cards: 12px between controls, 10px to the card edge. */
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-acts=true]{padding-right:10px!important}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-acts=true] .ct-visible{grid-template-columns:80px minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) max-content!important;column-gap:12px!important}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-acts=true] .ct-record-controls{gap:12px!important;width:max-content;justify-self:end;justify-content:flex-start!important;padding-inline:0!important}
+html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-acts=true] .ct-record-controls>.ct-toggle{margin:0!important}
 /* v8: reuse the table's employee multiselect, outside document flow. */
 #screen-management-debts .act-debts-toolbar{align-items:flex-end;overflow:visible}
 #screen-management-debts .act-debts-toolbar>#cityDebtPreviewRefresh{align-self:flex-end!important;height:36px!important;min-height:36px!important;box-sizing:border-box!important;padding:7px 12px!important;margin:0!important}
