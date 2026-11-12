@@ -11878,7 +11878,11 @@ function ctDetectStbModel(serial) {
     function prepareReportPhoto(file) {
         if(file?._iiBuiltinRemote)return Promise.resolve('@builtin:remote_service');
         if(reportPhotoCache.has(file))return reportPhotoCache.get(file);
-        const promise=new Promise((resolve,reject)=>reportPhotoQueue.push({file,resolve,reject}));
+        const promise=new Promise((resolve,reject)=>reportPhotoQueue.push({file,resolve,reject})).catch(error=>{
+            reportPhotoCache.delete(file);
+            const problem=new Error('Не удалось подготовить фотографию «'+String(file?.name||'без имени')+'». Удалите её из отчёта и добавьте заново из памяти телефона. Данные формы сохранены.');
+            problem.photoPreparation=true;problem.cause=error;throw problem;
+        });
         reportPhotoCache.set(file,promise);promise.catch(()=>{});
         runReportPhotoQueue();return promise;
     }
@@ -12482,6 +12486,9 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             }
 
             payload.deferTelegram = true;payload.inlineDelivery=true;
+            const pendingBeforeSend=vsPendingRead(),payloadFingerprint=JSON.stringify([type,payload.rowValues]);
+            if(pendingBeforeSend&&(pendingBeforeSend.id!==requestId||pendingBeforeSend.fingerprint!==payloadFingerprint))throw new Error('Данные изменились во время подготовки. Предыдущая попытка сохранена; верните её данные для проверки.');
+            sessionStorage.setItem(vsPendingKey(),JSON.stringify({id:requestId,fingerprint:payloadFingerprint,stage:'sending'}));
             const receipt = await sendReportForReceipt(targetUrl,payload);
             if(receipt.telegram==='queued')kickReportDelivery(targetUrl,requestId);
             vsPendingClear();
@@ -12500,7 +12507,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             if(error.confirmed)vsPendingClear();if(error.inventoryCancelled)return;
             console.error(error);
             const safeMessage = String(error.message || error).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
-            showBeelineModal('Не удалось подтвердить отчёт', safeMessage, '❌');
+            showBeelineModal(error.photoPreparation?'Не удалось подготовить фото':error.previousReportSaved?'Предыдущий отчёт уже записан':'Не удалось подтвердить отчёт', safeMessage, error.previousReportSaved?'✅':'❌');
         } finally {
             isSubmitting=false;
             releaseSaveButtons();
@@ -15378,13 +15385,24 @@ function vsPendingClear(){sessionStorage.removeItem(vsPendingKey());}
 async function vsBeforeReport(type,url){
   const built=vsReportBuilt(type),fingerprint=JSON.stringify([type,built.row]),pending=vsPendingRead();
   if(pending){
-    if(pending.fingerprint!==fingerprint)throw new Error('Предыдущая отправка ещё не подтверждена. Верните её данные и повторите отправку, чтобы проверить тот же отчёт.');
-    try{const receipt=await getReportStatusOnce(url,pending.id);if(receipt.status==='success'){vsPendingClear();return {receipt,requestId:pending.id};}if(receipt.status!=='error')return {requestId:pending.id};vsPendingClear();}
-    catch(e){if(e.message==='Ответ о записи не получен'||e.message==='Сервер статуса недоступен')return {requestId:pending.id};throw e;}
+    let receipt;
+    try{receipt=await getReportStatusOnce(url,pending.id);}
+    catch(error){if(error.message!=='Ответ о записи не получен'&&error.message!=='Сервер статуса недоступен')throw error;}
+    if(receipt?.status==='success'){
+      vsPendingClear();
+      if(pending.fingerprint!==fingerprint){const problem=new Error('Предыдущий отчёт уже записан: '+String(receipt.reportType||'')+', строка '+String(receipt.rowNumber||'')+'. Текущие данные формы сохранены. Проверьте записанную заявку перед новой отправкой.');problem.previousReportSaved=true;throw problem;}
+      return {receipt,requestId:pending.id};
+    }
+    if(receipt?.status==='error')vsPendingClear();
+    else {
+      if(pending.fingerprint!==fingerprint)throw new Error('Предыдущая попытка ещё не подтверждена, а данные формы изменены. Не создавайте заявку повторно: проверьте её в таблице и Telegram. Для проверки или повтора с тем же ID верните прежние данные формы.');
+      return {requestId:pending.id};
+    }
   }
   for(const [k,i] of Object.entries(vsClientMap(type))){const n=Number(built.row[i]||0);if(!Number.isSafeInteger(n)||n<0)throw new Error((VS_UI_FIELDS.find(f=>f[0]===k)?.[1]||k)+': допустимы только целые количества');}
   const requestId='report_'+(window.crypto?.randomUUID?.()||(Date.now()+'_'+Math.random().toString(36).slice(2)));
-  sessionStorage.setItem(vsPendingKey(),JSON.stringify({id:requestId,fingerprint}));return {requestId};
+  // A new pending marker is written only once photos and the complete payload are ready.
+  return {requestId};
 }
 async function vsRefreshReportLimits(){if(!currentUser)return;const owner=managementOwnerKey(),type=document.getElementById('tr-reportType')?.value;if(!type||type.startsWith('Демонтаж'))return;const fullName=document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value;if(!fullName)return;try{const data=await vsApi('list',{fullName});if(owner!==managementOwnerKey())return;const w=data.warehouses[0];vsReportStock=w;for(const [key,id] of Object.entries(type.startsWith('ППР')?VS_PPR_IDS:VS_FORM_IDS)){const input=document.getElementById(id),m=w?.materials.find(m=>m.key===key);if(!input)continue;input.setAttribute('max',String(m?.available||0));input.setAttribute('step','1');input.title='Доступно: '+(m?.available||0)+' '+(m?.unit||'');let note=input.parentNode.querySelector('.vs-available');if(!note){note=ctNode('small','vs-available');input.parentNode.append(note);}note.textContent='Остаток: '+(m?.available||0)+' '+(m?.unit||'');}}catch(e){console.warn('Остатки для формы:',e.message);}}
 function vsAfterTmrRender(){}
