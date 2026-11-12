@@ -13972,7 +13972,7 @@ function managementWatch(group){
 }
 // Выполняет руководство запрос модальное окно.
 function managementRequestModal(title,text,loading=false){
- showBeelineModal(title,text,loading?'⚙️':'⚠️');
+ showBeelineModal(title,text,loading?'':'⚠️');
  if(loading)document.getElementById('beelineModalText').innerHTML=liveLoading(text);
 }
 // Сохраняем ID ручного действия при сетевой ошибке: повтор с тем же ID не дублирует рассылку.
@@ -16519,6 +16519,8 @@ html[data-app-layout=mobile] #cityTableEditor #cityTableFilters .ct-filter-actio
 #cityTableEditor .pu-count-toolbar.pu-table-loading>#cityTableState>.live-loading{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;min-height:120px!important;margin:0!important;text-align:center!important}
 /* v8: reuse the table's employee multiselect, outside document flow. */
 #screen-management-debts .act-debts-toolbar{align-items:flex-end;overflow:visible}
+#screen-management-debts .act-debts-toolbar>#cityDebtPreviewRefresh{align-self:flex-end!important;height:36px!important;min-height:36px!important;box-sizing:border-box!important;padding:7px 12px!important;margin:0!important}
+#beelineModal .beeline-modal-icon:empty{display:none}
 #screen-management-debts .pu-debt-filter{position:relative;flex:1 1 0;min-width:0;padding:0!important;margin:0!important}
 #screen-management-debts .pu-debt-filter>.custom-dropdown{position:relative!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;background:transparent!important;box-sizing:border-box}
 #screen-management-debts .pu-debt-filter>.custom-dropdown>.dropdown-select-btn{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:36px;margin:0;padding:7px 8px;border:1px solid #b7ed55;border-radius:7px;background:var(--surface-dark);color:var(--text-main);font:400 12px/20px Arial,sans-serif;text-align:left;box-sizing:border-box}
