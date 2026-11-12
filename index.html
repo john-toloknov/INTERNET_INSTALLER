@@ -6487,14 +6487,19 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
         
         <!-- Кнопки управления -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
-            <button class="btn action-btn" id="toggle-camera-btn" onclick="toggleManualInputMode()">Ввести вручную ⌨️</button>
-            <button class="btn action-btn" id="gallery-btn" onclick="document.getElementById('file-input').click()">Загрузить фото из галереи 📁</button>
+            <div class="scanner-input-actions">
+            <button type="button" class="btn action-btn" id="toggle-camera-btn" onclick="toggleManualInputMode()">Внести вручную ⌨️</button>
+            <button class="btn action-btn" id="gallery-btn" onclick="document.getElementById('file-input').click()">Загрузить фото 📁</button>
+            </div>
             <input type="file" id="file-input" accept="image/*" onchange="handleFile(event)" style="display: none;">
 
             <button class="btn main-btn" id="proceed-to-form-btn" style="display: none;" onclick="showFormStep();">📝 Перейти к оформлению (<span id="batch-count-badge">0</span> шт.) 🚀</button>
             
             <!-- Красная кнопка возврата в главное меню внизу -->
-            <button class="btn danger-btn" onclick="switchScreen('screen-main'); stopScanner();">🔚 Главное меню</button>
+            <div class="scanner-navigation-actions">
+            <button type="button" class="btn danger-btn" id="scan-request-back" hidden onclick="iiCancelTmrScan()">🔙 Назад</button>
+            <button type="button" class="btn danger-btn" id="scan-main-menu" onclick="iiCancelTmrScan(true)">🔚 Главное меню</button>
+            </div>
         </div>
     </div>
 </div>
@@ -9611,9 +9616,9 @@ async function runSearchAccess(version) {
 
     // Показывает сканер экран.
     function openScannerScreen(tmcContext=false) {
-        if(!tmcContext)iiTmrScanContext=null;
+        if(!tmcContext&&iiTmrScanContext){scannedBatch=[];iiTmrScanContext=null;scannerIssueId='';}
         if (!['Старший Техник','Супервайзер','Владелец'].includes(currentUser?.role)) return;
-        if(!iiTmrScanContext)document.getElementById('iiTmrScannerActions')?.setAttribute('hidden','');switchScreen('screen-scanner');
+        document.getElementById('iiTmrScannerActions')?.remove();const back=document.getElementById('scan-request-back');if(back)back.hidden=!iiTmrScanContext;switchScreen('screen-scanner');
         initScannerDefaults();
         loadInstallersDropdown();
         startScanner();
@@ -9676,7 +9681,7 @@ async function runSearchAccess(version) {
         
         if (cameraSection) cameraSection.style.display = 'flex';
         if (manualBox) manualBox.style.display = 'none';
-        if (toggleBtn) toggleBtn.innerHTML = 'Ввести вручную ⌨️';
+        if (toggleBtn) toggleBtn.innerHTML = 'Внести вручную ⌨️';
         setEquipmentMode('router');
     }
 
@@ -9750,13 +9755,13 @@ async function runSearchAccess(version) {
         if (isHidden) {
             cameraSection.style.display = 'none';
             manualBox.style.display = 'flex';
-            toggleBtn.innerHTML = 'Включить камеру 📸';
+            toggleBtn.innerHTML = 'Включить камеру 📷';
             stopScanner();
             if (serialInput) serialInput.focus();
         } else {
             cameraSection.style.display = 'flex';
             manualBox.style.display = 'none';
-            toggleBtn.innerHTML = 'Ввести вручную ⌨️';
+            toggleBtn.innerHTML = 'Внести вручную ⌨️';
             startScanner();
         }
     }
@@ -9845,23 +9850,49 @@ async function runSearchAccess(version) {
         }
     }
 
-    function renderManualScannedRows(){
-        const list=document.getElementById('manual-scanned-rows');if(!list)return;
-        list.replaceChildren();list.hidden=!scannedBatch.length;
-        for(const [index,item] of scannedBatch.entries()){
-            const row=document.createElement('div');row.className='manual-scanned-row';
-            const label=document.createElement('label'),input=document.createElement('input'),remove=document.createElement('button');
-            label.textContent=(index+1)+'. '+({router:'🛜 Роутер',stb:'📺 Приставка',cable:'🔌 Кабель'}[item.type]||'ТМЦ');
-            input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',label.textContent+' · серийный номер');input.title=item.fullText;label.append(input);
-            remove.type='button';remove.className='btn danger-btn';remove.textContent='✕';remove.setAttribute('aria-label','Удалить '+item.code+' из списка');
-            remove.onclick=()=>removeManualScannedItem(index);
-            row.append(label,remove);list.append(row);
-        }
-        renderManualScannedColumns();
-    }
+    function iiScannerItemTitle(item){
+ const type={router:'🛜 Роутер',stb:'📺 Приставка',cable:'🔌 Кабель'}[item.type]||'ТМЦ';
+ return item.type==='cable'?type+' | № '+item.code+' ('+item.meters+'м)':type+' · '+(item.model||'Модель не определена')+' | S/N: '+item.code;
+}
+function iiScannerModelField(item,index){
+ const detected=item.type==='router'?ctDetectRouterModel(item.code):ctDetectStbModel(item.code);
+ item.model=sxDisplayModel_(item.model||detected||'');
+ const field=iiTmrModelChoice(item.type,item.model,false,value=>{item.model=value;scannerIssueId='';if(index===scannedBatch.length-1){const last=document.getElementById('last-scanned-text');if(last)last.textContent=iiScannerItemTitle(item);}});
+ field.wrap.classList.add('manual-scan-model');field.input.setAttribute('aria-label',(item.type==='router'?'Модель роутера':'Модель приставки')+' · '+item.code);
+ field.wrap.querySelector('span').textContent=item.type==='router'?'Модель роутера':'Модель приставки';return field.wrap;
+}
+function iiScannerModelsReady(){
+ for(const item of scannedBatch){if(!['router','stb'].includes(item.type))continue;
+  item.model=sxDisplayModel_(item.model||(item.type==='router'?ctDetectRouterModel(item.code):ctDetectStbModel(item.code))||'');
+  const names=(item.type==='router'?standardRouterModels:standardTvBoxes).filter(value=>!['Роутер абонента','Без приставки'].includes(value));
+  if(!names.includes(item.model)){showBeelineModal('Выберите модель',(item.type==='router'?'Роутер':'Приставка')+' S/N: '+item.code+' — выберите модель в списке над серийным номером.','⚠️');return false;}
+ }return true;
+}
+function iiCancelTmrScan(toMain=false){
+ const context=iiTmrScanContext;iiTmrScanContext=null;if(context){scannedBatch=[];lastScannedCode='';lastScanTime=0;scannerIssueId='';}
+ document.getElementById('iiTmrScannerActions')?.remove();document.getElementById('scan-request-back')?.setAttribute('hidden','');
+ document.querySelectorAll('#screen-scanner .custom-dropdown.open').forEach(dropdown=>setDropdownOpen(dropdown,false));stopScanner();
+ if(context&&!toMain){switchScreen('screen-tmc-requests-management');tmrRender();const card=[...document.querySelectorAll('#screen-tmc-requests-management .tmr-record')].find(card=>card.dataset.tmrId===context.id);if(card){card.open=true;card.scrollIntoView({block:'nearest'});}}
+ else switchScreen('screen-main');
+}
+function renderManualScannedRows(){
+ const list=document.getElementById('manual-scanned-rows');if(!list)return;
+ list.replaceChildren();list.hidden=!scannedBatch.length;
+ for(const [index,item] of scannedBatch.entries()){
+  const row=document.createElement('div'),body=document.createElement('div'),label=document.createElement('label'),input=document.createElement('input'),remove=document.createElement('button');
+  row.className='manual-scanned-row';body.className='manual-scan-item';
+  const title=document.createElement('span');title.className='manual-scan-position';title.textContent=(index+1)+'. '+({router:'🛜 Роутер',stb:'📺 Приставка',cable:'🔌 Кабель'}[item.type]||'ТМЦ');body.append(title);
+  if(item.type!=='cable')body.append(iiScannerModelField(item,index));
+  label.textContent=item.type==='cable'?'Номер кабеля':'Серийный номер';
+  input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',title.textContent+' · серийный номер');input.title=item.fullText||item.code;label.append(input);body.append(label);
+  remove.type='button';remove.className='btn danger-btn';remove.textContent='✕';remove.setAttribute('aria-label','Удалить '+item.code+' из списка');remove.onclick=()=>removeManualScannedItem(index);
+  row.append(body,remove);list.append(row);
+ }
+ renderManualScannedColumns();
+}
 
     function removeManualScannedItem(index){
-        scannedBatch.splice(index,1);lastScannedCode='';lastScanTime=0;updateBatchUI();
+        scannedBatch.splice(index,1);scannerIssueId='';lastScannedCode='';lastScanTime=0;updateBatchUI();
         const box=document.getElementById('last-scanned-box');if(box)box.style.display='none';
         document.getElementById('manual-serial-input')?.focus();
     }
@@ -9876,7 +9907,7 @@ async function runSearchAccess(version) {
             entries.forEach(({item,index},number)=>{
                 const row=document.createElement('div'),body=document.createElement('div'),label=document.createElement('label'),input=document.createElement('input'),remove=document.createElement('button');
                 row.className='manual-scanned-row';body.className='manual-scan-item';label.textContent=(number+1)+'. '+(type==='cable'?'Номер кабеля':'Серийный номер');
-                input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',title+' · '+label.textContent);label.append(input);body.append(label);
+                input.type='text';input.value=item.code;input.readOnly=true;input.setAttribute('aria-label',title+' · '+label.textContent);label.append(input);if(type!=='cable')body.append(iiScannerModelField(item,index));body.append(label);
                 if(type==='cable'){
                     const name=document.createElement('p'),meters=document.createElement('span');name.className='manual-scan-cable-name';name.textContent=item.cableName;meters.className='manual-scan-cable-meters';meters.textContent=item.meters+' м';body.append(name,meters);
                 }
@@ -9927,6 +9958,7 @@ async function runSearchAccess(version) {
             type: currentMode,
             code: code,
             fullText: labelText,
+            model: currentMode==='router'?ctDetectRouterModel(code):currentMode==='stb'?ctDetectStbModel(code):'',
             cableName: currentMode === 'cable' ? document.getElementById('cable-name').value : '',
             meters: currentMode === 'cable' ? currentCableMeters : 0
         });
@@ -9935,9 +9967,9 @@ async function runSearchAccess(version) {
         if (lastBox) lastBox.style.display = 'flex';
         
         const lastText = document.getElementById('last-scanned-text');
-        if (lastText) lastText.innerText = displayTitle;
+        if (lastText) lastText.textContent = iiScannerItemTitle(scannedBatch[scannedBatch.length-1]);
 
-        updateBatchUI();
+        scannerIssueId='';updateBatchUI();
 
         if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
@@ -9960,6 +9992,8 @@ async function runSearchAccess(version) {
     function updateBatchUI() {
         const totalCount = scannedBatch.length;
         renderManualScannedRows();
+        const back=document.getElementById('scan-request-back');if(back)back.hidden=!iiTmrScanContext;
+        document.getElementById('iiTmrScannerActions')?.remove();
         
         const scanHint = document.getElementById('scan-hint');
         if (scanHint) scanHint.innerText = `Наведите камеру на штрих-код (В списке: ${totalCount} шт.)`;
@@ -9972,7 +10006,7 @@ async function runSearchAccess(version) {
 
         const proceedBtn = document.getElementById('proceed-to-form-btn');
         if (proceedBtn) {
-            proceedBtn.style.display = totalCount > 0 ? 'block' : 'none';
+            proceedBtn.style.display = totalCount > 0 || iiTmrScanContext ? 'block' : 'none';
         }
     }
 
@@ -10217,6 +10251,9 @@ function populateInstallersDropdown() {
 
 // ПЕРЕХОД К ФОРМЕ (С АВТОМАТИЧЕСКИМ АВТОРОМ И ФИЛЬТРАЦИЕЙ СОТРУДНИКОВ)
 function showFormStep() {
+    if(iiTmrScanContext){iiFinishTmrScan();return;}
+    if(!scannedBatch.length){showBeelineModal('Выдача ТМЦ','Список оборудования пуст.','⚠️');return;}
+    if(!iiScannerModelsReady())return;
     stopScanner();
     switchScreen('screen-form');
 
@@ -10284,7 +10321,7 @@ function showFormStep() {
 
             return `
                 <div style="display: flex; justify-content: space-between; align-items: center; background: var(--ui-bg-0a0a0a,#0a0a0a); padding: 10px 12px; border-radius: 10px; border: 1px solid var(--card-border); font-size: 13px; color: var(--ui-fg-ffffff,#fff); margin-bottom: 6px;">
-                    <span style="word-break: break-all; font-family: monospace;"><b>${index + 1}. ${typeLabel}</b> ${item.fullText}</span>
+                    <span style="word-break: break-all; font-family: monospace;"><b>${index + 1}. ${typeLabel}</b> ${escapeScheduleHtml(item.type==='cable'?(item.fullText||item.code):((item.model||'')+' | S/N: '+item.code))}</span>
                     <button type="button" onclick="removeItem(${index})" style="background:none; border:none; color: var(--ui-fg-ef4444,#ef4444); cursor:pointer; font-size: 16px; padding: 0 4px;">✕</button>
                 </div>
             `;
@@ -10312,13 +10349,14 @@ function showFormStep() {
     async function sendDataToGoogleSheet() {
         if(iiTmrScanContext){iiFinishTmrScan();return;}
         if (!scannedBatch.length) {showBeelineModal('Выдача ТМЦ','Список оборудования пуст.','⚠️');return;}
+        if(!iiScannerModelsReady())return;
         const installer=document.getElementById('installer')?.value;
         if(!installer){showBeelineModal('Выдача ТМЦ','Выберите сотрудника.','⚠️');return;}
         const button=document.getElementById('submit-btn');if(button?.disabled)return;
         const owner=managementOwnerKey(),loader=document.getElementById('loader-text');if(button)button.disabled=true;if(loader){loader.style.display='block';loader.innerHTML=liveLoading('Записываем выдачу…','📦');}
         scannerIssueId=scannerIssueId||ctRequestId();
         try{
-            const result=await ctIssueRequest({installer,batchData:scannedBatch.map(item=>({mode:item.type,serial:item.code,cableName:item.cableName||'',meters:item.meters||0}))},scannerIssueId);
+            const result=await ctIssueRequest({installer,batchData:scannedBatch.map(item=>({mode:item.type,serial:item.code,model:item.model||'',cableName:item.cableName||'',meters:item.meters||0}))},scannerIssueId);
             if(owner!==managementOwnerKey())return;if(result.status!=='success')throw new Error(result.message||'Таблица не подтвердила выдачу');
             const affected=[...new Set(scannedBatch.map(item=>({router:'stockRouters',stb:'stockStbs',cable:'stockCable'}[item.type])).filter(Boolean))];ctInvalidateGroups(affected);const completedRequestId=scannerIssueId;scannerIssueId='';scannedBatch=[];switchScreen('screen-success');
             if(!result.notification?.sent)ctShowIssueNotificationError(result,completedRequestId);
@@ -10404,22 +10442,7 @@ document.addEventListener('blur', (e) => {
     // Список сотрудников для отчётов формируется динамически из usersDb.
 
     const standardRouterModels = [
-    "TP-Link EX222 (AX-1800)",
-    "ZXHN H3601P V7 (ZTE Router)",
-    "TP Link EC225-G5 (AC-1300)",
-    "AC1200 - G12-B",
-    "Basic (Модель F1O-D)",
-    "TP-Link Archer C20",
-    "TP-Link Archer C24",
-    "DGP X3000TR (GPON)",
-    "OptiXstar HG8145X6-10",
-    "TP-Link HC220-G5 (Ultimate White)",
-    "AX3000 (Ultimate Black)",
-    "TP-Link DEKO M4 (Ultimate)",
-    "Роутер абонента"
-];
-
-    const demontazhRouterModels = [
+    "Роутер абонента",
     "TP-Link EX222 (AX-1800)",
     "ZXHN H3601P V7 (ZTE Router)",
     "TP Link EC225-G5 (AC-1300)",
@@ -10429,26 +10452,44 @@ document.addEventListener('blur', (e) => {
     "TP-Link Archer C20",
     "TP-Link Archer C24",
     "DGP X3000TR (GPON)",
-    "OptiXstar HG8145X6-10",
+    "OptiXstar HG8145X6-10 (GPON)",
     "TP-Link HC220-G5 (Ultimate White)",
     "AX3000 (Ultimate Black)",
     "TP-Link DEKO M4 (Ultimate)",
     "TP-Link WR840N",
-    "D-Link Dir 615",
-    "Роутер абонента"
+    "D-Link Dir 615"
+];
+
+    const demontazhRouterModels = [
+    "Роутер абонента",
+    "TP-Link EX222 (AX-1800)",
+    "ZXHN H3601P V7 (ZTE Router)",
+    "TP Link EC225-G5 (AC-1300)",
+    "AC1200 - G12-B",
+    "Basic (Модель F1O-D)",
+    "TURBO",
+    "TP-Link Archer C20",
+    "TP-Link Archer C24",
+    "DGP X3000TR (GPON)",
+    "OptiXstar HG8145X6-10 (GPON)",
+    "TP-Link HC220-G5 (Ultimate White)",
+    "AX3000 (Ultimate Black)",
+    "TP-Link DEKO M4 (Ultimate)",
+    "TP-Link WR840N",
+    "D-Link Dir 615"
 ];
 
     const standardTvBoxes = [
-        "Приставка IPTV ZXV10 B860H",
-        "RASSE-001",
-        "Без приставки"
-    ];
+    "Без приставки",
+    "Приставка IPTV ZXV10 B860H",
+    "RASSE-001"
+];
 
     const demontazhTvBoxes = [
-        "Приставка IPTV ZXV10 B860H",
-        "RASSE-001",
-        "Без приставки"
-    ];
+    "Без приставки",
+    "Приставка IPTV ZXV10 B860H",
+    "RASSE-001"
+];
 
     const themesService = [
         "Замена коннектора на ТКД", "Перенос выезда по запросу клиента", "Выход из строя коммутатора ТКД",
@@ -11052,7 +11093,7 @@ function eqSchemaErrors_(schema,values){
  if(!schema||!schema.fields)return [];var errors=[],get=function(col){if(!col)return '';return Array.isArray(values)?values[String(col).split('').reduce(function(v,c){return v*26+c.charCodeAt(0)-64;},0)-1]:values[col];};
  schema.fields.filter(function(f){return f.type==='router'||f.type==='stb';}).forEach(function(model){var title=model.label.split(' · ')[0],stock=model.label.indexOf(' · ')<0,sn=schema.fields.find(function(f){return f.label===(stock?'S/N':title+' · S/N');}),mac=schema.fields.find(function(f){return f.label===(stock?'MAC':title+' · MAC');});if(!sn||!mac)return;eqDeviceErrors_(get(model.col),get(sn.col),get(mac.col),title).forEach(function(e){errors.push({col:e.field==='model'?model.col:mac.col,message:e.message});});});return errors;
 }
-var SX_MODEL_NAMES={"D-Link Dir 615":"D-Link Dir 615","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"Wi-fi  система TP-LINK Deco M4 2-pack","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TURBO":"Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001","DGP X3000TR (GPON)":"Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st","OptiXstar HG8145X6-10":"Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC"};
+var SX_MODEL_NAMES={"TP-Link EX222 (AX-1800)":"Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP","ZXHN H3601P V7 (ZTE Router)":"Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre","TP Link EC225-G5 (AC-1300)":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5","AC1200 - G12-B":"Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B","Basic (Модель F1O-D)":"Роутер СРЕ / Router СРЕ (Модель F1O-D)","TURBO":"Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO","TP-Link Archer C20":"Маршрутизатор беспроводной двухдиапазонный Archer C20","TP-Link Archer C24":"Маршрутизатор беспроводной двухдиапазонный Archer C24","DGP X3000TR (GPON)":"Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st","OptiXstar HG8145X6-10 (GPON)":"Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC","TP-Link HC220-G5 (Ultimate White)":"Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi","AX3000 (Ultimate Black)":"Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000","TP-Link DEKO M4 (Ultimate)":"Wi-fi  система TP-LINK Deco M4 2-pack","TP-Link WR840N":"Маршрутизатор беспроводной 840 TP-Link","D-Link Dir 615":"D-Link Dir 615","Приставка IPTV ZXV10 B860H":"Приставка IPTV ZXV10 B860H|||","RASSE-001":"RASSE-001","Маршрутизатор беспроводной 840 TP-Link":"Маршрутизатор беспроводной 840 TP-Link","OptiXstar HG8145X6-10":"Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC"};
 function sxReturnModel_(model){const text=String(model||'').trim();return iiReturnModel(SX_MODEL_NAMES[text]||text);}
 function sxDisplayModel_(model){const text=String(model||'').trim(),normal=value=>iiReturnModel(value).replace(/\s+/g,' '),key=normal(text);if(key==='Маршрутизатор беспроводной 840 TP-Link')return 'TP-Link WR840N';return Object.keys(SX_MODEL_NAMES).find(name=>normal(name)===key||normal(SX_MODEL_NAMES[name])===key)||text;}
 // Сервисная замена: читаемый комментарий — единый формат для формы и возвратов.
@@ -11126,7 +11167,7 @@ function sxAttach(root,adapter){
  ctx.sync=save;ctx.validate=()=>{save();const errors=[];for(const slot of ctx.slots){slot.wrap.querySelectorAll('.equipment-required-error').forEach(eqClearError);if(slot.active)errors.push(...eqSlotErrors(slot));}if(errors.length){for(const e of errors)eqShowError(e.node,e.message);eqFocusError(errors[0].node);const error=new Error(errors[0].message);error.inlineEquipment=true;throw error;}const devices=ctx.slots.filter(s=>s.active).map(s=>sxValidate_(s.data()));if(!/^Сервис /.test(adapter.type())&&devices.length)return true;const seen=new Set();for(const d of devices){for(const key of ['sn:'+d.sn,'mac:'+d.mac]){if(seen.has(key))throw new Error('Одно забираемое устройство указано в нескольких заменах');seen.add(key);}if(ctx.slots.some(other=>{const p=adapter.provided(other.kind,other.index);return p.sn===d.sn||p.mac===d.mac;}))throw new Error('Забираемое устройство совпадает с предоставляемым');}return true;};
  for(const kind of ['router','stb'])for(let index=1;index<=3;index++){
   const host=adapter.host(kind,index);if(!host)continue;const title=kind==='stb'?'Приставка':'Роутер',wrap=sxNode('section','sx-exchange'),button=sxNode('button','btn action-btn sx-toggle','🔄 '+title+' абонента'),body=sxNode('div','sx-body'),grid=sxNode('div','sx-grid'),slot={kind,index,title,wrap,button,body,active:false};button.type='button';body.hidden=true;wrap.append(button,body);body.append(sxNode('h4','',title+' абонента — забираемое оборудование'),grid);
-  const changed=()=>save(),deviceLabel=(kind==='stb'?'приставки ':'роутера ')+index;slot.model=sxChoice('Модель '+deviceLabel,()=>{const models=(kind==='stb'?standardTvBoxes:standardRouterModels).filter(v=>v!=='Без приставки');return [...new Set([...models,...(slot.model.get()?[slot.model.get()]:[])])];},changed);grid.append(slot.model.wrap);
+  const changed=()=>save(),deviceLabel=(kind==='stb'?'приставки ':'роутера ')+index;slot.model=sxChoice('Модель '+deviceLabel,()=>{const models=(kind==='stb'?standardTvBoxes:standardRouterModels);return [...new Set([...models,...(slot.model.get()?[slot.model.get()]:[])])];},changed);grid.append(slot.model.wrap);
   function codeField(label,mac){const field=sxNode('div','sx-field'),caption=sxNode('label','',label),row=sxNode('div','sx-code'),input=sxNode('input'),scan=sxNode('button','btn-scan sx-scan','📷');input.id='sx-'+(++sxInstance)+(mac?'-mac':'-sn');input.setAttribute('aria-label',label);input.autocomplete='off';input.placeholder=mac?'12 символов A–F и 0–9':'Введите или отсканируйте';scan.type='button';scan.setAttribute('aria-label','Сканировать '+label);scan.onclick=()=>openUniversalScanner(input.id,decoded=>{input.value=mac?deviceInputMac(decoded):deviceInputSerial(decoded);input.dispatchEvent(new Event('input',{bubbles:true}));});input.oninput=()=>{input.value=mac?deviceInputMac(input.value):deviceInputSerial(input.value);if(!mac){const model=sxDisplayModel_(detectModelBySerial(input.value));if(model)slot.model.set(model);}changed();};row.append(input);if(adapter.scan!==false)row.append(scan);field.append(caption,row);grid.append(field);return input;}
   slot.sn=codeField('Серийный номер '+deviceLabel,false);slot.mac=codeField('MAC адрес '+deviceLabel,true);slot.kit=sxKit(kind,changed);slot.reason=sxChoice('Причина возврата',SX_REASONS[kind],()=>{if(slot.reason.get()==='Другая причина')slot.status.set('');changed();});slot.status=sxChoice('Статус',['Рефарб','Брак','Утилизация'],changed);slot.detailWrap=sxNode('div','sx-field');slot.detailWrap.append(sxNode('label','','Опишите другую причину'));slot.detail=sxNode('input');slot.detail.type='text';slot.detail.maxLength=500;slot.detail.placeholder='Почему заменили устройство';slot.detail.oninput=changed;slot.detailWrap.append(slot.detail);const choices=sxNode('div','sx-choices');choices.append(slot.kit.wrap,slot.reason.wrap,slot.status.wrap);grid.append(choices,slot.detailWrap);
   const remove=sxNode('button','btn danger-btn sx-remove','Убрать замену');remove.type='button';remove.onclick=()=>{showBeelineModal('Убрать замену?','Забираемое устройство будет убрано из отчёта. Уже оформленный возврат изменить нельзя.','⚠️','<button type="button" class="btn danger-btn" id="sxRemoveConfirm">Убрать замену</button>');document.getElementById('sxRemoveConfirm').onclick=()=>{closeBeelineModal();slot.active=false;slot.sn.value=slot.mac.value=slot.detail.value='';for(const w of [slot.model,slot.kit,slot.reason,slot.status])w.set('');save();};};body.append(remove);
@@ -12342,17 +12383,7 @@ function ctDetectStbModel(serial) {
         if(stage==='delivery'){record.delivery=data;if(data.telegram==='sent')record.totalMs=Date.now()-record.started;}
         try{sessionStorage.setItem(key,JSON.stringify(record));}catch(ignore){}iiRenderReportMeasure_();
     }
-    function iiRenderReportMeasure_(){
-        const host=document.getElementById('screen-technician-reports');if(!host)return;
-        let panel=document.getElementById('iiReportMeasure');
-        if(!['Старший Техник','Старший техник','Супервайзер','Владелец'].includes(currentUser?.role)){panel?.remove();return;}
-        if(!panel){panel=ctNode('details','card');panel.id='iiReportMeasure';panel.append(ctNode('summary','','Время последней отправки · сборка 05.11 perf3'),ctNode('pre'));host.querySelector('h2')?.after(panel);}
-        let record;try{record=JSON.parse(sessionStorage.getItem('ii_report_measure_v2_'+managementOwnerKey())||'null');}catch(ignore){}
-        const seconds=v=>Number.isFinite(v)?(v/1000).toFixed(2)+' с':'нет данных';
-        const text=record?'До ответа о записи: '+seconds(record.savedMs)+'\nДо подтверждения Telegram: '+seconds(record.totalMs)+'\nОтветов «таблица занята»: '+record.busyReplies+'\nСервер записи: '+seconds(record.save?.serverMs)+'\nСервер доставки: '+seconds(record.delivery?.serverMs)+'\nВерсия сервера: '+(record.delivery?.revision||record.save?.revision||'сервер не передал версию')+'\n\nЭтапы записи (мс):\n'+JSON.stringify(record.save?.phases||{},null,2)+'\nЭтапы доставки (мс):\n'+JSON.stringify(record.delivery?.phases||{},null,2):'Здесь появятся замеры после отправки отчёта. Сборка 05.11 perf3.';
-        panel.querySelector('pre').textContent=text;
-        const summary=document.querySelector('[data-report-measure-summary]');if(summary&&summary.dataset.reportMeasureSummary===record?.id)summary.textContent='Подтверждение записи: '+seconds(record.savedMs)+' · Полная отправка: '+(record.totalMs==null?'ожидается':seconds(record.totalMs));
-    }
+    function iiRenderReportMeasure_(){document.getElementById('iiReportMeasure')?.remove();}
     function showVerifiedReportResult(type, city, receipt, requestId='') {
         const safe = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
         const rowNumber = Number(receipt.rowNumber);
@@ -12929,21 +12960,21 @@ async function pprPlanSelectPhotos(event){
 // 1. СПИСОК ДОСТУПНЫХ НОМЕНКЛАТУР И УПРАВЛЕНИЕ ВЫПАДАЮЩИМИ СПИСКАМИ
 
 const NOMENCLATURE_LIST = [
-    "D-Link Dir 615",
-    "Маршрутизатор беспроводной 840 TP-Link",
-    "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000",
-    "Wi-fi  система TP-LINK Deco M4 2-pack",
-    "Маршрутизатор беспроводной двухдиапазонный Archer C24",
-    "Маршрутизатор беспроводной двухдиапазонный Archer C20",
-    "Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO",
-    "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B",
-    "Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre",
-    "Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi",
     "Роутер L2TP Беспроводной двухдиапазонный гигабитный Wi-Fi 6-TP-Link EX222 (KZBL) router L2TP",
+    "Роутер L2TP Устройство доступа конечного пользователя ZXHN H3601P V7 (L2TP)/Router L2TP Customer Pre",
     "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - TP Link EC225-G5",
+    "Беспроводной двух диапазонный гигабитный Роутер (маршрутизатор) AC1200 - G12-B",
     "Роутер СРЕ / Router СРЕ (Модель F1O-D)",
+    "Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO",
+    "Маршрутизатор беспроводной двухдиапазонный Archer C20",
+    "Маршрутизатор беспроводной двухдиапазонный Archer C24",
     "Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st",
     "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC",
+    "Роутер AC1200 MESH TP-Link HC220-G5 Для проектов AC1200 Гигабитная домашняя Mesh-система Wi-Fi",
+    "Двухдиапазонный гигабитный Wi-Fi 6 MESH Роутер (маршрутизатор) AX3000, 1 штука в комплекте / AX3000",
+    "Wi-fi  система TP-LINK Deco M4 2-pack",
+    "Маршрутизатор беспроводной 840 TP-Link",
+    "D-Link Dir 615",
     "Приставка IPTV ZXV10 B860H|||",
     "RASSE-001"
 ];
@@ -14622,7 +14653,7 @@ function ctFilterFields(){if(ctPart==='returns')return ctrFilterFields();if(ctPa
 // Выполняет фильтр варианты — модуль городской таблицы.
 function ctFilterOptions(label,type,col){
  if(type==='themeMulti')return ctThemeOptions();
- if(type==='returnModelMulti'||type==='returnStaffMulti'){const values=ctAllRecords().map(r=>type==='returnModelMulti'?iiReturnModel(ctDraft(r).values[col]||r.returnModel||''):String(ctDraft(r).values[col]||'')).filter(Boolean);return [...new Set(values)].sort((a,b)=>a.localeCompare(b,'ru')).map(value=>({value,label:value}));}
+ if(type==='returnModelMulti'||type==='returnStaffMulti'){const values=[...(type==='returnModelMulti'?NOMENCLATURE_LIST:[]),...ctAllRecords().map(r=>type==='returnModelMulti'?iiReturnModel(ctDraft(r).values[col]||r.returnModel||''):String(ctDraft(r).values[col]||''))].filter(Boolean);return [...new Set(values)].sort((a,b)=>a.localeCompare(b,'ru')).map(value=>({value,label:value}));}
  if(type==='staffMulti')return ctOptions({type:'staff'},ctState.sheets[0]?.name||'','').filter(o=>o.value);
  const cable=ctState.group==='stockCable',field={type:cable?'cableChoice':ctState.group==='stockStbs'?'stb':'router'};
  const options=ctOptions(field,ctState.sheets[0]?.name||'', '').filter(o=>o.value);
@@ -16301,7 +16332,7 @@ function egSessionState(m){
 <script id="iiTableFilterExtensions">
 function ctThemeOptions(){const values=[];for(const sheet of ctState.sheets){const field=sheet.schema.fields.find(f=>f.type==='theme');if(!field)continue;for(const o of ctOptions(field,sheet.name,'').filter(o=>o.value)){const value=typeof o==='string'?o:o.value;if(value)values.push(value);}for(const record of sheet.rows){const value=ctDraft({...record,sheet:record.sheet||sheet.name}).values[field.col];if(value)values.push(String(value));}}return [...new Set(values)].sort((a,b)=>a.localeCompare(b,'ru')).map(value=>({value,label:value}));}
 function ctPruneThemes(){if(ctPart!=='acts'||!ctState.loaded)return;const allowed=new Set(ctThemeOptions().map(o=>o.value));ctFilters['Тематика решения']=(ctFilters['Тематика решения']||[]).filter(v=>allowed.has(v));}
-function iiReturnModel(value){const key=String(value||'').trim().replace(/\s+/g,' ');if(key==="DGP X3000TR (GPON)")return "Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st";if(key==="OptiXstar HG8145X6-10")return "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC";if(key==='Роутер Wi-Fi TURBO / router Wi-Fi TURBO'||key==='TURBO')return 'Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO';if(key==='TP-Link DEKO M4 (Ultimate)'||key==='Wi-fi система TP-LINK Deco M4 2-pack')return 'Wi-fi  система TP-LINK Deco M4 2-pack';return String(value||'').trim();}
+function iiReturnModel(value){const key=String(value||'').trim().replace(/\s+/g,' ');if(key==="DGP X3000TR (GPON)")return "Беспроводной абонентский терминал GPON стандарта AX3000/ Wireless subscriber terminal GPON AX3000 st";if(key==="OptiXstar HG8145X6-10")return "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC";if(key==="OptiXstar HG8145X6-10 (GPON)")return "Терминал широкополосный сетевой OptiXstar HG8145X6-10 Smart HGU терминал GPON SC/APC";if(key==='Роутер Wi-Fi TURBO / router Wi-Fi TURBO'||key==='TURBO')return 'Роутер Wi-Fi  TURBO / router Wi-Fi  TURBO';if(key==='TP-Link DEKO M4 (Ultimate)'||key==='Wi-fi система TP-LINK Deco M4 2-pack')return 'Wi-fi  система TP-LINK Deco M4 2-pack';return String(value||'').trim();}
 function iiWarehouseEquipment(host,items){for(const type of ['Роутеры','Приставки','Кабель']){const rows=items.filter(i=>i.type===type),group=ctNode('details','act-debts-group'),title=ctNode('summary','act-debts-group-title',type+' · '+rows.length);group.append(title);for(const item of rows){const card=ctNode('div','vs-material-card');card.append(ctNode('strong','',item.name||'Без модели'),ctNode('p','','Серийный номер: '+(item.serial||'—')));if(item.mac)card.append(ctNode('p','','MAC: '+item.mac));if(type==='Кабель')card.append(ctNode('p','','Остаток: '+item.meters+' м'));group.append(card);}if(!rows.length)group.append(ctNode('p','tmr-empty','Нет в наличии'));host.append(group);}}
 </script><script id="iiRemoteServiceImage">
 const II_REMOTE_IMAGE='./assets/images/remote-service.jpg';
@@ -16323,14 +16354,15 @@ function iiTmrMaterialFields(){return II_TMR_MATERIAL_KEYS.map(key=>VS_UI_FIELDS
 
 function iiTmrDraft(item){const key=tmrOwner()+'|'+item.id+'|'+item.version;if(!iiTmrDrafts.has(key)){const actual=item.actual||{},source=actual.cancelled&&actual.cancelVersion===item.version?actual:null;iiTmrDrafts.set(key,{version:item.version,batchData:source?.batchData?.map(i=>({...i}))||[],quantities:{...(source?.quantities||item.quantities)}});}return iiTmrDrafts.get(key);}
 function iiBeginTmrScan(item,draft){
- iiTmrScanContext={owner:tmrOwner(),id:item.id,version:item.version,draft};scannedBatch=draft.batchData.map(i=>({type:i.mode,code:i.serial,model:i.model,cableName:i.cableName||i.model||'',meters:i.meters||0}));openScannerScreen(true);
- let actions=document.getElementById('iiTmrScannerActions');if(!actions){actions=ctNode('div','common-nav-row');actions.id='iiTmrScannerActions';document.querySelector('#screen-scanner .container').prepend(actions);}actions.replaceChildren();actions.hidden=false;
- const done=ctNode('button','btn main-btn','✅ Вернуть позиции в карточку'),back=ctNode('button','btn danger-btn','Назад без изменения');done.type=back.type='button';done.onclick=iiFinishTmrScan;back.onclick=()=>{iiTmrScanContext=null;stopScanner();actions.hidden=true;switchScreen('screen-tmc-requests-management');tmrRender();};actions.append(done,back);updateBatchUI();
+ iiTmrScanContext={owner:tmrOwner(),id:item.id,version:item.version,draft};scannerIssueId='';
+ scannedBatch=draft.batchData.map(i=>({type:i.mode,code:i.serial,model:sxDisplayModel_(i.model||''),fullText:i.serial,cableName:i.cableName||i.model||'',meters:i.meters||0}));
+ document.getElementById('iiTmrScannerActions')?.remove();openScannerScreen(true);updateBatchUI();
 }
 function iiFinishTmrScan(){
  const context=iiTmrScanContext;if(!context||context.owner!==tmrOwner())return;
+ if(!iiScannerModelsReady())return;
  context.draft.batchData=scannedBatch.map(i=>({mode:i.type,serial:i.code,model:i.model||(i.type==='router'?ctDetectRouterModel(i.code):i.type==='stb'?ctDetectStbModel(i.code):i.cableName||''),cableName:i.cableName||'',meters:i.meters||0}));
- stopScanner();iiTmrScanContext=null;document.getElementById('iiTmrScannerActions').hidden=true;scannedBatch=[];switchScreen('screen-tmc-requests-management');tmrRender();const card=[...document.querySelectorAll('#screen-tmc-requests-management .tmr-record')].find(c=>c.dataset.tmrId===context.id);if(card){card.open=true;card.scrollIntoView({block:'nearest'});}
+ stopScanner();iiTmrScanContext=null;document.getElementById('iiTmrScannerActions')?.remove();document.getElementById('scan-request-back')?.setAttribute('hidden','');scannedBatch=[];switchScreen('screen-tmc-requests-management');tmrRender();const card=[...document.querySelectorAll('#screen-tmc-requests-management .tmr-record')].find(c=>c.dataset.tmrId===context.id);if(card){card.open=true;card.scrollIntoView({block:'nearest'});}
 }
 let iiTmrChoiceSequence=0;
 function iiTmrModelOptions(mode,current){
@@ -16582,6 +16614,27 @@ html[data-app-layout] #screen-admin-table>#cityTableEditor{gap:12px}
 #screen-admin-table #cityTableEditor>#cityTableNew:empty{display:none!important}
 #screen-admin-table #cityTableRows>.ct-act-select-all{margin-top:0;margin-bottom:12px}
 </style>
+<style id="scannerModelFlowStyle">
+#manual-box .manual-scan-item{display:flex;flex-direction:column;gap:8px;min-width:0}
+#manual-box .manual-scan-position{font-size:12px;color:var(--text-secondary)}
+#manual-box .manual-scan-model{display:flex;flex-direction:column;gap:5px;margin:0;min-width:0;width:100%;grid-column:1/-1}
+#manual-box .manual-scan-model>span{font-size:12px;color:var(--text-secondary)}
+#manual-box .manual-scan-model .dropdown-select-btn{min-height:44px;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px;box-sizing:border-box}
+html[data-app-layout=desktop] #manual-box .manual-scan-column .manual-scanned-row>.btn{margin-top:0!important;align-self:end}
+#scan-request-back[hidden]{display:none!important}
+html[data-app-layout=desktop] #scan-request-back{display:none!important}
+html[data-app-layout=mobile] #scan-request-back:not([hidden]){display:block!important;width:100%}
+</style>
+<style id="scannerButtonRowsStyle">
+#screen-scanner .scanner-input-actions,
+#screen-scanner .scanner-navigation-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;min-width:0}
+#screen-scanner .scanner-input-actions>.btn,
+#screen-scanner .scanner-navigation-actions>.btn{width:100%!important;min-width:0!important;margin:0!important;min-height:44px;height:auto;padding:10px 6px!important;box-sizing:border-box;white-space:normal;line-height:1.35}
+#screen-scanner .scanner-navigation-actions:has(>#scan-request-back[hidden]){grid-template-columns:minmax(0,1fr)}
+html[data-app-layout=desktop] #screen-scanner .scanner-navigation-actions{grid-template-columns:minmax(0,1fr)}
+</style>
+
+
 <script id="projectUpdate20261111Script">
 const PU_MATERIALS=["TP Link EC225-G5 (AC-1300)","AC1200 - G12-B","Basic (Модель F1O-D)","TP-Link HC220-G5 (Ultimate White)","ZXHN H3601P V7 (ZTE Router)","TP-Link EX222 (AX-1800)","AX3000 (Ultimate Black)","TP-Link Archer C20","TP-Link Archer C24","Общее количество Роутеров","БРАК Роутеры","Приставка IPTV ZXV10 B860H","Клипсы","Коннектора","Хомуты","Изолента","UY2","Кабель канал 10/15 (в метрах)","Кабель канал 20/10 (в метрах)","Кабель канал 40/25 (в метрах)","Кабель канал 60/40 (в метрах)","Дюбель гвозди 6*40","Кабель U/UTP 2х2хAWG 24/1 PVC Cat.5e (0,503)","Кабель F/UTP 2х2Хawg24/1 PE1 Cat. 5e","Кабель U/UTP 4x2xAWG24/1 PVC Cat.5e (0.523)","Кабель FTP 10х2х0,52 (Серийный кабель)","Внешний угол кабельного канала","Внутренний угол кабельного канала","Поворотный угол кабельного канала FTTH","Хвостовик поворотный FTTH","Кабельная клипса для FTTH","Кабельный настенный ввод FTTH","Оптические патчкорды (в метрах)","Коннектор SOC SC/APC 3.0mm","Fast-коннектор FTTH-SC/APC","Оптическая гильза КДЗС 60мм","Адаптер"];
 const PU_SERVICE_THEMES=[["Замена коннектора на ТКД",1,"Технический"],["Перенос выезда по запросу клиента",0,"Не идет в учет"],["Выход из строя коммутатора ТКД",0,"Не идет в учет"],["Настройка Wi-Fi роутера Basic",0.5,"Технический"],["STB предоставлена",0.5,"Коммерческий"],["Замена порта на КРТ",1,"Технический"],["Замена коннектора в квартире абонента",1,"Технический"],["Перегружен магистральный канал",0,"Не идет в учет"],["Проблемы с доступом",0,"Технический"],["Предоставление Ultimate роутера",0.5,"Коммерческий"],["Проблема на стороне абонентского оборудования",1,"Технический"],["Замена Wi-Fi роутера Ultimate",0.5,"Коммерческий"],["Замена кабеля от КРТ",1,"Технический"],["Сервис отработан удалённо",0,"Коммерческий"],["Выход из строя коммутатора АГУ",0,"Не идет в учет"],["Подключение активного клиента к порту",1,"Коммерческий"],["Ошибка инициатора- другое",0,"Не идет в учет"],["Диверсия/саботаж/вредительство",1,"Технический"],["Настройка Wi-Fi роутера Ultimate",0.5,"Технический"],["Настройка приложения на Smart TV",0.5,"Коммерческий"],["STB демонтирован",0.5,"Коммерческий"],["Замена Wi-Fi роутера Basic",0.5,"Коммерческий"],["Предоставление Econom роутера",0.5,"Коммерческий"],["HDMI кабель предоставлен",0.5,"Коммерческий"],["Перегрузки на сети FTTB",0,"Не идет в учет"],["Проблема на стороне внешнего провайдера",0,"Не идет в учет"],["Электропитание ТКД",0,"Не идет в учет"],["Самоустранение по приезду МБ",1,"Коммерческий"],["SWAP TV приставок",0.5,"Коммерческий"],["Соединение кабеля вне квартиры Абонента",1,"Технический"],["Проблемы с биллингом",0,"Не идет в учет"],["Зависание ТКД",0,"Не идет в учет"],["Ошибка конфигурации АГУ/ТКД",0,"Не идет в учет"],["Отказ от сервиса",0,"Не идет в учет"],["Прошивка Wi-Fi роутера Econom",0.5,"Технический"],["Предоставление Basic роутера",0.5,"Коммерческий"],["Роутер демонтирован",0.5,"Коммерческий"],["Самоустранение по звонку",0,"Не идет в учет"],["Абонент переподключен",1,"Технический"],["Электропитание АГУ",0,"Не идет в учет"],["Подключение Smart TV",0.5,"Коммерческий"],["Влияние ТТ/ГП",0,"Не идет в учет"],["Восстановление соединения на КРТ",1,"Технический"],["Кража оборудования",0,"Не идет в учет"],["Замена STB",0.5,"Коммерческий"],["Замена кабеля от ТКД",1,"Технический"],["Ошибка инициатора- неверные данные",0,"Не идет в учет"],["Блок питания предоставлен",0.5,"Коммерческий"],["Отказ от сим-карты",0,"Не идет в учет"],["Отключение клиента от порта",1,"Технический"],["Решен ГЭСПД",0,"Не идет в учет"],["Клиента нет дома",0,"Не идет в учет"],["Плановые и аварийные работы на сети Кар-Тел",0,"Не идет в учет"],["Прошивка Wi-Fi роутера Basic",0.5,"Технический"],["Зависание АГУ",0,"Не идет в учет"],["Настройка STB",0.5,"Технический"],["SWAP Эконом бесплатно",0.5,"Коммерческий"],["Отказ от демонтажа/возврата",0,"Не идет в учет"],["Зависание каналов",1,"Коммерческий"],["Пульт предоставлен",0.5,"Коммерческий"],["Слабый пользователь",1,"Коммерческий"],["Настройка Wi-Fi роутера Econom",0.5,"Технический"],["Отключение электропитания на сети (работы ГЭС/РЭС/КСК/АЖК и т.д.)",0,"Не идет в учет"],["Замена порта ТКД",1,"Технический"],["Ошибка инициатора- неполная диагностика",0,"Не идет в учет"],["Соединение/замена кабеля в квартире абонента",1,"Технический"],["Недозвон",0,"Не идет в учет"],["Патчкорд предоставлен",0.5,"Коммерческий"],["STB+Wi-Fi роутер демонтированы",0.5,"Коммерческий"],["Замена Wi-Fi роутера Econom",0.5,"Технический"],["Сим-карты предоставлены",0.5,"Коммерческий"],["Подключение B2C клиента",2,"Подключение"],["Подключение B2B клиента",3,"Подключение"],["Переезд абонента завершен",2,"Переезд"],["Выбор другого оператора",0,"Не идет в учет"],["Выезд на длительный срок",0,"Не идет в учет"],["КСК не дают ключей. Нет доступа к оборудованию",0,"Не идет в учет"],["по вине монтажников, не приехали, не позвонили",0,"Не идет в учет"],["Требование клиента особых условий подключения, при прокладке кабеля",0,"Не идет в учет"],["Ошибка при создании заявки - адрес",0,"Не идет в учет"],["Ошибка при создании заявки - Тарифный план (наполнение, цена, пакет)",0,"Не идет в учет"],["Ошибка при создании заявки - некорректная консультация",0,"Не идет в учет"],["Ошибка при создании заявки - не подавали заявку",0,"Не идет в учет"],["Долгое ожидание включения",0,"Не идет в учет"],["Подключение B2B клиента",3,"Подключение"],["Контрактный ТП другого провайдера",0,"Не идет в учет"],["Нет тех.возможности (нет свободных портов ТКД / Требуется установка допсвича)",0,"Не идет в учет"],["Нет тех.возможности (Нет ДРС)",0,"Не идет в учет"],["Нет тех.возможности (установка допплинтов / расширение (ДРС))",0,"Не идет в учет"],["Нет технической возможности ( долгое ожидание из за доп оборудования, выбор др оператора)",0,"Не идет в учет"],["Нет технической возможности (Забиты закладные трубки в кв. от застройщиков)",0,"Не идет в учет"],["Ошибка СУЗ (Проблема с активацией)",0,"Не идет в учет"],["Ошибка СУЗ (При сборе Тарифа)",0,"Не идет в учет"],["Финансовые затруднения (Клиент не готов к оплате АП)",0,"Не идет в учет"],["Финансовые затруднения (Дорого в сравнение с конкурентами)",0,"Не идет в учет"],["Дубликат по активной заявке",0,"Не идет в учет"],["Требуется переезд",0,"Не идет в учет"],["Действующий клиент",0,"Не идет в учет"],["Клиента нет дома",0,"Не идет в учет"],["Отказ от прохождения биометрии",0,"Не идет в учет"],["День X",0,"Не идет в учет"],["Видеокамера настроена",1,"Коммерческий"],["Видеокамера заменена",1,"Коммерческий"],["Настройка Wi-Fi роутера ONT",0.5,"Коммерческий"],["Массовый перевод по CRQ",0,"Не идет в учет"],["Предоставление ONT роутера",0.5,"Коммерческий"],["Видеокамера демонтирована",0.5,"Коммерческий"],["Подключение видеокамеры",0.5,"Коммерческий"],["Демонтаж ONT",0.5,"Коммерческий"],["Демонтаж Wi-Fi роутера в ОПИО",0,"Не идет в учет"],["Замена Wi-Fi роутера ONT",0.5,"Коммерческий"],["Прошика Wi-Fi роутера ONT",0.5,"Коммерческий"],["Демонтаж Wi-Fi + STB в ОПИО",0,"Не идет в учет"],["Замена порта на ОРК",1,"Технический"],["Демонтаж STB в ОПИО",0,"Не идет в учет"],["Замена оптического патчкорда в квартире",1,"Технический"],["Замена оптического патчкорда в подъезде",1,"Технический"],["Повреждение ОК",1,"Технический"],["Демонтаж Wi-Fi роутера в ОПИО",0,"Не идет в учет"]];
