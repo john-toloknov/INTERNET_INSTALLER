@@ -16373,10 +16373,17 @@ function iiRenderTmrManagement(root,data){
 }
 
 </script><style id="iiReturnFilterLayout">
-#cityTableEditor .ct-filter-grid[data-ct-layout=returns]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;align-items:start}
-#cityTableEditor .ct-filter-grid[data-ct-layout=returns]>.ct-field{min-width:0;grid-column:auto!important}
-@container ct-filter (min-width:1100px){#cityTableEditor .ct-filter-grid[data-ct-layout=returns]{grid-template-columns:minmax(90px,.8fr) minmax(110px,1fr) minmax(100px,.8fr) minmax(110px,.9fr) 132px minmax(160px,1.5fr) minmax(180px,1.6fr)!important}}
-@media(max-width:420px){#cityTableEditor .ct-filter-grid[data-ct-layout=returns]{grid-template-columns:minmax(0,1fr)!important}}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;align-items:start}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field{min-width:0;grid-column:auto!important}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field:is([data-ct-filter="Модель"],[data-ct-filter="ФИО монтажника"]){grid-column:1/-1!important}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field:is([data-ct-filter="Модель"],[data-ct-filter="ФИО монтажника"]) .dropdown-list{width:100%!important;min-width:100%!important;max-width:100%!important;box-sizing:border-box}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field:is([data-ct-filter="Модель"],[data-ct-filter="ФИО монтажника"]) .ct-multi-label{white-space:normal;word-break:normal;overflow-wrap:break-word;text-align:left}
+@container ct-filter (min-width:1100px){
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]{grid-template-columns:repeat(14,minmax(0,1fr))!important}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field{grid-column:span 2!important}
+#cityTableEditor #cityTableFilters[data-ct-layout=returns]>.ct-field:is([data-ct-filter="Модель"],[data-ct-filter="ФИО монтажника"]){grid-column:span 7!important}
+}
+@media(max-width:420px){#cityTableEditor #cityTableFilters[data-ct-layout=returns]{grid-template-columns:minmax(0,1fr)!important}}
 #cityTableEditor .ctr-record[data-return-state=pending]{background:#FFFF00!important;color:#111!important}
 #cityTableEditor .ctr-record[data-return-state=pending] .ctr-meta b,#cityTableEditor .ctr-record[data-return-state=pending] .ctr-badge{color:#111!important}
 </style><style>#cityTableEditor #cityTableFilters[data-ct-layout="returns"] .app-date-label{font-size:11px!important;font-weight:600!important;line-height:1.3!important;min-height:15px;text-transform:none!important;letter-spacing:normal!important;margin:0 0 5px!important}#cityTableEditor .ctr-record[data-return-state="pending"] .ctr-equipment-status{color:#244000!important}</style><style>.ii-return-counts{padding:0!important}#cityTableEditor .ctr-record[data-return-state="pending"] .dropdown-arrow{color:#244000!important}</style><script>
@@ -16481,7 +16488,7 @@ html[data-app-layout] #cityTableEditor #cityTableFilters .ct-filter-actions .ct-
 #cityTableEditor .pu-count-toolbar .ctr-export-months{width:145px!important;min-width:0!important;flex:0 1 145px!important;margin:0!important}
 #cityTableEditor .pu-count-toolbar .ctr-export-months>.dropdown-select-btn,#cityTableEditor .pu-count-toolbar .ctr-export-controls>.btn{height:34px!important;min-height:34px!important;padding:6px 9px!important;margin:0!important;box-sizing:border-box!important;font:600 12px/20px Arial,sans-serif!important;white-space:nowrap}
 #cityTableEditor .pu-count-toolbar .ctr-export-controls>.btn{display:inline-flex!important;align-items:center;justify-content:center;width:auto!important;min-width:0!important;flex:0 0 auto!important}
-#cityTableEditor .pu-return-status-row{display:flex!important;align-items:center!important;flex-wrap:wrap;gap:6px!important;padding:0 14px 12px;margin:0!important}
+#cityTableEditor .pu-return-status-row{display:flex!important;align-items:center!important;flex-wrap:nowrap;gap:6px!important;padding:0 14px 12px;margin:0!important}
 #cityTableEditor .pu-return-status-row>.ctr-badge,#cityTableEditor .pu-return-status-row>.ctr-equipment-status,#cityTableEditor .pu-return-status-row>.pu-return-confirm{display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 auto!important;width:auto!important;min-width:0!important;min-height:26px!important;height:26px!important;box-sizing:border-box!important;border:1px solid #758b45;border-radius:7px!important;padding:4px 7px!important;margin:0!important;font:600 12px/16px Arial,sans-serif!important;white-space:nowrap}
 html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false] .ct-visible,html[data-app-layout=desktop] #screen-admin-table .ct-record[data-ct-stock=false][data-ct-equipment=true] .ct-visible{grid-template-columns:80px minmax(0,1fr) 80px minmax(0,1fr) 96px minmax(0,1fr) 220px!important;column-gap:10px!important}
 html[data-app-layout=desktop] #screen-admin-table .ct-record .ct-record-controls{gap:6px!important;overflow:visible!important;min-width:0}
@@ -16517,6 +16524,9 @@ html[data-app-layout=mobile] #cityTableEditor #cityTableFilters .ct-filter-actio
 #cityTableCounts .ct-act-count .pu-repeat-circle:focus-visible{outline:2px dotted var(--text-main)!important;outline-offset:2px}
 #cityTableEditor .pu-count-toolbar.pu-table-loading>#cityTableState{grid-column:1/-1!important;justify-self:stretch!important;display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-width:0!important;margin:0!important;padding:0!important;text-align:center!important}
 #cityTableEditor .pu-count-toolbar.pu-table-loading>#cityTableState>.live-loading{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;box-sizing:border-box!important;min-height:120px!important;margin:0!important;text-align:center!important}
+#cityTableEditor .pu-return-status-row>.pu-return-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;width:26px;height:26px;min-height:26px;margin:0 0 0 auto!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--accent-ink);cursor:pointer}
+#cityTableEditor .pu-return-toggle>.dropdown-arrow{position:static!important;display:inline-block;transition:transform .18s}
+#cityTableEditor .pu-return-toggle[aria-expanded=true]>.dropdown-arrow{transform:rotate(180deg)}
 /* v8: reuse the table's employee multiselect, outside document flow. */
 #screen-management-debts .act-debts-toolbar{align-items:flex-end;overflow:visible}
 #screen-management-debts .act-debts-toolbar>#cityDebtPreviewRefresh{align-self:flex-end!important;height:36px!important;min-height:36px!important;box-sizing:border-box!important;padding:7px 12px!important;margin:0!important}
@@ -16561,7 +16571,7 @@ ctRenderActCounts=function(counts,loading=false){puCountCards(counts,loading);co
 const puReturns=ctrRender;
 ctrRender=function(){puReturns();puTableLayout();};
 const puReturnArticle=ctrArticle;
-ctrArticle=function(record,schema){const article=puReturnArticle(record,schema),summary=article.querySelector('.ctr-summary'),badges=article.querySelector('.ctr-badges');if(badges){badges.classList.add('pu-return-status-row');summary.after(badges);}if(record.returnState==='pending'){const button=puButton('📥 Сдать',()=>ctConfirm('Сдать оборудование?','Оформить возврат за сотрудника? Будет сохранено имя руководителя.',async()=>{ctSetBusy(true);try{await ctRequest('confirmReturn',{group:'returns',requestId:ctRequestId(),items:[{sheet:record.sheet,row:record.row,version:record.version}]});ctSetBusy(false);await ctLoad();retHubState.loadedAt=0;}catch(e){showBeelineModal('Возврат',e.message,'⚠️');}finally{ctSetBusy(false);}}),'btn main-btn pu-return-confirm');badges?.append(button);}return article;};
+ctrArticle=function(record,schema){const article=puReturnArticle(record,schema),summary=article.querySelector('.ctr-summary'),badges=article.querySelector('.ctr-badges');if(badges){badges.classList.add('pu-return-status-row');summary.after(badges);}if(record.returnState==='pending'){const button=puButton('📥 Сдать',()=>ctConfirm('Сдать оборудование?','Оформить возврат за сотрудника? Будет сохранено имя руководителя.',async()=>{ctSetBusy(true);try{await ctRequest('confirmReturn',{group:'returns',requestId:ctRequestId(),items:[{sheet:record.sheet,row:record.row,version:record.version}]});ctSetBusy(false);await ctLoad();retHubState.loadedAt=0;}catch(e){showBeelineModal('Возврат',e.message,'⚠️');}finally{ctSetBusy(false);}}),'btn main-btn pu-return-confirm');badges?.append(button);}const arrow=summary?.querySelector(':scope>.dropdown-arrow');if(badges&&arrow){const toggle=ctNode('button','pu-return-toggle');toggle.type='button';toggle.setAttribute('aria-label','Развернуть карточку');toggle.setAttribute('aria-expanded',summary.getAttribute('aria-expanded')||'false');toggle.append(arrow);badges.append(toggle);const originalClick=summary.onclick;summary.onclick=function(event){originalClick.call(this,event);const expanded=summary.getAttribute('aria-expanded');toggle.setAttribute('aria-expanded',expanded);toggle.setAttribute('aria-label',expanded==='true'?'Свернуть карточку':'Развернуть карточку');};toggle.onclick=event=>{event.preventDefault();event.stopPropagation();summary.click();};}return article;};
 const puRender=ctRender;
 ctRender=function(){puRender();puTableLayout();};
 const puExportToolbar=ctrExportToolbar;
