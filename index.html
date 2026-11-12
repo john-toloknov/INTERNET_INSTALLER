@@ -16536,6 +16536,14 @@ html[data-app-layout=mobile] #cityTableEditor #cityTableFilters .ct-filter-actio
 #cityTableEditor .pu-return-status-row>.pu-return-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 26px;width:26px;height:26px;min-height:26px;margin:0 0 0 auto!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:var(--accent-ink);cursor:pointer}
 #cityTableEditor .pu-return-toggle>.dropdown-arrow{position:static!important;display:inline-block;transition:transform .18s}
 #cityTableEditor .pu-return-toggle[aria-expanded=true]>.dropdown-arrow{transform:rotate(180deg)}
+/* Service cards: uniform edge and brighter category fills. */
+#cityTableEditor .ct-record[data-ct-key^="Сервис "]{border-left-width:1px!important;border-left-style:solid!important;border-left-color:var(--card-border)!important;box-shadow:none!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=zero]{background:#ffb347!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=remote]{background:#ffff00!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=service]{background:#ff7777!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=move]{background:#c38bff!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "][data-pu-tone=inclusion]{background:#7b9cff!important}
+#cityTableEditor .ct-record[data-ct-key^="Сервис "]:is([data-pu-tone=zero],[data-pu-tone=remote],[data-pu-tone=service],[data-pu-tone=move],[data-pu-tone=inclusion])>.pu-category,#cityTableEditor .ct-record[data-ct-key^="Сервис "]:is([data-pu-tone=zero],[data-pu-tone=remote],[data-pu-tone=service],[data-pu-tone=move],[data-pu-tone=inclusion]) .ct-field>span{color:#171717!important}
 /* v8: reuse the table's employee multiselect, outside document flow. */
 #screen-management-debts .act-debts-toolbar{align-items:flex-end;overflow:visible}
 #screen-management-debts .act-debts-toolbar>#cityDebtPreviewRefresh{align-self:flex-end!important;height:36px!important;min-height:36px!important;box-sizing:border-box!important;padding:7px 12px!important;margin:0!important}
