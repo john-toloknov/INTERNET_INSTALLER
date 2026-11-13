@@ -562,7 +562,7 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
         html:has(#screen-ppr-plans.active) { scrollbar-width: none; }
         html:has(#screen-ppr-plans.active)::-webkit-scrollbar, body:has(#screen-ppr-plans.active)::-webkit-scrollbar { display: none; }
         .ppr-plan-list { display: grid; gap: 12px; padding: 0; overflow: visible; }
-html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
         .ppr-plan-item { width:100%; min-height:40px; display:flex; align-items:center; gap:8px;
             text-align:left; padding:7px 10px; border:1px solid var(--ui-border-343434,#343434); border-radius:9px;
             color:var(--ui-fg-ffffff,#fff); background:var(--ui-bg-090909,#090909); cursor:pointer; font-weight:600; font-size:13px; }
@@ -581,7 +581,6 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(2,minma
 #screen-ppr-plans>.card>*{margin-block:0}
 .ppr-plans-controls{display:flex;align-items:flex-end;gap:12px;width:100%;min-width:0}
 .ppr-plans-search{flex:0 1 50%;max-width:50%;min-width:0}
-#screen-ppr-plans .ppr-plans-search>label{display:block;margin:0 0 6px}
 #screen-ppr-plans #pprPlansSearch{width:100%;box-sizing:border-box;height:44px!important;min-height:44px!important;margin:0}
 .ppr-plans-toolbar{display:flex;flex-wrap:nowrap;align-items:center;gap:12px;margin:0 0 0 auto}
 #screen-ppr-plans .ppr-plans-toolbar>.btn{width:auto!important;flex:0 0 auto!important;min-width:0!important;margin:0!important;min-height:44px!important;height:44px;padding:10px 14px!important;font-size:13px;line-height:18px;white-space:nowrap}
@@ -5988,7 +5987,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
         <h2>📈 Планы по ППР</h2>
         <div class="card">
             <div class="ppr-plans-controls">
-                <div class="ppr-plans-search"><label for="pprPlansSearch">Поиск по адресу</label><input type="search" id="pprPlansSearch" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off"></div>
+                <div class="ppr-plans-search"><input type="search" id="pprPlansSearch" aria-label="Поиск по адресу" placeholder="Введите улицу или номер дома" oninput="filterPprPlans()" autocomplete="off"></div>
                 <div class="ppr-plans-toolbar"><button id="pprAddAddressBtn" type="button" class="btn main-btn" hidden onclick="openPprCreate()">➕ Добавить адрес</button><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="loadPprPlans(true)">🔄 Обновить</button></div>
             </div>
             <div id="pprPlansHint"></div>
