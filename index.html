@@ -16752,6 +16752,21 @@ html[data-app-layout=mobile] #cityTableEditor[data-ct-part=stock] .ct-record[dat
 html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock] #cityTableFilters>.ct-stock-filter-actions>.ct-filter-reset,
 html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock] #cityTableFilters[data-ct-layout=cable]>.ct-filter-reset{grid-column:auto!important;min-width:0!important;height:32px!important;min-height:32px!important;padding:6px 10px!important;font-size:11px!important;line-height:18px!important}
 </style>
+<style id="equipmentLoadingButtonPositionStyle">
+/* The loader spans row 1; keep stock actions in their compact columns on row 2. */
+html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock]>.pu-count-toolbar.pu-table-loading>#cityTableAdd{grid-column:2!important;grid-row:2!important;justify-self:end!important}
+html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock]>.pu-count-toolbar.pu-table-loading>.app-refresh-button{grid-column:3!important;grid-row:2!important;justify-self:end!important}
+html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock]>.pu-count-toolbar.pu-table-loading>#cityTableAckAll{grid-column:4!important;grid-row:2!important;justify-self:end!important}
+</style>
+<style id="equipmentFilterSpacingStyle">
+#cityTableEditor[data-ct-part=stock] #cityTableFilters{gap:12px!important}
+#cityTableEditor[data-ct-part=stock] #cityTableFilters>.ct-stock-filter-actions{gap:12px!important;max-width:1100px;box-sizing:border-box}
+#cityTableEditor[data-ct-part=stock] #cityTableFilters>.ct-stock-filter-actions>.ct-field{box-sizing:border-box!important;padding:0!important;min-width:0!important;max-width:100%!important;width:100%!important}
+#cityTableEditor[data-ct-part=stock] #cityTableFilters>.ct-stock-filter-actions>.ct-field>input{box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important}
+#cityTableEditor[data-ct-part=stock] #cityTableFilters>.ct-stock-filter-actions>.ct-filter-reset{box-sizing:border-box!important;max-width:100%!important;margin:0!important}
+</style>
+
+
 
 
 
