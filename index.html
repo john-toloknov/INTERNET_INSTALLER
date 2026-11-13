@@ -13020,25 +13020,24 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         const url = CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;
         if (!isConfiguredCityUrl(url)) throw new Error('Для вашего города не настроен скрипт отчётов.');
         const owner=currentUser,scope=managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
-        const writeKey=scope+'|'+operation+'|'+JSON.stringify(await pprPlanPhotoWriteFields(fields));
-        const requestId = stableRequestId || (!['list','photos'].includes(operation)&&pprPendingWrites.get(writeKey)) || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
-        if(!['list','photos'].includes(operation))pprPendingWrites.set(writeKey,requestId);
+        const readOnly=['list','photos'].includes(operation),writeKey=readOnly?'':scope+'|'+operation+'|'+JSON.stringify(await pprPlanPhotoWriteFields(fields));
+        const requestId = stableRequestId || (!readOnly&&pprPendingWrites.get(writeKey)) || 'ppr_' + (window.crypto?.randomUUID?.() || Date.now()+'_'+Math.random().toString(36).slice(2));
+        if(!readOnly)pprPendingWrites.set(writeKey,requestId);
         const payload = {action:'pprPlans', operation, requestId,
             city:currentUser.city, district:String(currentUser.district), actorLogin:currentUser.dwLogin, actorPassword:currentUser.password, ...fields};
-        if(operation==='list'||operation==='photos'){
-            const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);
+        // Чтение выполняется одним запросом, без повторной отправки и ожидания квитанции записи.
+        if(readOnly){
             let result;
-            try {
-                const response=await districtFetch(url,{method:'POST',mode:'cors',credentials:'omit',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({...payload,directRead:true,pageSize:200}),signal:controller.signal});
-                if(!response.ok)throw new Error('HTTP '+response.status);
-                result=await response.json();
-            } catch(error){
-                // Read-only fallback for environments blocking the readable response.
-                if(error.name==='AbortError')throw new Error('Скрипт ППР не ответил за 45 секунд. Повторите обновление.');
-                if(!(error instanceof TypeError)&&!(error instanceof SyntaxError))throw error;
-            } finally {clearTimeout(timer);}
-            if(result){if(result.status!=='success')throw new Error(result.message||'Не удалось загрузить планы');return result;}
-            if(operation==='photos')throw new Error('Не удалось загрузить фотографии');
+            try { result=await postJsonBounded(url,{...payload,directRead:true,pageSize:200},45000); }
+            catch(error){
+                if(error.name==='TimeoutError'||error.name==='AbortError')throw new Error('Скрипт ППР не ответил за 45 секунд. Повторите обновление.');
+                if(error instanceof TypeError||error instanceof SyntaxError)throw new Error('Не удалось прочитать ответ скрипта ППР. Проверьте доступность развёртывания.');
+                throw error;
+            }
+            if(result?.status!=='success')throw new Error(result?.message||'Не удалось загрузить планы');
+            if(operation==='list'&&!Array.isArray(result.items))throw new Error('Скрипт ППР вернул некорректный список адресов');
+            if(currentUser!==owner||scope!==managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district))throw new Error('Сеанс изменился');
+            return result;
         }
         const deadline=Date.now()+95000;
         const active=()=>currentUser===owner&&scope===managementOwnerKey()+'|'+(engineerAllowed()?engineerDistrict('ppr').district:currentUser.district);
@@ -13064,6 +13063,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         if (pprPlanBusy) return;
         const owner=currentUser,selectedDistrict=engineerAllowed()?engineerDistrict('ppr').district:String(currentUser?.district||'');
         if(!owner)return false;
+        const active=()=>currentUser===owner&&selectedDistrict===(engineerAllowed()?engineerDistrict('ppr').district:String(currentUser?.district||''));
         if(!force&&pprReadSnapshot?.owner===owner&&pprReadSnapshot.district===selectedDistrict&&Date.now()-pprReadSnapshot.time<15000){
             pprPlanItems=pprReadSnapshot.items;pprPlanStaff=pprReadSnapshot.staff;filterPprPlans();return true;
         }
@@ -13071,13 +13071,14 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         pprPlanBusy = true;
         const hint = document.getElementById('pprPlansHint');
         pprPlanItems = [];
+        document.getElementById('pprPlansList').replaceChildren();
         hint.innerHTML = liveLoading('Загружаем планы ППР...');
         try {
             const all = [];
             let offset = 0, total = 0, staff = [];
             do {
                 const result = await requestPprPlans('list', {offset});
-                if(currentUser!==owner)return false;
+                if(!active())return false;
                 const batch = result.items || [];
                 total = Number(result.total) || 0;
                 if (!offset) staff = result.staff || [];
@@ -13086,7 +13087,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 offset += batch.length;
                 hint.innerHTML = liveLoading(`Загружено адресов: ${Math.min(offset,total)} из ${total}`);
             } while (offset < total);
-            if(currentUser!==owner)return false;
+            if(!active())return false;
             pprReadSnapshot={owner,district:selectedDistrict,time:Date.now(),items:all,staff};
             pprPlanItems = all;
             pprPlanStaff = staff;
@@ -13094,7 +13095,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
             window.scrollTo(0, 0);
             return true;
         } catch (err) {
-            if(currentUser!==owner)return false;
+            if(!active())return false;
             hint.textContent = 'Не удалось загрузить адреса.';
             showBeelineModal('Планы ППР', pprEsc(err.message), '❌');
             return false;
