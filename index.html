@@ -6398,7 +6398,7 @@ html[data-app-layout=mobile] #screen-admin-board :is(.board-staff-reset,#staffBo
     <div id="screen-schedule" class="app-screen uniform-screen">
         <h2>📅 Рабочий график</h2>
         <div class="card">
-            <div class="schedule-refresh-row"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="openMySchedule(true)">🔄 Обновить график</button></div>
+            <div class="schedule-refresh-row"><button type="button" class="btn secondary-btn read-refresh app-refresh-button" onclick="openMySchedule(true)">🔄 Обновить</button></div>
             <div id="scheduleContentContainer">
                 <div class="live-loading" role="status"><span class="live-loading-emoji" aria-hidden="true">⏳</span><span>Загрузка графика смен...</span></div>
             </div>
@@ -15481,7 +15481,7 @@ function vsInitUi(){document.getElementById('tr-reportType')?.addEventListener('
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsInitUi);else vsInitUi();
 
 function renderMyEquipment(items,consumables=[]){renderMyEquipmentBeforeWarehouse(items);vsRenderConsumables(document.getElementById('myEquipmentList'),consumables);}
-function tmrUiForm(item,disabled){disabled=disabled||!!(item?.oneC||item?.entered||item?.cancelled);const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);date.wrap.classList.add('tmr-form-date');if(!tmrUi.manager)grid.append(date.wrap);const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const unit=VS_UI_FIELDS.find(f=>f[0]===key)?.[2]||'шт.',field=tmrField(label+' · '+unit,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
+function tmrUiForm(item,disabled){disabled=disabled||!!(item?.oneC||item?.entered||item?.cancelled);const grid=ctNode('div','tmr-grid tmr-request-grid'),data=tmrUi.data,date=tmrField('Дата заявки',tmrDayLabel(item?.date||data.today),true);date.wrap.classList.add('tmr-form-date');if(!tmrUi.manager){const calendar=ctNode('input');calendar.type='date';calendar.value=item?.date||data.today;calendar.min=calendar.max=calendar.value;calendar.readOnly=true;calendar.setAttribute('aria-label','Дата заявки');calendar.classList.add('tmr-request-calendar');date.wrap.append(calendar);grid.append(date.wrap);}const cable=tmrCablePicker(data.cableOptions,item?.cables||[],disabled),cableLabel=ctNode('div','tmr-field tmr-cable');cableLabel.append(ctNode('span','','Наименование кабеля'),cable);grid.append(cableLabel);const inputs={};for(const [key,label] of TMR_UI_FIELDS){const unit=VS_UI_FIELDS.find(f=>f[0]===key)?.[2]||'шт.',field=tmrField(label+' · '+unit,item?.quantities[key]||'');field.wrap.classList.add('tmr-quantity');field.input.type='number';field.input.inputMode='numeric';field.input.min='0';field.input.max='999999';field.input.step='1';field.input.placeholder='0';field.input.disabled=disabled;inputs[key]=field.input;grid.append(field.wrap);}grid.tmrDate=date.wrap;grid.tmrValues=()=>({cables:cable.tmrValues(),quantities:Object.fromEntries(TMR_UI_FIELDS.map(([key])=>[key,inputs[key].value===''?0:Number(inputs[key].value)]))});return grid;}
 function tmrRender(){tmrRenderBeforeWarehouse();vsAfterTmrRender();}
 function vsWatchTmrCards(){for(const id of ['screen-tmc-requests-management','screen-tmc-request']){const root=document.getElementById(id);if(root)new MutationObserver(()=>{if(tmrUi.manager&&root.id==='screen-tmc-requests-management')vsAfterTmrRender();}).observe(root,{childList:true,subtree:true});}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsWatchTmrCards);else vsWatchTmrCards();
@@ -16908,6 +16908,26 @@ html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{display:in
 #screen-admin-themes #adminThemesResult{gap:12px!important}
 #screen-admin-themes #adminThemesResult>*{margin-block:0!important}
 @media(max-width:400px){html[data-app-layout] #screen-admin-themes .admin-themes-actions{gap:12px}html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{font-size:11px!important;padding:8px!important}}
+</style>
+
+<style id="installerScreensCompactSpacing">
+/* Installer request: preserve desktop fields and use the shared calendar on mobile. */
+html[data-app-layout] #screen-tmc-request>.card{display:flex!important;flex-direction:column;gap:12px!important}
+html[data-app-layout] #screen-tmc-request>.card>*{margin-block:0!important}
+html[data-app-layout] #screen-tmc-request .tmr-content{display:flex;flex-direction:column;gap:12px!important}
+html[data-app-layout] #screen-tmc-request .tmr-content>*{margin-block:0!important}
+html[data-app-layout] #screen-tmc-request .tmr-grid.tmr-request-grid{row-gap:12px!important}
+#screen-tmc-request .tmr-form-date>.app-date-control{display:none}
+html[data-app-layout=mobile] #screen-tmc-request .tmr-form-date>span,html[data-app-layout=mobile] #screen-tmc-request .tmr-form-date>input:not(.tmr-request-calendar){display:none!important}
+html[data-app-layout=mobile] #screen-tmc-request .tmr-form-date>.app-date-control{display:block}
+html[data-app-layout=mobile] #screen-tmc-request .tmr-form-date .app-date-trigger{height:44px!important;min-height:44px!important;box-sizing:border-box;margin:0!important;padding:10px 8px!important;font-size:13px;line-height:22px;border-radius:10px}
+html[data-app-layout=mobile] #screen-tmc-request .tmr-form-date .app-date-chevron{font-size:18px}
+html[data-app-layout] #screen-schedule>.card{display:flex!important;flex-direction:column;gap:12px!important}
+html[data-app-layout] #screen-schedule>.card>*{margin-block:0!important}
+html[data-app-layout] #screen-schedule #scheduleContentContainer{gap:12px!important}
+html[data-app-layout] #screen-schedule #scheduleContentContainer>*{margin-block:0!important}
+html[data-app-layout] #screen-my-equipment .act-debts-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%}
+html[data-app-layout] #screen-my-equipment .act-debts-toolbar>.app-refresh-button{flex:0 0 auto;width:auto!important;margin:0 0 0 auto!important}
 </style>
 </body>
 </html>
