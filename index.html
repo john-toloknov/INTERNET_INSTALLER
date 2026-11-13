@@ -1255,6 +1255,12 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minma
             grid-template-columns: 1fr 1fr 1fr;
             gap: 8px;
         }
+#screen-technician-reports .card.report-materials-card{display:grid;gap:12px}
+#screen-technician-reports .report-materials-card>h3{margin:0}
+#screen-technician-reports .report-materials-card label{margin:0 0 5px}
+#screen-technician-reports .report-materials-card :is(.materials-grid-2,.materials-grid-3){gap:12px;margin:0}
+#screen-technician-reports .report-materials-card .gpon-only{gap:12px;margin:0}
+#screen-technician-reports .report-materials-card .cable-stock-hint:empty{display:none}
 #screen-technician-reports .materials-grid-2 .field-container,
 #screen-technician-reports .materials-grid-3 .field-container {
             width: 100%;
@@ -6100,9 +6106,10 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
 
                     <!-- ШАГ 2: РАСХОДНЫЕ МАТЕРИАЛЫ -->
                     <div class="step" id="tr-step-materials">
-                        <div class="card">
+                        <div class="card report-materials-card">
                             <h3>Расходные материалы</h3>
                             
+                            <div class="field-container">
                             <label id="tr-pullMethod-label">Способ включения</label>
                             <div class="custom-dropdown">
                                 <button type="button" class="dropdown-select-btn" id="tr-pullMethod-btn" onclick="toggleDropdown(event, 'tr-pullMethod-list')">Выберите способ</button>
@@ -6113,6 +6120,8 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     <div class="dropdown-item" onclick="selectOption('tr-pullMethod', 'Шахта', 'tr-pullMethod-btn', 'Шахта', 'tr-pullMethod-list')">Шахта</div>
                                     <div class="dropdown-item" onclick="selectOption('tr-pullMethod', 'Окно', 'tr-pullMethod-btn', 'Окно', 'tr-pullMethod-list')">Окно</div>
                                 </div>
+                            </div>
+
                             </div>
 
                             <div class="materials-grid-2">
@@ -6167,7 +6176,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
 
                             <!-- СПЕЦИФИЧНЫЕ РАСХОДНИКИ ДЛЯ GPON -->
                             <div class="gpon-only">
-                                <div class="materials-grid-2" style="margin-top: 12px;">
+                                <div class="materials-grid-2">
                                     <div class="field-container">
                                         <label>Кабель канал 10/15</label>
                                         <input type="text" inputmode="decimal" id="tr-cc1015" placeholder="Метров">
@@ -6178,7 +6187,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     </div>
                                 </div>
 
-                                <div class="materials-grid-3" style="margin-top: 8px;">
+                                <div class="materials-grid-3">
                                     <div class="field-container">
                                         <label>Внешний угол</label>
                                         <input type="text" inputmode="decimal" id="tr-extCorner" placeholder="Метров">
@@ -6193,7 +6202,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     </div>
                                 </div>
 
-                                <div class="materials-grid-3" style="margin-top: 8px;">
+                                <div class="materials-grid-3">
                                     <div class="field-container">
                                         <label>Хвостовик поворотный</label>
                                         <input type="text" inputmode="numeric" id="tr-ftthTail" placeholder="Штук">
@@ -6208,7 +6217,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     </div>
                                 </div>
 
-                                <div class="materials-grid-2" style="margin-top: 8px;">
+                                <div class="materials-grid-2">
                                     <div class="field-container">
                                         <label>Кабельный настенный ввод FTTH</label>
                                         <input type="text" inputmode="numeric" id="tr-ftthWallIn" placeholder="Штук">
@@ -6216,7 +6225,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     <div class="field-container"></div>
                                 </div>
 
-                                <div class="materials-grid-2" style="margin-top: 8px;">
+                                <div class="materials-grid-2">
                                     <div class="field-container">
                                         <label>Оптический патч-корд</label>
                                         <input type="text" inputmode="decimal" id="tr-optPatchMeters" placeholder="Метров">
@@ -6227,7 +6236,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     </div>
                                 </div>
 
-                                <div class="materials-grid-2" style="margin-top: 8px;">
+                                <div class="materials-grid-2">
                                     <div class="field-container">
                                         <label>SOC SC/APC 3.0mm</label>
                                         <input type="text" inputmode="numeric" id="tr-socConnector" placeholder="Штук">
@@ -6238,7 +6247,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                     </div>
                                 </div>
 
-                                <div class="materials-grid-2" style="margin-top: 8px;">
+                                <div class="materials-grid-2">
                                     <div class="field-container">
                                         <label>Оптическая гильза</label>
                                         <input type="text" inputmode="numeric" id="tr-kdzs" placeholder="Штук">
@@ -11127,7 +11136,7 @@ document.addEventListener('blur', (e) => {
         const input=document.createElement('input');input.type='search';input.className='dropdown-select-btn staff-search-trigger';input.autocomplete='off';input.placeholder='🔍 Выберите сотрудника своего города';input.setAttribute('aria-label','Исполнитель отчёта');
         const list=document.createElement('div');list.className='dropdown-list';
         const restore=()=>input.value=String(hidden.value||'').split(',')[0].replace(/\s*\([^)]*\)\s*$/,'').trim();restore();
-        const fill=query=>{list.replaceChildren();const q=String(query||'').trim().toLocaleLowerCase('ru');people.filter(p=>[p.fullName,p.role,p.warehouse].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q))).forEach(p=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item';staffDropdownOption(option,p);option.onclick=()=>{hidden.value=formatReportInstallerValue(p);restore();setDropdownOpen(dropdown,false);if(hidden.id==='tr-pprInstaller1')updatePprInstallersLists();};list.append(option);});if(!list.children.length){const empty=document.createElement('div');empty.className='dropdown-item';empty.textContent='Сотрудники не найдены';list.append(empty);}};
+        const fill=query=>{list.replaceChildren();const q=String(query||'').trim().toLocaleLowerCase('ru');people.filter(p=>[p.fullName,p.role,p.warehouse].some(v=>String(v||'').toLocaleLowerCase('ru').includes(q))).forEach(p=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item';staffDropdownOption(option,p);option.onclick=()=>{hidden.value=formatReportInstallerValue(p);hidden.dispatchEvent(new Event('change',{bubbles:true}));restore();setDropdownOpen(dropdown,false);if(hidden.id==='tr-pprInstaller1')updatePprInstallersLists();};list.append(option);});if(!list.children.length){const empty=document.createElement('div');empty.className='dropdown-item';empty.textContent='Сотрудники не найдены';list.append(empty);}};
         const open=()=>{fill(input.value);setDropdownOpen(dropdown,true);};input.onfocus=()=>{input.select();fill('');setDropdownOpen(dropdown,true);};input.onclick=e=>{e.stopPropagation();fill('');setDropdownOpen(dropdown,true);};input.oninput=open;input.onblur=()=>setTimeout(()=>{if(!dropdown.contains(document.activeElement)){restore();setDropdownOpen(dropdown,false);}},170);input.onkeydown=e=>{if(e.key==='Escape'){restore();setDropdownOpen(dropdown,false);input.blur();}};
         dropdown.append(input,list);display.append(dropdown);
     }
@@ -11268,6 +11277,7 @@ document.addEventListener('blur', (e) => {
         document.querySelectorAll('#reportNetworkPickers button').forEach(button=>{button.classList.remove('input-error');button.removeAttribute('aria-invalid');});
         clearReportEquipmentLookup();
         const type = document.getElementById('tr-reportType').value;
+        if(typeof vsRefreshReportLimits==='function')void vsRefreshReportLimits();
         const standardBlock = document.querySelector('.standard-report-block');
         const pprBlock = document.querySelector('.ppr-only');
         const gponOnlyBlock = document.querySelector('.gpon-only');
@@ -11289,7 +11299,7 @@ document.addEventListener('blur', (e) => {
         if (pullLabel) pullLabel.textContent = type.includes("GPON") ? "Способ перетяжки" : "Способ включения";
 
         if (type.includes("GPON") && !type.includes("Демонтаж")) {
-            gponOnlyBlock.style.display = 'block';
+            gponOnlyBlock.style.display = 'grid';
         } else {
             gponOnlyBlock.style.display = 'none';
         }
@@ -11344,7 +11354,7 @@ document.addEventListener('blur', (e) => {
         document.querySelectorAll('.standard-report-block .step').forEach(el => el.classList.remove('active'));
 
         if (step === 1) document.getElementById('tr-step-client').classList.add('active');
-        if (step === 2) document.getElementById('tr-step-materials').classList.add('active');
+        if (step === 2) {document.getElementById('tr-step-materials').classList.add('active');if(typeof vsRefreshReportLimits==='function')void vsRefreshReportLimits();}
         if (step === 3) document.getElementById('tr-step-equipment').classList.add('active');
         if (step === 4) document.getElementById('tr-step-finish').classList.add('active');
 
@@ -12028,6 +12038,7 @@ document.addEventListener('click',event=>{
     function showPprStep(step) {
         document.querySelectorAll('.ppr-only .step').forEach(el => el.classList.remove('active'));
         document.getElementById(`tr-ppr-step-${step}`).classList.add('active');
+        if(step===2&&typeof vsRefreshReportLimits==='function')void vsRefreshReportLimits();
         syncPprSecondRate();
         window.scrollTo(0, 0);
     }
@@ -15871,9 +15882,36 @@ async function vsBeforeReport(type,url){
   // A new pending marker is written only once photos and the complete payload are ready.
   return {requestId};
 }
-async function vsRefreshReportLimits(){if(!currentUser)return;const owner=managementOwnerKey(),type=document.getElementById('tr-reportType')?.value;if(!type||type.startsWith('Демонтаж'))return;const fullName=document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value;if(!fullName)return;try{const data=await vsApi('list',{fullName});if(owner!==managementOwnerKey())return;const w=data.warehouses[0];vsReportStock=w;for(const [key,id] of Object.entries(type.startsWith('ППР')?VS_PPR_IDS:VS_FORM_IDS)){const input=document.getElementById(id),m=w?.materials.find(m=>m.key===key);if(!input)continue;input.setAttribute('max',String(m?.available||0));input.setAttribute('step','1');input.title='Доступно: '+(m?.available||0)+' '+(m?.unit||'');let note=input.parentNode.querySelector('.vs-available');if(!note){note=ctNode('small','vs-available');input.parentNode.append(note);}note.textContent='Остаток: '+(m?.available||0)+' '+(m?.unit||'');}}catch(e){console.warn('Остатки для формы:',e.message);}}
+// Один запрос для текущего исполнителя; старый ответ не подменяет остатки другого отчёта.
+let vsReportLimitsPending=null,vsReportLimitsVersion=0;
+function vsRefreshReportLimits(){
+ const owner=managementOwnerKey(),type=document.getElementById('tr-reportType')?.value||'',fullName=document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value||'';
+ const key=JSON.stringify([owner,type,fullName]);if(vsReportLimitsPending?.key===key&&vsReportLimitsPending.version===vsReportLimitsVersion)return vsReportLimitsPending.promise;
+ const version=++vsReportLimitsVersion,ids=type.startsWith('ППР')?VS_PPR_IDS:VS_FORM_IDS;
+ const active=()=>version===vsReportLimitsVersion&&owner===managementOwnerKey()&&type===document.getElementById('tr-reportType')?.value&&fullName===(document.getElementById(type.includes('ППР')?'tr-pprInstaller1':'tr-installerName')?.value||'');
+ function paint(state,warehouse){
+  vsReportStock=warehouse||null;
+  for(const [material,id] of Object.entries(ids)){
+   const input=document.getElementById(id);if(!input)continue;
+   let note=input.parentNode.querySelector('.vs-available');if(!note){note=ctNode('small','vs-available');input.parentNode.append(note);}note.dataset.stockState=state;
+   const entry=warehouse?.materials?.find(m=>m.key===material),unit=entry?.unit||VS_UI_FIELDS.find(f=>f[0]===material)?.[2]||'',available=Number(entry?.available??0);
+   input.setAttribute('step','1');
+   if(state==='ready'&&warehouse&&Number.isFinite(available)){input.setAttribute('max',String(available));input.title='Доступно: '+available+' '+unit;note.textContent='Остаток: '+available+' '+unit;}
+   else{input.removeAttribute('max');note.textContent=state==='loading'?'Загружаем остаток…':state==='select'?'Выберите сотрудника':state==='missing'?'Склад сотрудника не найден':'Не удалось загрузить остаток';input.title=note.textContent;}
+  }
+ }
+ if(!currentUser||!type||type.startsWith('Демонтаж')){vsReportStock=null;return Promise.resolve();}
+ if(!fullName){paint('select');return Promise.resolve();}
+ paint('loading');
+ const pending={key,version,promise:null};vsReportLimitsPending=pending;
+ pending.promise=(async()=>{
+  try{const data=await vsApi('list',{fullName});if(!active())return;const warehouse=data.warehouses?.[0];paint(warehouse?'ready':'missing',warehouse);}
+  catch(error){if(active()){paint('error');console.warn('Остатки для формы:',error.message);}}
+  finally{if(vsReportLimitsPending===pending)vsReportLimitsPending=null;}
+ })();return pending.promise;
+}
 function vsAfterTmrRender(){}
-function vsInitUi(){document.getElementById('tr-reportType')?.addEventListener('change',()=>setTimeout(vsRefreshReportLimits,150));for(const id of ['tr-installerName','tr-pprInstaller1'])document.getElementById(id)?.addEventListener('change',vsRefreshReportLimits);const reportScreen=document.getElementById('screen-technician-reports');if(reportScreen)new MutationObserver(()=>{if(reportScreen.classList.contains('active'))setTimeout(vsRefreshReportLimits,100);}).observe(reportScreen,{attributes:true,attributeFilter:['class']});}
+function vsInitUi(){document.getElementById('tr-reportType')?.addEventListener('change',vsRefreshReportLimits);for(const id of ['tr-installerName','tr-pprInstaller1'])document.getElementById(id)?.addEventListener('change',vsRefreshReportLimits);const reportScreen=document.getElementById('screen-technician-reports');if(reportScreen)new MutationObserver(()=>{if(reportScreen.classList.contains('active'))setTimeout(vsRefreshReportLimits,100);}).observe(reportScreen,{attributes:true,attributeFilter:['class']});}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',vsInitUi);else vsInitUi();
 
 function renderMyEquipment(items,consumables=[]){renderMyEquipmentBeforeWarehouse(items);vsRenderConsumables(document.getElementById('myEquipmentList'),consumables);}
