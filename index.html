@@ -5386,6 +5386,33 @@ async function myReportsSave(record,changes,controls,save,cancel){if(myReportsSt
 setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(screen?.classList.contains('active')&&!myReportsState.busy&&myReportsState.day&&myReportsState.day!==myReportsDay()){myReportsState.edit=null;myReportsState.records=[];myReportsRender();myReportsStatus('Наступил новый день. Редактирование вчерашних отчётов закрыто.');}},30000);
 
 </script>
+
+<style id="staffBoardCompactSpacing">
+/* Shared controls and spacing for all three staff board tabs. */
+html[data-app-layout] #screen-admin-board{--board-control-height:38px}
+html[data-app-layout=mobile] #screen-admin-board{--board-control-height:48px}
+html[data-app-layout] #screen-admin-board>.card{display:flex!important;flex-direction:column;gap:12px!important}
+html[data-app-layout] #screen-admin-board>.card>*{margin:0!important}
+#screen-admin-board #staffBoardState:empty{display:none}
+html[data-app-layout] #screen-admin-board .staff-board-toolbar{display:flex;align-items:center!important;flex-wrap:wrap!important;gap:12px!important}
+html[data-app-layout] #screen-admin-board .staff-board-toolbar>.board-staff-filter{display:contents!important}
+html[data-app-layout] #screen-admin-board .board-staff-filter-field{order:0;flex:0 1 420px!important;width:420px;min-width:0;margin:0!important}
+html[data-app-layout] #screen-admin-board #staffBoardPeriod{order:1;flex:0 0 auto;min-height:0!important;margin:0!important;white-space:nowrap;font-size:12px}
+html[data-app-layout] #screen-admin-board .board-staff-reset{order:2;flex:0 0 auto;margin-left:auto!important}
+html[data-app-layout] #screen-admin-board #staffBoardRefresh{order:3;align-self:center!important;flex:0 0 auto}
+/* Keep refresh at the right edge before the staff filter is created. */
+html[data-app-layout] #screen-admin-board .staff-board-toolbar:not(:has(.board-staff-filter))>#staffBoardRefresh{margin-left:auto!important}
+html[data-app-layout] #screen-admin-board :is(.board-staff-dropdown>.dropdown-select-btn,.board-staff-reset,#staffBoardRefresh,.staff-board-tabs button){height:var(--board-control-height)!important;min-height:var(--board-control-height)!important;max-height:var(--board-control-height)!important;box-sizing:border-box!important;margin-block:0!important;padding:7px 12px!important;line-height:18px!important;font-size:13px!important}
+html[data-app-layout] #screen-admin-board #staffBoardResult{display:flex!important;flex-direction:column;gap:12px!important}
+html[data-app-layout] #screen-admin-board .staff-board-tabs{margin:0!important}
+html[data-app-layout] #screen-admin-board #staffBoardResult>section{margin:0!important;min-width:0}
+html[data-app-layout] #screen-admin-board :is(.board-overview-legend,.board-city-legend){margin:0 0 12px!important}
+html[data-app-layout] #screen-admin-board .staff-board-scroll{margin:0!important}
+html[data-app-layout=mobile] #screen-admin-board .board-staff-filter-field{flex:1 1 100%!important;width:100%}
+html[data-app-layout=mobile] #screen-admin-board #staffBoardPeriod{flex:1 1 100%;white-space:normal}
+html[data-app-layout=mobile] #screen-admin-board .board-staff-reset{margin-left:0!important}
+html[data-app-layout=mobile] #screen-admin-board :is(.board-staff-reset,#staffBoardRefresh,.staff-board-tabs button){font-size:11px!important;padding:7px 4px!important}
+</style>
 </head>
 <body>
 
@@ -6827,11 +6854,11 @@ setInterval(()=>{const screen=document.getElementById('screen-my-reports');if(sc
  </div></div>
 <div id="screen-admin-themes" class="app-screen uniform-screen admin-tools-screen">
  <h2>📈 Построить график</h2><div class="card">
- <p>Текущий месяц из таблицы «Подсчет часов»</p>
+ <div class="admin-themes-toolbar"><p>Текущий месяц из таблицы «Подсчет часов»</p>
  <div class="admin-themes-actions">
  <button type="button" class="btn main-btn" onclick="adminToolsStart('themesBuild')">📈 Построить график</button>
  <button type="button" class="btn danger-btn" onclick="adminToolsConfirmClear('themes')">🗑️ Очистить</button>
- </div>
+ </div></div>
  <div id="adminThemesState" role="status" aria-live="polite"></div><div id="adminThemesResult"></div>
  <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
@@ -14365,14 +14392,14 @@ function boardApplyStaffFilter(root){
 function boardStaffFilter(result,root){
  const options=boardStaffChoices(result),allowed=new Set(options.map(boardStaffKey));
  for(const key of boardStaffFilterState.selected)if(!allowed.has(key))boardStaffFilterState.selected.delete(key);
- const wrap=adminToolsText('div','','board-staff-filter'),field=adminToolsText('div','','board-staff-filter-field'),caption=adminToolsText('label','Найти сотрудника'),dropdown=adminToolsText('div','','custom-dropdown board-staff-dropdown'),trigger=adminToolsText('button','','dropdown-select-btn'),triggerText=adminToolsText('span'),arrow=adminToolsText('span','▼','dropdown-arrow'),list=adminToolsText('div','','dropdown-list'),search=adminToolsText('input','','board-staff-search'),items=adminToolsText('div','','board-staff-options'),reset=adminToolsText('button','Сбросить выбор','btn danger-btn board-staff-reset');
- trigger.id='boardStaffFilterTrigger';caption.htmlFor=trigger.id;trigger.type=reset.type='button';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-label','Найти сотрудника');list.id='boardStaffFilterList';trigger.setAttribute('aria-controls',list.id);items.setAttribute('role','listbox');items.setAttribute('aria-label','Сотрудники');items.setAttribute('aria-multiselectable','true');search.type='search';search.autocomplete='off';search.placeholder='🔍 Поиск по ФИО';search.setAttribute('aria-label','Поиск по ФИО');arrow.setAttribute('aria-hidden','true');trigger.append(triggerText,arrow);
+ const wrap=adminToolsText('div','','board-staff-filter'),field=adminToolsText('div','','board-staff-filter-field'),dropdown=adminToolsText('div','','custom-dropdown board-staff-dropdown'),trigger=adminToolsText('button','','dropdown-select-btn'),triggerText=adminToolsText('span'),arrow=adminToolsText('span','▼','dropdown-arrow'),list=adminToolsText('div','','dropdown-list'),search=adminToolsText('input','','board-staff-search'),items=adminToolsText('div','','board-staff-options'),reset=adminToolsText('button','Сбросить выбор','btn danger-btn board-staff-reset');
+ trigger.id='boardStaffFilterTrigger';trigger.type=reset.type='button';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');trigger.setAttribute('aria-label','Найти сотрудника');list.id='boardStaffFilterList';trigger.setAttribute('aria-controls',list.id);items.setAttribute('role','listbox');items.setAttribute('aria-label','Сотрудники');items.setAttribute('aria-multiselectable','true');search.type='search';search.autocomplete='off';search.placeholder='🔍 Поиск по ФИО';search.setAttribute('aria-label','Поиск по ФИО');arrow.setAttribute('aria-hidden','true');trigger.append(triggerText,arrow);
  function sync(){const selected=boardStaffFilterState.selected;triggerText.textContent=selected.size===1?options.find(p=>selected.has(boardStaffKey(p)))?.name||'Выбран 1 сотрудник':selected.size?'Выбрано сотрудников: '+selected.size:'Все сотрудники';reset.disabled=selected.size===0;items.querySelectorAll('[data-person-key]').forEach(item=>item.setAttribute('aria-selected',String(selected.has(item.dataset.personKey))));boardApplyStaffFilter(root);}
  function render(){items.replaceChildren();const query=search.value.trim().toLocaleLowerCase('ru');for(const person of options.filter(p=>boardStaffKey(p).includes(query))){const item=adminToolsText('button','','dropdown-item board-staff-option'),check=adminToolsText('span','','custom-checkbox'),identity=adminToolsText('span','','board-staff-identity');item.type='button';item.setAttribute('role','option');item.dataset.personKey=boardStaffKey(person);check.setAttribute('aria-hidden','true');identity.append(adminToolsText('strong',person.name),adminToolsText('small',person.role));item.append(check,identity);item.onclick=event=>{event.stopPropagation();if(item.disabled)return;const selected=boardStaffFilterState.selected,key=item.dataset.personKey;selected.has(key)?selected.delete(key):selected.add(key);sync();};items.append(item);}if(!items.children.length)items.append(adminToolsText('p',options.length?'Совпадений нет':'Нет сотрудников с подходящими ролями','board-staff-empty'));sync();}
  function open(){document.querySelectorAll('.custom-dropdown.open').forEach(other=>{if(other!==dropdown)setDropdownOpen(other,false);});setDropdownOpen(dropdown,true);search.focus({preventScroll:true});}
  trigger.onclick=event=>{event.stopPropagation();if(dropdown.classList.contains('open'))setDropdownOpen(dropdown,false);else{search.value='';render();open();}};search.onclick=event=>event.stopPropagation();search.oninput=render;
  dropdown.onkeydown=event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setDropdownOpen(dropdown,false);trigger.focus();}else if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();event.stopPropagation();if(!dropdown.classList.contains('open'))open();const choices=[...items.querySelectorAll('[role=option]')],index=choices.indexOf(document.activeElement),step=event.key==='ArrowDown'?1:-1;choices[index<0?(step===1?0:choices.length-1):(index+step+choices.length)%choices.length]?.focus();}};
- reset.onclick=()=>{boardStaffFilterState.selected.clear();sync();};list.append(search,items);dropdown.append(trigger,list);field.append(caption,dropdown);wrap.append(field,reset);render();return wrap;
+ reset.onclick=()=>{boardStaffFilterState.selected.clear();sync();};list.append(search,items);dropdown.append(trigger,list);field.append(dropdown);wrap.append(field,reset);render();return wrap;
 }
 
 // Доска получает только отображаемые показатели, без паролей и идентификаторов.
@@ -14467,7 +14494,7 @@ function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(materialLabels.length)materials.append(boardTable(['ФИО монтажника',...materialLabels],employees.map(e=>[boardEmployeeCell(e,result,2),...materialLabels.map(label=>(e.materials||[]).find(m=>m.label===label)?.value??'0')]),'Оборудование и кабель сотрудников'));
  else materials.append(adminToolsText('p','Нет данных об оборудовании и кабеле.'));
  if(result.materialTotals?.length)materials.append(boardDetails('📦 Траты ТМЦ · итоги',boardMaterials(result.materialTotals)));
- addTab('📦 Оборудование и кабель',materials);const staffFilter=boardStaffFilter(result,root);if(toolbar)toolbar.insertBefore(staffFilter,document.getElementById('staffBoardRefresh'));else root.append(staffFilter);root.append(tabs,...panels);panels.forEach(panel=>panel.querySelector('.staff-board-table tbody')?.querySelectorAll(':scope>tr').forEach((row,i)=>{if(employees[i])row.dataset.boardPersonKey=boardStaffKey(employees[i]);}));boardApplyStaffFilter(root);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
+ addTab('📦 Оборудование и кабель',materials);const staffFilter=boardStaffFilter(result,root);if(toolbar){toolbar.prepend(staffFilter);toolbar.insertBefore(document.getElementById('staffBoardPeriod'),document.getElementById('staffBoardRefresh'));}else root.append(staffFilter);root.append(tabs,...panels);panels.forEach(panel=>panel.querySelector('.staff-board-table tbody')?.querySelectorAll(':scope>tr').forEach((row,i)=>{if(employees[i])row.dataset.boardPersonKey=boardStaffKey(employees[i]);}));boardApplyStaffFilter(root);boardFitCalendars();if(typeof ResizeObserver!=='undefined'){boardResizeObserver=new ResizeObserver(boardFitCalendars);boardResizeObserver.observe(root);}
 }
 // ФИО показателей доступны только для просмотра; фильтр сотрудников остаётся отдельным.
 function boardEmployeeCell(employee,result,tab){return adminToolsText('span',employee.name,'board-employee-name');}
@@ -16869,5 +16896,18 @@ ctSetMessage=function(message,loading=false){puMessageBeforeCenter(message,loadi
 function puDeleteReports(records){if(ctState.busy)return;if(ctDirty()){showBeelineModal('Удаление','Сначала сохраните или отмените изменения полей.','⚠️');return;}ctConfirm(records.length===1?'Удалить акт?':'Удалить выбранные акты?','Выбрано: '+records.length+'. После подтверждения проверим возможность удаления и возврата ТМЦ. Перед окончательным удалением будет показан результат проверки.',()=>puDeleteReportsChecked(records));}
 function puNativeLoading(title,message){managementRequestModal(title,message,true);document.getElementById('beelineModalButtons')?.replaceChildren();}
 
-</script></body>
+</script>
+<style id="adminThemesCompactSpacing">
+html[data-app-layout] #screen-admin-themes>.card{gap:12px!important}
+html[data-app-layout] #screen-admin-themes>.card>*{margin:0!important}
+#screen-admin-themes .admin-themes-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;width:100%;min-width:0}
+#screen-admin-themes .admin-themes-toolbar>p{flex:1 1 auto;margin:0!important;min-width:0}
+html[data-app-layout] #screen-admin-themes .admin-themes-actions{display:grid;grid-template-columns:repeat(2,minmax(max-content,1fr));flex:0 0 auto;gap:12px;width:max-content;max-width:100%;margin:0 0 0 auto!important}
+html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;margin:0!important;padding:10px 14px!important;font-size:13px!important;line-height:20px!important;white-space:nowrap}
+#screen-admin-themes #adminThemesState:empty,#screen-admin-themes #adminThemesResult:empty{display:none!important}
+#screen-admin-themes #adminThemesResult{gap:12px!important}
+#screen-admin-themes #adminThemesResult>*{margin-block:0!important}
+@media(max-width:400px){html[data-app-layout] #screen-admin-themes .admin-themes-actions{gap:12px}html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{font-size:11px!important;padding:8px!important}}
+</style>
+</body>
 </html>
