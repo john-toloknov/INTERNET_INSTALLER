@@ -2127,19 +2127,9 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minma
     margin-left: auto;
     margin-right: auto;
 }
-/* Только первый шаг Отчета по заявкам: Главное меню слева, Далее справа */
-#tr-step-client > .tr-nav-row,
-#tr-step-client .tr-nav-row-2 {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 12px !important;
-    width: 100%;
-}
-#tr-step-client > .tr-nav-row button,
-#tr-step-client .tr-nav-row-2 button {
-    width: 100%;
-    margin-top: 0;
-}
+/* Первый шаг всех отчётов: Главное меню слева, Далее справа. */
+#screen-technician-reports :is(#tr-step-client,#tr-ppr-step-1)>.report-first-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;width:100%;max-width:none;align-items:stretch;box-sizing:border-box}
+#screen-technician-reports :is(#tr-step-client,#tr-ppr-step-1)>.report-first-nav>.btn{grid-column:auto!important;grid-row:1!important;width:100%!important;min-width:0!important;height:100%;min-height:44px;margin:0!important;box-sizing:border-box}
 
 /* ==========================================================
    ЕДИНЫЙ ЭКРАН «ПРОГРАММНОЕ ОБЕСПЕЧЕНИЕ»
@@ -3643,7 +3633,7 @@ html[data-app-layout] #cityTableEditor #cityTableFilters .ct-filter-actions .ct-
 .pu-debt-filter .ct-multi-item[aria-selected=true]>.custom-checkbox{background-color:var(--accent);border-color:var(--accent)}
 .pu-debt-filter .ct-multi-item[aria-selected=true]>.custom-checkbox::after{transform:rotate(45deg) scale(1)}
 .pu-debt-filter .ct-multi-item:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-.pu-count-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.pu-count-toolbar>#cityTableState{flex:1;min-width:180px}.pu-count-toolbar>.btn{flex:0 0 auto!important;width:auto!important;margin:0!important}.pu-count-toolbar .ctr-export-controls{display:flex;align-items:center;gap:8px;flex:0 1 auto;margin:0}.ct-toolbar:has(#cityTableSearch[hidden]){margin:0}.ct-toolbar:has(#cityTableSearch[hidden])>#cityTableSearch{display:none!important}.pu-category{display:block;margin-bottom:8px}.ct-record[data-pu-tone]{border-left:6px solid var(--pu-tone,var(--card-border))!important;background:color-mix(in srgb,var(--pu-tone,var(--card-bg)) 13%,var(--card-bg))!important}.ct-record[data-pu-tone=open]{--pu-tone:#ffff00}.ct-record[data-pu-tone=used]{--pu-tone:#54bd47}.ct-record[data-pu-tone=cable]{--pu-tone:#8799aa}.ct-record[data-pu-tone=inclusion],[data-pu-tone=inclusion]{--pu-tone:#0000ff}.ct-record[data-pu-tone=move],[data-pu-tone=move]{--pu-tone:#800080}.ct-record[data-pu-tone=service],[data-pu-tone=service]{--pu-tone:#ff0000}.ct-record[data-pu-tone=zero],[data-pu-tone=zero]{--pu-tone:#ff9100}.ct-record[data-pu-tone=remote]{--pu-tone:#ffff00}.pu-repeat-counts{grid-template-columns:1fr 1fr}.pu-repeat-count{display:flex;align-items:center;gap:5px;min-width:0;padding:5px;border:1px solid var(--card-border);border-radius:7px;background:var(--card-bg);color:var(--text-main);cursor:pointer;text-align:left;font-size:11px}.pu-repeat-count strong{margin-left:auto}.pu-dot{color:var(--pu-tone);font-size:18px;line-height:1}.pu-delete-report{border:1px solid #ff7b86;color:#fa2941;background:var(--card-bg);border-radius:8px;width:30px;height:30px;cursor:pointer}.pu-delete-report:disabled{opacity:.35;cursor:default}.pu-return-confirm{margin:0 0 8px auto!important;display:block!important;width:auto!important;min-width:0!important;font-size:12px!important;padding:8px 12px!important}.pu-debt-filter{position:relative;min-width:240px;flex:1}.pu-debt-filter>summary{cursor:pointer;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;list-style:none}.pu-debt-filter>summary:after{content:'▼';float:right;color:var(--accent-ink);transition:transform .18s}.pu-debt-filter[open]>summary:after{transform:rotate(180deg)}.pu-debt-filter>input,.pu-debt-filter>div{padding:8px;background:var(--card-bg);border:1px solid var(--card-border);box-sizing:border-box;width:100%}.pu-debt-option{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;padding:8px;text-transform:none!important}.pu-debt-option input{width:18px!important;height:18px!important;min-height:0!important;accent-color:#a7e644}.pu-debt-send{width:auto!important;min-width:0!important;min-height:28px!important;padding:5px 9px!important;margin:0 0 0 8px!important;font-size:12px!important}.pu-access-tools{display:flex;justify-content:flex-end;gap:6px}.pu-access-tools>.btn{width:auto!important;min-width:0!important;margin:0!important;padding:5px 8px!important}.pu-mobile-metrics p{font-size:12px;padding:5px;margin:5px 0}@media (max-width:700px){.ct-act-count{width:100%!important;min-width:0!important;box-sizing:border-box!important}.pu-count-toolbar{gap:8px}.pu-count-toolbar>#cityTableState{flex-basis:100%;font-size:12px}.pu-count-toolbar .btn{font-size:11px!important;padding:8px!important}.pu-count-toolbar .ctr-export-controls{flex-wrap:wrap;max-width:100%}.pu-debt-filter{min-width:0;width:100%;flex-basis:100%}.pu-debt-send{font-size:11px!important}}
+.pu-count-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0}.pu-count-toolbar>#cityTableState{flex:1;min-width:180px}.pu-count-toolbar>.btn{flex:0 0 auto!important;width:auto!important;margin:0!important}.pu-count-toolbar .ctr-export-controls{display:flex;align-items:center;gap:8px;flex:0 1 auto;margin:0}.ct-toolbar:has(#cityTableSearch[hidden]){margin:0}.ct-toolbar:has(#cityTableSearch[hidden])>#cityTableSearch{display:none!important}.pu-category{display:block;margin-bottom:8px}.ct-record[data-pu-tone]{border-left:6px solid var(--pu-tone,var(--card-border))!important;background:color-mix(in srgb,var(--pu-tone,var(--card-bg)) 13%,var(--card-bg))!important}.ct-record[data-pu-tone=open]{--pu-tone:#ffff00}.ct-record[data-pu-tone=used]{--pu-tone:#54bd47}.ct-record[data-pu-tone=cable]{--pu-tone:#8799aa}.ct-record[data-pu-tone=inclusion],[data-pu-tone=inclusion]{--pu-tone:#0000ff}.ct-record[data-pu-tone=move],[data-pu-tone=move]{--pu-tone:#800080}.ct-record[data-pu-tone=service],[data-pu-tone=service]{--pu-tone:#ff0000}.ct-record[data-pu-tone=zero],[data-pu-tone=zero]{--pu-tone:#ff9100}.ct-record[data-pu-tone=remote]{--pu-tone:#ffff00}.pu-repeat-counts{grid-template-columns:1fr 1fr}.pu-repeat-count{display:flex;align-items:center;gap:5px;min-width:0;padding:5px;border:1px solid var(--card-border);border-radius:7px;background:var(--card-bg);color:var(--text-main);cursor:pointer;text-align:left;font-size:11px}.pu-repeat-count strong{margin-left:auto}.pu-dot{color:var(--pu-tone);font-size:18px;line-height:1}.pu-delete-report{border:1px solid #ff7b86;color:#fa2941;background:var(--card-bg);border-radius:8px;width:30px;height:30px;cursor:pointer}.pu-delete-report:disabled{opacity:.35;cursor:default}.pu-return-confirm{margin:0 0 8px auto!important;display:block!important;width:auto!important;min-width:0!important;font-size:12px!important;padding:8px 12px!important}.pu-debt-filter{position:relative;min-width:240px;flex:1}.pu-debt-filter>summary{cursor:pointer;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;list-style:none}.pu-debt-filter>summary:after{content:'▼';float:right;color:var(--accent-ink);transition:transform .18s}.pu-debt-filter[open]>summary:after{transform:rotate(180deg)}.pu-debt-filter>input,.pu-debt-filter>div{padding:8px;background:var(--card-bg);border:1px solid var(--card-border);box-sizing:border-box;width:100%}.pu-debt-option{display:flex!important;flex-direction:row!important;align-items:center;gap:8px;padding:8px;text-transform:none!important}.pu-debt-option input{width:18px!important;height:18px!important;min-height:0!important;accent-color:#a7e644}.pu-debt-send{width:auto!important;min-width:0!important;min-height:28px!important;padding:5px 9px!important;margin:0 0 0 8px!important;font-size:12px!important}.pu-access-tools{display:flex;justify-content:flex-end;gap:6px}.pu-access-tools>.btn{width:auto!important;min-width:0!important;margin:0!important;padding:5px 8px!important}@media (max-width:700px){.ct-act-count{width:100%!important;min-width:0!important;box-sizing:border-box!important}.pu-count-toolbar{gap:8px}.pu-count-toolbar>#cityTableState{flex-basis:100%;font-size:12px}.pu-count-toolbar .btn{font-size:11px!important;padding:8px!important}.pu-count-toolbar .ctr-export-controls{flex-wrap:wrap;max-width:100%}.pu-debt-filter{min-width:0;width:100%;flex-basis:100%}.pu-debt-send{font-size:11px!important}}
 .pu-debt-breakdown{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}.pu-debt-breakdown>span{padding:8px 12px;border:1px solid var(--card-border);border-radius:9px;font-size:13px}
 .pu-repeat-counts{display:flex!important;align-items:center;justify-content:flex-start;gap:10px;flex-wrap:wrap;margin-top:8px}.pu-count-item{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.pu-repeat-circle{appearance:none;display:inline-block;flex:none;width:16px!important;height:16px!important;min-width:16px!important;min-height:16px!important;margin:0!important;padding:0!important;border:0!important;border-radius:50%!important;background:var(--pu-tone)!important;box-shadow:inset 0 0 0 1px #0002;cursor:pointer;touch-action:manipulation}.pu-repeat-circle[data-pu-tone=remote]{--pu-tone:#ffff00}.pu-repeat-circle[aria-pressed=true]{outline:2px solid var(--text-main);outline-offset:2px}.pu-repeat-circle:focus-visible{outline:2px solid var(--text-main);outline-offset:3px}.pu-count-value{font-size:12px;font-weight:700;color:var(--text-main)}
 .ct-record [data-pu-act=open]{background:#ffff00!important;color:#171700!important;border-color:#b6ad00!important}.ct-record [data-ct-ack]{width:110px!important;min-width:110px!important;min-height:32px!important;box-sizing:border-box!important;white-space:nowrap}
@@ -3988,6 +3978,14 @@ html[data-app-theme=light] #screen-admin-board .board-overview{--bo-border:#b5c4
 #screen-admin-board .board-overview-card-heading>strong{min-width:0;overflow-wrap:anywhere}
 #screen-admin-board .board-overview-card-heading>.dropdown-arrow{flex:none;font-size:12px}
 #screen-admin-board .board-overview-card[open] .board-overview-card-heading>.dropdown-arrow{transform:rotate(180deg)}
+#screen-admin-board .board-overview-card{--metric-good:#80d66c;--metric-mild:#e5cf57;--metric-warn:#f3a04b;--metric-bad:#ff6b75}
+html[data-app-theme=light] #screen-admin-board .board-overview-card{--metric-good:#32751b;--metric-mild:#806400;--metric-warn:#a85a00;--metric-bad:#bf2435}
+#screen-admin-board .board-overview-card .board-overview-value{font-weight:700}
+#screen-admin-board .board-overview-card [data-board-tone=good]{color:var(--metric-good)}
+#screen-admin-board .board-overview-card [data-board-tone=mild]{color:var(--metric-mild)}
+#screen-admin-board .board-overview-card [data-board-tone=warn]{color:var(--metric-warn)}
+#screen-admin-board .board-overview-card [data-board-tone=bad]{color:var(--metric-bad)}
+#screen-admin-board .board-overview-goal{color:var(--text-secondary);font-weight:400;font-size:11px}
 #screen-admin-board .board-overview-card-stats{display:grid;grid-template-columns:1.1fr 1.2fr .7fr;gap:8px;margin-top:12px;font-size:12px;line-height:1.5;font-variant-numeric:tabular-nums}
 #screen-admin-board .board-overview-stat{min-width:0}
 #screen-admin-board .board-overview-stat+.board-overview-stat{border-left:1px solid var(--bo-border);padding-left:8px}
@@ -4134,9 +4132,6 @@ html[data-app-layout=desktop] #screen-technician-reports .mobile-report-finish-n
 html[data-app-layout=mobile] .app-screen .common-nav-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;max-width:none!important;width:100%!important;box-sizing:border-box}
 html[data-app-layout=mobile] .app-screen .common-nav-row > .btn{grid-column:auto!important;flex-basis:auto!important;min-width:0!important;width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box;padding:11px 7px!important;font-size:13px!important;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
 html[data-app-layout=mobile] .app-screen .common-nav-row:has(> .btn:only-child){grid-template-columns:minmax(0,1fr)!important}
-html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row{grid-template-columns:minmax(0,1fr)!important}
-html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row > .btn[onclick*="nextStep"]{grid-column:1!important;grid-row:1!important}
-html[data-app-layout=mobile] #screen-technician-reports #tr-step-client > .common-nav-row > .btn[onclick*="exitTechnicianReports"]{grid-column:1!important;grid-row:2!important}
 html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="prev"]{grid-column:1!important;grid-row:1!important}
 html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .report-finish-btn{grid-column:2!important;grid-row:1!important}
 html[data-app-layout=mobile] #screen-technician-reports .mobile-report-finish-nav > .btn[onclick*="exitTechnicianReports"]{grid-column:1/-1!important;grid-row:2!important}
@@ -4218,8 +4213,6 @@ html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{display:in
 @media (max-width:400px){html[data-app-layout] #screen-admin-themes .admin-themes-actions{gap:12px}html[data-app-layout] #screen-admin-themes .admin-themes-actions>.btn{font-size:11px!important;padding:8px!important}}
 </style>
 <style id="sharedRefreshStyle">
-#tr-ppr-step-1>.ppr-first-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px;width:100%;}
-#tr-ppr-step-1>.ppr-first-nav>.btn{width:100%!important;margin:0!important;min-width:0;}
 #tr-pprRate2Field[hidden]{display:none!important;}
 
 :is(#buttonSizePriority,.app-screen) .btn{min-height:44px!important;height:auto!important;padding:12px 16px!important;font-size:14px!important;font-weight:700!important;line-height:18px!important;border-radius:12px!important;box-sizing:border-box!important;}
@@ -4970,6 +4963,7 @@ function openTmcSection(key){
      matching.forEach(choice=>{const index=softwareChoices.indexOf(choice);group.append(buttons[index]);});group.addEventListener('toggle',()=>{if(group.isConnected)openGroups.set('software-'+kind,group.open);});items.append(group);
     }softwareChoices.filter(choice=>choice.kind==='channels').forEach(choice=>items.append(buttons[softwareChoices.indexOf(choice)]));}
    }
+   const brigadierBoard=document.getElementById('brigadierBoardBtn');if(visible(brigadierBoard))addButton(brigadierBoard,sidebar);
    const scanner=document.getElementById('scannerAppBtn');if(visible(scanner))addButton(scanner,sidebar);
    if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event'||active.id==='screen-tmc-requests-management',{allow:()=>visible(admin)});
    const tools=document.createElement('div');tools.className='view-sidebar-tools';sidebar.append(tools);
@@ -5978,6 +5972,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
             <!-- Программное обеспечение: встроенный экран -->
             <button class="btn main-btn" id="entertainmentBtn" type="button" onclick="openEntertainment()">🎮 Развлечения</button>
             <button class="btn main-btn" id="softwareBtn" type="button" onclick="openSoftwareScreen()">💿 Программное обеспечение</button>
+            <button class="btn main-btn" id="brigadierBoardBtn" type="button" hidden onclick="openStaffBoard()">📊 Показатели сотрудников</button>
             
             <button class="btn main-btn" id="engineerPprBtn" type="button" hidden onclick="openPprPlans()">📈 Планы по ППР</button>
             <button class="btn main-btn" id="engineerScheduleBtn" type="button" hidden onclick="openWorkingSchedule()">📅 Рабочий график</button>
@@ -6098,9 +6093,9 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                             <label>ФИО абонента</label>
                             <input type="text" id="tr-clientName" placeholder="Усачёва Мария Александровна" required>
                         </div>
-                        <div class="common-nav-row" style="display: flex; gap: 10px;">
-                            <button type="button" class="btn danger-btn" style="flex: 1;" onclick="exitTechnicianReports()">🔚 Главное меню</button>
-                            <button type="button" class="btn main-btn" style="flex: 1;" onclick="nextStep(1)">Далее ➡️</button>
+                        <div class="common-nav-row report-first-nav">
+                            <button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
+                            <button type="button" class="btn main-btn" onclick="nextStep(1)">Далее ➡️</button>
                         </div>
                     </div>
 
@@ -6507,7 +6502,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                             <label>Подъезд №</label>
                             <input type="text" id="tr-pprEntrance" required placeholder="1">
                         </div>
-                        <div class="ppr-first-nav">
+                        <div class="common-nav-row report-first-nav">
                             <button type="button" class="btn danger-btn" onclick="exitTechnicianReports()">🔚 Главное меню</button>
                             <button type="button" class="btn main-btn" onclick="nextPprStep(1)">Далее ➡️</button>
                         </div>
@@ -6515,7 +6510,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
 
                     <!-- ППР ШАГ 2: Расходные материалы -->
                     <div class="step" id="tr-ppr-step-2">
-                        <div class="card">
+                        <div class="card report-materials-card">
                             <h3>Расходные материалы</h3>
                             
                             <div class="materials-grid-2">
@@ -6529,7 +6524,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                 </div>
                             </div>
 
-                            <div class="materials-grid-3" style="margin-top: 8px;">
+                            <div class="materials-grid-3">
                                 <div class="field-container">
                                     <label>Кол-во клипс</label>
                                     <input type="number" id="tr-pprClipsQty" placeholder="45">
@@ -6544,7 +6539,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                 </div>
                             </div>
 
-                            <div class="materials-grid-2" style="margin-top: 8px;">
+                            <div class="materials-grid-3">
                                 <div class="field-container">
                                     <label>Кол-во изоленты</label>
                                     <input type="number" id="tr-pprTapeQty" placeholder="1">
@@ -6559,7 +6554,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
                                 </div>
                             </div>
 
-                            <div class="materials-grid-2" style="margin-top: 8px;">
+                            <div class="materials-grid-2">
                                 <div class="field-container">
                                     <label>Кабель канал 40/25</label>
                                     <input type="number" step="0.1" id="tr-pprCc4025" placeholder="Метров">
@@ -7340,7 +7335,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
  <h2>📊 Показатели сотрудников</h2><div class="card">
  <div class="staff-board-toolbar"><p id="staffBoardPeriod"></p><button id="staffBoardRefresh" class="btn main-btn app-refresh-button" type="button" onclick="openStaffBoard()">🔄 Обновить</button></div>
  <div id="staffBoardState" role="status" aria-live="polite"></div><div id="staffBoardResult"></div>
- <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openAdminPanel()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
+ <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="staffBoardBack()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
 <div id="screen-shift-swaps" class="app-screen uniform-screen" style="display:none"><div class="card"><h2>🔄 Обмены сменами</h2><div id="shiftSwapContent"></div><div class="common-nav-row shift-swap-action-row is-single"><button type="button" id="shiftSwapCancel" class="btn main-btn" style="display:none" onclick="shiftSwapAction('cancel')">🚫 Отменить запрос</button><button type="button" class="btn main-btn" onclick="openShiftSwapHistory()">📋 Все мои запросы</button></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openMySchedule()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
 <div id="beelineModal" class="beeline-modal-overlay">
@@ -8019,6 +8014,7 @@ function engineerApplyMenu(){
     document.getElementById('digitalWindowBtn').style.display='';
     const supervisor=role==='Супервайзер';
     mainRoleButtonVisibility('supervisorPprBtn',supervisor);
+    mainRoleButtonVisibility('brigadierBoardBtn',role==='Бригадир');
     if(supervisor)for(const id of ['technicianReportsBtn','installerMenuBtn'])document.getElementById(id).style.display='none';
     if(active)for(const id of ['technicianReportsBtn','installerMenuBtn','scannerAppBtn','adminPanelBtn'])document.getElementById(id).style.display='none';
 }
@@ -14636,7 +14632,7 @@ function adminToolsNode(suffix){return document.getElementById('admin'+(adminToo
 function adminToolsStopPoll(){adminToolsVersion++;clearTimeout(adminToolsTimer);adminToolsTimer=null;}
 // Выполняет управление инструменты запрос.
 async function adminToolsRequest(operation,fields={},timeout=35000){
- if(!managementAllowed())throw new Error('Раздел доступен руководству');const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');
+ if(!managementAllowed()&&!(staffBoardAllowed()&&operation==='view'&&fields.kind==='board'))throw new Error('Раздел доступен руководству');const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw new Error('Не настроен скрипт города');
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout);
  try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'adminTools',compactChart:true,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,operation,...fields}),credentials:'omit',redirect:'follow',mode:'cors',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const result=await response.json();if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');if(result.status!=='success')throw new Error(result.message||'Ошибка операции');return result;}finally{clearTimeout(timer);}
 }
@@ -14776,7 +14772,9 @@ function boardStaffFilter(result,root){
 }
 
 // Доска получает только отображаемые показатели, без паролей и идентификаторов.
-async function openStaffBoard(){if(!managementAllowed())return;switchScreen('screen-admin-board');const version=++staffBoardVersion,root=document.getElementById('staffBoardResult'),state=document.getElementById('staffBoardState'),button=document.getElementById('staffBoardRefresh');root.replaceChildren();state.innerHTML=liveLoading('Загружаем показатели…','📊');button.disabled=true;
+function staffBoardAllowed(){return managementAllowed()||normalizeEmployeeRole(currentUser?.role)==='Бригадир';}
+function staffBoardBack(){if(managementAllowed())openAdminPanel();else switchScreen('screen-main');}
+async function openStaffBoard(){if(!staffBoardAllowed())return;switchScreen('screen-admin-board');const version=++staffBoardVersion,root=document.getElementById('staffBoardResult'),state=document.getElementById('staffBoardState'),button=document.getElementById('staffBoardRefresh');root.replaceChildren();state.innerHTML=liveLoading('Загружаем показатели…','📊');button.disabled=true;
  try{const reply=await adminToolsRequest('view',{kind:'board'});if(version!==staffBoardVersion)return;renderStaffBoard(reply.result,0,Date.now());state.textContent='';}catch(error){if(version===staffBoardVersion)state.textContent=error.message;}finally{if(version===staffBoardVersion)button.disabled=false;}
 }
 // Выполняет доска показатели.
@@ -14836,13 +14834,32 @@ function boardOverviewView(result){
  if(result.boardTotals){const foot=document.createElement('tfoot'),row=document.createElement('tr'),values=boardOverviewValues(columns,result.boardTotals.values);fillRow(row,values,result.boardTotals.label);foot.append(row);table.append(foot);mobile.append(boardOverviewCard('Итоги по столбцам',values));}
  desktop.append(table,adminToolsText('p','Нажмите на строку, чтобы выделить сотрудника. Повторное нажатие снимает выделение.','board-overview-hint'));root.append(desktop,mobile);return root;
 }
+// Цели мобильной карточки: часы из данных сотрудника, удалённый сервис — по роли.
+function boardMobileMetric(employee,col,value){
+ if(!employee)return null;
+ const senior=String(employee.role||'').toLowerCase().includes('старший'),targets={G:boardEmployeeNorm(employee),S:senior?7:5,O:0,P:0,R:100,Q:15},target=targets[col];
+ if(target==null||!Number.isFinite(Number(target))||Number(target)<0)return null;
+ const goal=Number(target),actual=hoursNumber(value),ratio=goal>0?actual/goal:null;
+ const tone=goal===0?(actual===0?'good':'bad'):ratio>=1?'good':ratio>=.8?'mild':ratio>=.6?'warn':'bad';
+ return {goal,tone,unit:['S','R'].includes(col)?'%':col==='G'?'ч':col==='Q'?'дн.':'шт.'};
+}
+function boardMobileValue(value,metric){const node=adminToolsText('span',value,'board-overview-value');if(metric){node.dataset.boardTone=metric.tone;node.title='Цель: '+metric.goal+' '+metric.unit;}return node;}
 function boardOverviewCard(name,values,employee=null,result=null){
+ const labels={'Включение':'🔌 Включение','Переезд':'📦 Переезд','Сервис':'🛠 Сервис','Демонтаж':'❌ Демонтаж','ППР':'♻️ ППР','Всего':'🧮 Всего','Удалённо':'💻 Удалённо','Повторный сервис':'🔄 Повторный сервис','Не включено':'⛔️ Не включено','KPI':'📈 KPI','Количество дней':'📅 Количество дней'};
  const card=adminToolsText('details','','board-overview-card'),summary=document.createElement('summary'),heading=adminToolsText('div','','board-overview-card-heading'),arrow=adminToolsText('span','▼','dropdown-arrow');arrow.setAttribute('aria-hidden','true');heading.append(adminToolsText('strong',name),arrow);summary.append(heading);
- const stats=adminToolsText('div','','board-overview-card-stats');for(const [label,col,unit] of [['Всего, ч','G',''],['KPI','R','%'],['Дней','Q','']]){const stat=adminToolsText('span','','board-overview-stat');stat.append(adminToolsText('span',label+': '),adminToolsText('strong',unit?boardOverviewUnit(values[col],unit):values[col]));stats.append(stat);}summary.append(stats);card.append(summary);
- const content=adminToolsText('div','','board-overview-card-body'),work=adminToolsText('table','','board-overview-work');work.append(adminToolsText('caption','Количество работ и затраченные часы','staff-board-caption'));const head=document.createElement('thead'),header=document.createElement('tr');for(const label of ['Вид работ','шт.','часы']){const cell=adminToolsText('th',label);cell.scope='col';header.append(cell);}head.append(header);work.append(head);const body=document.createElement('tbody');for(const group of boardOverviewGroups().slice(0,4)){const row=document.createElement('tr'),label=adminToolsText('th',group.label);label.scope='row';row.append(label,...group.cols.map(col=>adminToolsText('td',values[col])));body.append(row);}work.append(body);content.append(work);
- const hours=adminToolsText('dl','','board-overview-lines');for(const [label,col] of [['ППР','F'],['Всего','G']]){const line=document.createElement('div');line.append(adminToolsText('dt',label),adminToolsText('dd',boardOverviewUnit(values[col],'ч')));hours.append(line);}content.append(hours,adminToolsText('h3','Остальные показатели','board-overview-subtitle'));
- const rest=adminToolsText('dl','','board-overview-lines');for(const group of boardOverviewGroups().slice(6)){const line=document.createElement('div'),value=document.createElement('dd');group.cols.forEach((col,i)=>value.append(adminToolsText('span',boardOverviewUnit(values[col],group.units[i]))));line.append(adminToolsText('dt',group.label),value);rest.append(line);}content.append(rest);
- card.append(content);return card;
+ const stats=adminToolsText('div','','board-overview-card-stats');for(const [label,col,unit] of [['Всего, ч','G',''],['KPI','R','%'],['Дней','Q','']]){const stat=adminToolsText('span','','board-overview-stat'),number=boardMobileValue(unit?boardOverviewUnit(values[col],unit):values[col],boardMobileMetric(employee,col,values[col]));stat.append(adminToolsText('span',label+': '),number);stats.append(stat);}summary.append(stats);card.append(summary);
+ const content=adminToolsText('div','','board-overview-card-body'),work=adminToolsText('table','','board-overview-work');work.append(adminToolsText('caption','Количество работ и затраченные часы','staff-board-caption'));const head=document.createElement('thead'),header=document.createElement('tr');for(const label of ['Вид работ','Штук','Часов']){const cell=adminToolsText('th',label);cell.scope='col';header.append(cell);}head.append(header);work.append(head);
+ const body=document.createElement('tbody');for(const group of boardOverviewGroups().slice(0,6)){
+  const row=document.createElement('tr'),label=adminToolsText('th',labels[group.label]||group.label);label.scope='row';row.append(label);
+  if(group.cols.length===2)row.append(...group.cols.map(col=>adminToolsText('td',values[col])));
+  else{const col=group.cols[0],cell=document.createElement('td'),metric=boardMobileMetric(employee,col,values[col]);row.append(adminToolsText('td','—'));cell.append(boardMobileValue(values[col],metric));if(col==='G'&&metric?.goal>0){cell.append(adminToolsText('span',' / '+metric.goal,'board-overview-goal'));cell.setAttribute('aria-label','Всего: '+values[col]+' часов из '+metric.goal);}row.append(cell);}
+  body.append(row);
+ }work.append(body);content.append(work,adminToolsText('h3','Остальные показатели','board-overview-subtitle'));
+ const rest=adminToolsText('dl','','board-overview-lines');for(const group of boardOverviewGroups().slice(6)){
+  const line=document.createElement('div'),label=adminToolsText('dt',labels[group.label]||group.label),value=document.createElement('dd'),col=group.cols[group.cols.length-1],metric=boardMobileMetric(employee,col,values[col]);
+  if(metric)label.append(adminToolsText('span',' · цель '+metric.goal+(metric.unit==='%'?'%':''),'board-overview-goal'));
+  group.cols.forEach((key,i)=>value.append(boardMobileValue(boardOverviewUnit(values[key],group.units[i]),key===col?metric:null)));line.append(label,value);rest.append(line);
+ }content.append(rest);card.append(content);return card;
 }
 
 // Показывает сотрудники доска.
@@ -16874,7 +16891,7 @@ const puEmployeeNorm=boardEmployeeNorm;
 boardEmployeeNorm=function(employee){return Number(employee.monthlyNorm)>0?Number(employee.monthlyNorm):puEmployeeNorm(employee);};
 function puMetricState(employee,col,value){const role=String(employee.role||'').toLowerCase(),senior=role.includes('старший'),n=hoursNumber(value),percent=/%/.test(String(value))?n:n<=2?n*100:n;if(col==='S'){const count=hoursNumber(employee.boardValues?.[(employee._puColumns||[]).findIndex(c=>c.column==='K')]);if(!count)return {tone:'none',text:'Нет сервисов для оценки'};const bands=senior?[7,5,3]:[5,3,1.5];return {tone:percent>=bands[0]?'good':percent>=bands[1]?'mild':percent>=bands[2]?'warn':'bad',text:'Удалённый сервис: '+percent+'%; месячная цель '+bands[0]+'%'};}if(col==='G')return {tone:n>=boardEmployeeNorm(employee)?'good':'bad',text:'Месячная норма: '+boardEmployeeNorm(employee)+' часов'};if(senior)return null;if(col==='Q')return {tone:n>=15?'good':'bad',text:'Месячная норма: 15 рабочих дней'};if(col==='R')return {tone:percent>=150?'bonus':percent>=100?'good':'bad',text:percent>=150?'Возможно премирование; сумма определяется руководством':'Цель KPI: 100%'};if(['O','P'].includes(col))return {tone:n===0?'good':'bad',text:'Норма: 0'};return null;}
 const puBoardOverview=boardOverviewView;
-boardOverviewView=function(result){for(const e of result.employees||[])e._puColumns=result.columns;const root=puBoardOverview(result);root.querySelectorAll('.board-overview-table tbody>tr').forEach((row,i)=>{const e=result.employees[i];row.querySelectorAll('[data-board-column]').forEach(cell=>{const state=puMetricState(e,cell.dataset.boardColumn,cell.textContent);if(state){cell.dataset.puMetric=state.tone;cell.title=state.text;cell.setAttribute('aria-label',cell.textContent+' · '+state.text);}});});root.querySelectorAll('.board-overview-card').forEach((card,i)=>{const e=result.employees[i];if(!e)return;const info=ctNode('div','pu-mobile-metrics');for(const col of ['G','Q','R','S','O','P']){const index=result.columns.findIndex(c=>c.column===col),value=e.boardValues[index],state=puMetricState(e,col,value);if(state){const line=ctNode('p','',state.text);line.dataset.puMetric=state.tone;info.append(line);}}card.append(info);});return root;};
+boardOverviewView=function(result){for(const e of result.employees||[])e._puColumns=result.columns;const root=puBoardOverview(result);root.querySelectorAll('.board-overview-table tbody>tr').forEach((row,i)=>{const e=result.employees[i];row.querySelectorAll('[data-board-column]').forEach(cell=>{const state=puMetricState(e,cell.dataset.boardColumn,cell.textContent);if(state){cell.dataset.puMetric=state.tone;cell.title=state.text;cell.setAttribute('aria-label',cell.textContent+' · '+state.text);}});});return root;};
 
 let puDebtData=null,puDebtSelected=new Set(),puDebtOwner='';
 const puOpenDebts=openCityDebtPreview;
