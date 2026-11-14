@@ -14843,7 +14843,7 @@ function boardOverviewView(result){
  const mobile=adminToolsText('div','','board-overview-mobile');
  for(const employee of result.employees||[]){const values=boardOverviewValues(columns,employee.boardValues),row=document.createElement('tr');row.tabIndex=0;row.dataset.boardEmployee=employee.id;row.dataset.boardPersonKey=boardStaffKey(employee);row.setAttribute('aria-label',employee.name+' · выделить строку');row.onclick=()=>selectRow(row);row.onkeydown=event=>{if(event.target===row&&(event.key==='Enter'||event.key===' ')){event.preventDefault();selectRow(row);}};fillRow(row,values,boardEmployeeCell(employee,result,0));body.append(row);const card=boardOverviewCard(employee.name,values,employee,result);card.dataset.boardPersonKey=boardStaffKey(employee);mobile.append(card);}
  table.append(body);
- if(result.boardTotals){const foot=document.createElement('tfoot'),row=document.createElement('tr'),values=boardOverviewValues(columns,result.boardTotals.values);fillRow(row,values,result.boardTotals.label);foot.append(row);table.append(foot);mobile.append(boardOverviewCard('Итоги по столбцам',values));}
+ if(result.boardTotals){const foot=document.createElement('tfoot'),row=document.createElement('tr'),values=boardOverviewValues(columns,result.boardTotals.values);fillRow(row,values,result.boardTotals.label);foot.append(row);table.append(foot);}
  desktop.append(table,adminToolsText('p','Нажмите на строку, чтобы выделить сотрудника. Повторное нажатие снимает выделение.','board-overview-hint'));root.append(desktop,mobile);return root;
 }
 // Цели мобильной карточки: часы из данных сотрудника, удалённый сервис — по роли.
