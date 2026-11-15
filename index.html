@@ -4398,6 +4398,18 @@ html[data-app-layout=mobile] .rf-grid{grid-template-columns:repeat(2,minmax(0,1f
 .rf-root .rf-model-dropdown.open>.dropdown-arrow{transform:translateY(-50%) rotate(180deg)}
 .rf-record>.rf-inline{margin-top:12px;align-items:stretch}
 .rf-record>.rf-inline>.btn{min-height:44px}
+.rf-scan-inputs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2fr);gap:12px;align-items:end}
+.rf-scan-inputs>.rf-field{min-width:0;margin:0}
+.rf-code-input-row{min-width:0}
+.rf-root .rf-code-input-row>input{flex:1 1 auto;min-width:0;height:46px!important;min-height:46px}
+.rf-root .rf-code-input-row>.rf-camera-btn{display:none}
+.rf-root .rf-model-missing input{border-color:var(--danger)!important}
+.rf-model-required-note{margin:0;color:var(--danger);font-size:12px;line-height:1.5}
+#universal-confirm-btn[hidden]{display:none!important}
+html[data-app-layout=mobile] .rf-scan-inputs{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html[data-app-layout=mobile] .rf-scan-inputs>.rf-scan-model{grid-column:1/-1}
+html[data-app-layout=mobile] .rf-root .rf-code-input-row>input{font-size:16px}
+html[data-app-layout=mobile] .rf-root .rf-code-input-row>.rf-camera-btn{display:inline-flex;flex:0 0 42px;width:42px!important;min-width:42px;height:46px;min-height:46px;font-size:17px}
 .rf-scan-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
 .rf-scan-heading>h3{margin:0;text-align:left}
 .rf-root .rf-scan-heading>.rf-clear-form{width:auto!important;min-width:0;margin:0!important;padding:8px 12px!important;min-height:38px;font-size:12px;white-space:nowrap}
@@ -4434,8 +4446,8 @@ html[data-app-layout=mobile] .rf-record>.rf-inline{display:grid;grid-template-co
 .rf-record>.rf-grid>.rf-field:nth-child(-n+2){align-self:end}
 .rf-record-head>.rf-record-model{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary);font-size:12px}
 .rf-record-head>.dropdown-arrow{flex:none;margin:0;color:var(--accent-ink);transition:transform .2s}
-.rf-record[open]>.rf-record-head>.dropdown-arrow{transform:rotate(180deg)}
-.rf-record-head>.rf-delete{flex:none;margin:0!important;min-height:30px!important}
+.rf-record[open]>.rf-record-head .rf-record-controls>.dropdown-arrow{transform:rotate(180deg)}
+.rf-record-head .rf-delete{flex:none;margin:0!important;min-height:30px!important}
 .rf-record>.rf-record-meta{margin:0 0 10px;color:var(--text-secondary);font-size:12px}
 /* Общая заметная ручка раскрытия: и модели, и карточки устройств. */
 .rf-model-summary{margin:12px 0;border:1px solid var(--border-color,var(--ui-border-414141,#414141));border-radius:10px;background:var(--card-bg);overflow:hidden}
@@ -4459,38 +4471,38 @@ details[open]>summary>.rf-disclosure .dropdown-arrow{transform:rotate(180deg)}
 .rf-bulk{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--border-color,var(--ui-border-414141,#414141));border-radius:10px;background:rgba(183,237,85,.035)}
 .rf-bulk>.btn{margin:0!important;min-height:38px;width:auto!important;padding:8px 12px!important;font-size:13px!important}
 .rf-select-all,.rf-record-select{display:inline-flex;align-items:center;gap:8px;cursor:pointer;margin:0!important;flex:none;min-height:32px}
-.rf-root input[type=checkbox][data-rf-select],.rf-root input[type=checkbox][data-rf-select-all]{appearance:auto!important;-webkit-appearance:checkbox!important;accent-color:var(--accent);width:19px!important;height:19px!important;min-height:19px!important;margin:0!important;padding:0!important;flex:none;cursor:pointer}
+.rf-root input[type=checkbox][data-rf-select],.rf-root input[type=checkbox][data-rf-select-all],.rf-root input[type=checkbox][data-rf-incoming-select],.rf-root input[type=checkbox][data-rf-batch-select],.rf-root input[type=checkbox][data-rf-transfer-all]{appearance:auto!important;-webkit-appearance:checkbox!important;accent-color:var(--accent);width:19px!important;height:19px!important;min-height:19px!important;margin:0!important;padding:0!important;flex:none;cursor:pointer}
 .rf-selection-count{color:var(--text-secondary);font-size:13px;margin-right:auto}
 .rf-record.rf-selected{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
 .rf-record-select-text{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .rf-projection-warning{white-space:normal;color:var(--accent-ink);font-size:12px}
 @media(max-width:700px){
- html:not([data-app-layout=desktop]) .rf-record>.rf-record-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:7px}
+ html:not([data-app-layout=desktop]) .rf-record>.rf-record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
  html:not([data-app-layout=desktop]) .rf-record-head>.rf-record-select{grid-row:1/3;grid-column:1}
- html:not([data-app-layout=desktop]) .rf-record-head>.rf-record-serial{grid-column:2;grid-row:1;max-width:100%;font-size:12px}
- html:not([data-app-layout=desktop]) .rf-record-head>.rf-record-model{grid-column:2;grid-row:2;font-size:11px}
+ html:not([data-app-layout=desktop]) .rf-record-head>.rf-record-serial{grid-column:1;grid-row:1;max-width:100%;font-size:12px}
+ html:not([data-app-layout=desktop]) .rf-record-head>.rf-record-model{grid-column:1;grid-row:2;font-size:11px}
  html:not([data-app-layout=desktop]) .rf-record-head>.dropdown-arrow{grid-column:3;grid-row:1/3;font-size:14px;justify-self:center}
- html:not([data-app-layout=desktop]) .rf-record-head>.rf-delete{grid-column:4;grid-row:1/3;padding:4px 7px!important;min-width:28px!important}
+ html:not([data-app-layout=desktop]) .rf-record-head .rf-delete{grid-column:4;grid-row:1/3;padding:4px 7px!important;min-width:28px!important}
  html:not([data-app-layout=desktop]) .rf-bulk{gap:10px;padding:10px}
  html:not([data-app-layout=desktop]) .rf-bulk>.rf-delete-selected{flex:1 1 60%}
  html:not([data-app-layout=desktop]) .rf-model-summary>summary{padding:10px;font-size:13px;gap:7px}
  html:not([data-app-layout=desktop]) .rf-model-item{padding:8px 10px;font-size:12px}
 }
-html[data-app-layout=mobile] .rf-record>.rf-record-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:7px}
+html[data-app-layout=mobile] .rf-record>.rf-record-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px}
 html[data-app-layout=mobile] .rf-record-head>.rf-record-select{grid-row:1/3;grid-column:1}
-html[data-app-layout=mobile] .rf-record-head>.rf-record-serial{grid-column:2;grid-row:1;max-width:100%;font-size:12px}
-html[data-app-layout=mobile] .rf-record-head>.rf-record-model{grid-column:2;grid-row:2;font-size:11px}
+html[data-app-layout=mobile] .rf-record-head>.rf-record-serial{grid-column:1;grid-row:1;max-width:100%;font-size:12px}
+html[data-app-layout=mobile] .rf-record-head>.rf-record-model{grid-column:1;grid-row:2;font-size:11px}
 html[data-app-layout=mobile] .rf-record-head>.dropdown-arrow{grid-column:3;grid-row:1/3;font-size:14px;justify-self:center}
-html[data-app-layout=mobile] .rf-record-head>.rf-delete{grid-column:4;grid-row:1/3;padding:4px 7px!important;min-width:28px!important}
+html[data-app-layout=mobile] .rf-record-head .rf-delete{grid-column:4;grid-row:1/3;padding:4px 7px!important;min-width:28px!important}
 .rf-root .rf-month>label{display:none!important}
 .rf-filters{margin:0!important;overflow:visible}
 .rf-filter-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,4fr);gap:12px;margin-top:12px;align-items:end}
 .rf-filter-grid>.rf-field,.rf-model-filter,.rf-model-filter>.ct-field{min-width:0;margin:0}
 .rf-root .rf-filter-grid input:not([type=checkbox]){width:100%;min-width:0;box-sizing:border-box;margin:0;min-height:42px;padding:10px 12px;border:1px solid var(--card-border);border-radius:8px;background:var(--surface-dark);color:var(--text-main);font:inherit;font-size:13px}
 .rf-filters .dropdown-list{max-height:280px;overflow-y:auto}
-.rf-root .rf-record-head>.rf-delete:not([hidden]){position:relative;display:inline-flex!important;align-self:center!important;align-items:center;justify-content:center;margin-block:0!important;font-size:0!important}
-.rf-root .rf-record-head>.rf-delete::before,.rf-root .rf-record-head>.rf-delete::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:2px;border-radius:1px;background:currentColor;transform:translate(-50%,-50%) rotate(45deg);pointer-events:none}
-.rf-root .rf-record-head>.rf-delete::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.rf-root .rf-record-head .rf-delete:not([hidden]){position:relative;display:inline-flex!important;align-self:center!important;align-items:center;justify-content:center;margin-block:0!important;font-size:0!important}
+.rf-root .rf-record-head .rf-delete::before,.rf-root .rf-record-head .rf-delete::after{content:'';position:absolute;left:50%;top:50%;width:14px;height:2px;border-radius:1px;background:currentColor;transform:translate(-50%,-50%) rotate(45deg);pointer-events:none}
+.rf-root .rf-record-head .rf-delete::after{transform:translate(-50%,-50%) rotate(-45deg)}
 html[data-app-layout=mobile] .rf-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 html[data-app-layout=mobile] .rf-filter-grid>.rf-model-filter{grid-column:1/-1}
 html[data-app-layout=mobile] .rf-root>.rf-toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:center}
@@ -4499,8 +4511,28 @@ html[data-app-layout=mobile] .rf-root .rf-toolbar>.app-refresh-button{grid-colum
 html[data-app-layout=mobile] .rf-root .rf-toolbar>.rf-download{grid-row:2;width:100%!important;min-width:0;min-height:46px;padding:10px 6px!important;margin:0!important;box-sizing:border-box;white-space:normal}
 html[data-app-layout=mobile] .rf-toolbar>.rf-download:not([data-rf-archive]){grid-column:1}
 html[data-app-layout=mobile] .rf-toolbar>[data-rf-archive]{grid-column:2}
+.rf-record-head>.rf-record-controls{display:flex;align-items:center;gap:10px;flex:none}
+.rf-record-controls>.dropdown-arrow{flex:none;margin:0;color:var(--accent-ink);transition:transform .2s}
+.rf-record-controls .rf-record-select{min-height:30px}
+.rf-root .rf-record-controls .rf-delete{border:0!important;background:transparent!important;box-shadow:none!important;width:30px!important;min-width:30px!important;height:30px!important;min-height:30px!important;color:var(--danger,#ff4d4d)}
+.rf-batch-pick{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:8px;align-self:center;margin:0!important}
+.rf-root .rf-batch-select-all{display:flex!important;flex-direction:row!important;align-items:center;justify-content:flex-end;gap:8px;flex:0 1 auto;min-width:0;min-height:46px;width:auto!important;margin:0 0 0 auto!important}
+.rf-incoming-select-all{margin:0 0 8px!important}
+.rf-transfer-selection{grid-template-columns:auto repeat(2,minmax(0,1fr))!important}
+html[data-app-layout=mobile] .rf-record-head>.rf-record-controls{grid-column:2;grid-row:1/3;gap:18px}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-batch-pick{grid-column:1;grid-row:1;align-self:center;justify-self:start}
+html[data-app-layout=mobile] .rf-transfer-selection{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+html[data-app-layout=mobile] .rf-transfer-selection>strong{grid-column:1/-1}
+html[data-app-layout=desktop] .rf-transfer-selection[data-rf-selection-kind=incoming]{grid-template-columns:auto repeat(3,minmax(0,1fr))!important}
+.rf-transfer-selection[data-rf-selection-kind=incoming]>.btn{white-space:normal!important;overflow-wrap:anywhere;align-self:stretch}
+html[data-app-layout=mobile] .rf-transfer-selection[data-rf-selection-kind=incoming]{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+html[data-app-layout=mobile] :is(#screen-refarb,#screen-admin-refarb) .rf-transfer-selection[data-rf-selection-kind=incoming]>.btn{font-size:11px!important;line-height:15px!important;padding:8px 4px!important;min-height:62px!important;overflow-wrap:normal}
+html[data-app-layout=mobile] :is(#screen-refarb,#screen-admin-refarb)>.card.rf-root.rf-has-selection-actions{padding-bottom:260px!important}
+html[data-app-layout=mobile] .rf-scan-origin>.rf-field{flex-basis:140px;min-width:90px}
+html[data-app-layout=mobile] .rf-batch-select-all>span{min-width:0;white-space:normal;text-align:right;line-height:1.4}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-box .dropdown-list{left:auto;right:0}
 /* Рефарб · руководство: красный крестик без рамки и фона */
-#screen-admin-refarb .rf-record-head > .rf-delete {
+#screen-admin-refarb .rf-record-head .rf-delete {
     appearance: none !important;
     background: transparent !important;
     border: 0 !important;
@@ -4520,7 +4552,7 @@ html[data-app-layout=mobile] .rf-toolbar>[data-rf-archive]{grid-column:2}
     justify-content: center;
     cursor: pointer;
 }
-#screen-admin-refarb .rf-record-head > .rf-delete:disabled { opacity: .4; cursor: default; }
+#screen-admin-refarb .rf-record-head .rf-delete:disabled { opacity: .4; cursor: default; }
 </style>
 <style id="ufSetupStyles">
 .uf-intro{font-size:13px;color:var(--text-secondary);line-height:1.6}.uf-steps{display:grid;gap:10px}.uf-step{border:1px solid var(--ui-border-393939,#393939);border-radius:12px;background:var(--surface-dark);padding:14px;min-width:0}.uf-step h3{display:flex;gap:10px;align-items:center;margin:0 0 8px;font-size:15px}.uf-step h3 span{display:flex;align-items:center;justify-content:center;width:28px;height:28px;flex:none;border-radius:50%;background:var(--accent);color:#111;font-weight:800}.uf-step p{font-size:13px;line-height:1.6;color:var(--text-secondary);white-space:pre-line}.uf-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.uf-actions .btn{margin:0!important;width:auto!important;min-height:42px;font-size:13px}.uf-step label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);margin-top:12px}.uf-step input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex:none}.uf-step:has(input:checked){border-color:#789b3d}.uf-status{margin:10px 0;font-size:13px;white-space:pre-line;line-height:1.6;color:var(--accent-ink)}.uf-status[data-error=true]{color:var(--danger)}.uf-links{display:grid;gap:6px;font-size:13px;overflow-wrap:anywhere}.uf-links a{color:var(--accent-ink)}.uf-note{font-size:12px;color:var(--text-secondary)}@media(max-width:600px){.uf-actions>.btn{flex:1;width:100%!important;white-space:normal}.uf-step{padding:12px}}
@@ -4629,25 +4661,25 @@ html[data-app-layout=mobile] #managementEventForm #managementEventPreviewText{wi
 @media(max-width:1100px){html[data-app-layout=desktop] #managementEventForm .management-preview{gap:12px;padding:14px;grid-template-columns:clamp(100px,28%,170px) minmax(0,1fr)!important}}
 </style>
 <style id="refarbPerRouterKitStyles">
-.rf-scan-origin{width:100%;max-width:320px;min-width:0}
-.rf-scan-origin>.rf-field{margin:0}
+.rf-scan-origin{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;width:100%;max-width:none;min-width:0}
+.rf-scan-origin>.rf-field{margin:0;flex:0 1 320px;min-width:0}
 .rf-scan-queued-row>.rf-queued-psu>label,.rf-scan-queued-row>.rf-queued-box>label{white-space:nowrap}
-html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:22px clamp(150px,14vw,200px) clamp(145px,13vw,185px) 126px 126px minmax(180px,1fr) 46px;gap:8px}
+html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:52px clamp(150px,14vw,200px) clamp(145px,13vw,185px) 126px 126px minmax(180px,1fr) 46px;gap:8px}
 .rf-scan-queued-row>.rf-field{min-width:0;margin:0}
 .rf-scan-queued-row>.rf-field>label{font-size:11px;line-height:1.3;white-space:normal}
 .rf-scan-queued-row .rf-dropdown{margin:0;min-width:0}
 .rf-scan-queued-row .rf-dropdown>.dropdown-trigger{padding:8px;gap:5px;width:100%;min-width:0}
 .rf-scan-queued-row .rf-dropdown .dropdown-list{min-width:160px;max-width:calc(100vw - 40px)}
 .rf-scan-queued-row .rf-queued-model input{padding-right:32px;text-overflow:ellipsis}
-html[data-app-layout=mobile] .rf-scan-queued-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 46px;gap:8px;margin-bottom:16px}
+html[data-app-layout=mobile] .rf-scan-queued-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}
 html[data-app-layout=mobile] .rf-scan-queued-row>span{grid-column:1;grid-row:1/4;align-self:center}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-sn{grid-column:2;grid-row:1}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-mac{grid-column:3;grid-row:1}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-psu{grid-column:2;grid-row:2}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-box{grid-column:3;grid-row:2}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-model{grid-column:2/4;grid-row:3}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queue-remove{grid-column:4;grid-row:1/4;align-self:center}
-@media(max-width:1100px){html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr) 116px 116px minmax(0,1.8fr) 46px;gap:6px}}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-sn{grid-column:1;grid-row:2}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-mac{grid-column:2;grid-row:2}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-psu{grid-column:1;grid-row:3}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-box{grid-column:2;grid-row:3}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-model{grid-column:1/-1;grid-row:4}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queue-remove{grid-column:2;grid-row:1;align-self:center;justify-self:end}
+@media(max-width:1100px){html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:52px minmax(0,1fr) minmax(0,1fr) 116px 116px minmax(0,1.8fr) 46px;gap:6px}}
 </style>
 <style id="compactEmployeeEditStyles">
 #usersListContainer .employee-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
@@ -4724,14 +4756,16 @@ html[data-app-layout] #screen-tmc-request .tmr-grid.tmr-request-grid{row-gap:12p
 </style>
 <style id="manualBatchScanRowsStyle">
 #manual-scanned-rows:not([hidden]){display:flex;flex-direction:column;gap:10px}
-#manual-box .manual-scanned-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:10px;align-items:end;min-width:0}
-#manual-box .manual-scanned-row label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0;font-size:12px;color:var(--text-secondary)}
-#manual-box .manual-scanned-row input{width:100%;min-width:0;height:44px;box-sizing:border-box;margin:0;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px}
-#manual-box .manual-scanned-row>.btn{width:44px!important;height:44px;min-height:44px;margin:0!important;padding:0!important}
+:is(#manual-box,#camera-scanned-box) .manual-scanned-row{display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:10px;align-items:end;min-width:0}
+:is(#manual-box,#camera-scanned-box) .manual-scanned-row label{display:flex;flex-direction:column;gap:5px;min-width:0;margin:0;font-size:12px;color:var(--text-secondary)}
+:is(#manual-box,#camera-scanned-box) .manual-scanned-row input{width:100%;min-width:0;height:44px;box-sizing:border-box;margin:0;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px}
+:is(#manual-box,#camera-scanned-box) .manual-scanned-row>.btn{width:44px!important;height:44px;min-height:44px;margin:0!important;padding:0!important}
 </style>
 <style id="desktopManualScanColumnsStyle">
+#camera-scanned-box[hidden]{display:none!important}
+#camera-scanned-box{grid-column:1/-1;min-width:0}
 #manual-scanned-columns{display:none}
-html[data-app-layout=desktop] #screen-scanner #manual-box{grid-column:1/-1;min-width:0;box-sizing:border-box}
+html[data-app-layout=desktop] #screen-scanner :is(#manual-box,#camera-scanned-box){grid-column:1/-1;min-width:0;box-sizing:border-box}
 html[data-app-layout=desktop] #manual-scanned-rows{display:none!important}
 html[data-app-layout=desktop] #manual-scanned-columns:not([hidden]){display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:start;order:5;margin-top:10px}
 html[data-app-layout=desktop] .manual-scan-column{min-width:0;padding:14px;border:1px solid var(--card-border);border-radius:12px;background:var(--surface-dark)}
@@ -4740,44 +4774,44 @@ html[data-app-layout=desktop] .manual-scan-column-stb{grid-column:2}
 html[data-app-layout=desktop] .manual-scan-column-cable{grid-column:3}
 html[data-app-layout=desktop] .manual-scan-column>h3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px;font-size:15px;color:var(--accent-ink)}
 html[data-app-layout=desktop] .manual-scan-column>h3>span{padding:3px 8px;border-radius:7px;background:rgba(183,237,85,.18);font-size:12px}
-html[data-app-layout=desktop] #manual-box .manual-scan-column>.manual-scanned-row{align-items:start;margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
-html[data-app-layout=desktop] #manual-box .manual-scan-column>.manual-scanned-row:nth-child(2){margin-top:0;padding-top:0;border-top:0}
-html[data-app-layout=desktop] #manual-box .manual-scan-column .manual-scan-item{min-width:0}
+html[data-app-layout=desktop] :is(#manual-box,#camera-scanned-box) .manual-scan-column>.manual-scanned-row{align-items:start;margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
+html[data-app-layout=desktop] :is(#manual-box,#camera-scanned-box) .manual-scan-column>.manual-scanned-row:nth-child(2){margin-top:0;padding-top:0;border-top:0}
+html[data-app-layout=desktop] :is(#manual-box,#camera-scanned-box) .manual-scan-column .manual-scan-item{min-width:0}
 html[data-app-layout=desktop] .manual-scan-cable-name{margin:7px 0 5px;font-size:12px;line-height:1.45;overflow-wrap:anywhere;color:var(--text-main)}
 html[data-app-layout=desktop] .manual-scan-cable-meters{display:inline-block;font-size:12px;font-weight:700;color:var(--accent-ink)}
-#manual-box .manual-scan-item{display:flex;flex-direction:column;gap:8px;min-width:0}
-#manual-box .manual-scan-position{font-size:12px;color:var(--text-secondary)}
-#manual-box .manual-scan-model{display:flex;flex-direction:column;gap:5px;margin:0;min-width:0;width:100%;grid-column:1/-1}
-#manual-box .manual-scan-model>span{font-size:12px;color:var(--text-secondary)}
-#manual-box .manual-scan-model .dropdown-select-btn{min-height:44px;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px;box-sizing:border-box}
-html[data-app-layout=desktop] #manual-box .manual-scan-column .manual-scanned-row>.btn{margin-top:0!important;align-self:end}
+:is(#manual-box,#camera-scanned-box) .manual-scan-item{display:flex;flex-direction:column;gap:8px;min-width:0}
+:is(#manual-box,#camera-scanned-box) .manual-scan-position{font-size:12px;color:var(--text-secondary)}
+:is(#manual-box,#camera-scanned-box) .manual-scan-model{display:flex;flex-direction:column;gap:5px;margin:0;min-width:0;width:100%;grid-column:1/-1}
+:is(#manual-box,#camera-scanned-box) .manual-scan-model>span{font-size:12px;color:var(--text-secondary)}
+:is(#manual-box,#camera-scanned-box) .manual-scan-model .dropdown-select-btn{min-height:44px;padding:10px 12px;border:1px solid var(--card-border);border-radius:10px;background:var(--surface-dark);color:var(--text-main);font-size:14px;box-sizing:border-box}
+html[data-app-layout=desktop] :is(#manual-box,#camera-scanned-box) .manual-scan-column .manual-scanned-row>.btn{margin-top:0!important;align-self:end}
 #screen-scanner .scanner-input-actions,
 #screen-scanner .scanner-navigation-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:10px;width:100%;min-width:0}
 #screen-scanner .scanner-input-actions>.btn,
 #screen-scanner .scanner-navigation-actions>.btn{width:100%!important;min-width:0!important;margin:0!important;min-height:44px;height:auto;padding:10px 6px!important;box-sizing:border-box;white-space:normal;line-height:1.35}
 #screen-scanner .scanner-navigation-actions:has(>#scan-request-back[hidden]){grid-template-columns:minmax(0,1fr)}
 html[data-app-layout=desktop] #screen-scanner .scanner-navigation-actions{grid-template-columns:minmax(0,1fr)}
-#screen-scanner #manual-box .manual-scan-item{padding-left:8px;box-sizing:border-box;min-width:0}
-#screen-scanner #manual-box .manual-scanned-row label{padding:0!important;width:100%;box-sizing:border-box}
-#screen-scanner #manual-box .manual-scan-model{padding:0!important;margin:0!important;width:100%;box-sizing:border-box}
-#screen-scanner #manual-box .manual-scan-model>span{padding:0!important;margin:0!important}
-#screen-scanner #manual-box .manual-scan-model>.custom-dropdown{margin:0!important;padding:0!important;width:100%;box-sizing:border-box}
-#screen-scanner #manual-box .manual-scan-cable-meters{display:block;margin:0;color:var(--accent-ink)}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-item{padding-left:8px;box-sizing:border-box;min-width:0}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scanned-row label{padding:0!important;width:100%;box-sizing:border-box}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model{padding:0!important;margin:0!important;width:100%;box-sizing:border-box}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model>span{padding:0!important;margin:0!important}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model>.custom-dropdown{margin:0!important;padding:0!important;width:100%;box-sizing:border-box}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-cable-meters{display:block;margin:0;color:var(--accent-ink)}
 #screen-scanner #cable-name-card{display:none!important}
 html[data-app-layout=mobile] #screen-scanner .scanner-navigation-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch;gap:10px;width:100%}
 html[data-app-layout=mobile] #screen-scanner .scanner-navigation-actions>.btn{grid-column:auto!important;grid-row:1!important;flex-basis:auto!important;min-width:0!important;width:100%!important;max-width:none!important;margin:0!important}
 html[data-app-layout=mobile] #screen-scanner .scanner-navigation-actions:has(>#scan-request-back[hidden]){grid-template-columns:minmax(0,1fr)!important}
-#screen-scanner #manual-box .manual-scanned-row{grid-template-columns:minmax(0,1fr)!important;gap:8px!important}
-#screen-scanner #manual-box .manual-scan-position-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding-left:8px;box-sizing:border-box;min-width:0}
-#screen-scanner #manual-box .manual-scan-position{font-family:inherit;font-size:13px;font-weight:600;line-height:18px;letter-spacing:normal;text-transform:none;color:var(--text-main)}
-#screen-scanner #manual-box .manual-scan-position-row>.btn{flex:0 0 36px;width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;margin:0!important;font-family:inherit!important;font-size:20px!important;font-weight:400!important;line-height:1!important;box-sizing:border-box;box-shadow:none}
-#screen-scanner #manual-box .manual-scanned-row label,
-#screen-scanner #manual-box .manual-scan-model>span{font-family:inherit!important;font-size:12px!important;font-weight:600!important;line-height:16px!important;letter-spacing:normal!important;text-transform:none!important;color:var(--text-secondary)}
-#screen-scanner #manual-box .manual-scanned-row input,
-#screen-scanner #manual-box .manual-scan-model .dropdown-select-btn{font-family:inherit!important;font-size:14px!important;font-weight:500!important;line-height:20px!important;letter-spacing:normal!important;text-transform:none!important}
-#screen-scanner #manual-box .manual-scan-model .dropdown-select-btn>span{font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:normal}
-#screen-scanner #manual-box .manual-scan-model .dropdown-item{font-family:inherit;font-size:14px;font-weight:400;line-height:20px;letter-spacing:normal;text-transform:none}
-#screen-scanner #manual-box .manual-scan-cable-meters{font-family:inherit;font-size:12px;font-weight:500;line-height:16px;letter-spacing:normal}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scanned-row{grid-template-columns:minmax(0,1fr)!important;gap:8px!important}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-position-row{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding-left:8px;box-sizing:border-box;min-width:0}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-position{font-family:inherit;font-size:13px;font-weight:600;line-height:18px;letter-spacing:normal;text-transform:none;color:var(--text-main)}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-position-row>.btn{flex:0 0 36px;width:36px!important;min-width:36px!important;height:36px!important;min-height:36px!important;padding:0!important;margin:0!important;font-family:inherit!important;font-size:20px!important;font-weight:400!important;line-height:1!important;box-sizing:border-box;box-shadow:none}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scanned-row label,
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model>span{font-family:inherit!important;font-size:12px!important;font-weight:600!important;line-height:16px!important;letter-spacing:normal!important;text-transform:none!important;color:var(--text-secondary)}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scanned-row input,
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model .dropdown-select-btn{font-family:inherit!important;font-size:14px!important;font-weight:500!important;line-height:20px!important;letter-spacing:normal!important;text-transform:none!important}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model .dropdown-select-btn>span{font-family:inherit;font-size:inherit;font-weight:inherit;letter-spacing:normal}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model .dropdown-item{font-family:inherit;font-size:14px;font-weight:400;line-height:20px;letter-spacing:normal;text-transform:none}
+#screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-cable-meters{font-family:inherit;font-size:12px;font-weight:500;line-height:16px;letter-spacing:normal}
 #screen-scanner #last-scanned-text{font-family:inherit!important;font-size:14px!important;font-weight:600!important;line-height:20px;letter-spacing:normal;word-break:normal!important;overflow-wrap:anywhere}
 </style>
 <style id="mobileScheduleAndTmcButtonsStyle">
@@ -6952,6 +6986,8 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
             <div id="reader" style="width: 100%; height: 220px !important; border-radius: 16px; overflow: hidden; background: var(--ui-bg-000000,#000); border: 2px solid var(--card-border);"></div>
         </div>
         
+        <div class="card" id="camera-scanned-box" aria-label="Отсканированные позиции ТМЦ" hidden style="background:var(--card-bg);padding:16px;border-radius:16px;border:1px solid var(--card-border);"></div>
+
         <!-- Кнопки управления -->
         <div style="display: flex; flex-direction: column; gap: 8px;">
             <div class="scanner-input-actions">
@@ -7437,6 +7473,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
         <div id="universal-scanner-status" class="universal-scanner-status">Наведите прицел на штрих-код</div>
 
         <div class="universal-scanner-actions">
+            <button type="button" id="universal-confirm-btn" class="btn main-btn" onclick="confirmUniversalScan()" hidden style="margin-top:0;">✅ Подтвердить</button>
             <button type="button" id="universal-rescan-btn" class="btn main-btn" onclick="rescanUniversalScanner()" style="display:none; margin-top:0;">🔄 Повторить сканирование</button>
             <button type="button" class="btn danger-btn" onclick="closeUniversalScanner()" style="margin-top:0;">❌ Закрыть</button>
         </div>
@@ -10152,6 +10189,7 @@ async function runSearchAccess(version) {
         if (manualBox) manualBox.style.display = 'none';
         if (toggleBtn) toggleBtn.innerHTML = 'Внести вручную ⌨️';
         setEquipmentMode('router');
+        renderManualScannedRows();
     }
 
     // Обрабатывает сканер.
@@ -10233,6 +10271,7 @@ async function runSearchAccess(version) {
             toggleBtn.innerHTML = 'Внести вручную ⌨️';
             startScanner();
         }
+        renderManualScannedRows();
     }
 
     // Сохраняет оборудование режим.
@@ -10355,6 +10394,11 @@ function iiCancelTmrScan(toMain=false){
  else switchScreen('screen-main');
 }
 function renderManualScannedRows(){
+ const manual=document.getElementById('manual-box'),camera=document.getElementById('camera-scanned-box');
+ const manualMode=manual&&manual.style.display!=='none'&&!!manual.style.display;
+ const host=manualMode?manual:camera;
+ if(host){for(const id of ['manual-scanned-rows','manual-scanned-columns']){const node=document.getElementById(id);if(node&&node.parentElement!==host)host.insertBefore(node,manualMode?manual.querySelector("#manual-label"):null);}}
+ if(camera)camera.hidden=manualMode||!scannedBatch.length;
  const list=document.getElementById('manual-scanned-rows');if(!list)return;
  list.replaceChildren();list.hidden=!scannedBatch.length;
  for(const [index,item] of scannedBatch.entries()){
@@ -10510,6 +10554,8 @@ function renderManualScannedRows(){
     let universalScanLocked = false;
     let universalScannerStarting = false;
     let universalLastAcceptedCode = '';
+    let universalScanFlow = null;
+    let universalScannerGeneration = 0;
 
     const UNIVERSAL_FIELD_NAMES = {
         retSerial: 'Серийный номер',
@@ -10553,9 +10599,10 @@ function renderManualScannedRows(){
         const statusEl = document.getElementById('universal-scanner-status');
         const targetEl = document.getElementById('universal-scanner-target');
         const rescanBtn = document.getElementById('universal-rescan-btn');
+        const confirmBtn = document.getElementById('universal-confirm-btn');
 
         if (targetEl) {
-            targetEl.textContent = 'Поле: ' + (UNIVERSAL_FIELD_NAMES[activeTargetInputId] || activeTargetInputId || '—');
+            targetEl.textContent = 'Поле: ' + (universalScanFlow?.label?.() || UNIVERSAL_FIELD_NAMES[activeTargetInputId] || activeTargetInputId || '—');
         }
         if (valueEl) {
             const targetInput = activeTargetInputId ? document.getElementById(activeTargetInputId) : null;
@@ -10566,12 +10613,15 @@ function renderManualScannedRows(){
             statusEl.style.color = isError ? 'var(--danger, #ff4d4d)' : 'var(--text-muted, #aaa)';
         }
         if (rescanBtn) rescanBtn.style.display = universalScanLocked ? 'flex' : 'none';
+        if (confirmBtn) { confirmBtn.hidden = !universalScanFlow; confirmBtn.disabled = !universalScanLocked; confirmBtn.textContent = universalScanFlow?.confirmText?.() || '✅ Подтвердить'; }
     }
 
     // Показывает универсальный сканер.
-    function openUniversalScanner(inputId, customCallback = null) {
+    function openUniversalScanner(inputId, customCallback = null, flow = null) {
         if (!inputId) return;
 
+        universalScanFlow?.close?.();
+        universalScanFlow = flow;
         activeTargetInputId = inputId;
         activeScanCallback = customCallback;
         universalScanLocked = false;
@@ -10596,7 +10646,9 @@ function renderManualScannedRows(){
         }
 
         universalScannerStarting = true;
+        const generation = ++universalScannerGeneration;
         setTimeout(() => {
+            if (generation !== universalScannerGeneration || !activeTargetInputId || document.getElementById('universal-scanner-modal')?.style.display === 'none') { if (generation === universalScannerGeneration) universalScannerStarting = false; return; }
             try {
                 const reader = document.getElementById('universal-reader');
                 if (!reader) {
@@ -10604,16 +10656,18 @@ function renderManualScannedRows(){
                     return;
                 }
 
-                universalScannerInstance = new Html5Qrcode('universal-reader');
-                universalScannerInstance.start(
+                const instance = universalScannerInstance = new Html5Qrcode('universal-reader');
+                instance.start(
                     { facingMode: 'environment' },
-                    { fps: 12, qrbox: { width: 300, height: 110 }, aspectRatio: 1.777778 },
-                    handleUniversalScanSuccess,
+                    { fps: 12, qrbox: { width: Math.max(100, Math.min(300, (reader.clientWidth || 340) - 20)), height: 110 }, aspectRatio: 1.777778 },
+                    decoded => { if (generation === universalScannerGeneration && universalScannerInstance === instance) handleUniversalScanSuccess(decoded); },
                     () => {}
                 ).then(() => {
+                    if (generation !== universalScannerGeneration || universalScannerInstance !== instance) { instance.stop().then(() => instance.clear()).catch(() => { try { instance.clear(); } catch (_) {} }); return; }
                     universalScannerStarting = false;
                     updateUniversalScannerUI('Наведите прицел на штрих-код');
                 }).catch(err => {
+                    if (generation !== universalScannerGeneration || universalScannerInstance !== instance) return;
                     console.error('Не удалось запустить камеру для ввода:', err);
                     universalScannerStarting = false;
                     universalScannerInstance = null;
@@ -10640,6 +10694,7 @@ function renderManualScannedRows(){
         }
 
         const code = normalizeScannedCode(raw);
+        if (universalScanFlow?.validate) { const validation = universalScanFlow.validate(code); if (validation === false) return; if (validation) { updateUniversalScannerUI(validation, true); return; } }
         const inputElement = document.getElementById(activeTargetInputId);
         if (!inputElement) {
             updateUniversalScannerUI('Поле для записи результата не найдено.', true);
@@ -10672,13 +10727,14 @@ function renderManualScannedRows(){
             try { window.Telegram.WebApp.HapticFeedback.notificationOccurred('success'); } catch (e) {}
         }
 
-        updateUniversalScannerUI('Код успешно записан в поле. Если значение неверное — нажмите «Повторить сканирование».');
+        updateUniversalScannerUI(universalScanFlow ? 'Проверьте код. Если верно — подтвердите, иначе повторите сканирование.' : 'Код успешно записан в поле. Если значение неверное — нажмите «Повторить сканирование».');
     }
 
     // Выполняет повторное сканирование универсальный сканер.
     function rescanUniversalScanner() {
         if (!activeTargetInputId) return;
 
+        universalScanFlow?.rescan?.();
         universalScanLocked = false;
         universalLastAcceptedCode = '';
         updateUniversalScannerUI('Повторное сканирование: наведите прицел на правильный штрих-код');
@@ -10692,8 +10748,15 @@ function renderManualScannedRows(){
         }
     }
 
+    function confirmUniversalScan() { if (universalScanLocked && universalScanFlow) universalScanFlow.confirm(); }
+
     // Очищает универсальный сканер.
     function closeUniversalScanner() {
+        universalScanFlow?.close?.();
+        universalScanFlow = null;
+        universalScannerGeneration++;
+        universalScannerStarting = false;
+        const confirmBtn = document.getElementById('universal-confirm-btn'); if (confirmBtn) confirmBtn.hidden = true;
         const modal = document.getElementById('universal-scanner-modal');
         if (modal) modal.style.display = 'none';
 
@@ -16042,7 +16105,7 @@ async function rfApi(operation,fields={},timeout=35000){
    try{
     const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal}),result=await rfReadApiResponse(response);
     if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
-    if(result.status!=='success'){const error=new Error(result.message||'Операция не выполнена');error.code=result.code;error.confirmed=true;throw error;}return result;
+    if(result.status!=='success'){const error=new Error(result.message||'Операция не выполнена');error.code=result.code;error.confirmed=result.code!=='REJECT_PENDING';throw error;}return result;
    }catch(error){if(attempt+1<attempts&&error.retryRead&&!controller.signal.aborted&&owner===managementOwnerKey())continue;throw error;}
   }
  }catch(error){if(error.name==='AbortError')throw new Error(operation==='list'?'Рефарб не ответил вовремя. Нажмите «Обновить».':'Ответ не получен вовремя. Повторите сохранение для проверки того же запроса');throw error;}finally{clearTimeout(timer);}
@@ -16154,6 +16217,46 @@ function rfApplySerialHints(record){
  return copy;
 }
 // Отмена только локальной несохранённой пачки, без запросов удаления в таблицу.
+function rfCanPrepareBatch(){const d=rfUi.data;return !!d&&d.workOpen&&d.month===d.currentMonth&&(d.canAdd||rfUi.manager);}
+function rfTransferSelections(){rfUi.incomingSelected||=new Map();rfUi.batchSelected||=new Set();}
+function rfSelectForTransfer(kind,id,version,on){
+ if(rfUi.busy||rfUi.pending)return;rfTransferSelections();rfUi.selected?.clear();
+ if(kind==='incoming'){rfUi.batchSelected.clear();if(on)rfUi.incomingSelected.set(id,version);else rfUi.incomingSelected.delete(id);}
+ else{rfUi.incomingSelected.clear();if(on)rfUi.batchSelected.add(id);else rfUi.batchSelected.delete(id);}
+ rfRenderBulk();rfBusyControls();
+}
+function rfAddSelectedToBatch(){
+ if(rfUi.busy||rfUi.pending||!rfCanPrepareBatch())return;rfTransferSelections();const selection=[...rfUi.incomingSelected],rows=[];
+ if(!selection.length)return;for(const [id,version] of selection){const r=rfUi.data.pending.find(r=>r.id===id);if(!r||r.version!==version||r.sourceExcluded||r.completed||rfUi.drafts.has(id)){rfNote('Список изменился. Обновите очередь и выберите устройства заново.');return;}rows.push(r);}
+ if(rfBatchDrafts().length+rows.length>500){rfNote('В одной пачке допускается не больше 500 устройств.');return;}
+ const date=rfWorkDate();for(const r of rows)rfUi.drafts.set(r.id,{...r,completed:true,date,month:date.slice(0,7)});
+ rfUi.incomingSelected.clear();rfRemember();rfRenderRows();rfNote('Добавлено в форму: '+rows.length+'. Проверьте блок питания и коробку каждого устройства, затем сохраните пачку.');
+}
+function rfConfirmRemoveSelectedBatch(){
+ if(rfUi.busy||rfUi.pending)return;rfTransferSelections();const ids=[...rfUi.batchSelected].filter(id=>rfBatchDrafts().some(r=>r.id===id));if(!ids.length)return;
+ const owner=managementOwnerKey(),data=rfUi.data,body=rfElement('p','','Убрать выбранные строки из формы: '+ids.length+'? Несохранённые изменения будут отменены. Исходные возвраты снова появятся в нижнем списке.');
+ const actions=rfElement('div','common-nav-row rf-clear-actions');actions.append(rfButton('Отмена',closeBeelineModal,'btn danger-btn'),rfButton('Подтвердить',()=>{if(owner!==managementOwnerKey()||rfUi.data!==data||rfUi.busy||rfUi.pending)return;closeBeelineModal();for(const id of ids){rfUi.drafts.delete(id);rfUi.selected?.delete(id);rfUi.batchSelected.delete(id);}rfRemember();rfRenderRows();rfNote('Из формы убрано строк: '+ids.length);},'btn main-btn'));showBeelineModalNode('Убрать выбранные из формы?',body,'⚠️',actions);
+}
+function rfConfirmRejectReturn(id){const r=rfUi.data?.pending.find(r=>r.id===id);if(r)rfConfirmRejectReturns([{id:r.id,version:r.version}]);}
+function rfConfirmRejectSelected(){rfTransferSelections();rfConfirmRejectReturns([...rfUi.incomingSelected].map(([id,version])=>({id,version})),true);}
+function rfConfirmRejectReturns(selection,bulk=false){
+ if(rfUi.busy||rfUi.pending||!selection.length)return;const lookup=new Map(rfUi.data.pending.map(r=>[r.id,r]));
+ if(selection.some(v=>{const r=lookup.get(v.id);return !r||r.version!==v.version||r.completed||r.sourceExcluded||!r.sourceKey;})){rfNote('Список изменился. Обновите очередь и выделите устройства заново.');return;}
+ const owner=managementOwnerKey(),data=rfUi.data,rows=structuredClone(selection),description=rows.length===1?'Устройство «'+lookup.get(rows[0].id).sn+'» будет оформлено в брак и исчезнет из очереди рефарба.':'Выбранные устройства ('+rows.length+') будут оформлены в брак и исчезнут из очереди рефарба.';
+ const body=rfElement('p','',description+' Записи останутся в разделе «Возврат оборудования». Чтобы вернуть устройство в очередь, откройте «Возврат оборудования» и измените его статус с «Брак» на «Рефарб».');
+ const actions=rfElement('div','common-nav-row rf-clear-actions');actions.append(rfButton('Отмена',closeBeelineModal,'btn danger-btn'),rfButton('Подтвердить',()=>{if(owner!==managementOwnerKey()||rfUi.data!==data||rfUi.busy||rfUi.pending)return;closeBeelineModal();if(bulk)rfMutate('rejectMany',{rows});else rfMutate('reject',rows[0]);},'btn main-btn'));showBeelineModalNode(rows.length===1?'Оформить устройство в брак?':'Оформить в брак · '+rows.length+'?',body,'⚠️',actions);
+}
+function rfRenderTransferChecks(){
+ const root=rfRoot();rfTransferSelections();const source=[...root.querySelectorAll('[data-rf-incoming-select]')],batch=[...root.querySelectorAll('[data-rf-batch-select]')],sourceIds=new Set(source.map(c=>c.dataset.rfIncomingSelect)),batchIds=new Set(batch.map(c=>c.dataset.rfBatchSelect));
+ for(const [id,version] of rfUi.incomingSelected)if(!sourceIds.has(id)||!rfUi.data.pending.some(r=>r.id===id&&r.version===version&&!r.sourceExcluded))rfUi.incomingSelected.delete(id);
+ for(const id of rfUi.batchSelected)if(!batchIds.has(id))rfUi.batchSelected.delete(id);
+ for(const input of source){input.checked=rfUi.incomingSelected.has(input.dataset.rfIncomingSelect);input.closest('.rf-record')?.classList.toggle('rf-selected',input.checked);}
+ for(const input of batch)input.checked=rfUi.batchSelected.has(input.dataset.rfBatchSelect);
+ root.querySelector('.rf-incoming-select-all')?.remove();root.querySelector('.rf-batch-select-all')?.remove();
+ const all=(items,kind,cls)=>{if(!items.length)return;const label=rfElement('label','ct-act-select-all '+cls),check=rfElement('input'),selected=kind==='incoming'?rfUi.incomingSelected:rfUi.batchSelected;check.type='checkbox';check.dataset.rfTransferAll=kind;check.checked=items.every(c=>selected.has(kind==='incoming'?c.dataset.rfIncomingSelect:c.dataset.rfBatchSelect));check.indeterminate=selected.size>0&&!check.checked;check.disabled=rfUi.busy||!!rfUi.pending;check.dataset.rfPermanentDisabled='false';check.onchange=()=>{rfUi.selected?.clear();rfUi.incomingSelected.clear();rfUi.batchSelected.clear();if(check.checked)for(const c of items){if(kind==='incoming')rfUi.incomingSelected.set(c.dataset.rfIncomingSelect,Number(c.dataset.rfVersion));else rfUi.batchSelected.add(c.dataset.rfBatchSelect);}rfRenderBulk();rfBusyControls();};const text=rfElement('span','','Выбрать все показанные · '+items.length);if(kind==='batch')label.append(text,check);else label.append(check,text);return label;};
+ const incoming=all(source,'incoming','rf-incoming-select-all');if(incoming)root.querySelector('.rf-lists>.rf-section-title')?.after(incoming);
+ const queued=all(batch,'batch','rf-batch-select-all'),sourceBar=root.querySelector('.rf-scan-origin');if(sourceBar){sourceBar.hidden=!rfUi.data.canAdd&&!batch.length;if(queued)sourceBar.append(queued);}
+}
 function rfRemoveBatchDraft(id){
  if(rfUi.busy||rfUi.pending||!rfBatchDrafts().some(r=>r.id===id))return;
  rfUi.drafts.delete(id);rfUi.selected?.delete(id);if(rfUi.scanTarget===id)rfUi.scanTarget=null;if(rfUi.lastAddedId===id)rfUi.lastAddedId=null;
@@ -16180,23 +16283,42 @@ function rfConfirmClearForm(){
  },'btn main-btn'));
  showBeelineModalNode('Очистить форму?',body,'⚠️',actions);
 }
+function rfOpenBatchCamera(host,sn,mac,initial='serial'){
+ if(rfUi.busy||rfUi.pending||!rfUi.data?.canAdd||!host.isConnected)return;
+ if(initial==='mac'&&rfUiSerial(sn.value).length<3){rfNote('Сначала укажите или отсканируйте серийный номер.');sn.focus();return;}
+ host._rfCancelAutoInput?.();const owner=managementOwnerKey(),data=rfUi.data;let stage=initial,before=initial==='serial'?sn.value:mac.value,lastConfirmed='';
+ const input=()=>stage==='serial'?sn:mac,valid=()=>owner===managementOwnerKey()&&rfUi.data===data&&host.isConnected&&!rfUi.busy&&!rfUi.pending;
+ const normal=value=>stage==='serial'?rfUiSerial(value):rfUiMac(value);
+ const flow={label:()=>stage==='serial'?'Серийный номер · устройство '+(rfBatchDrafts().length+1):'MAC-адрес · устройство '+(rfBatchDrafts().length+1),confirmText:()=>stage==='serial'?'✅ Верно → MAC':'✅ Верно → следующее',
+  validate:value=>{if(!valid())return 'Сеанс изменился. Закройте сканер.';const code=normal(value);if(code===lastConfirmed)return false;return stage==='serial'?(/^[A-Z0-9._\/-]{3,100}$/.test(code)?'':'Проверьте серийный номер.'): /^[A-F0-9]{12}$/.test(code)&&/[1-9A-F]/.test(code)?'':'MAC должен содержать 12 символов A–F и 0–9.';},
+  rescan:()=>{lastConfirmed='';},
+  close:()=>{host._rfCancelAutoInput?.();if(universalScanLocked&&input().isConnected){input().value=before;input().dispatchEvent(new Event('input',{bubbles:true}));}host._rfCameraActive=false;},
+  confirm:()=>{if(!valid()){closeUniversalScanner();return;}const code=normal(input().value);lastConfirmed=code;
+   if(stage==='serial'){sn.value=code;sn.dispatchEvent(new Event('input',{bubbles:true}));stage='mac';before=mac.value;activeTargetInputId=mac.id;}
+   else{mac.value=code;mac.dispatchEvent(new Event('input',{bubbles:true}));if(!host._rfAcceptScan?.()){updateUniversalScannerUI(host.querySelector('.rf-scan-message')?.textContent||'Проверьте устройство.',true);return;}stage='serial';before=sn.value;activeTargetInputId=sn.id;}
+   universalScanLocked=false;universalLastAcceptedCode='';updateUniversalScannerUI(stage==='serial'?'Наведите камеру на серийный номер следующего устройства.':'Наведите камеру на MAC-адрес.');
+  }
+ };
+ document.querySelectorAll('.custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));
+ openUniversalScanner(input().id,code=>{input().value=normal(code);input().dispatchEvent(new Event('input',{bubbles:true}));},flow);host._rfCameraActive=true;
+}
 function rfRenderScan(){
- const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;host._rfCancelAutoInput?.();host.replaceChildren();host.hidden=!d.canAdd;if(!d.canAdd)return;
+ const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;if(host._rfCameraActive)closeUniversalScanner();host._rfCancelAutoInput?.();host.replaceChildren();host.hidden=!rfCanPrepareBatch();if(host.hidden)return;
  const heading=rfElement('div','rf-scan-heading');heading.append(rfElement('h3','','Сканирование пачки'),rfButton('Очистить форму',rfConfirmClearForm,'btn danger-btn rf-clear-form'));host.append(heading,rfElement('p','rf-hint','Серийный номер → Enter, затем MAC-адрес. После 12 символов MAC-адреса или Enter появится следующая пустая строка. В таблицу вся пачка записывается кнопкой «Сохранить всю пачку».'));
- const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-span2');mac.wrap.classList.add('rf-span2');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
+ const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-scan-code');mac.wrap.classList.add('rf-scan-code');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
  sn.input.placeholder='Сканируйте следующий серийный номер';mac.input.placeholder='Сканируйте MAC-адрес';
- const detectedModel=rfField('Модель по серийному номеру',''),detectedDate=rfField('Дата работы','');detectedModel.wrap.classList.add('rf-span4');detectedDate.wrap.classList.add('rf-span2');
- rfModelSuggestions(detectedModel);detectedDate.input.readOnly=true;detectedDate.input.tabIndex=-1;detectedModel.input.dataset.rfDetectedModel='true';detectedDate.input.dataset.rfDetectedDate='true';
- detectedModel.input.placeholder='Определится автоматически · можно выбрать вручную';detectedDate.input.placeholder='Сегодня';
+ const detectedModel=rfField('Модель по серийному номеру','');detectedModel.wrap.classList.add('rf-scan-model');
+ rfModelSuggestions(detectedModel);detectedModel.input.dataset.rfDetectedModel='true';
+ detectedModel.input.placeholder='Определится автоматически · можно выбрать вручную';
  let manualModelSerial=null;
- const updateScanDetails=()=>{const info=rfSerialInfo(sn.input.value);if(manualModelSerial!==info.sn){manualModelSerial=null;detectedModel.input.value=info.model;}detectedModel.input.title=detectedModel.input.value||'Выберите номенклатуру, если модель определилась неверно';detectedDate.input.value=info.sn.length>=3?rfWorkDate().split('-').reverse().join('.'):'';};
+ const updateScanDetails=()=>{const info=rfSerialInfo(sn.input.value);if(manualModelSerial!==info.sn){manualModelSerial=null;detectedModel.input.value=info.model;}detectedModel.input.title=detectedModel.input.value||'Выберите номенклатуру, если модель определилась неверно';};
  detectedModel.input.addEventListener('input',()=>{manualModelSerial=rfUiSerial(sn.input.value);detectedModel.input.title=detectedModel.input.value;});
  detectedModel.input.addEventListener('keydown',e=>{if(e.key==='Enter')e.stopPropagation();});
  sn.input.addEventListener('input',updateScanDetails);sn.input.addEventListener('change',updateScanDetails);
 
- let autoTimer=null;host._rfCancelAutoInput=()=>{clearTimeout(autoTimer);autoTimer=null;};const owner=managementOwnerKey(),add=rfButton('➕ Добавить',()=>accept(),'btn action-btn rf-span2');
+ let autoTimer=null;host._rfCancelAutoInput=()=>{clearTimeout(autoTimer);autoTimer=null;};const owner=managementOwnerKey();
  const show=(r)=>{rfUi.lastAddedId=r.id;rfResetFilters();rfUi.limit=Math.max(100,rfUi.limit);rfRenderRows();};
- const ready=()=>{sn.input.value=mac.input.value='';manualModelSerial=null;rfUi.scanTarget=null;updateScanDetails();sn.input.focus();};
+ const ready=()=>{sn.input.value=mac.input.value='';manualModelSerial=null;rfUi.scanTarget=null;updateScanDetails();if(!host._rfCameraActive)sn.input.focus();};
  const accept=()=>{clearTimeout(autoTimer);autoTimer=null;try{
   if(owner!==managementOwnerKey()||rfUi.data!==d||!sn.input.isConnected)return false;
   if(rfUi.busy||rfUi.pending)throw new Error('Сначала проверьте предыдущее сохранение');if(!d.canAdd)throw new Error('Добавление устройств сейчас закрыто');
@@ -16211,13 +16333,19 @@ function rfRenderScan(){
  }catch(e){rfNote('⚠️ '+e.message);return false;}};host._rfAcceptScan=accept;
  sn.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab')&&!e.shiftKey&&rfUiSerial(sn.input.value).length>=3){e.preventDefault();e.stopPropagation();sn.input.value=rfUiSerial(sn.input.value);updateScanDetails();mac.input.focus();}};
  mac.input.onkeydown=e=>{if((e.key==='Enter'||e.key==='Tab'&&rfUiMac(mac.input.value).length===12)&&!e.shiftKey){e.preventDefault();e.stopPropagation();if(sn.input.value||mac.input.value)accept();}};
- mac.input.addEventListener('input',()=>{clearTimeout(autoTimer);if(rfUiMac(mac.input.value).length===12&&rfUiSerial(sn.input.value).length>=3){const serial=sn.input.value,address=mac.input.value;autoTimer=setTimeout(()=>{if(sn.input.value===serial&&mac.input.value===address)accept();},140);}});
+ mac.input.addEventListener('input',()=>{clearTimeout(autoTimer);if(host._rfCameraActive)return;if(rfUiMac(mac.input.value).length===12&&rfUiSerial(sn.input.value).length>=3){const serial=sn.input.value,address=mac.input.value;autoTimer=setTimeout(()=>{if(sn.input.value===serial&&mac.input.value===address)accept();},140);}});
  const defaults=rfElement('div','rf-scan-origin rf-full'),queue=rfElement('div','rf-scan-queue rf-full'),next=rfElement('div','rf-scan-next rf-full'),message=rfElement('div','rf-scan-message rf-hint rf-full');message.setAttribute('role','status');message.setAttribute('aria-live','polite');
- const save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save-batch rf-full');defaults.append(origin.wrap);grid.append(defaults,queue,next,sn.wrap,mac.wrap,add,detectedModel.wrap,detectedDate.wrap,message,save);host.append(grid);rfRefreshScanQueue();
+ const inputs=rfElement('div','rf-scan-inputs rf-full');for(const [field,stage] of [[sn,'serial'],[mac,'mac']]){const row=rfElement('div','sx-code rf-code-input-row'),camera=rfButton('📷',()=>rfOpenBatchCamera(host,sn.input,mac.input,stage),'btn-scan sx-scan rf-camera-btn');camera.setAttribute('aria-label',stage==='serial'?'Сканировать серийный номер':'Сканировать MAC-адрес');field.input.before(row);row.append(field.input,camera);}inputs.append(sn.wrap,mac.wrap,detectedModel.wrap);
+ const required=rfElement('p','rf-model-required-note rf-full');required.setAttribute('role','status');const save=rfButton('💾 Сохранить всю пачку',rfSave,'btn main-btn rf-save-batch rf-full');defaults.append(origin.wrap);grid.append(defaults,queue,next,inputs,message,required,save);host.append(grid);if(!d.canAdd){origin.wrap.hidden=inputs.hidden=true;defaults.hidden=!rfBatchDrafts().length;}rfRefreshScanQueue();
 }
 function rfExcludedReturns(){return new Set((rfUi.data?.excludedReturns||[]).map(r=>r.id));}
 function rfBatchDrafts(){const d=rfUi.data;if(!d)return [];const ids=new Set([...d.rows,...d.pending].map(r=>r.id)),excluded=rfExcludedReturns();return [...rfUi.drafts.values()].filter(r=>!excluded.has(r.id)&&(ids.has(r.id)||r.month===d.month));}
-function rfUpdateSaveButtons(){const count=rfBatchDrafts().length;rfRoot()?.querySelectorAll('.rf-save,.rf-save-batch').forEach(b=>{b.textContent='💾 Сохранить всю пачку'+(count?' · '+count:'');b.disabled=!count||rfUi.busy||!!rfUi.pending;b.dataset.rfPermanentDisabled=String(!count);});}
+function rfUpdateSaveButtons(){
+ const rows=rfBatchDrafts(),count=rows.length,missing=rows.filter(r=>!String(r.model||'').trim()).length,root=rfRoot();
+ root?.querySelectorAll('.rf-save,.rf-save-batch').forEach(b=>{b.textContent='💾 Сохранить всю пачку'+(count?' · '+count:'');b.disabled=!count||!!missing||rfUi.busy||!!rfUi.pending;b.dataset.rfPermanentDisabled=String(!count||!!missing);});
+ root?.querySelectorAll('.rf-model-required-note').forEach(note=>{note.hidden=!missing;note.textContent=missing?'Укажите модель у '+missing+' '+(missing%10===1&&missing%100!==11?'устройства':'устройств')+'.':'';});
+ root?.querySelectorAll('[data-rf-queue-field=model],[data-rf-field=model]').forEach(input=>{const row=input.closest('[data-rf-queued-id],[data-rf-id]'),r=rfUi.drafts.get(row?.dataset.rfQueuedId||row?.dataset.rfId),invalid=!!r&&!String(r.model||'').trim();input.closest('.rf-field')?.classList.toggle('rf-model-missing',invalid);input.setAttribute('aria-invalid',String(invalid));});
+}
 function rfEditQueuedField(id,key,value,normalise=false){
  const previous=rfUi.drafts.get(id);if(!previous||rfUi.busy||rfUi.pending||!rfEditable(previous))return;
  const kitField=['psu','box'].includes(key);
@@ -16232,7 +16360,7 @@ function rfEditQueuedField(id,key,value,normalise=false){
 function rfRefreshScanQueue(){
  const host=rfRoot()?.querySelector('.rf-scan-queue');if(!host)return;const rows=rfBatchDrafts();host.replaceChildren();host.hidden=!rows.length;
  for(const [i,r] of rows.entries()){
-  const row=rfElement('div','rf-scan-queued-row'),number=rfElement('span','',String(i+1)),fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id),conflict=!!r.createdAt&&(!fresh||fresh.version!==r.version),editable=rfEditable(r)&&!conflict;row.dataset.rfQueuedId=r.id;row.append(number);
+  const row=rfElement('div','rf-scan-queued-row'),number=rfElement('label','rf-batch-pick'),fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id),conflict=!!r.createdAt&&(!fresh||fresh.version!==r.version),editable=rfEditable(r)&&!conflict;row.dataset.rfQueuedId=r.id;rfTransferSelections();const pick=rfElement('input');pick.type='checkbox';pick.dataset.rfBatchSelect=r.id;pick.checked=rfUi.batchSelected.has(r.id);pick.setAttribute('aria-label','Выбрать строку пачки '+(r.sn||String(i+1)));pick.onchange=()=>rfSelectForTransfer('batch',r.id,r.version,pick.checked);number.append(rfElement('span','',String(i+1)),pick);row.append(number);
   for(const [key,title] of [['sn','Серийный номер'],['mac','MAC-адрес'],['psu','Блок питания'],['box','Коробка'],['model','Модель']]){
    const kitField=['psu','box'].includes(key),options=kitField?[['','Уточнить'],[0,'0 · есть'],[1,key==='box'?'1 · нужна':'1 · нужен']]:null;
    const field=rfField(title,r[key]??'','text',options),input=field.input;field.wrap.classList.add('rf-queued-'+key);input.dataset.rfQueueField=key;input.spellcheck=false;input.setAttribute('aria-label',title+' устройства '+(i+1));input.disabled=!editable||rfUi.busy||!!rfUi.pending;input.dataset.rfPermanentDisabled=String(!editable);
@@ -16248,7 +16376,7 @@ function rfEditable(r){if(!r.completed&&(rfUi.data.month!==rfUi.data.currentMont
 function rfRenderRows(){
  const root=rfRoot(),d=rfUi.data;if(!d)return;const host=root.querySelector('.rf-lists');rfUi.expanded||=new Map();host.querySelectorAll('details.rf-record').forEach(card=>rfUi.expanded.set(card.dataset.rfId,card.open));host.replaceChildren();let all=new Map([...d.pending,...d.rows].map(r=>[r.id,r]));
  const excluded=rfExcludedReturns();for(const [id,r] of rfUi.drafts){if(!excluded.has(id)&&(all.has(id)||r.month===d.month))all.set(id,r);}
- const queued=d.canAdd?new Set(rfBatchDrafts().map(r=>r.id)):new Set(),rows=[...all.values()].filter(r=>!queued.has(r.id)&&rfMatchesFilters(r)),pending=rows.filter(r=>!r.completed||rfUi.drafts.has(r.id)&&!d.rows.some(v=>v.id===r.id)),done=rows.filter(r=>!pending.includes(r));pending.sort((a,b)=>Number(b.id===rfUi.lastAddedId)-Number(a.id===rfUi.lastAddedId));
+ const queued=rfCanPrepareBatch()?new Set(rfBatchDrafts().map(r=>r.id)):new Set(),rows=[...all.values()].filter(r=>!queued.has(r.id)&&rfMatchesFilters(r)),pending=rows.filter(r=>!r.completed||rfUi.drafts.has(r.id)&&!d.rows.some(v=>v.id===r.id)),done=rows.filter(r=>!pending.includes(r));pending.sort((a,b)=>Number(b.id===rfUi.lastAddedId)-Number(a.id===rfUi.lastAddedId));
  let shown=0;for(const [title,items] of [['Поступившие возвраты и новые строки',pending],['Выполненные устройства',done]]){host.append(rfElement('h3','rf-section-title',title+' · '+items.length));if(!items.length)host.append(rfElement('p','rf-empty','Нет устройств'));for(const item of items){if(shown++>=rfUi.limit)continue;host.append(rfRecordCard(item));}}
  if(rows.length>rfUi.limit)host.append(rfButton('Показать ещё',()=>{rfUi.limit+=100;rfRenderRows();}));
  rfUpdateSaveButtons();rfRefreshScanQueue();
@@ -16262,8 +16390,14 @@ function rfUpdateRecordHeading(card,r){
 function rfRecordCard(base){
  const r=rfUi.drafts.get(base.id)||base,dirty=rfUi.drafts.has(r.id),fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id),conflict=dirty&&!!r.createdAt&&(!fresh||fresh.version!==r.version),editable=rfEditable(r)&&!conflict,card=rfElement('details','rf-record'+(dirty?' rf-dirty':'')),head=rfElement('summary','rf-record-head');card.dataset.rfId=r.id;
  const expanded=rfUi.expanded||(rfUi.expanded=new Map());card.open=expanded.has(r.id)?expanded.get(r.id):conflict;card.ontoggle=()=>{if(card.isConnected)expanded.set(r.id,card.open);};head.onclick=()=>expanded.set(r.id,!card.open);
- if(rfUi.manager&&r.createdAt){rfUi.selected||=new Map();const pick=rfElement('label','rf-record-select'),check=rfElement('input');check.type='checkbox';check.dataset.rfSelect=r.id;check.dataset.rfVersion=String(fresh?.version||r.version);check.checked=rfUi.selected.has(r.id);check.disabled=!rfSelectable(r);check.dataset.rfPermanentDisabled=String(check.disabled);check.setAttribute('aria-label','Выбрать устройство '+r.sn);pick.append(check,rfElement('span','rf-record-select-text','Выбрать устройство'));pick.onclick=e=>e.stopPropagation();pick.onkeydown=e=>e.stopPropagation();check.onchange=()=>{if(check.checked)rfUi.selected.set(r.id,Number(check.dataset.rfVersion));else rfUi.selected.delete(r.id);card.classList.toggle('rf-selected',check.checked);rfRenderBulk();rfBusyControls();};head.append(pick);card.classList.toggle('rf-selected',check.checked);}head.append(rfElement('strong','rf-record-serial',r.sn||'Новое устройство'),rfElement('span','rf-record-model',r.model||'Укажите модель'),rfArrow());head.title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
- const remove=rfButton('',e=>{e.preventDefault();e.stopPropagation();rfDeleteRow(rfUi.drafts.get(r.id)||r);},'rf-delete');remove.title=r.createdAt?'Удалить строку':'Убрать из списка';remove.setAttribute('aria-label','Удалить устройство '+r.sn);remove.hidden=!!r.createdAt&&!rfUi.manager;remove.disabled=conflict||(r.createdAt?!rfUi.manager:!editable);head.append(remove);card.append(head);if(r.legacy&&!r.owner&&!rfUi.manager)card.append(rfElement('p','rf-record-meta','Из таблицы · только просмотр'));if(rfUi.manager)card.append(rfElement('p','rf-record-meta',r.ownerName||(!r.createdAt?currentUser.fullName:'Без исполнителя')));
+ const incoming=!r.completed&&!!fresh&&!r.sourceExcluded,controls=rfElement('span','rf-record-controls');rfTransferSelections();
+ if(incoming&&rfCanPrepareBatch()||rfUi.manager&&r.completed&&r.createdAt){const pick=rfElement('label','rf-record-select'),check=rfElement('input');check.type='checkbox';check.dataset.rfVersion=String(fresh?.version||r.version);
+  if(incoming){check.dataset.rfIncomingSelect=r.id;check.checked=rfUi.incomingSelected.has(r.id);check.onchange=()=>rfSelectForTransfer('incoming',r.id,Number(check.dataset.rfVersion),check.checked);}
+  else{check.dataset.rfSelect=r.id;check.checked=rfUi.selected.has(r.id);check.disabled=!rfSelectable(r);check.dataset.rfPermanentDisabled=String(check.disabled);check.onchange=()=>{rfUi.incomingSelected.clear();rfUi.batchSelected.clear();if(check.checked)rfUi.selected.set(r.id,Number(check.dataset.rfVersion));else rfUi.selected.delete(r.id);rfRenderBulk();rfBusyControls();};}
+  check.setAttribute('aria-label','Выбрать устройство '+r.sn+(incoming?' для формы':''));pick.append(check,rfElement('span','rf-record-select-text','Выбрать устройство'));pick.onclick=e=>e.stopPropagation();pick.onkeydown=e=>e.stopPropagation();controls.append(pick);card.classList.toggle('rf-selected',check.checked);
+ }
+ head.append(rfElement('strong','rf-record-serial',r.sn||'Новое устройство'),rfElement('span','rf-record-model',r.model||'Укажите модель'));head.title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
+ const remove=rfButton('',e=>{e.preventDefault();e.stopPropagation();if(incoming)rfConfirmRejectReturn(r.id);else rfDeleteRow(rfUi.drafts.get(r.id)||r);},'rf-delete');remove.title=incoming?'Оформить в брак':r.createdAt?'Удалить строку':'Убрать из списка';remove.setAttribute('aria-label',(incoming?'Оформить в брак устройство ':'Удалить устройство ')+r.sn);remove.hidden=incoming?!r.sourceKey:!!r.createdAt&&!rfUi.manager;remove.disabled=conflict||(!incoming&&(r.createdAt?!rfUi.manager:!editable));remove.dataset.rfPermanentDisabled=String(remove.disabled);controls.append(remove,rfArrow());head.append(controls);card.append(head);if(r.legacy&&!r.owner&&!rfUi.manager)card.append(rfElement('p','rf-record-meta','Из таблицы · только просмотр'));if(rfUi.manager)card.append(rfElement('p','rf-record-meta',r.ownerName||(!r.createdAt?currentUser.fullName:'Без исполнителя')));
  const grid=rfElement('div','rf-grid'),fields={};
  const touch=(key,value)=>{
   if(rfUi.busy||rfUi.pending){rfNote('Сначала проверьте предыдущее сохранение');return;}
@@ -16285,7 +16419,7 @@ function rfRecordCard(base){
  if(rfUi.manager&&rfUi.data.worker){const opts=[['','Выберите исполнителя'],[rfUi.data.worker.login,rfUi.data.worker.name]];if(r.owner&&r.owner!==rfUi.data.worker.login)opts.push([r.owner,r.ownerName||r.owner]);const owner=rfField('Исполнитель',r.owner||'','text',opts);owner.wrap.classList.add('rf-span2');owner.input.disabled=!editable;owner.input.onchange=()=>touch('owner',owner.input.value);grid.append(owner.wrap);}
  card.append(grid);
  if(dirty&&r.createdAt){const actions=rfElement('div','rf-inline');if(conflict)actions.append(rfElement('p','rf-warning rf-hint',fresh?'Строка изменена другим пользователем. Ваш ввод сохранён локально.':'Строка удалена или больше недоступна. Ваш ввод сохранён локально.'));actions.append(rfButton('Отменить мою правку',()=>{rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();}));if(conflict&&fresh)actions.append(rfButton('Применить мой ввод к актуальной строке',()=>{rfUi.drafts.set(r.id,{...r,version:fresh.version,createdAt:fresh.createdAt,sourceKey:fresh.sourceKey,owner:rfUi.manager?r.owner:fresh.owner});rfRemember();rfRenderRows();rfNote('Правка подготовлена на основе актуальной версии. Проверьте данные и сохраните список.');}));card.append(actions);}
- if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✅ В списке сохранения':'✅ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable;actions.append(confirm);card.append(actions);}
+ if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✅ В списке сохранения':'✅ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable||(!r.completed&&!rfCanPrepareBatch());actions.append(confirm);card.append(actions);}
  return card;
 }
 async function rfSave(){
@@ -16297,12 +16431,12 @@ async function rfSave(){
 async function rfMutate(operation,fields){
  if(rfUi.busy)return;const owner=managementOwnerKey();if(rfUi.pending&&(rfUi.pending.operation!==operation||rfUi.pending.fields!==fields)){rfNote('Сначала проверьте предыдущее сохранение');return;}
  if(!rfUi.pending)rfUi.pending={operation,fields:structuredClone({...fields,viewMonth:rfUi.data?.month||rfUi.month}),requestId:'req_'+rfId()};const p=rfUi.pending;rfRemember();rfUi.busy=true;rfBusyControls();rfNote('Сохраняем…');
- try{const reply=await rfApi(operation,{...p.fields,requestId:p.requestId});if(owner!==managementOwnerKey())return;rfUi.pending=null;if(operation==='save')p.fields.rows.forEach(r=>rfUi.drafts.delete(r.id));if(operation==='delete')rfUi.drafts.delete(p.fields.id);rfUi.busy=false;const patched=rfApplyMutationPatch(reply)||(['delete','deleteMany'].includes(operation)&&rfApplyDeletePatch(reply));rfRemember();if(!patched)await rfLoad(false);rfNote('✅ '+reply.message);}
+ try{const reply=await rfApi(operation,{...p.fields,requestId:p.requestId});if(owner!==managementOwnerKey())return;rfUi.pending=null;if(operation==='save')p.fields.rows.forEach(r=>rfUi.drafts.delete(r.id));if(operation==='delete')rfUi.drafts.delete(p.fields.id);if(operation==='reject'||operation==='rejectMany'){for(const id of operation==='rejectMany'?p.fields.rows.map(r=>r.id):[p.fields.id]){rfUi.drafts.delete(id);rfUi.incomingSelected?.delete(id);rfUi.batchSelected?.delete(id);}ctInvalidateGroups(['returns']);}rfUi.busy=false;const patched=rfApplyMutationPatch(reply)||(['delete','deleteMany'].includes(operation)&&rfApplyDeletePatch(reply));rfRemember();if(!patched)await rfLoad(false);rfNote('✅ '+reply.message);}
  catch(e){if(owner===managementOwnerKey()){if(e.confirmed){rfUi.pending=null;rfRemember();}if(e.code==='CONFLICT'||e.code==='CLOSED'){rfUi.busy=false;await rfLoad(true);if(operation==='payment'){const count=rfRoot().querySelector('.rf-payment input[type=number]'),comment=rfRoot().querySelector('.rf-payment textarea');if(count)count.value=p.fields.count;if(comment)comment.value=p.fields.comment;}}rfNote('⚠️ '+e.message);}}
  finally{if(owner===managementOwnerKey()){rfUi.busy=false;rfRenderRows();rfBusyControls();}}
 }
 function rfDeleteRow(r){
- if(rfUi.busy||rfUi.pending)return;if(!r.createdAt){rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();return;}if(!rfUi.manager)return;
+ if(rfUi.busy||rfUi.pending)return;if(r.sourceKey&&!r.completed){rfConfirmRejectReturn(r.id);return;}if(!r.createdAt){rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();return;}if(!rfUi.manager)return;
  const fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id);if(!fresh)return;rfConfirmDelete([{id:fresh.id,version:fresh.version}]);
 }
 function rfSelectable(r){const fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id);return rfUi.manager&&!!fresh&&(!rfUi.drafts.has(r.id)||rfUi.drafts.get(r.id).version===fresh.version);}
@@ -16312,27 +16446,20 @@ function rfPruneSelection(){
 }
 // Панель закреплена в видимой области; появляется со второго выбранного устройства.
 function rfRenderSelectionActions(){
- const root=rfRoot();if(!root)return;let panel=root.querySelector('.rf-selection-actions');
- const visible=rfUi.manager&&rfUi.selected?.size>=2;
- root.classList.toggle('rf-has-selection-actions',!!visible);
- if(!visible){panel?.remove();return;}
- if(!panel){
-  panel=rfElement('div','rf-selection-actions');panel.setAttribute('role','region');panel.setAttribute('aria-label','Действия с выбранными устройствами');
-  const count=rfElement('span','rf-selection-actions-count');count.setAttribute('role','status');count.setAttribute('aria-live','polite');
-  const remove=rfButton('Удалить выбранные',rfDeleteSelected,'btn danger-btn rf-selection-actions-delete');
-  const clear=rfButton('Снять выделение',()=>{if(rfUi.busy||rfUi.pending)return;rfUi.selected.clear();rfRenderRows();},'btn action-btn rf-selection-actions-clear');
-  remove.dataset.rfPermanentDisabled='false';clear.dataset.rfPermanentDisabled='false';panel.append(count,remove,clear);root.append(panel);
- }
- panel.querySelector('.rf-selection-actions-count').textContent='Выбрано: '+rfUi.selected.size;
- panel.querySelector('.rf-selection-actions-delete').textContent='🗑 Удалить · '+rfUi.selected.size;
- panel.querySelectorAll('button').forEach(b=>b.disabled=rfUi.busy||!!rfUi.pending);
+ const root=rfRoot();if(!root)return;root.querySelector('.rf-selection-actions')?.remove();root.querySelector('.rf-transfer-selection')?.remove();rfTransferSelections();
+ const kind=rfUi.batchSelected.size?'batch':rfUi.incomingSelected.size?'incoming':rfUi.manager&&rfUi.selected?.size?'completed':'',count=kind==='batch'?rfUi.batchSelected.size:kind==='incoming'?rfUi.incomingSelected.size:kind==='completed'?rfUi.selected.size:0;
+ root.classList.toggle('rf-has-selection-actions',!!count);if(!count)return;
+ const panel=rfElement('div','ct-act-selection ct-delete-only rf-transfer-selection');panel.setAttribute('role','region');panel.setAttribute('aria-label',kind==='batch'?'Действия со строками пачки':kind==='incoming'?'Добавление возвратов в форму':'Действия с выполненными устройствами');panel.dataset.rfSelectionKind=kind;
+ const clear=()=>{if(rfUi.busy||rfUi.pending)return;rfUi.incomingSelected.clear();rfUi.batchSelected.clear();rfUi.selected?.clear();rfRenderRows();};
+ const primary=kind==='batch'?rfButton('❌ Убрать из формы · '+count,rfConfirmRemoveSelectedBatch,'btn danger-btn'):kind==='incoming'?rfButton('➕ Добавить в форму · '+count,rfAddSelectedToBatch,'btn main-btn'):rfButton('❌ Удалить записи · '+count,rfDeleteSelected,'btn danger-btn');
+ panel.append(rfElement('strong','','Выбрано: '+count),rfButton('🚫 Снять выделение',clear,'btn action-btn'));if(kind==='incoming')panel.append(rfButton('❌ Оформить в брак',rfConfirmRejectSelected,'btn danger-btn'));panel.append(primary);panel.querySelectorAll('button').forEach(b=>{b.disabled=rfUi.busy||!!rfUi.pending;b.dataset.rfPermanentDisabled='false';});root.append(panel);
 }
 function rfRenderBulk(){
- rfRenderSelectionActions();
- const root=rfRoot(),host=root?.querySelector('.rf-bulk');if(!host)return;host.replaceChildren();host.hidden=!rfUi.manager;if(!rfUi.manager)return;
+ rfRenderTransferChecks();const currentRoot=rfRoot();currentRoot.querySelectorAll('[data-rf-select]').forEach(c=>{c.checked=rfUi.selected.has(c.dataset.rfSelect);c.closest('.rf-record')?.classList.toggle('rf-selected',c.checked);});rfRenderSelectionActions();
+ const root=rfRoot(),host=root?.querySelector('.rf-bulk');if(!host)return;host.replaceChildren();host.hidden=!rfUi.manager||!root.querySelector('[data-rf-select]');if(!rfUi.manager||host.hidden)return;
  rfUi.selected||=new Map();const candidates=[...root.querySelectorAll('[data-rf-select]')].filter(c=>c.dataset.rfPermanentDisabled!=='true'),label=rfElement('label','rf-select-all'),checkbox=rfElement('input');checkbox.type='checkbox';checkbox.dataset.rfSelectAll='true';checkbox.setAttribute('aria-label','Выбрать все показанные устройства');checkbox.disabled=!candidates.length;checkbox.dataset.rfPermanentDisabled=String(!candidates.length);const checked=candidates.filter(c=>c.checked).length;checkbox.checked=!!candidates.length&&checked===candidates.length;checkbox.indeterminate=checked>0&&checked<candidates.length;
- checkbox.onchange=()=>{for(const c of candidates){if(checkbox.checked)rfUi.selected.set(c.dataset.rfSelect,Number(c.dataset.rfVersion));else rfUi.selected.delete(c.dataset.rfSelect);}rfRenderRows();rfBusyControls();};label.append(checkbox,rfElement('span','','Выбрать показанные'));host.append(label,rfElement('span','rf-selection-count','Выбрано: '+rfUi.selected.size));
- const remove=rfButton('🗑 Удалить выбранные',rfDeleteSelected,'btn danger-btn rf-delete-selected');remove.disabled=!rfUi.selected.size;remove.dataset.rfPermanentDisabled=String(!rfUi.selected.size);host.append(remove);
+ checkbox.onchange=()=>{rfTransferSelections();rfUi.incomingSelected.clear();rfUi.batchSelected.clear();for(const c of candidates){if(checkbox.checked)rfUi.selected.set(c.dataset.rfSelect,Number(c.dataset.rfVersion));else rfUi.selected.delete(c.dataset.rfSelect);}rfRenderRows();rfBusyControls();};label.append(checkbox,rfElement('span','','Выбрать выполненные · '+candidates.length));host.append(label,rfElement('span','rf-selection-count','Выбрано: '+rfUi.selected.size));
+ const remove=rfButton('🗑 Удалить выполненные',rfDeleteSelected,'btn danger-btn rf-delete-selected');remove.disabled=!rfUi.selected.size;remove.dataset.rfPermanentDisabled=String(!rfUi.selected.size);host.append(remove);
  const reset=rfButton('Снять выделение',()=>{rfUi.selected.clear();rfRenderRows();rfBusyControls();},'btn action-btn rf-selection-clear');reset.disabled=!rfUi.selected.size;reset.dataset.rfPermanentDisabled=String(!rfUi.selected.size);host.append(reset);
 }
 function rfDeleteSelected(){
@@ -16353,7 +16480,7 @@ function rfApplyMutationPatch(reply){
  const p=reply.patch,d=rfUi.data;if(!p||p.version!==2||p.month!==d?.month||!Array.isArray(p.rows)||!p.stats||!p.payment)return false;
  const updates=new Map(p.rows.map(r=>[r.id,r])),ids=new Set(updates.keys()),existing=new Set(d.rows.map(r=>r.id));
  d.rows=d.rows.map(r=>updates.get(r.id)||r).filter(r=>!r.deleted&&r.completed&&r.month===d.month);d.pending=d.pending.filter(r=>!ids.has(r.id));d.excludedReturns=(d.excludedReturns||[]).filter(r=>!ids.has(r.id));
- for(const r of p.rows){if(r.deleted)continue;if(r.completed&&r.month===d.month&&!existing.has(r.id))d.rows.push(r);else if(!r.completed&&!r.sourceExcluded)d.pending.push(r);}
+ for(const r of p.rows){if(r.deleted)continue;if(r.completed&&r.month===d.month&&!existing.has(r.id))d.rows.push(r);else if(!r.completed&&!r.sourceExcluded)d.pending.push(r);else if(!r.completed&&r.sourceExcluded)d.excludedReturns.push({id:r.id,status:r.sourceStatus||'Брак'});}
  for(const key of ['stats','payment','historyUnassigned','months','today','currentMonth','closed','workOpen','canAdd'])d[key]=p[key];
  rfPruneSelection();rfRender();return true;
 }
