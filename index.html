@@ -4392,12 +4392,18 @@ html[data-app-layout=mobile] .rf-grid{grid-template-columns:repeat(2,minmax(0,1f
 .rf-root .rf-dropdown .dropdown-item{display:block;width:100%;min-height:42px;margin:0;padding:10px 12px;box-sizing:border-box;border:0;border-bottom:1px solid var(--ui-border-292929,#292929);border-radius:0;background:transparent;color:var(--text-main);font:13px/1.5 Arial,sans-serif;text-align:left;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
 .rf-root .rf-dropdown .dropdown-item:last-child{border-bottom:0}
 .rf-root .rf-dropdown .dropdown-item:hover,.rf-root .rf-dropdown .dropdown-item:focus-visible,.rf-root .rf-dropdown .dropdown-item[aria-selected=true]{background:#b7ed551a;color:var(--accent-ink);outline:none}
-.rf-root .rf-dropdown>.dropdown-trigger:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rf-root input:focus,.rf-root textarea:focus,.rf-root select:focus,.rf-root .rf-dropdown>.dropdown-trigger:focus-visible{outline:none;box-shadow:none;border-color:var(--accent)}
 .rf-root .rf-model-dropdown>.dropdown-trigger{display:block;padding-right:38px;font-weight:400}
 .rf-root .rf-model-dropdown>.dropdown-arrow{position:absolute;right:10px;top:23px;transform:translateY(-50%);margin:0;pointer-events:none}
 .rf-root .rf-model-dropdown.open>.dropdown-arrow{transform:translateY(-50%) rotate(180deg)}
 .rf-record>.rf-inline{margin-top:12px;align-items:stretch}
 .rf-record>.rf-inline>.btn{min-height:44px}
+.rf-scan-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}
+.rf-scan-heading>h3{margin:0;text-align:left}
+.rf-root .rf-scan-heading>.rf-clear-form{width:auto!important;min-width:0;margin:0!important;padding:8px 12px!important;min-height:38px;font-size:12px;white-space:nowrap}
+#beelineModal .rf-clear-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;width:100%!important;max-width:none!important;margin:0!important;padding:0;box-sizing:border-box}
+.rf-clear-actions>.btn{width:100%!important;min-width:0!important;min-height:44px!important;margin:0!important;padding:10px 8px!important;box-sizing:border-box}
+html[data-app-layout] :is(#screen-refarb,#screen-admin-refarb) .rf-scan-queued-row>.rf-queue-remove{width:46px!important;min-width:46px!important;height:46px!important;min-height:46px!important;margin:0!important;padding:0!important;display:flex;align-items:center;justify-content:center;font:24px/1 Arial,sans-serif!important;align-self:end}
 .rf-scan-queue{overflow:visible;border:1px solid var(--ui-border-3b4730,#3b4730);border-radius:10px;padding:8px}
 .rf-scan-queued-row{display:grid;grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr);gap:8px;align-items:end;margin-bottom:10px}
 .rf-scan-queued-row:last-child{margin-bottom:0}
@@ -4626,21 +4632,22 @@ html[data-app-layout=mobile] #managementEventForm #managementEventPreviewText{wi
 .rf-scan-origin{width:100%;max-width:320px;min-width:0}
 .rf-scan-origin>.rf-field{margin:0}
 .rf-scan-queued-row>.rf-queued-psu>label,.rf-scan-queued-row>.rf-queued-box>label{white-space:nowrap}
-html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:22px clamp(150px,14vw,200px) clamp(145px,13vw,185px) 126px 126px minmax(180px,1fr);gap:8px}
+html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:22px clamp(150px,14vw,200px) clamp(145px,13vw,185px) 126px 126px minmax(180px,1fr) 46px;gap:8px}
 .rf-scan-queued-row>.rf-field{min-width:0;margin:0}
 .rf-scan-queued-row>.rf-field>label{font-size:11px;line-height:1.3;white-space:normal}
 .rf-scan-queued-row .rf-dropdown{margin:0;min-width:0}
 .rf-scan-queued-row .rf-dropdown>.dropdown-trigger{padding:8px;gap:5px;width:100%;min-width:0}
 .rf-scan-queued-row .rf-dropdown .dropdown-list{min-width:160px;max-width:calc(100vw - 40px)}
 .rf-scan-queued-row .rf-queued-model input{padding-right:32px;text-overflow:ellipsis}
-html[data-app-layout=mobile] .rf-scan-queued-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr);gap:8px;margin-bottom:16px}
+html[data-app-layout=mobile] .rf-scan-queued-row{grid-template-columns:20px minmax(0,1fr) minmax(0,1fr) 46px;gap:8px;margin-bottom:16px}
 html[data-app-layout=mobile] .rf-scan-queued-row>span{grid-column:1;grid-row:1/4;align-self:center}
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-sn{grid-column:2;grid-row:1}
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-mac{grid-column:3;grid-row:1}
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-psu{grid-column:2;grid-row:2}
 html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-box{grid-column:3;grid-row:2}
-html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-model{grid-column:2/-1;grid-row:3}
-@media(max-width:1100px){html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr) 116px 116px minmax(0,1.8fr);gap:6px}}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queued-model{grid-column:2/4;grid-row:3}
+html[data-app-layout=mobile] .rf-scan-queued-row>.rf-queue-remove{grid-column:4;grid-row:1/4;align-self:center}
+@media(max-width:1100px){html[data-app-layout=desktop] .rf-scan-queued-row{grid-template-columns:18px minmax(0,1fr) minmax(0,1fr) 116px 116px minmax(0,1.8fr) 46px;gap:6px}}
 </style>
 <style id="compactEmployeeEditStyles">
 #usersListContainer .employee-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0}
@@ -16146,9 +16153,36 @@ function rfApplySerialHints(record){
  if(info.sn.length>=3&&!copy.date){copy.date=rfWorkDate();copy.month=copy.date.slice(0,7);}
  return copy;
 }
+// Отмена только локальной несохранённой пачки, без запросов удаления в таблицу.
+function rfRemoveBatchDraft(id){
+ if(rfUi.busy||rfUi.pending||!rfBatchDrafts().some(r=>r.id===id))return;
+ rfUi.drafts.delete(id);rfUi.selected?.delete(id);if(rfUi.scanTarget===id)rfUi.scanTarget=null;if(rfUi.lastAddedId===id)rfUi.lastAddedId=null;
+ rfRemember();rfRenderRows();rfNote('Устройство убрано из несохранённой пачки.');
+}
+function rfConfirmRemoveBatchDraft(id){
+ if(rfUi.busy||rfUi.pending)return;const record=rfBatchDrafts().find(r=>r.id===id);if(!record)return;
+ const owner=managementOwnerKey(),data=rfUi.data,body=rfElement('p','','Убрать всю строку устройства «'+(record.sn||'без серийного номера')+'» из несохранённой пачки? Изменения этой строки будут отменены. Сохранённая запись в таблице, если она есть, останется без изменений.');
+ const actions=rfElement('div','common-nav-row rf-clear-actions');
+ actions.append(rfButton('Отмена',closeBeelineModal,'btn danger-btn'),rfButton('Подтвердить',()=>{
+  if(owner!==managementOwnerKey()||rfUi.data!==data||rfUi.busy||rfUi.pending)return;
+  closeBeelineModal();rfRemoveBatchDraft(id);
+ },'btn main-btn'));
+ showBeelineModalNode('Убрать устройство из пачки?',body,'⚠️',actions);
+}
+function rfConfirmClearForm(){
+ if(rfUi.busy||rfUi.pending)return;const owner=managementOwnerKey(),data=rfUi.data;
+ const body=rfElement('p','','Очистить всю форму? Несохранённая пачка и текущий ввод будут сброшены. Сохранённые записи в таблице останутся без изменений.');
+ const actions=rfElement('div','common-nav-row rf-clear-actions');
+ actions.append(rfButton('Отмена',closeBeelineModal,'btn danger-btn'),rfButton('Подтвердить',()=>{
+  if(owner!==managementOwnerKey()||rfUi.data!==data||rfUi.busy||rfUi.pending)return;
+  closeBeelineModal();for(const r of rfBatchDrafts()){rfUi.drafts.delete(r.id);rfUi.selected?.delete(r.id);}
+  rfUi.scanTarget=null;rfUi.lastAddedId=null;rfRemember();rfRenderScan();rfRenderRows();rfRefreshFilterModels();rfNote('Форма очищена. Несохранённые изменения отменены.');
+ },'btn main-btn'));
+ showBeelineModalNode('Очистить форму?',body,'⚠️',actions);
+}
 function rfRenderScan(){
- const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;host.replaceChildren();host.hidden=!d.canAdd;if(!d.canAdd)return;
- host.append(rfElement('h3','','Сканирование пачки'),rfElement('p','rf-hint','Серийный номер → Enter, затем MAC-адрес. После 12 символов MAC-адреса или Enter появится следующая пустая строка. В таблицу вся пачка записывается кнопкой «Сохранить всю пачку».'));
+ const host=rfRoot().querySelector('.rf-scan'),d=rfUi.data;host._rfCancelAutoInput?.();host.replaceChildren();host.hidden=!d.canAdd;if(!d.canAdd)return;
+ const heading=rfElement('div','rf-scan-heading');heading.append(rfElement('h3','','Сканирование пачки'),rfButton('Очистить форму',rfConfirmClearForm,'btn danger-btn rf-clear-form'));host.append(heading,rfElement('p','rf-hint','Серийный номер → Enter, затем MAC-адрес. После 12 символов MAC-адреса или Enter появится следующая пустая строка. В таблицу вся пачка записывается кнопкой «Сохранить всю пачку».'));
  const grid=rfElement('div','rf-grid'),origin=rfField('Источник','ОПиО','text',[['ОПиО','ОПиО'],['Техник','Техник']]),sn=rfField('Серийный номер',''),mac=rfField('MAC-адрес','');sn.wrap.classList.add('rf-span2');mac.wrap.classList.add('rf-span2');sn.input.dataset.rfScanSn='true';mac.input.dataset.rfScanMac='true';sn.input.spellcheck=mac.input.spellcheck=false;
  sn.input.placeholder='Сканируйте следующий серийный номер';mac.input.placeholder='Сканируйте MAC-адрес';
  const detectedModel=rfField('Модель по серийному номеру',''),detectedDate=rfField('Дата работы','');detectedModel.wrap.classList.add('rf-span4');detectedDate.wrap.classList.add('rf-span2');
@@ -16160,7 +16194,7 @@ function rfRenderScan(){
  detectedModel.input.addEventListener('keydown',e=>{if(e.key==='Enter')e.stopPropagation();});
  sn.input.addEventListener('input',updateScanDetails);sn.input.addEventListener('change',updateScanDetails);
 
- let autoTimer=null;const owner=managementOwnerKey(),add=rfButton('➕ Добавить',()=>accept(),'btn action-btn rf-span2');
+ let autoTimer=null;host._rfCancelAutoInput=()=>{clearTimeout(autoTimer);autoTimer=null;};const owner=managementOwnerKey(),add=rfButton('➕ Добавить',()=>accept(),'btn action-btn rf-span2');
  const show=(r)=>{rfUi.lastAddedId=r.id;rfResetFilters();rfUi.limit=Math.max(100,rfUi.limit);rfRenderRows();};
  const ready=()=>{sn.input.value=mac.input.value='';manualModelSerial=null;rfUi.scanTarget=null;updateScanDetails();sn.input.focus();};
  const accept=()=>{clearTimeout(autoTimer);autoTimer=null;try{
@@ -16205,7 +16239,7 @@ function rfRefreshScanQueue(){
    input.oninput=()=>{input.classList.remove('input-error');if(kitField)field.wrap.querySelector('.dropdown-trigger')?.classList.remove('input-error');rfEditQueuedField(r.id,key,input.value);};input.onchange=()=>rfEditQueuedField(r.id,key,input.value,true);
    if(kitField){const trigger=field.wrap.querySelector('.dropdown-trigger');trigger.title=title+' этого устройства: 0 — б/у есть; 1 — '+(key==='box'?'нужна новая':'нужен новый');trigger.setAttribute('aria-label',title+' устройства '+(i+1));}
    if(key==='model'){field.wrap.classList.toggle('rf-model-missing',!r.model?.trim());input.placeholder='Выберите или введите модель';input.title=r.model||'';rfModelSuggestions(field);}row.append(field.wrap);
-  }host.append(row);
+  }const remove=rfButton('×',()=>rfConfirmRemoveBatchDraft(r.id),'btn danger-btn rf-queue-remove');remove.title='Убрать из несохранённой пачки';remove.setAttribute('aria-label','Убрать устройство '+(r.sn||String(i+1))+' из пачки');remove.dataset.rfRemoveDraft=r.id;row.append(remove);host.append(row);
  }
  const next=rfRoot().querySelector('.rf-scan-next');if(next)next.textContent=rows.length?'В пачке '+rows.length+' · ещё не записано в таблицу. Устройство '+(rows.length+1)+':':'Устройство 1:';
  rfSyncDropdowns(host);host.scrollTop=host.scrollHeight;rfUpdateSaveButtons();
@@ -16214,7 +16248,7 @@ function rfEditable(r){if(!r.completed&&(rfUi.data.month!==rfUi.data.currentMont
 function rfRenderRows(){
  const root=rfRoot(),d=rfUi.data;if(!d)return;const host=root.querySelector('.rf-lists');rfUi.expanded||=new Map();host.querySelectorAll('details.rf-record').forEach(card=>rfUi.expanded.set(card.dataset.rfId,card.open));host.replaceChildren();let all=new Map([...d.pending,...d.rows].map(r=>[r.id,r]));
  const excluded=rfExcludedReturns();for(const [id,r] of rfUi.drafts){if(!excluded.has(id)&&(all.has(id)||r.month===d.month))all.set(id,r);}
- const rows=[...all.values()].filter(rfMatchesFilters),pending=rows.filter(r=>!r.completed||rfUi.drafts.has(r.id)&&!d.rows.some(v=>v.id===r.id)),done=rows.filter(r=>!pending.includes(r));pending.sort((a,b)=>Number(b.id===rfUi.lastAddedId)-Number(a.id===rfUi.lastAddedId));
+ const queued=d.canAdd?new Set(rfBatchDrafts().map(r=>r.id)):new Set(),rows=[...all.values()].filter(r=>!queued.has(r.id)&&rfMatchesFilters(r)),pending=rows.filter(r=>!r.completed||rfUi.drafts.has(r.id)&&!d.rows.some(v=>v.id===r.id)),done=rows.filter(r=>!pending.includes(r));pending.sort((a,b)=>Number(b.id===rfUi.lastAddedId)-Number(a.id===rfUi.lastAddedId));
  let shown=0;for(const [title,items] of [['Поступившие возвраты и новые строки',pending],['Выполненные устройства',done]]){host.append(rfElement('h3','rf-section-title',title+' · '+items.length));if(!items.length)host.append(rfElement('p','rf-empty','Нет устройств'));for(const item of items){if(shown++>=rfUi.limit)continue;host.append(rfRecordCard(item));}}
  if(rows.length>rfUi.limit)host.append(rfButton('Показать ещё',()=>{rfUi.limit+=100;rfRenderRows();}));
  rfUpdateSaveButtons();rfRefreshScanQueue();
@@ -16251,7 +16285,7 @@ function rfRecordCard(base){
  if(rfUi.manager&&rfUi.data.worker){const opts=[['','Выберите исполнителя'],[rfUi.data.worker.login,rfUi.data.worker.name]];if(r.owner&&r.owner!==rfUi.data.worker.login)opts.push([r.owner,r.ownerName||r.owner]);const owner=rfField('Исполнитель',r.owner||'','text',opts);owner.wrap.classList.add('rf-span2');owner.input.disabled=!editable;owner.input.onchange=()=>touch('owner',owner.input.value);grid.append(owner.wrap);}
  card.append(grid);
  if(dirty&&r.createdAt){const actions=rfElement('div','rf-inline');if(conflict)actions.append(rfElement('p','rf-warning rf-hint',fresh?'Строка изменена другим пользователем. Ваш ввод сохранён локально.':'Строка удалена или больше недоступна. Ваш ввод сохранён локально.'));actions.append(rfButton('Отменить мою правку',()=>{rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();}));if(conflict&&fresh)actions.append(rfButton('Применить мой ввод к актуальной строке',()=>{rfUi.drafts.set(r.id,{...r,version:fresh.version,createdAt:fresh.createdAt,sourceKey:fresh.sourceKey,owner:rfUi.manager?r.owner:fresh.owner});rfRemember();rfRenderRows();rfNote('Правка подготовлена на основе актуальной версии. Проверьте данные и сохраните список.');}));card.append(actions);}
- if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✓ В списке сохранения':'✓ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable;actions.append(confirm);card.append(actions);}
+ if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✅ В списке сохранения':'✅ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable;actions.append(confirm);card.append(actions);}
  return card;
 }
 async function rfSave(){
