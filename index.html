@@ -3394,8 +3394,12 @@ html[data-app-layout=mobile] .channel-grid{grid-template-columns:repeat(2,minmax
 #screen-channel-catalog .channel-filter .dropdown-item:hover,#screen-channel-catalog .channel-filter .dropdown-item:focus-visible,#screen-channel-catalog .channel-filter .dropdown-item[aria-selected=true]{background:var(--ui-bg-29331f,#29331f);color:var(--ui-fg-b7ed55,#b7ed55)}
 #screen-channel-catalog .channel-filter-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #screen-channel-catalog #channelReload{width:auto;flex:0 0 auto;margin:0;padding:10px 14px;min-height:46px}
-html[data-app-layout=mobile] #screen-channel-catalog .channel-filter{flex:1 1 calc(50% - 10px)}
-html[data-app-layout=mobile] #screen-channel-catalog #channelReload{flex:1 1 100%}
+html[data-app-layout=mobile] #screen-channel-catalog .channel-toolbar input{flex:1 1 calc(100% - 160px);order:1}
+html[data-app-layout=mobile] #screen-channel-catalog .channel-filter{flex:1 1 calc(50% - 5px);order:3}
+html[data-app-layout=mobile] #screen-channel-catalog #channelTariff+.channel-filter{order:4}
+html[data-app-layout=mobile] #screen-channel-catalog #channelReload{flex:0 0 auto;order:2}
+html[data-app-layout=desktop] #screen-channel-catalog>.card{display:flex;flex-direction:column;gap:12px}
+html[data-app-layout=desktop] #screen-channel-catalog>.card>*{margin-block:0!important}
 </style>
 <style id="channelLogoAndArrowFix">
 #screen-channel-catalog .channel-logo-area{position:relative;background:var(--ui-bg-202020,#202020);color:var(--ui-fg-b7ed55,#b7ed55);border:1px solid var(--ui-border-303b23,#303b23)}
