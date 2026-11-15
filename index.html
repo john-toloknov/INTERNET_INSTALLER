@@ -3085,6 +3085,15 @@ html[data-app-layout] #screen-my-equipment .act-debts-toolbar>.app-refresh-butto
 #cityTableSearch{flex:1;min-width:160px;margin:0;height:42px}
 /* Таблица: возвраты оборудования. Общая прокрутка страницы, без внутренних списков. */
 .ctr-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+/* Возвраты: одинаковые интервалы между фильтрами, действиями и моделями. */
+html[data-app-layout] #cityTableEditor[data-ct-part=returns]{display:flex!important;flex-direction:column;gap:12px!important}
+html[data-app-layout] #cityTableEditor[data-ct-part=returns]>*{margin-block:0!important}
+#cityTableEditor[data-ct-part=returns]>:is(#cityTableTabs,#cityTableCounts,#cityTableNew):empty,#cityTableEditor[data-ct-part=returns]>.ct-toolbar:has(>#cityTableSearch[hidden]){display:none!important}
+#cityTableEditor[data-ct-part=returns]>.pu-count-toolbar{gap:12px!important}
+#cityTableEditor[data-ct-part=returns] .ctr-grid{gap:12px}
+#cityTableEditor[data-ct-part=returns] .ii-return-counts{margin:0;box-sizing:border-box}
+#cityTableEditor[data-ct-part=returns] .ii-return-counts>summary>.rf-disclosure{border:0;background:transparent;box-shadow:none;padding:0;width:18px;min-width:18px;height:18px;min-height:18px}
+
 #screen-admin-returns .ct-record.ctr-record{margin:0;padding:0;overflow:visible;border-left:4px solid var(--accent)}
 .ctr-record[data-return-state=pending]{background:rgba(255,231,90,.1);border-color:#e4cb00}
 html[data-app-theme=light] .ctr-record[data-return-state=pending]{background:#fff8dc}
@@ -3673,6 +3682,15 @@ html[data-app-layout=mobile] #cityTableEditor .pu-count-toolbar{grid-template-co
 html[data-app-layout=mobile] #cityTableEditor .pu-count-toolbar>.ctr-export-controls{grid-column:1/-1;display:grid!important;grid-template-columns:minmax(0,1fr) auto;width:100%;margin-top:4px!important}
 html[data-app-layout=mobile] #cityTableEditor .pu-count-toolbar .ctr-export-months{width:100%!important;min-width:0!important}
 html[data-app-layout=mobile] #cityTableEditor .pu-count-toolbar .ctr-export-controls>.btn{font-size:11px!important;padding-inline:8px!important}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar>#cityTableState{grid-column:1/-1;grid-row:1}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar>.app-refresh-button{grid-column:2;grid-row:2}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar>.ctr-export-controls{display:contents!important}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar .ctr-export-months{grid-column:1;grid-row:2;width:100%!important;min-width:0!important;margin:0!important}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar .ctr-export-controls>.btn{grid-column:3;grid-row:2}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar>.app-refresh-button,html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar .ctr-export-controls>.btn,html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns]>.pu-count-toolbar .ctr-export-months>.dropdown-select-btn{width:100%!important;min-width:0!important;height:44px!important;min-height:44px!important;padding:5px 4px!important;margin:0!important;font-size:11px!important;line-height:14px!important;white-space:normal;box-sizing:border-box}
+html[data-app-layout=mobile] #cityTableEditor[data-ct-part=returns] .ctr-export-months>.dropdown-select-btn>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 @media (max-width:700px){#cityTableCounts[data-ct-counts=acts]{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important}#cityTableCounts[data-ct-counts=acts]>.ct-act-count{min-height:0!important;width:100%!important}#cityTableEditor .pu-count-toolbar{grid-template-columns:minmax(0,1fr) auto!important}#cityTableEditor .pu-count-toolbar>.ctr-export-controls{grid-column:1/-1;display:grid!important;grid-template-columns:minmax(0,1fr) auto;width:100%}#cityTableEditor .pu-count-toolbar .ctr-export-months{width:100%!important}}
 #cityTableEditor .pu-count-toolbar>[hidden]{display:none!important}
 html[data-app-layout] #cityTableEditor #cityTableFilters .ct-filter-actions>[data-ct-filter="Повторы"]{flex:0 1 220px;width:220px;min-width:170px;max-width:100%;margin:0}
