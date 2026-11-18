@@ -4347,6 +4347,15 @@ html[data-app-layout=mobile] .vs-stock-grid{grid-template-columns:repeat(3,minma
 #editRefarbStatus[data-enabled=true]{color:var(--accent-ink)}
 #editUserModal #editRefarbToggle{width:auto;flex-shrink:0;margin:0!important;min-height:46px;padding:10px 14px;font-size:13px}
 #beelineModal.rf-worker-confirm{animation:none}
+#beelineModal.ct-confirm .beeline-modal-card{width:520px!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box;padding:20px!important}
+#beelineModal.ct-confirm .beeline-modal-icon{font-size:32px;margin-bottom:8px}
+#beelineModal.ct-confirm .beeline-modal-title{margin:0 0 8px;line-height:1.35}
+#beelineModal.ct-confirm .beeline-modal-text{margin:0 0 16px;overflow-wrap:anywhere}
+#beelineModal.ct-confirm .beeline-modal-text>p{margin:0;line-height:1.5}
+#beelineModal.ct-confirm #beelineModalButtons>.ct-confirm-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:340px;margin:0 auto;align-items:center}
+#beelineModal.ct-confirm .ct-confirm-actions>.btn{display:flex;align-items:center;justify-content:center;width:100%!important;min-width:0!important;height:40px!important;min-height:40px!important;margin:0!important;padding:8px 10px!important;font-size:14px!important;box-sizing:border-box}
+html[data-app-layout=mobile] #beelineModal.ct-confirm .beeline-modal-card{padding:18px!important}
+html[data-app-layout=mobile] #beelineModal.ct-confirm .ct-confirm-actions>.btn{font-size:12px!important;padding:8px 6px!important}
 #beelineModal.rf-worker-confirm .beeline-modal-card{width:520px!important;max-width:100%!important;box-sizing:border-box;padding:24px!important;border-radius:16px;background:var(--card-bg);border:1px solid var(--accent)}
 #beelineModal.rf-worker-confirm .beeline-modal-icon{animation:none;font-size:32px;margin-bottom:12px}
 #beelineModal.rf-worker-confirm .beeline-modal-title{font-size:19px;line-height:1.35}
@@ -8035,7 +8044,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
 
     // Показывает Beeline модальное окно.
     function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
-        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm');
+        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm', 'ct-confirm');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
         document.getElementById('beelineModalIcon').textContent = icon;
@@ -8071,7 +8080,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
     function closeBeelineModal() {
         document.querySelectorAll('#beelineModal .custom-dropdown.open').forEach(dropdown => setDropdownOpen(dropdown, false));
         document.getElementById('beelineModal').style.display = 'none';
-        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm');
+        document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm', 'ct-confirm');
         document.querySelectorAll('[data-scroll-rail-ready]').forEach(list=>list.updateScrollRail?.());
     }
 
@@ -15212,7 +15221,7 @@ function ctSetMessage(text,loading=false){const n=document.getElementById('cityT
 // Выполняет изменённые данные — модуль городской таблицы.
 function ctDirty(){return [...ctState.drafts.values()].some(d=>Object.keys(d.changes).length||d.photoDirty);}
 // Обрабатывает операцию — модуль городской таблицы.
-function ctConfirm(title,text,accept){const p=ctNode('p','',text),actions=ctNode('div','common-nav-row'),cancel=ctNode('button','btn danger-btn','🔙 Назад'),yes=ctNode('button','btn main-btn','✅ Подтвердить');cancel.type=yes.type='button';cancel.onclick=closeBeelineModal;yes.onclick=()=>{closeBeelineModal();accept();};actions.append(cancel,yes);showBeelineModalNode(title,p,'⚠️',actions);}
+function ctConfirm(title,text,accept){const p=ctNode('p','',text),actions=ctNode('div','ct-confirm-actions'),cancel=ctNode('button','btn danger-btn','🔙 Назад'),yes=ctNode('button','btn main-btn','✅ Подтвердить');cancel.type=yes.type='button';cancel.onclick=closeBeelineModal;yes.onclick=()=>{closeBeelineModal();accept();};actions.append(cancel,yes);showBeelineModalNode(title,p,'⚠️',actions);document.getElementById('beelineModal').classList.add('ct-confirm');}
 // Очищает списки выбора — модуль городской таблицы.
 function ctCloseDropdowns(){document.querySelectorAll('#cityTableEditor .custom-dropdown.open').forEach(d=>setDropdownOpen(d,false));if(typeof closeAppCalendar==='function')closeAppCalendar();}
 const CT_STOCK_SECTIONS=[['stockRouters','🛜 Роутеры'],['stockStbs','📺 Приставки'],['stockCable','🔌 Кабель']];
@@ -17426,7 +17435,7 @@ function puSyncTableLoader(){const status=document.getElementById('cityTableStat
 const puMessageBeforeCenter=ctSetMessage;
 ctSetMessage=function(message,loading=false){puMessageBeforeCenter(message,loading);puSyncTableLoader();};
 
-function puDeleteReports(records){if(ctState.busy)return;if(ctDirty()){showBeelineModal('Удаление','Сначала сохраните или отмените изменения полей.','⚠️');return;}ctConfirm(records.length===1?'Удалить акт?':'Удалить выбранные акты?','Выбрано: '+records.length+'. После подтверждения проверим возможность удаления и возврата ТМЦ. Перед окончательным удалением будет показан результат проверки.',()=>puDeleteReportsChecked(records));}
+function puDeleteReports(records){return puDeleteReportsChecked(records);}
 function puNativeLoading(title,message){managementRequestModal(title,message,true);document.getElementById('beelineModalButtons')?.replaceChildren();}
 
 </script>
