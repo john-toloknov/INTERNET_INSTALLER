@@ -4376,6 +4376,17 @@ html[data-app-layout=mobile] .rf-grid{grid-template-columns:repeat(2,minmax(0,1f
 .rf-field>label{display:block!important;margin:0!important;font-size:11px;line-height:16px;color:var(--ui-fg-bbbbbb,#bbb)}
 .rf-grid .rf-field{align-self:start}
 .rf-record>.rf-grid{align-items:start;gap:12px}
+.rf-record>.rf-grid.rf-card-grid{grid-template-columns:minmax(0,1fr)}
+.rf-card-main,.rf-card-extra{display:grid;gap:12px;align-items:end;min-width:0}
+.rf-card-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,2.2fr) minmax(130px,.8fr)}
+.rf-card-extra{grid-template-columns:minmax(100px,.8fr) minmax(130px,.9fr) minmax(120px,.85fr) minmax(120px,.85fr) minmax(160px,1.8fr) auto}
+.rf-card-grid :is(.rf-card-main,.rf-card-extra)>.rf-field{grid-column:auto;min-width:0;align-self:end}
+.rf-card-grid>.rf-field{grid-column:1/-1}
+.rf-root .rf-card-grid .rf-card-extra>.rf-card-reason>textarea{height:46px;min-height:46px;max-width:100%;resize:vertical;line-height:20px;padding:12px;box-sizing:border-box}
+:is(#screen-refarb,#screen-admin-refarb) .rf-card-extra>.rf-card-confirm{width:auto!important;min-width:0;margin:0!important;padding:10px 12px!important;height:46px!important;min-height:46px!important;box-sizing:border-box;white-space:nowrap;font-size:12px!important}
+html[data-app-layout=mobile] .rf-card-main,html[data-app-layout=mobile] .rf-card-extra{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html[data-app-layout=mobile] .rf-card-main>.rf-field:nth-child(n+3){grid-column:1/-1}
+html[data-app-layout=mobile] .rf-card-extra>.rf-card-reason,html[data-app-layout=mobile] .rf-card-extra>.rf-card-confirm{grid-column:1/-1;width:100%!important}
 .rf-grid .rf-field>input:not(.app-date-input),.rf-grid .rf-field>.app-date-control>.app-date-trigger,.rf-grid .rf-dropdown>.dropdown-trigger{height:46px;min-height:46px;box-sizing:border-box;margin:0;padding:10px 12px;font-size:13px;line-height:20px;border:1px solid var(--ui-border-414141,#414141);border-radius:10px;background:var(--surface-dark);color:var(--text-main)}
 .rf-grid .rf-field>textarea{min-height:78px;resize:vertical}
 .rf-grid .app-date-chevron{font-size:11px}
@@ -4406,7 +4417,7 @@ html[data-app-layout=mobile] .rf-grid{grid-template-columns:repeat(2,minmax(0,1f
 .rf-root .rf-model-missing input{border-color:var(--danger)!important}
 .rf-model-required-note{margin:0;color:var(--danger);font-size:12px;line-height:1.5}
 #universal-confirm-btn[hidden]{display:none!important}
-html[data-app-layout=mobile] .rf-scan-inputs{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+html[data-app-layout=mobile] .rf-scan-inputs{grid-template-columns:minmax(0,1fr);gap:12px}
 html[data-app-layout=mobile] .rf-scan-inputs>.rf-scan-model{grid-column:1/-1}
 html[data-app-layout=mobile] .rf-root .rf-code-input-row>input{font-size:16px}
 html[data-app-layout=mobile] .rf-root .rf-code-input-row>.rf-camera-btn{display:inline-flex;flex:0 0 42px;width:42px!important;min-width:42px;height:46px;min-height:46px;font-size:17px}
@@ -4465,7 +4476,12 @@ html[data-app-layout=mobile] .rf-record>.rf-inline{display:grid;grid-template-co
 .rf-disclosure{min-width:30px;min-height:30px;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:7px;flex:none;color:var(--accent-ink);border:1px solid rgba(183,237,85,.4);background:rgba(183,237,85,.07);border-radius:7px;padding:6px 9px;font-size:12px;font-weight:600;white-space:nowrap}
 .rf-disclosure .dropdown-arrow{margin:0!important;color:inherit;transition:transform .18s}
 details[open]>summary>.rf-disclosure .dropdown-arrow{transform:rotate(180deg)}
-.rf-record>.rf-record-head{padding:5px;border-radius:7px;min-height:38px;flex-wrap:nowrap}
+.rf-record{padding:0 10px}
+.rf-record[open]{padding:10px}
+.rf-record>.rf-record-head{padding:0;border-radius:7px;height:38px;min-height:38px;box-sizing:border-box;flex-wrap:nowrap}
+html[data-app-layout=mobile] .rf-record{padding:0 9px}
+html[data-app-layout=mobile] .rf-record[open]{padding:9px}
+html[data-app-layout=mobile] .rf-record>.rf-record-head{height:auto;min-height:48px;padding:6px 0}
 .rf-record-head>.rf-record-serial{max-width:42%}
 .rf-record[open]>.rf-record-head{padding-bottom:12px;border-bottom:1px solid var(--border-color,var(--ui-border-414141,#414141))}
 .rf-bulk{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 0;padding:12px;border:1px solid var(--border-color,var(--ui-border-414141,#414141));border-radius:10px;background:rgba(183,237,85,.035)}
@@ -16207,7 +16223,7 @@ function rfRender(){
 }
 // Общие правила с ручной выдачей оборудования в ежедневном.
 function rfSerialInfo(value){const sn=rfUiSerial(value),router=ctDetectRouterModel(sn),stb=router?'':ctDetectStbModel(sn);return {sn,model:detectModelBySerial(sn).replace(/\|+$/,''),type:stb?'stb':'router'};}
-function rfModelType(model){return /пристав|iptv|rasse|b860|stb/i.test(String(model))?'stb':'router';}
+function rfModelType(model){const key=String(model||'').toLowerCase().replace(/[^a-z0-9]/g,'');return !String(model||'').trim()?'':/zxv10b860h|rasse001/.test(key)?'stb':'router';}
 function rfWorkDate(){return ctIssueToday();}
 function rfApplySerialHints(record){
  const copy={...record},info=rfSerialInfo(copy.sn);
@@ -16229,7 +16245,7 @@ function rfAddSelectedToBatch(){
  if(rfUi.busy||rfUi.pending||!rfCanPrepareBatch())return;rfTransferSelections();const selection=[...rfUi.incomingSelected],rows=[];
  if(!selection.length)return;for(const [id,version] of selection){const r=rfUi.data.pending.find(r=>r.id===id);if(!r||r.version!==version||r.sourceExcluded||r.completed||rfUi.drafts.has(id)){rfNote('Список изменился. Обновите очередь и выберите устройства заново.');return;}rows.push(r);}
  if(rfBatchDrafts().length+rows.length>500){rfNote('В одной пачке допускается не больше 500 устройств.');return;}
- const date=rfWorkDate();for(const r of rows)rfUi.drafts.set(r.id,{...r,completed:true,date,month:date.slice(0,7)});
+ const date=rfWorkDate();for(const r of rows)rfUi.drafts.set(r.id,{...r,type:rfModelType(r.model),completed:true,date,month:date.slice(0,7)});
  rfUi.incomingSelected.clear();rfRemember();rfRenderRows();rfNote('Добавлено в форму: '+rows.length+'. Проверьте блок питания и коробку каждого устройства, затем сохраните пачку.');
 }
 function rfConfirmRemoveSelectedBatch(){
@@ -16351,7 +16367,7 @@ function rfEditQueuedField(id,key,value,normalise=false){
  const kitField=['psu','box'].includes(key);
  if(kitField){value=value===''?null:Number(value);if(value!==null&&![0,1].includes(value))return;}
  let copy={...previous,[key]:kitField?value:normalise?(key==='sn'?rfUiSerial(value):key==='mac'?rfUiMac(value):String(value).trim()):value};
- if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model')delete copy._rfAutoModel;
+ if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model'){delete copy._rfAutoModel;copy.type=rfModelType(copy.model);}
  rfUi.drafts.set(id,copy);rfRemember();rfUpdateSaveButtons();
  const card=[...rfRoot().querySelectorAll('.rf-record')].find(n=>n.dataset.rfId===id),queue=[...rfRoot().querySelectorAll('.rf-scan-queued-row')].find(n=>n.dataset.rfQueuedId===id);
  if(card){card.classList.add('rf-dirty');rfUpdateRecordHeading(card,copy);for(const name of ['sn','mac','model','type','date','psu','box']){const input=card.querySelector('[data-rf-field='+name+']');if(input)input.value=copy[name]??'';}rfSyncDropdowns(card);}
@@ -16398,12 +16414,12 @@ function rfRecordCard(base){
  }
  head.append(rfElement('strong','rf-record-serial',r.sn||'Новое устройство'),rfElement('span','rf-record-model',r.model||'Укажите модель'));head.title=(r.sn||'Новое устройство')+' · '+(r.model||'Укажите модель');
  const remove=rfButton('',e=>{e.preventDefault();e.stopPropagation();if(incoming)rfConfirmRejectReturn(r.id);else rfDeleteRow(rfUi.drafts.get(r.id)||r);},'rf-delete');remove.title=incoming?'Оформить в брак':r.createdAt?'Удалить строку':'Убрать из списка';remove.setAttribute('aria-label',(incoming?'Оформить в брак устройство ':'Удалить устройство ')+r.sn);remove.hidden=incoming?!r.sourceKey:!!r.createdAt&&!rfUi.manager;remove.disabled=conflict||(!incoming&&(r.createdAt?!rfUi.manager:!editable));remove.dataset.rfPermanentDisabled=String(remove.disabled);controls.append(remove,rfArrow());head.append(controls);card.append(head);if(r.legacy&&!r.owner&&!rfUi.manager)card.append(rfElement('p','rf-record-meta','Из таблицы · только просмотр'));if(rfUi.manager)card.append(rfElement('p','rf-record-meta',r.ownerName||(!r.createdAt?currentUser.fullName:'Без исполнителя')));
- const grid=rfElement('div','rf-grid'),fields={};
+ const grid=rfElement('div','rf-grid rf-card-grid'),main=rfElement('div','rf-card-main'),extra=rfElement('div','rf-card-extra'),fields={};grid.append(main,extra);
  const touch=(key,value)=>{
   if(rfUi.busy||rfUi.pending){rfNote('Сначала проверьте предыдущее сохранение');return;}
   const previous=rfUi.drafts.get(r.id)||r;let copy={...previous,[key]:value};
   if(!previous.completed){copy.completed=true;copy.date=key==='date'?value:rfWorkDate();copy.month=copy.date.slice(0,7);}
-  if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model')delete copy._rfAutoModel;
+  if(key==='sn')copy=rfApplySerialHints(copy);if(key==='model'){delete copy._rfAutoModel;copy.type=rfModelType(copy.model);}
   rfUi.drafts.set(r.id,copy);card.classList.add('rf-dirty');
   if(key==='sn'){for(const name of ['model','type','date'])if(fields[name])fields[name].input.value=copy[name]||'';if(fields.model)fields.model.input.title=copy.model||'';rfSyncDropdowns(card);}
   rfUpdateRecordHeading(card,copy);rfRemember();rfUpdateSaveButtons();rfRefreshScanQueue();
@@ -16412,21 +16428,21 @@ function rfRecordCard(base){
  const sn=field('sn','Серийный номер'),mac=field('mac','MAC-адрес'),model=field('model','Модель');model.wrap.classList.add('rf-span2');rfModelSuggestions(model);model.input.title=r.model||'';
  sn.input.addEventListener('change',()=>{sn.input.value=rfUiSerial(sn.input.value);touch('sn',sn.input.value);});
  sn.input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();sn.input.value=rfUiSerial(sn.input.value);touch('sn',sn.input.value);mac.input.focus();}});
- const type=field('type','Оборудование','text',[['router','Роутер'],['stb','Приставка']]),date=field('date','Дата','date');if(!r.completed&&!dirty)date.input.value=rfWorkDate();grid.append(sn.wrap,mac.wrap,model.wrap,type.wrap,date.wrap);
- const kit=rfElement('div','rf-kit'),origin=field('origin','Источник','text',[['ОПиО','ОПиО'],['Техник','Техник']]),psu=field('psu','Блок питания','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=field('box','Коробка','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужна новая']]);kit.append(origin.wrap,psu.wrap,box.wrap);grid.append(kit);
- const operation=field('operation','Демонтаж / Замена','text',[['Демонтаж','Демонтаж'],['Замена','Замена']]),reason=field('reason','Причина возврата','textarea');operation.wrap.classList.add('rf-span2');reason.wrap.classList.add(rfUi.manager&&rfUi.data.worker?'rf-span2':'rf-span4');if(r.sourceKey){origin.input.disabled=true;operation.input.value='Демонтаж';operation.input.disabled=true;}
- const toggleTech=()=>{const tech=origin.input.value==='Техник';operation.wrap.hidden=reason.wrap.hidden=!tech;};origin.input.addEventListener('change',toggleTech);toggleTech();grid.append(operation.wrap,reason.wrap);
+ const date=field('date','Дата','date');if(!r.completed&&!dirty)date.input.value=rfWorkDate();main.append(sn.wrap,mac.wrap,model.wrap,date.wrap);
+ const origin=field('origin','Источник','text',[['ОПиО','ОПиО'],['Техник','Техник']]),operation=field('operation','Демонтаж / Замена','text',[['Демонтаж','Демонтаж'],['Замена','Замена']]),psu=field('psu','Блок питания','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужен новый']]),box=field('box','Коробка','text',[['','Уточнить'],[0,'0 · б/у есть'],[1,'1 · нужна новая']]),reason=field('reason','Причина возврата','textarea');
+ reason.input.rows=1;reason.wrap.classList.add('rf-card-reason');if(r.sourceKey){origin.input.disabled=true;operation.input.value='Демонтаж';operation.input.disabled=true;}
+ extra.append(origin.wrap,operation.wrap,psu.wrap,box.wrap,reason.wrap);
  if(rfUi.manager&&rfUi.data.worker){const opts=[['','Выберите исполнителя'],[rfUi.data.worker.login,rfUi.data.worker.name]];if(r.owner&&r.owner!==rfUi.data.worker.login)opts.push([r.owner,r.ownerName||r.owner]);const owner=rfField('Исполнитель',r.owner||'','text',opts);owner.wrap.classList.add('rf-span2');owner.input.disabled=!editable;owner.input.onchange=()=>touch('owner',owner.input.value);grid.append(owner.wrap);}
  card.append(grid);
  if(dirty&&r.createdAt){const actions=rfElement('div','rf-inline');if(conflict)actions.append(rfElement('p','rf-warning rf-hint',fresh?'Строка изменена другим пользователем. Ваш ввод сохранён локально.':'Строка удалена или больше недоступна. Ваш ввод сохранён локально.'));actions.append(rfButton('Отменить мою правку',()=>{rfUi.drafts.delete(r.id);rfRemember();rfRenderRows();}));if(conflict&&fresh)actions.append(rfButton('Применить мой ввод к актуальной строке',()=>{rfUi.drafts.set(r.id,{...r,version:fresh.version,createdAt:fresh.createdAt,sourceKey:fresh.sourceKey,owner:rfUi.manager?r.owner:fresh.owner});rfRemember();rfRenderRows();rfNote('Правка подготовлена на основе актуальной версии. Проверьте данные и сохраните список.');}));card.append(actions);}
- if(!r.completed||!r.createdAt){const actions=rfElement('div','rf-inline');const confirm=rfButton(dirty?'✅ В списке сохранения':'✅ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable||(!r.completed&&!rfCanPrepareBatch());actions.append(confirm);card.append(actions);}
+ if(!r.completed||!r.createdAt){const confirm=rfButton(dirty?'✅ В списке сохранения':'✅ Записать в список',()=>{touch('completed',true);rfRenderRows();});confirm.disabled=!editable||(!r.completed&&!rfCanPrepareBatch());confirm.classList.add('rf-card-confirm');extra.append(confirm);}
  return card;
 }
 async function rfSave(){
  if(rfUi.busy||rfUi.pending)return;const scan=rfRoot()?.querySelector('.rf-scan');if((scan?.querySelector('[data-rf-scan-sn]')?.value||scan?.querySelector('[data-rf-scan-mac]')?.value)&&!scan._rfAcceptScan?.())return;
  const rows=rfBatchDrafts();if(!rows.length)return;
  const invalid=(r,key,message)=>{const queue=[...rfRoot().querySelectorAll('.rf-scan-queued-row')].find(n=>n.dataset.rfQueuedId===r.id),card=[...rfRoot().querySelectorAll('.rf-record')].find(n=>n.dataset.rfId===r.id),input=queue?.querySelector('[data-rf-queue-field='+key+']')||card?.querySelector('[data-rf-field='+key+']');if(card&&!queue?.querySelector('[data-rf-queue-field='+key+']')){card.open=true;rfUi.expanded.set(r.id,true);}const visible=input?.closest('.rf-dropdown')?.querySelector('.dropdown-trigger')||input;visible?.classList.add('input-error');visible?.focus();visible?.scrollIntoView?.({block:'center'});throw new Error(message);};
- try{if(rows.length>500)throw new Error('В одном сохранении допускается до 500 устройств');const changed=new Set(rows.map(r=>r.id)),serials=new Set(rfUi.data.rows.filter(r=>!changed.has(r.id)).map(r=>rfUiSerial(r.sn)));for(const r of rows){const fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id);if(r.createdAt&&(!fresh||fresh.version!==r.version))throw new Error('Сначала разрешите конфликт в строке '+r.sn);r.sn=rfUiSerial(r.sn);r.mac=rfUiMac(r.mac);if(!/^[A-Z0-9._\/-]{3,100}$/.test(r.sn))invalid(r,'sn','Исправьте серийный номер: используйте латинские буквы и цифры');if(serials.has(r.sn))invalid(r,'sn','Серийный номер '+r.sn+' повторяется в выбранном месяце');serials.add(r.sn);if(r.mac.length!==12||!/[1-9A-F]/.test(r.mac))invalid(r,'mac','Исправьте MAC-адрес для '+r.sn+': нужны 12 шестнадцатеричных символов');if(!r.model?.trim())invalid(r,'model','Выберите или введите модель для '+r.sn+' в строке пачки');if(![0,1].includes(r.psu))invalid(r,'psu','Уточните блок питания для '+r.sn);if(![0,1].includes(r.box))invalid(r,'box','Уточните коробку для '+r.sn);}await rfMutate('save',{rows});}catch(e){rfNote('⚠️ '+e.message);}
+ try{if(rows.length>500)throw new Error('В одном сохранении допускается до 500 устройств');const changed=new Set(rows.map(r=>r.id)),serials=new Set(rfUi.data.rows.filter(r=>!changed.has(r.id)).map(r=>rfUiSerial(r.sn)));for(const r of rows){const fresh=[...rfUi.data.rows,...rfUi.data.pending].find(v=>v.id===r.id);if(r.createdAt&&(!fresh||fresh.version!==r.version))throw new Error('Сначала разрешите конфликт в строке '+r.sn);r.sn=rfUiSerial(r.sn);r.mac=rfUiMac(r.mac);if(!/^[A-Z0-9._\/-]{3,100}$/.test(r.sn))invalid(r,'sn','Исправьте серийный номер: используйте латинские буквы и цифры');if(serials.has(r.sn))invalid(r,'sn','Серийный номер '+r.sn+' повторяется в выбранном месяце');serials.add(r.sn);if(r.mac.length!==12||!/[1-9A-F]/.test(r.mac))invalid(r,'mac','Исправьте MAC-адрес для '+r.sn+': нужны 12 шестнадцатеричных символов');if(!r.model?.trim())invalid(r,'model','Выберите или введите модель для '+r.sn+' в строке пачки');r.type=rfModelType(r.model);if(![0,1].includes(r.psu))invalid(r,'psu','Уточните блок питания для '+r.sn);if(![0,1].includes(r.box))invalid(r,'box','Уточните коробку для '+r.sn);}await rfMutate('save',{rows});}catch(e){rfNote('⚠️ '+e.message);}
 }
 async function rfMutate(operation,fields){
  if(rfUi.busy)return;const owner=managementOwnerKey();if(rfUi.pending&&(rfUi.pending.operation!==operation||rfUi.pending.fields!==fields)){rfNote('Сначала проверьте предыдущее сохранение');return;}
