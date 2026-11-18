@@ -5392,6 +5392,20 @@ function paSalesXmlRows(text,strings,columns,loginColumn,eligible){
  const decodeCell=cell=>{const t=cell.getAttribute('t'),raw=nodes(cell,'v')[0]?.textContent;if(t==='s')return strings[Number(raw)]??'';if(t==='inlineStr')return nodes(cell,'t').map(n=>n.textContent).join('');if(t==='str'||t==='e')return raw??'';if(raw!==undefined&&raw!==''){const value=Number(raw);return Number.isFinite(value)?value:raw;}return nodes(cell,'f').length?'#NO_CACHE!':null;};
  const namespaceAttrs=(text.match(/<(?:\w+:)?worksheet\b[^>]*>/)?.[0]||'').match(/xmlns(?::[\w.-]+)?=["'][^"']*["']/g)||[];
  const root='<root '+namespaceAttrs.join(' ')+'>';
+ // Поля детализации выбираются по заголовкам: их позиции меняются между месяцами.
+ if(!Array.isArray(columns)){
+  const first=text.match(/<(?:\w+:)?row\b[^>]*\br=["']1["'][^>]*>[\s\S]*?<\/(?:\w+:)?row>/)?.[0];
+  if(!first)throw new Error('Нет заголовка листа детализации');
+  const headerDoc=parser.parseFromString(root+first+'</root>','application/xml');
+  if(headerDoc.getElementsByTagName('parsererror').length)throw new Error('Повреждён XML заголовка детализации');
+  const norm=value=>String(value??'').toLowerCase().replace(/ё/g,'е').replace(/[^a-zа-я0-9%]+/g,'');
+  const headerCells=nodes(headerDoc,'c'),resolve=name=>{
+   const matches=headerCells.filter(cell=>norm(decodeCell(cell))===norm(name));
+   if(matches.length!==1)throw new Error('Детализация: '+(matches.length?'повтор заголовка ':'не найден столбец ')+name);
+   return (matches[0].getAttribute('r')||'').replace(/[0-9]/g,'');
+  };
+  loginColumn=resolve(columns.login);columns=columns.fields.map(resolve);
+ }
  const result=[],lookup=new RegExp('<(?:\\w+:)?c\\b[^>]*\\br=["\\\']'+loginColumn+'[0-9]+["\\\'][^>]*>([\\s\\S]*?)<\\/(?:\\w+:)?c>');
  for(const match of text.matchAll(/<(?:\w+:)?row\b([^>]*)>([\s\S]*?)<\/(?:\w+:)?row>/g)){
   const rowNumber=match[1].match(/\br=["']([0-9]+)["']/)?.[1];if(!rowNumber)continue;
@@ -5459,7 +5473,7 @@ async function pwReadXlsx(file,city,onProgress=async()=>{},kind='salary'){
   }
   const finalRows=result.find(b=>b.sheet==='Итоговый лист').rows,headers=finalRows[0],ci=headers.findIndex(v=>normalize(v)==='логин'),ri=headers.findIndex(v=>normalize(v)==='роль'),ai=headers.findIndex(v=>normalize(v)==='итоговаясумма');
   const eligible=new Set(finalRows.slice(1).filter(r=>normalize(r[ri])==='техник'&&typeof r[ai]==='number'&&r[ai]!==0).map(r=>String(r[ci]||'').trim().toLowerCase().replace(/@beeline\.kz$/,'')));
-  for(const [name,columns,loginColumn]of [['F-',['C','AC','AD','AE','G','K','BH','BI','BJ','BK','AG','AB','I'],'AG'],['F+',['A','H','I','J','C','L','M','AD','AE','AF','AG','AH','E','G'],'E']]){
+  for(const [name,columns,loginColumn]of [['F-',{fields:['order_id','city_name','street_name','house_num','start_service_date','fttb_desc','СИМ','ТВ','Тариф','Выплата','suz_user_id','flat','orig_pp_desc','orig_pp_key','fttb_soc','sys_creation_date'],login:'suz_user_id'},null],['F+',{fields:['order_id','street','house','flat','end_date_key','prev_total_rate','total_rate','sum','tv','sim','pp','total','user_name','city'],login:'user_name'},null]]){
    const matches=nodes(book,'sheet').filter(s=>String(s.getAttribute('name')).trim()===name);if(!matches.length)continue;if(matches.length!==1)throw new Error('Повтор листа '+name);
    await onProgress(0,'Читаем детализацию '+name+' только для сотрудников города '+city+'.');
    const sheet=matches[0],id=sheet.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id')||sheet.getAttribute('r:id'),target=targets.get(id);if(!target)throw new Error('Не найден лист '+name);const path=target.startsWith('/')?target.slice(1):'xl/'+target;if(path.includes('..'))throw new Error('Неверный путь детализации');
