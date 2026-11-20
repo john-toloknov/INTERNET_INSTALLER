@@ -13021,9 +13021,9 @@ function ctDetectStbModel(serial) {
         const sheetName = safe(receipt.spreadsheetName || '');
         const reportName = safe(receipt.reportType || type);
         const cityName = safe(city);
-        const queued = receipt.telegram==='queued',uncertain=receipt.telegram==='unknown';
+        const queued = receipt.telegram==='queued';
         const message = `Отчёт <b>${reportName}</b> записан в таблицу <b>${sheetName}</b> (г. ${cityName}), строка <b>${rowNumber}</b>.` +
-            (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : uncertain ? '<br>Результат доставки в Telegram требует проверки. Автоматический повтор остановлен, чтобы не создать копию.' : '') + (requestId?'<div role="status" aria-live="polite" data-report-delivery="'+safe(requestId)+'">'+(queued?'⏳ Продолжаем доставку отчёта и фотографий…':receipt.telegram==='sent'?'✅ Telegram подтвердил доставку отчёта и фотографий.':uncertain?'⚠️ Проверьте сообщения в Telegram; повторная отправка остановлена.':'Проверьте состояние доставки.')+'</div>':'');
+            (queued ? '<br>Отправка в Telegram продолжается автоматически. Расходники зарезервированы и будут списаны после доставки.' : '') + (requestId?'<div role="status" aria-live="polite" data-report-delivery="'+safe(requestId)+'">'+(queued?'⏳ Продолжаем доставку отчёта и фотографий…':receipt.telegram==='sent'?'✅ Telegram подтвердил доставку отчёта и фотографий.':'Проверьте состояние доставки.')+'</div>':'');
         const followupNote=receipt.followups==='queued'?'<div style="margin-top:8px">АКТ и подсказки обновятся в фоне.</div>':'';
         const timingNote=requestId?'<div data-report-measure-summary="'+safe(requestId)+'" style="margin-top:10px;font-size:12px"></div>':'';
         const buttons = '<button type="button" class="btn main-btn" onclick="finishReportAndStartNext()">📝 Следующий отчёт</button>';
@@ -13065,7 +13065,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         const job={deadline:Date.now()+5*60000};reportDeliveryJobs.set(key,job);
         const active=()=>[currentUser?.dwLogin,currentUser?.city,currentUser?.district].join('|')===scope&&Date.now()<job.deadline;
         const run=async()=>{if(!active()){reportDeliveryJobs.delete(key);return;}let delay=5000;const started=Date.now();
-            try{const receipt=await postJsonBounded(url,{action:'reportProcess',requestId,city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password},90000);console.info('Report delivery timing',{httpMs:Date.now()-started,serverMs:receipt.deliveryServerMs,telegram:receipt.telegram});if(!active()){reportDeliveryJobs.delete(key);return;}
+            try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'reportProcess',requestId,city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password})}),receipt=await response.json();console.info('Report delivery timing',{httpMs:Date.now()-started,serverMs:receipt.deliveryServerMs,telegram:receipt.telegram});if(!active()){reportDeliveryJobs.delete(key);return;}
                 iiReportMeasure_(requestId,'delivery',{httpMs:Date.now()-started,serverMs:receipt.deliveryServerMs,phases:receipt.deliveryTimings,telegram:receipt.telegram,revision:receipt.reportRevision});
                 if(receipt.status==='error')throw new Error(receipt.message||'Не удалось проверить доставку');
                 if(receipt.telegram==='sent'){reportDeliveryStatus(requestId,'✅ Telegram подтвердил доставку отчёта и всех фотографий.');reportDeliveryJobs.delete(key);return;}
@@ -13154,10 +13154,10 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
                 };
             }
 
-            payload.deferTelegram = true;payload.inlineDelivery=false;
+            payload.deferTelegram = true;payload.inlineDelivery=true;
             const pendingBeforeSend=vsPendingRead(),payloadFingerprint=JSON.stringify([type,payload.rowValues]);
             if(pendingBeforeSend&&(pendingBeforeSend.id!==requestId||pendingBeforeSend.fingerprint!==payloadFingerprint))throw new Error('Данные изменились во время подготовки. Предыдущая попытка сохранена; верните её данные для проверки.');
-            sessionStorage.setItem(vsPendingKey(),JSON.stringify({id:requestId,fingerprint:payloadFingerprint,stage:'sending',url:targetUrl,created:Date.now()}));
+            sessionStorage.setItem(vsPendingKey(),JSON.stringify({id:requestId,fingerprint:payloadFingerprint,stage:'sending'}));
             const receipt = await sendReportForReceipt(targetUrl,payload);
             if(receipt.telegram==='queued')kickReportDelivery(targetUrl,requestId);
             vsPendingClear();
@@ -13175,7 +13175,8 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         } catch(error) {
             if(error.confirmed)vsPendingClear();if(error.inventoryCancelled)return;
             console.error(error);
-            vsShowReportProblem(error);
+            const safeMessage = String(error.message || error).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+            showBeelineModal(error.photoPreparation?'Не удалось подготовить фото':error.previousReportSaved?'Предыдущий отчёт уже записан':'Не удалось подтвердить отчёт', safeMessage, error.previousReportSaved?'✅':'❌');
         } finally {
             isSubmitting=false;
             releaseSaveButtons();
@@ -16092,25 +16093,28 @@ function vsReportBuilt(type){return type.includes('ППР')?buildPprReportRow():
 function vsPendingKey(){return 'vs_report_pending_'+managementOwnerKey();}
 function vsPendingRead(){try{return JSON.parse(sessionStorage.getItem(vsPendingKey())||'null');}catch{return null;}}
 function vsPendingClear(){sessionStorage.removeItem(vsPendingKey());}
-function vsPendingError(message){const error=new Error(message);error.reportPending=true;return error;}
-function vsPendingIdentity(pending){try{const [type,row]=JSON.parse(pending.fingerprint);return {type,row:Array.isArray(row)?row:[]};}catch(e){return {type:'',row:[]};}}
-function vsSameApplication(pending,type,row){const old=vsPendingIdentity(pending);if(!old.row.length||!row.length)return false;if(old.type.startsWith('ППР')||type.startsWith('ППР'))return old.type===type&&String(old.row[0]||'')===String(row[0]||'')&&String(old.row[4]||'')===String(row[4]||'')&&String(old.row[5]||'')===String(row[5]||'');return !!String(old.row[0]||'').trim()&&String(old.row[0]).trim()===String(row[0]).trim();}
-async function vsResolvePending(url,pending){const owner=managementOwnerKey(),user=currentUser;let result;try{result=await postJsonBounded(pending.url||url,{action:'reportRecovery',requestId:pending.id,city:user.city,district:user.district,actorLogin:user.dwLogin,actorPassword:user.password},45000);}catch(e){throw vsPendingError('Не удалось проверить предыдущую отправку. Данные текущей формы сохранены. Нажмите «Проверить отправку» после восстановления связи.');}if(owner!==managementOwnerKey())throw vsPendingError('Сеанс изменился. Проверьте предыдущую отправку после входа.');if(!result||typeof result!=='object')throw vsPendingError('Сервер не подтвердил проверку отправки. Данные формы сохранены.');if(result.status==='success'&&result.reportSaved&&result.receipt?.status==='success'&&Number.isInteger(Number(result.receipt.rowNumber))&&Number(result.receipt.rowNumber)>1){const original=vsPendingIdentity(pending);if(original.type&&result.receipt.reportType!==original.type)throw vsPendingError('Получено несоответствующее подтверждение. Нужна проверка руководителя.');return result;}if(result.status==='not_saved'&&result.retired===true)return result;throw vsPendingError(result.status==='busy'?'Предыдущая запись ещё выполняется. Данные текущей формы сохранены; повторите проверку немного позже.':result.status==='unresolved'?result.message:'Сервер не подтвердил проверку предыдущей отправки. Данные формы сохранены; проверьте обновление скрипта участка.');}
 async function vsBeforeReport(type,url){
- const owner=managementOwnerKey(),built=vsReportBuilt(type),fingerprint=JSON.stringify([type,built.row]),pending=vsPendingRead();
- if(pending){const resolved=await vsResolvePending(url,pending);if(owner!==managementOwnerKey())throw vsPendingError('Сеанс изменился.');
-  if(resolved.reportSaved){const receipt=resolved.receipt;if(pending.fingerprint===fingerprint){vsPendingClear();return {receipt,requestId:pending.id};}
-   if(vsSameApplication(pending,type,built.row)){const error=new Error('Предыдущий отчёт по этой заявке уже записан: '+String(receipt.reportType)+', строка '+Number(receipt.rowNumber)+'. Для изменения откройте сохранённый отчёт; при необходимости обратитесь к руководителю. Текущие данные формы сохранены.');error.previousReportSaved=true;error.reportPending=true;throw error;}
+  const built=vsReportBuilt(type),fingerprint=JSON.stringify([type,built.row]),pending=vsPendingRead();
+  if(pending){
+    let receipt;
+    try{receipt=await getReportStatusOnce(url,pending.id);}
+    catch(error){if(error.message!=='Ответ о записи не получен'&&error.message!=='Сервер статуса недоступен')throw error;}
+    if(receipt?.status==='success'){
+      vsPendingClear();
+      if(pending.fingerprint!==fingerprint){const problem=new Error('Предыдущий отчёт уже записан: '+String(receipt.reportType||'')+', строка '+String(receipt.rowNumber||'')+'. Текущие данные формы сохранены. Проверьте записанную заявку перед новой отправкой.');problem.previousReportSaved=true;throw problem;}
+      return {receipt,requestId:pending.id};
+    }
+    if(receipt?.status==='error')vsPendingClear();
+    else {
+      if(pending.fingerprint!==fingerprint)throw new Error('Предыдущая попытка ещё не подтверждена, а данные формы изменены. Не создавайте заявку повторно: проверьте её в таблице и Telegram. Для проверки или повтора с тем же ID верните прежние данные формы.');
+      return {requestId:pending.id};
+    }
   }
-  // Подтверждённая запись либо атомарно закрытая попытка: можно отправить независимый текущий отчёт.
-  vsPendingClear();
- }
- for(const [key,index] of Object.entries(vsClientMap(type))){const n=Number(built.row[index]||0);if(!Number.isSafeInteger(n)||n<0)throw new Error((VS_UI_FIELDS.find(f=>f[0]===key)?.[1]||key)+': допустимы только целые количества');}
- return {requestId:'report_'+(window.crypto?.randomUUID?.()||(Date.now()+'_'+Math.random().toString(36).slice(2)))};
+  for(const [k,i] of Object.entries(vsClientMap(type))){const n=Number(built.row[i]||0);if(!Number.isSafeInteger(n)||n<0)throw new Error((VS_UI_FIELDS.find(f=>f[0]===k)?.[1]||k)+': допустимы только целые количества');}
+  const requestId='report_'+(window.crypto?.randomUUID?.()||(Date.now()+'_'+Math.random().toString(36).slice(2)));
+  // A new pending marker is written only once photos and the complete payload are ready.
+  return {requestId};
 }
-function vsShowReportProblem(error){const pending=vsPendingRead();if(!pending||error.confirmed){showBeelineModal(error.photoPreparation?'Не удалось подготовить фото':error.previousReportSaved?'Предыдущий отчёт уже записан':'Не удалось подтвердить отчёт',String(error.message||error).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])),error.previousReportSaved?'✅':'❌');return;}
- const body=ctNode('div'),text=ctNode('p','',String(error.message||error));body.append(text);const actions=ctNode('div','common-nav-row'),check=ctNode('button','btn main-btn','🔎 Проверить отправку'),back=ctNode('button','btn danger-btn','🔙 К форме');check.type=back.type='button';back.onclick=closeBeelineModal;check.onclick=async()=>{if(isSubmitting)return;check.disabled=true;check.textContent='⏳ Проверяем…';isSubmitting=true;try{const type=document.getElementById('tr-reportType')?.value||'',url=CITIES_CONFIG[currentUser?.city]?.reportsScriptUrl;if(!isConfiguredCityUrl(url))throw vsPendingError('Не настроен скрипт участка.');const result=await vsBeforeReport(type,url);if(result.receipt){if(result.receipt.telegram==='queued')kickReportDelivery(url,result.requestId);showVerifiedReportResult(type,currentUser.city,result.receipt,result.requestId);}else showBeelineModal('Проверка завершена','Предыдущая попытка проверена. Текущие данные формы сохранены — можно отправить отчёт кнопкой «Завершить отчёт».','✅');}catch(next){vsShowReportProblem(next);}finally{isSubmitting=false;if(check.isConnected){check.disabled=false;check.textContent='🔎 Проверить отправку';}}};actions.append(check,back);showBeelineModalNode(error.previousReportSaved?'Предыдущий отчёт уже записан':'Проверка отправки',body,error.previousReportSaved?'✅':'⏳',actions);}
-
 // Один запрос для текущего исполнителя; старый ответ не подменяет остатки другого отчёта.
 let vsReportLimitsPending=null,vsReportLimitsVersion=0;
 function vsRefreshReportLimits(){
