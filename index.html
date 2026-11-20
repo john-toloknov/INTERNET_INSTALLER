@@ -16054,7 +16054,31 @@ function tmrScreen(manager){return document.getElementById(manager?'screen-tmc-r
 // Выполняет интерфейс сообщение — модуль заявок ТМЦ.
 function tmrUiMessage(text,error=false,loading=false){const root=tmrScreen(tmrUi.manager)?.querySelector('.tmr-state');if(root){if(loading)root.innerHTML=liveLoading(text,'📦');else root.textContent=text;root.style.color=error?'var(--danger)':'';}}
 // Выполняет api — модуль заявок ТМЦ.
-async function tmrApi(operation,fields={}){const user=currentUser,owner=tmrOwner(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;if(!user||!isConfiguredCityUrl(url))throw new Error('Войдите в систему и выберите настроенный город');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),45000);try{const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tmcRequests',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});if(!response.ok)throw new Error('HTTP '+response.status);const data=await response.json();if(owner!==tmrOwner())throw new Error('Сеанс изменился');if(data.status!=='success'){const e=new Error(data.message||'Не удалось сохранить заявку');e.confirmed=data.status==='error';throw e;}if(['confirm','cancel','managerSave'].includes(operation)){vsScreenState.dirty=true;vsScreenState.revision=(vsScreenState.revision||0)+1;}return data;}finally{clearTimeout(timer);}}
+function tmrLockBusy_(message){return /тайм.?аут.*блокиров|блокировк.*(?:занят|другой)|lock.*(?:timeout|timed out)|too long.*lock/i.test(String(message||''));}
+async function tmrApi(operation,fields={}){
+ const user=currentUser,owner=tmrOwner(),url=CITIES_CONFIG[user?.city]?.reportsScriptUrl;
+ if(!user||!isConfiguredCityUrl(url))throw new Error('Войдите в систему и выберите настроенный город');
+ const controller=new AbortController();let timedOut=false;
+ const timer=setTimeout(()=>{timedOut=true;controller.abort();},45000);
+ try{
+  const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'tmcRequests',operation,city:user.city,actorLogin:user.dwLogin,actorPassword:user.password,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw new Error('HTTP '+response.status);
+  const data=await response.json();if(owner!==tmrOwner())throw new Error('Сеанс изменился');
+  if(data.status!=='success'){
+   const busy=data.status==='busy'||data.code==='TMC_LOCK_BUSY'||tmrLockBusy_(data.message),e=new Error(busy?'Таблица занята другой операцией. Предыдущая попытка сохранена для проверки.':data.message||'Не удалось получить результат операции');
+   e.confirmed=data.status==='error'&&!busy;e.code=data.code||'';e.busy=busy;throw e;
+  }
+  if(['confirm','cancel','managerSave'].includes(operation)){vsScreenState.dirty=true;vsScreenState.revision=(vsScreenState.revision||0)+1;}
+  return data;
+ }catch(error){
+  if(timedOut||error.name==='AbortError'){
+   const message=operation==='list'?'Ответ об обновлении списка не получен вовремя. Показаны прежние данные.':'Ответ о сохранении не получен вовремя.';
+   const problem=new Error(message);problem.confirmed=false;problem.code='TMC_RESPONSE_TIMEOUT';throw problem;
+  }
+  if(error instanceof TypeError){const problem=new Error('Не удалось получить ответ сервера. Проверьте соединение.');problem.confirmed=false;throw problem;}
+  throw error;
+ }finally{clearTimeout(timer);}
+}
 // Сохраняет занятость — модуль заявок ТМЦ.
 function tmrSetBusy(value){tmrUi.busy=value;tmrScreen(tmrUi.manager).querySelectorAll('button,input').forEach(n=>{if(value){n.dataset.tmrDisabled=String(n.disabled);n.disabled=true;}else if(n.dataset.tmrDisabled!==undefined){n.disabled=n.dataset.tmrDisabled==='true';delete n.dataset.tmrDisabled;}});}
 // Выполняет кабель выбор — модуль заявок ТМЦ.
@@ -16098,7 +16122,7 @@ function tmrRenderBeforeWarehouse(){const root=tmrScreen(tmrUi.manager),content=
 // Выполняет статус Chips — модуль заявок ТМЦ.
 function tmrStatusChips(root,item){root.append(ctNode('span','tmr-chip'+(item.issued?' done':''),item.issued?'Выдано':'Не выдано'));if(item.actual?.by&&item.issued)root.append(ctNode('p','tmr-summary','Выдал: '+item.actual.by+' · '+item.actual.date));}
 // Сохраняет операцию — модуль заявок ТМЦ.
-async function tmrSave(op,fields){if(tmrUi.busy)return;const owner=tmrOwner();if(!tmrUi.pending)tmrUi.pending={op,fields:{...fields,requestId:ctRequestId()}};const pending=tmrUi.pending;tmrSetBusy(true);tmrUiMessage('Сохраняем заявку…',false,true);try{const data=await tmrApi(pending.op,pending.fields);if(owner!==tmrOwner())return;tmrUi.pending=null;tmrUi.data=data;tmrRender();tmrUiMessage(data.warning||'✅ Заявка сохранена. Уведомления поставлены в очередь Telegram.');}catch(e){if(owner!==tmrOwner())return;if(e.confirmed)tmrUi.pending=null;tmrUiMessage(e.message+(e.confirmed?'':' Результат не подтверждён. Нажмите «Проверить сохранение» — операция повторится с тем же ID.'),true);}finally{if(owner===tmrOwner()){tmrSetBusy(false);if(tmrUi.pending){const root=tmrScreen(tmrUi.manager);root.querySelectorAll('.tmr-content button,.tmr-content input').forEach(n=>n.disabled=true);const retry=ctNode('button','btn main-btn','🔄 Проверить сохранение');retry.type='button';retry.onclick=()=>{retry.remove();tmrSave(pending.op,pending.fields);};root.querySelector('.tmr-state').append(retry);}}}}
+async function tmrSave(op,fields){if(tmrUi.busy)return;const owner=tmrOwner();if(!tmrUi.pending)tmrUi.pending={op,fields:{...JSON.parse(JSON.stringify(fields||{})),requestId:ctRequestId()}};const pending=tmrUi.pending;tmrSetBusy(true);tmrUiMessage('Сохраняем заявку…',false,true);try{const data=await tmrApi(pending.op,pending.fields);if(owner!==tmrOwner())return;tmrUi.pending=null;tmrUi.data=data;tmrRender();tmrUiMessage(data.warning||'✅ Заявка сохранена. Уведомления поставлены в очередь Telegram.');}catch(e){if(owner!==tmrOwner())return;if(e.confirmed)tmrUi.pending=null;tmrUiMessage(e.message+(e.confirmed?'':' Результат не подтверждён. Нажмите «Проверить сохранение» — операция повторится с тем же ID.'),true);}finally{if(owner===tmrOwner()){tmrSetBusy(false);if(tmrUi.pending){const root=tmrScreen(tmrUi.manager);root.querySelectorAll('.tmr-content button,.tmr-content input').forEach(n=>n.disabled=true);const retry=ctNode('button','btn main-btn','🔄 Проверить сохранение');retry.type='button';retry.onclick=()=>{retry.remove();tmrSave(pending.op,pending.fields);};root.querySelector('.tmr-state').append(retry);}}}}
 // Получает операцию — модуль заявок ТМЦ.
 async function tmrLoad(){if(tmrUi.busy||tmrUi.pending)return;const owner=tmrOwner();tmrSetBusy(true);tmrUiMessage('Загружаем заявки…',false,true);try{const data=await tmrApi('list');if(owner!==tmrOwner())return;tmrUi.owner=owner;tmrUi.data=data;tmrRender();tmrUiMessage('Данные загружены');}catch(e){if(owner===tmrOwner())tmrUiMessage(e.message,true);}finally{if(owner===tmrOwner())tmrSetBusy(false);}}
 // Показывает ТМЦ запрос.
