@@ -1012,11 +1012,60 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minma
             background-color: var(--card-bg);
             border: 1px solid var(--accent);
             border-radius: 14px;
-            padding: 28px 24px 24px 24px;
-            width: 100%;
-            max-width: 380px;
+            padding: 20px;
+            width: 420px;
+            max-width: 100%;
+            box-sizing: border-box;
             text-align: center;
             box-shadow: 0 10px 30px var(--ui-shadow-0_8,rgba(0,0,0,0.8));
+        }
+
+        /* Короткие уведомления занимают место по содержимому; формы имеют свою ширину. */
+        #beelineModal:not(.rp-viewer-modal) .beeline-modal-card {
+            display:flex; flex-direction:column; gap:12px; min-width:0; min-height:0;
+            height:auto; overflow:hidden; padding:20px; box-sizing:border-box;
+        }
+        #beelineModal[data-modal-layout="details"]:not(.rp-viewer-modal) .beeline-modal-card {width:600px;max-width:100%;}
+        #beelineModal[data-modal-layout="document"]:not(.rp-viewer-modal) .beeline-modal-card {width:900px;max-width:100%;}
+        #beelineModal:not(.rp-viewer-modal) :is(.beeline-modal-icon,.beeline-modal-title) {flex:none;margin:0;}
+        #beelineModal:not(.rp-viewer-modal) .beeline-modal-icon {align-self:center;line-height:1.2;font-size:32px;}
+        #beelineModal:not(.rp-viewer-modal) .beeline-modal-title {line-height:1.35;overflow-wrap:anywhere;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText {
+            flex:0 1 auto; min-height:0; min-width:0; width:100%; margin:0;
+            overflow:auto; overflow-wrap:anywhere; box-sizing:border-box; white-space:pre-line;
+        }
+        #beelineModal[data-modal-content="node"]:not(.rp-viewer-modal) #beelineModalText {white-space:normal;}
+        #beelineModal[data-modal-layout="details"]:not(.rp-viewer-modal) #beelineModalText {text-align:left;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText:empty {display:none;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText>:first-child {margin-top:0;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText>:last-child {margin-bottom:0;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading {min-height:0;padding:0;gap:10px;box-sizing:border-box;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading-emoji {font-size:30px;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons {
+            display:flex; flex:none; flex-flow:row nowrap; align-items:stretch; justify-content:center;
+            gap:12px; width:100%; max-width:380px; margin:0 auto; padding:0; min-width:0;
+        }
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons>div {
+            display:flex!important; flex-flow:row nowrap!important; align-items:stretch!important; justify-content:center!important;
+            gap:12px!important; width:100%!important; max-width:380px!important; min-width:0; margin:0 auto!important; padding:0;
+        }
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons :is(button.btn,a.btn) {
+            display:flex; align-items:center; justify-content:center; flex:1 1 calc(50% - 6px)!important;
+            width:auto!important; max-width:200px!important; min-width:0!important;
+            min-height:44px!important; height:auto!important; margin:0!important; padding:8px 10px!important;
+            font-size:14px!important; line-height:1.35; text-align:center; white-space:normal; box-sizing:border-box;
+        }
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons:has(>.btn:nth-child(3)),
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons>div:has(>.btn:nth-child(3)) {flex-wrap:wrap!important;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons:has(>.btn:nth-child(3))>.btn,
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons>div:has(>.btn:nth-child(3))>.btn {flex-basis:140px!important;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons:empty,
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons:has(>div:only-child:empty),
+        #beelineModal:not(.rp-viewer-modal) #beelineModalButtons [hidden] {display:none!important;}
+        @media(max-width:520px) {
+            #beelineModal {padding:12px;}
+            #beelineModal:not(.rp-viewer-modal) .beeline-modal-card {padding:16px;}
+            #beelineModal:not(.rp-viewer-modal) #beelineModalButtons :is(button.btn,a.btn) {font-size:12px!important;}
         }
 
         @keyframes bounceSpinDrop {
@@ -2820,7 +2869,6 @@ html[data-app-layout=mobile][data-view-preference=mobile] body { --view-width:50
 html[data-app-layout=mobile] #screen-shift-swaps { max-width:var(--view-width); }
 html[data-app-layout=mobile] #screen-form > .container,
 html[data-app-layout=mobile] #screen-scanner > .container { max-width:100% !important; }
-html[data-app-layout=mobile] .beeline-modal-card { width:min(520px,calc(100vw - 24px)); max-width:calc(100vw - 24px); }
 html[data-app-layout=mobile] .app-screen[data-view-kind=auth] { max-width:500px; }
 html[data-app-layout=desktop] body { --view-width:1280px; padding:20px 28px 32px 264px; }
 html[data-app-layout=desktop] .view-header { min-height:66px; margin-bottom:24px; }
@@ -2881,7 +2929,6 @@ html[data-app-layout=desktop] .software-section-content.open { padding:18px; }
 html[data-app-layout=desktop] #softwareFirmwareList { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; align-items:start; }
 html[data-app-layout=desktop] .software-app-grid { grid-template-columns:repeat(6,minmax(0,1fr)); }
 html[data-app-layout=desktop] .software-app-card img { width:72px; height:72px; }
-html[data-app-layout=desktop] .beeline-modal-card { width:min(680px,calc(100vw - 64px)); max-width:680px; padding:28px; }
 html[data-app-layout=desktop] .ppr-plan-dialog { width:min(720px,calc(100vw - 64px)); padding:24px; }
 html[data-app-layout=desktop] #editUserModal .edit-user-card { width:720px !important; max-width:min(720px,calc(100vw - 64px)) !important; }
 html[data-app-layout=desktop] .common-nav-row { max-width:640px; width:100%; align-self:center; margin-top:10px; }
@@ -4352,7 +4399,7 @@ html[data-app-layout=mobile] .vs-stock-grid{grid-template-columns:repeat(3,minma
 #editRefarbStatus[data-enabled=true]{color:var(--accent-ink)}
 #editUserModal #editRefarbToggle{width:auto;flex-shrink:0;margin:0!important;min-height:46px;padding:10px 14px;font-size:13px}
 #beelineModal.rf-worker-confirm{animation:none}
-#beelineModal.ct-confirm .beeline-modal-card{width:520px!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box;padding:20px!important}
+#beelineModal.ct-confirm .beeline-modal-card{width:480px!important;max-width:calc(100vw - 24px)!important;box-sizing:border-box;padding:20px!important}
 #beelineModal.ct-confirm .beeline-modal-icon{font-size:32px;margin-bottom:8px}
 #beelineModal.ct-confirm .beeline-modal-title{margin:0 0 8px;line-height:1.35}
 #beelineModal.ct-confirm .beeline-modal-text{margin:0 0 16px;overflow-wrap:anywhere}
@@ -5677,7 +5724,7 @@ html[data-app-layout=desktop] #myReportsContent .my-report-save #myReportsHome{d
 html[data-app-layout=desktop] #myReportsContent .my-report-save #myReportsBack{display:flex!important;align-items:center;justify-content:center}
 html[data-app-layout=mobile] #screen-my-reports>.card>.common-nav-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 html[data-app-layout=mobile] #screen-my-reports>.card>.common-nav-row>.btn{width:100%!important;min-width:0;margin:0!important}
-#beelineModalButtons > .btn:only-child,#beelineModalButtons .my-report-result-actions,#beelineModalButtons .my-report-result-actions > .btn{box-sizing:border-box;width:100%!important;max-width:none;min-width:0}
+#beelineModalButtons .my-report-result-actions{box-sizing:border-box;width:100%;min-width:0}
 #beelineModalButtons .my-report-result-actions > .btn{margin:0!important}
 .my-report-model-note:empty{display:none}
 .my-report-model-note{display:block;margin-top:5px;color:var(--text-secondary);font-size:12px;line-height:1.4}
@@ -7523,7 +7570,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
  <div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="staffBoardBack()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
  </div></div>
 <div id="screen-shift-swaps" class="app-screen uniform-screen" style="display:none"><div class="card"><h2>🔄 Обмены сменами</h2><div id="shiftSwapContent"></div><div class="common-nav-row shift-swap-action-row is-single"><button type="button" id="shiftSwapCancel" class="btn main-btn" style="display:none" onclick="shiftSwapAction('cancel')">🚫 Отменить запрос</button><button type="button" class="btn main-btn" onclick="openShiftSwapHistory()">📋 Все мои запросы</button></div><div class="common-nav-row"><button type="button" class="btn danger-btn" onclick="openMySchedule()">🔙 Назад</button><button type="button" class="btn danger-btn" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div></div></div>
-<div id="beelineModal" class="beeline-modal-overlay">
+<div id="beelineModal" class="beeline-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="beelineModalTitle">
     <div class="beeline-modal-card">
         <div class="beeline-modal-icon" id="beelineModalIcon">⚠️</div>
         <div class="beeline-modal-title" id="beelineModalTitle">Уведомление</div>
@@ -8078,12 +8125,23 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
         target.replaceChildren(...Array.from(template.content.childNodes, clean));
     }
 
+    // Формы и длинные списки шире коротких уведомлений; просмотр фото задаёт свой размер.
+    function beelineModalLayout(content,structured=false){
+        const modal=document.getElementById('beelineModal');
+        const contains=selector=>content.matches?.(selector)||!!content.querySelector?.(selector);
+        const documentView=contains('.admin-pdf-content');
+        const details=contains('input:not([type="hidden"]),textarea,select,table,.schedule-day-details,.board-day-modal,#managementDeliveryBody')||String(content.textContent||'').length>900;
+        modal.dataset.modalLayout=documentView?'document':details?'details':'compact';
+        modal.dataset.modalContent=structured?'node':'message';
+    }
+
     // Показывает Beeline модальное окно.
     function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
         if(typeof rpViewerDispose==='function')rpViewerDispose();
         document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm', 'ct-confirm');
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
+        beelineModalLayout(document.getElementById('beelineModalText'));
         document.getElementById('beelineModalIcon').textContent = icon;
         
         const btnContainer = document.getElementById('beelineModalButtons');
@@ -8102,6 +8160,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
         if (!(content instanceof Node)) throw new TypeError('Ожидается DOM-узел модального окна');
         showBeelineModal(title, '', icon);
         document.getElementById('beelineModalText').replaceChildren(content);
+        beelineModalLayout(content,true);
         if (actions instanceof Node) document.getElementById('beelineModalButtons').replaceChildren(actions);
     }
 
