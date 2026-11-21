@@ -534,6 +534,17 @@ html[data-app-layout=mobile] .tmc-section-tabs.ct-tabs>.btn{font-size:11px;paddi
             box-shadow: 0 4px 14px rgba(183,237,85, 0.2);
         }
         .main-btn:hover { background-color: var(--accent-hover); }
+        /* Авторизация: ожидание видно и кнопка не выглядит активной. */
+        #loginSubmit:disabled,#loginSubmit[aria-busy="true"] {
+            background:#5b626a!important; border-color:#737c86!important; color:#eef1f4!important;
+            opacity:1!important; box-shadow:none!important; filter:none!important;
+            cursor:wait!important; transform:none!important; transition:none!important;
+        }
+        html[data-app-theme="light"] #loginSubmit:disabled,
+        html[data-app-theme="light"] #loginSubmit[aria-busy="true"] {
+            background:#c3cbd4!important; border-color:#a6b1bd!important; color:#43515f!important;
+        }
+
 
         .secondary-btn {
             background-color: rgba(183,237,85, 0.15);
@@ -8790,6 +8801,16 @@ function engineerSchedulePresentation(){
     let ownerCityController = null;
     let authRequestEpoch = 0;
 
+    // Ручной и автоматический вход используют одну блокировку кнопки.
+    function setLoginBusy(busy){
+        loginBusy=busy;
+        const button=document.getElementById('loginSubmit');if(!button)return;
+        button.disabled=busy;
+        button.setAttribute('aria-busy',String(busy));
+        button.setAttribute('aria-disabled',String(busy));
+        button.textContent=busy?'⏳ Проверяем вход...':'🚀 Войти';
+    }
+
     // Отправляет запрос общей таблице и ограничивает полное ожидание ответа.
     async function requestAuthJson(payload, timeoutMs = 20000, externalSignal = null) {
         const controller = new AbortController();
@@ -8826,6 +8847,7 @@ function engineerSchedulePresentation(){
 
     // Восстанавливает выбранное пользователем запоминание входа с проверкой на сервере.
     async function restoreRememberedAuth() {
+        if(loginBusy)return false;
         let login, password;
         try { login = localStorage.getItem('beeline_remembered_login'); password = localStorage.getItem('beeline_remembered_pass'); }
         catch (_) { return false; }
@@ -8846,13 +8868,10 @@ function engineerSchedulePresentation(){
         const loginInput = document.getElementById('loginUser').value.trim();
         const passInput = document.getElementById('loginPass').value;
         const rememberMe = document.getElementById('rememberMe').checked;
-        const button = document.getElementById('loginSubmit');
         const epoch = ++authRequestEpoch;
         const controller = new AbortController();
         loginController = controller;
-        loginBusy = true;
-        button.disabled = true;
-        button.textContent = '⏳ Проверяем вход...';
+        setLoginBusy(true);
         try {
             const result = await requestAuthJson({action:'authenticate',login:loginInput,password:passInput}, 20000, controller.signal);
             if (epoch !== authRequestEpoch) return;
@@ -8892,9 +8911,7 @@ function engineerSchedulePresentation(){
         } finally {
             if (epoch === authRequestEpoch) {
                 loginController = null;
-                loginBusy = false;
-                button.disabled = false;
-                button.textContent = '🚀 Войти';
+                setLoginBusy(false);
             }
         }
     }
@@ -8905,10 +8922,7 @@ function engineerSchedulePresentation(){
         authRequestEpoch++;
         if (loginController) loginController.abort();
         loginController = null;
-        loginBusy = false;
-        const loginButton = document.getElementById('loginSubmit');
-        loginButton.disabled = false;
-        loginButton.textContent = '🚀 Войти';
+        setLoginBusy(false);
         if (ownerCityController) ownerCityController.abort();
         ownerCityController = null;
         ownerCityBusy = false;
@@ -16319,22 +16333,32 @@ html[data-app-layout=mobile] #pprReportsPanel .pr-filter-grid .pr-multi>.pr-mult
 .rp-viewer-tools{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--card-border)}
 .rp-rotate-tool{font-size:23px;line-height:1;padding:0;text-align:center;box-sizing:border-box}
 .rp-viewer-tool:disabled{opacity:.45;cursor:default}.rp-viewer-percent{font-size:13px;min-width:62px;padding:0 8px;color:var(--text-main);border-color:var(--card-border)}.rp-desktop-zoom{font-size:17px;min-width:42px}
-.rp-touch-help{display:none;font-size:12px;color:var(--text-secondary);margin-top:8px}
 #beelineModal.rp-viewer-modal .pr-gallery-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:560px;margin:0 auto;width:100%}
 #beelineModal.rp-viewer-modal .pr-gallery-actions>.btn{width:100%!important;min-width:0!important;height:42px!important;min-height:42px!important;margin:0!important;padding:8px!important;font-size:14px!important;white-space:nowrap;box-sizing:border-box}
 #beelineModal.rp-viewer-modal .pr-gallery-actions.rp-close-only{grid-template-columns:minmax(0,1fr);max-width:274px}
-.rp-swipe-hint{display:none;pointer-events:none;position:absolute;bottom:12px;left:50%;transform:translateX(-50%);border-radius:24px;padding:6px 12px;white-space:nowrap;background:rgba(0,0,0,.72);color:#b7ed55;font-size:13px;animation:rpSwipePulse 1.2s ease-in-out 2}
-@keyframes rpSwipePulse{0%,100%{opacity:.45}50%{opacity:1}}
-.rp-swipe-hint.rp-hint-done{opacity:0;transition:opacity .2s}
+.rp-gesture-hint{display:none;pointer-events:none;position:absolute;z-index:2;bottom:12px;left:50%;transform:translateX(-50%);box-sizing:border-box;max-width:calc(100% - 24px);width:max-content;align-items:center;justify-items:center;gap:4px;padding:8px 12px;border-radius:18px;background:rgba(17,17,17,.68);color:#fff}
+.rp-gesture-hint svg{display:none;width:144px;height:88px;max-width:100%;overflow:visible}
+.rp-gesture-hint[data-gesture=swipe] .rp-hint-swipe,.rp-gesture-hint[data-gesture=zoom] .rp-hint-zoom{display:block}
+.rp-gesture-label{display:block;box-sizing:border-box;max-width:100%;padding:4px 9px;border:1px solid #b7ed55;border-radius:18px;white-space:nowrap;color:#fff;font:600 12px/16px Arial,sans-serif}
+.rp-gesture-hint[data-gesture=swipe] .rp-hint-swipe-motion{animation:rpHintSwipe 2s ease-in-out both}
+.rp-gesture-hint[data-gesture=zoom] .rp-hint-zoom-motion{transform-origin:90px 65px;animation:rpHintPinch 2s ease-in-out both}
+.rp-gesture-hint[data-gesture=zoom] .rp-hint-outward-left{animation:rpHintOutLeft 2s ease-in-out both}
+.rp-gesture-hint[data-gesture=zoom] .rp-hint-outward-right{animation:rpHintOutRight 2s ease-in-out both}
+@keyframes rpHintSwipe{0%,100%{transform:translateX(0)}25%{transform:translateX(-20px)}70%{transform:translateX(20px)}}
+@keyframes rpHintPinch{0%,100%{transform:scale(.84)}50%{transform:scale(1.06)}}
+@keyframes rpHintOutLeft{0%,100%{transform:translate(0,0)}50%{transform:translate(-6px,6px)}}
+@keyframes rpHintOutRight{0%,100%{transform:translate(0,0)}50%{transform:translate(6px,-6px)}}
+@media(max-height:500px){.rp-gesture-hint{bottom:8px;padding:5px 9px;gap:2px;border-radius:12px}.rp-gesture-hint svg{width:100px;height:48px}.rp-gesture-label{font-size:11px;line-height:14px;padding:3px 7px}}
+@media(prefers-reduced-motion:reduce){.rp-gesture-hint *{animation:none!important}}
+.rp-gesture-hint[hidden]{display:none!important}
 .rp-open-photo{cursor:zoom-in}.rp-open-photo:focus-visible,.rp-viewer-tool:focus-visible,.rp-gallery-arrow:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 html[data-app-layout=mobile] #beelineModal.rp-viewer-modal .beeline-modal-card{width:calc(100vw - 24px)!important;padding:12px!important}
 html[data-app-layout=mobile] .rp-viewer-shell{grid-template-columns:minmax(0,1fr)}
 html[data-app-layout=mobile] :is(.rp-gallery-arrow,.rp-desktop-zoom){display:none}
-html[data-app-layout=mobile] :is(.rp-touch-help,.rp-swipe-hint){display:block}
+html[data-app-layout=mobile] .rp-gesture-hint{display:grid}
 html[data-app-layout=mobile] .rp-viewer-tool{min-width:42px;height:42px}
-@media(max-width:700px){html:not([data-app-layout=desktop]) .rp-viewer-shell{grid-template-columns:minmax(0,1fr)}html:not([data-app-layout=desktop]) :is(.rp-gallery-arrow,.rp-desktop-zoom){display:none}html:not([data-app-layout=desktop]) :is(.rp-touch-help,.rp-swipe-hint){display:block}}
-@media(prefers-reduced-motion:reduce){.rp-swipe-hint{animation:none;transition:none}}
-.rp-gallery-arrow[hidden],.rp-swipe-hint[hidden],#beelineModal.rp-viewer-modal .pr-gallery-actions>.btn[hidden]{display:none!important}
+@media(max-width:700px){html:not([data-app-layout=desktop]) .rp-viewer-shell{grid-template-columns:minmax(0,1fr)}html:not([data-app-layout=desktop]) :is(.rp-gallery-arrow,.rp-desktop-zoom){display:none}html:not([data-app-layout=desktop]) .rp-gesture-hint{display:grid}}
+.rp-gallery-arrow[hidden],#beelineModal.rp-viewer-modal .pr-gallery-actions>.btn[hidden]{display:none!important}
 
 .pr-comment{font-size:13px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
 .pr-editor{min-width:0}
@@ -16509,29 +16533,59 @@ async function rpEnsureAlbum(record,personal=false){const owner=managementOwnerK
 function rpWarmPump(){while(rpWarmState.active<2&&rpWarmState.queue.length){const task=rpWarmState.queue.shift();if(task.owner!==managementOwnerKey()||!task.node.isConnected||!task.node.getClientRects().length){task.node._rpQueued=false;continue;}rpWarmState.active++;Promise.resolve().then(task.run).catch(()=>{}).finally(()=>{task.node._rpQueued=false;rpWarmState.active--;rpWarmPump();});}}
 function rpWatchPhotos(node,record,personal=false){if(node._rpWatching)return;node._rpWatching=true;const owner=managementOwnerKey();node._rpWarm=()=>{if(node._rpQueued||owner!==managementOwnerKey())return;node._rpQueued=true;rpWarmState.queue.push({node,owner,run:async()=>{const album=record.photos?record:await rpEnsureAlbum(record,personal);if(owner!==managementOwnerKey()||!node.isConnected)return;await Promise.allSettled((album.photos||[]).map(p=>prGetPhoto(album,p)));}});rpWarmPump();};setTimeout(()=>{if(!node.isConnected||owner!==managementOwnerKey())return;if(!globalThis.IntersectionObserver){if(node.getClientRects().length)node._rpWarm();return;}if(!rpWarmState.observer)rpWarmState.observer=new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){rpWarmState.observer.unobserve(e.target);rpWarmState.watched.delete(e.target);e.target._rpWarm?.();}},{rootMargin:'0px'});for(const old of rpWarmState.watched)if(!old.isConnected){rpWarmState.observer.unobserve(old);rpWarmState.watched.delete(old);}rpWarmState.watched.add(node);rpWarmState.observer.observe(node);},500);}
 function rpAccordion(record,personalChanges=null){const owner=managementOwnerKey(),details=ctNode('details','ct-photo-accordion'),head=ctNode('summary'),body=ctNode('div','ct-photo-body');head.append(ctNode('span','','📷 Фото отчет'),ctNode('span','dropdown-arrow','▼'));details.append(head,body);let album=null,busy=false,mounted=false;const draw=()=>{if(!details.open||mounted||!album)return;body.replaceChildren();prPhotoBlocks(album,body,true);if(album.photoMessage)body.append(ctNode('p','pr-muted',album.photoMessage));mounted=true;if(album._pcDraft)pcSync(album);};const load=async()=>{if(busy||owner!==managementOwnerKey())return;if(album){draw();return;}busy=true;body.innerHTML=liveLoading('Загружаем фотоотчёт…');try{album=await rpEnsureAlbum(record,!!personalChanges);if(owner!==managementOwnerKey()||!details.isConnected)return;if(personalChanges)album.photoChanges=()=>Object.keys(personalChanges).length>0;draw();}catch(error){if(owner===managementOwnerKey()&&details.isConnected){body.replaceChildren(ctNode('p','pr-muted',error.message));const retry=ctNode('button','btn action-btn','🔄 Повторить');retry.onclick=load;body.append(retry);}}finally{busy=false;}};details.ontoggle=()=>{if(details.open)load();};rpWatchPhotos(details,record,!!personalChanges);return details;}
+const rpGestureHintsSeen=new Map();
+function rpGestureHintSeen(owner,add=0){
+ let seen=rpGestureHintsSeen.get(owner)||0;
+ try{seen|=Number(sessionStorage.getItem('ii_photo_gesture_help_v1_'+owner))&3;}catch(ignore){}
+ if(add){seen|=add;try{sessionStorage.setItem('ii_photo_gesture_help_v1_'+owner,String(seen));}catch(ignore){}}
+ rpGestureHintsSeen.set(owner,seen);return seen;
+}
+function rpGestureHint(){
+ const hint=ctNode('div','rp-gesture-hint');hint.hidden=true;hint.setAttribute('aria-hidden','true');
+ hint.innerHTML=`<svg class="rp-hint-swipe" viewBox="0 0 180 112" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">
+ <g class="rp-hint-arrows" stroke="#b7ed55" stroke-width="4"><path d="M34 26H61M34 26L42 18M34 26L42 34M119 26H146M146 26L138 18M146 26L138 34"/></g>
+ <g stroke="#fff" stroke-width="3.5"><path opacity=".13" transform="translate(-28 0)" d="M77 103L63 82C60 78 55 72 52 66C50 61 54 57 58 59L76 72V27C76 19 88 19 88 27V54C88 47 100 47 100 55V60C100 52 112 52 112 60V65C112 58 124 58 124 66V83C124 92 118 98 117 105"/><path opacity=".13" transform="translate(28 0)" d="M77 103L63 82C60 78 55 72 52 66C50 61 54 57 58 59L76 72V27C76 19 88 19 88 27V54C88 47 100 47 100 55V60C100 52 112 52 112 60V65C112 58 124 58 124 66V83C124 92 118 98 117 105"/></g>
+ <g class="rp-hint-swipe-motion"><circle cx="82" cy="26" r="13" stroke="#b7ed55" stroke-width="4"/><path d="M77 103L63 82C60 78 55 72 52 66C50 61 54 57 58 59L76 72V27C76 19 88 19 88 27V54C88 47 100 47 100 55V60C100 52 112 52 112 60V65C112 58 124 58 124 66V83C124 92 118 98 117 105" fill="#202020" fill-opacity=".65" stroke="#fff" stroke-width="3.5"/></g>
+ </svg>
+ <svg class="rp-hint-zoom" viewBox="0 0 180 112" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true">
+ <g stroke="#b7ed55" stroke-width="4"><path class="rp-hint-outward-left" d="M53 76L34 95M34 95L34 85M34 95L44 95"/><path class="rp-hint-outward-right" d="M128 24L147 5M147 5L137 5M147 5L147 15"/></g>
+ <g class="rp-hint-zoom-motion"><circle cx="110" cy="26" r="13" stroke="#b7ed55" stroke-width="4"/><circle cx="63" cy="62" r="12" stroke="#b7ed55" stroke-width="4"/><path d="M101 105C94 94 83 87 72 78L59 66C54 60 60 53 66 57L86 69L103 26C106 18 118 21 116 30L109 54L114 48C119 43 126 47 125 54V59C129 52 138 54 137 62L136 68C141 62 149 66 147 75L143 91L135 105" fill="#202020" fill-opacity=".65" stroke="#fff" stroke-width="3.5"/></g>
+ </svg><span class="rp-gesture-label"></span>`;
+ return hint;
+}
+
 let rpViewerActive=null;
 function rpViewerDispose(){if(rpViewerActive){const dispose=rpViewerActive;rpViewerActive=null;dispose();}document.getElementById('beelineModal')?.classList.remove('rp-viewer-modal');}
 function rpViewer(options){
- const owner=managementOwnerKey(),body=ctNode('div','pr-gallery'),shell=ctNode('div','rp-viewer-shell'),stage=ctNode('div','pr-gallery-stage'),surface=ctNode('div','rp-viewer-surface'),hint=ctNode('div','rp-swipe-hint','‹ Листайте фото ›'),tools=ctNode('div','rp-viewer-tools'),help=ctNode('div','rp-touch-help','Масштаб — двумя пальцами'),actions=ctNode('div','pr-gallery-actions'),remove=ctNode('button','btn danger-btn','❌ Удалить'),close=ctNode('button','btn main-btn','🔙 Закрыть');
+ const owner=managementOwnerKey(),body=ctNode('div','pr-gallery'),shell=ctNode('div','rp-viewer-shell'),stage=ctNode('div','pr-gallery-stage'),surface=ctNode('div','rp-viewer-surface'),hint=rpGestureHint(),tools=ctNode('div','rp-viewer-tools'),actions=ctNode('div','pr-gallery-actions'),remove=ctNode('button','btn danger-btn','❌ Удалить'),close=ctNode('button','btn main-btn','🔙 Закрыть');
  const make=(cls,text,label)=>{const b=ctNode('button',cls,text);b.type='button';b.title=label;b.setAttribute('aria-label',label);return b;},prev=make('rp-gallery-arrow rp-gallery-prev','⬅️','Предыдущее фото'),next=make('rp-gallery-arrow rp-gallery-next','➡️','Следующее фото'),left=make('rp-viewer-tool rp-rotate-tool','↩️','Повернуть на 90° влево'),right=make('rp-viewer-tool rp-rotate-tool','↪️','Повернуть на 90° вправо'),minus=make('rp-viewer-tool rp-desktop-zoom','🔍−','Уменьшить фото'),reset=make('rp-viewer-tool rp-viewer-percent','100%','Сбросить масштаб'),plus=make('rp-viewer-tool rp-desktop-zoom','🔍+','Увеличить фото');
- close.type=remove.type='button';remove.setAttribute('aria-label','Удалить фото из отчёта');close.setAttribute('aria-label','Закрыть предпросмотр фотографии');stage.append(surface,hint);shell.append(prev,stage,next);tools.append(left,right,minus,reset,plus);body.append(shell,tools,help);actions.append(remove,close);
- let photos=options.photos(),index=Math.max(0,photos.findIndex(p=>p.key===options.key)),token=0,disposed=false,image=null,angle=0,zoom=1,pan={x:0,y:0},base={w:0,h:0},natural={w:0,h:0},gesture=null,swipe=null,pinchUsed=false,hintTimer;
+ close.type=remove.type='button';remove.setAttribute('aria-label','Удалить фото из отчёта');close.setAttribute('aria-label','Закрыть предпросмотр фотографии');stage.append(surface,hint);shell.append(prev,stage,next);tools.append(left,right,minus,reset,plus);body.append(shell,tools);actions.append(remove,close);
+ let photos=options.photos(),index=Math.max(0,photos.findIndex(p=>p.key===options.key)),token=0,disposed=false,image=null,angle=0,zoom=1,pan={x:0,y:0},base={w:0,h:0},natural={w:0,h:0},gesture=null,swipe=null,pinchUsed=false,hintStarted=false,hintDismissed=false;
+ const hintTimers=new Set();
  const pointers=new Map(),listeners=[];
  const on=(target,event,fn,opts)=>{target.addEventListener(event,fn,opts);listeners.push(()=>target.removeEventListener(event,fn,opts));};
  const active=t=>!disposed&&owner===managementOwnerKey()&&(t===undefined||t===token)&&document.getElementById('beelineModal')?.style.display!=='none'&&document.getElementById('beelineModalText')?.contains(body);
+ const dismissHints=()=>{hintDismissed=true;hint.hidden=true;for(const timer of hintTimers)clearTimeout(timer);hintTimers.clear();};
+ function startHints(){
+  const layout=document.documentElement.dataset.appLayout;
+  if(hintStarted||hintDismissed||!active()||layout==='desktop'||layout!=='mobile'&&!window.matchMedia?.('(max-width:700px)').matches)return;
+  const seen=rpGestureHintSeen(owner),steps=[];if(photos.length>1&&!(seen&1))steps.push(['swipe','Листайте фото',1]);if(!(seen&2))steps.push(['zoom','Раздвиньте пальцы',2]);if(!steps.length)return;
+  hintStarted=true;rpGestureHintSeen(owner,steps.reduce((mask,step)=>mask|step[2],0));
+  const show=at=>{if(hintDismissed||!active())return;if(at>=steps.length){hint.hidden=true;return;}hint.dataset.gesture=steps[at][0];hint.querySelector('.rp-gesture-label').textContent=steps[at][1];hint.hidden=false;const timer=setTimeout(()=>{hintTimers.delete(timer);show(at+1);},2000);hintTimers.add(timer);};show(0);
+ }
  const bounds=()=>{const rect=stage.getBoundingClientRect();return {w:stage.clientWidth||rect.width||1,h:stage.clientHeight||rect.height||1,left:rect.left,top:rect.top};};
  function paint(){const b=bounds(),odd=Math.abs(angle/90)%2===1,w=(odd?base.h:base.w)*zoom,h=(odd?base.w:base.h)*zoom;pan.x=Math.max(-Math.max(0,(w-b.w)/2),Math.min(Math.max(0,(w-b.w)/2),pan.x));pan.y=Math.max(-Math.max(0,(h-b.h)/2),Math.min(Math.max(0,(h-b.h)/2),pan.y));if(image){image.style.width=base.w+'px';image.style.height=base.h+'px';image.style.transform='translate(-50%,-50%) translate('+pan.x+'px,'+pan.y+'px) rotate('+angle+'deg) scale('+zoom+')';}stage.classList.toggle('rp-zoomed',zoom>1.001);reset.textContent=Math.round(zoom*100)+'%';minus.disabled=!image||zoom<=1;plus.disabled=!image||zoom>=5;left.disabled=right.disabled=reset.disabled=!image;}
  function fit(){if(!image||!natural.w||!natural.h)return;const b=bounds(),odd=Math.abs(angle/90)%2===1,ratio=Math.min(b.w/(odd?natural.h:natural.w),b.h/(odd?natural.w:natural.h));base={w:natural.w*ratio,h:natural.h*ratio};paint();}
  function setZoom(value,point){const b=bounds(),old=zoom;zoom=Math.max(1,Math.min(5,value));if(point){const x=point.x-b.left-b.w/2,y=point.y-b.top-b.h/2;pan={x:x-(x-pan.x)*zoom/old,y:y-(y-pan.y)*zoom/old};}if(zoom===1)pan={x:0,y:0};paint();}
  function rotate(delta){if(!image)return;angle=(angle+delta+360)%360;zoom=1;pan={x:0,y:0};fit();}
- function controls(){prev.disabled=index===0;next.disabled=index===photos.length-1;prev.hidden=next.hidden=photos.length<2;shell.classList.toggle('rp-single-photo',photos.length<2);hint.hidden=photos.length<2;const can=!!options.canDelete?.(photos[index]);remove.hidden=!options.remove;remove.disabled=!can;actions.classList.toggle('rp-close-only',!options.remove);document.getElementById('beelineModalTitle').textContent=options.title+' · '+(index+1)+' из '+photos.length;}
+ function controls(){prev.disabled=next.disabled=photos.length<2;prev.hidden=next.hidden=photos.length<2;shell.classList.toggle('rp-single-photo',photos.length<2);const can=!!options.canDelete?.(photos[index]);remove.hidden=!options.remove;remove.disabled=!can;actions.classList.toggle('rp-close-only',!options.remove);document.getElementById('beelineModalTitle').textContent=options.title+' · '+(index+1)+' из '+photos.length;}
  function mount(img){image=img;surface.replaceChildren(img);natural={w:img.naturalWidth||natural.w||1,h:img.naturalHeight||natural.h||1};fit();}
  async function draw(){if(!photos.length){closeBeelineModal();return;}const t=++token,p=photos[index];image=null;natural={w:0,h:0};base={w:0,h:0};zoom=1;angle=0;pan={x:0,y:0};pointers.clear();swipe=gesture=null;pinchUsed=false;controls();paint();stage.setAttribute('aria-busy','true');surface.innerHTML=liveLoading('Открываем фото…');let shown=false;
-  const show=(data,full)=>{const img=ctNode('img','pr-full-photo');img.alt=options.title+' '+(index+1);img.draggable=false;img.onload=()=>{if(!active(t)||!full&&shown&&image!==img)return;mount(img);shown=true;if(full){stage.setAttribute('aria-busy','false');const adjacent=photos[index+1];if(adjacent)Promise.resolve(options.load(adjacent,true)).catch(()=>{});}};img.onerror=()=>{if(active(t)){stage.setAttribute('aria-busy','false');if(!shown)surface.textContent='Не удалось открыть фото. Попробуйте ещё раз.';}};img.src=data;if(!full){mount(img);shown=true;}};
+  const show=(data,full)=>{const img=ctNode('img','pr-full-photo');img.alt=options.title+' '+(index+1);img.draggable=false;img.onload=()=>{if(!active(t)||!full&&shown&&image!==img)return;mount(img);shown=true;startHints();if(full){stage.setAttribute('aria-busy','false');const adjacent=photos[index+1];if(adjacent)Promise.resolve(options.load(adjacent,true)).catch(()=>{});}};img.onerror=()=>{if(active(t)){stage.setAttribute('aria-busy','false');if(!shown)surface.textContent='Не удалось открыть фото. Попробуйте ещё раз.';}};img.src=data;if(!full){mount(img);shown=true;}};
   const preview=options.preview?.(p);if(preview)show(preview,false);else Promise.resolve(options.load(p,false)).then(data=>{if(active(t)&&!shown)show(data,false);}).catch(()=>{});
   try{const data=await options.load(p,true);if(active(t))show(data,true);}catch(e){if(active(t)){stage.setAttribute('aria-busy','false');if(!shown)surface.textContent='Не удалось открыть фото. Попробуйте ещё раз.';}}
  }
- function move(delta){if(!active())return;const at=index+delta;if(at<0||at>=photos.length)return;index=at;draw();}
+ function move(delta){if(!active()||photos.length<2)return;dismissHints();index=((index+delta)%photos.length+photos.length)%photos.length;draw();}
  prev.onclick=()=>move(-1);next.onclick=()=>move(1);left.onclick=()=>rotate(-90);right.onclick=()=>rotate(90);minus.onclick=()=>setZoom(zoom/1.3);plus.onclick=()=>setZoom(zoom*1.3);reset.onclick=()=>setZoom(1);close.onclick=()=>closeBeelineModal();remove.onclick=()=>{if(!active()||!options.canDelete?.(photos[index]))return;const photo=photos[index];options.remove(photo);photos=options.photos();index=Math.min(index,photos.length-1);draw();};
  const pair=()=>{const [a,b]=[...pointers.values()];return {distance:Math.hypot(a.x-b.x,a.y-b.y)||1,center:{x:(a.x+b.x)/2,y:(a.y+b.y)/2}};};
  on(stage,'pointerdown',e=>{if(!active()||!image||e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});try{stage.setPointerCapture(e.pointerId);}catch(ignore){}if(pointers.size===1){pinchUsed=false;swipe={x:e.clientX,y:e.clientY,lastX:e.clientX,lastY:e.clientY,pan:{...pan},zoom};}else if(pointers.size===2){pinchUsed=true;const p=pair();gesture={...p,zoom,pan:{...pan}};}});
@@ -16539,9 +16593,9 @@ function rpViewer(options){
  const release=(e,cancelled)=>{if(!pointers.has(e.pointerId))return;pointers.delete(e.pointerId);if(!cancelled&&pointers.size===0&&swipe&&!pinchUsed&&swipe.zoom===1&&zoom===1){const dx=e.clientX-swipe.x,dy=e.clientY-swipe.y;if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.3)move(dx<0?1:-1);}if(pointers.size===1){const p=[...pointers.values()][0];gesture=null;swipe={...p,lastX:p.x,lastY:p.y,pan:{...pan},zoom};}if(!pointers.size)swipe=gesture=null;};
  on(stage,'pointerup',e=>release(e,false));on(stage,'pointercancel',e=>release(e,true));on(stage,'lostpointercapture',e=>release(e,true));
  on(body,'dragstart',e=>e.preventDefault());on(document,'keydown',e=>{if(!active()||e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='Escape'){e.preventDefault();closeBeelineModal();}else if(e.key==='ArrowLeft'){e.preventDefault();move(-1);}else if(e.key==='ArrowRight'){e.preventDefault();move(1);}else if(e.key==='+'||e.key==='='){e.preventDefault();setZoom(zoom*1.3);}else if(e.key==='-'){e.preventDefault();setZoom(zoom/1.3);}else if(e.key==='0'){e.preventDefault();setZoom(1);}});
- showBeelineModalNode(options.title,body,'',actions);const modal=document.getElementById('beelineModal');modal.classList.add('rp-viewer-modal');let observer;if(typeof ResizeObserver!=='undefined'){observer=new ResizeObserver(()=>{if(active())fit();});observer.observe(stage);}on(window,'resize',fit);
- rpViewerActive=()=>{disposed=true;++token;clearTimeout(hintTimer);observer?.disconnect();listeners.forEach(f=>f());options.onClose?.();};
- hintTimer=setTimeout(()=>hint.classList.add('rp-hint-done'),2600);draw();close.focus({preventScroll:true});
+ showBeelineModalNode(options.title,body,'',actions);const modal=document.getElementById('beelineModal');modal.classList.add('rp-viewer-modal');on(modal,'pointerdown',dismissHints,{capture:true,passive:true});on(modal,'keydown',dismissHints,{capture:true});let observer;if(typeof ResizeObserver!=='undefined'){observer=new ResizeObserver(()=>{if(active())fit();});observer.observe(stage);}on(window,'resize',fit);
+ rpViewerActive=()=>{disposed=true;++token;dismissHints();observer?.disconnect();listeners.forEach(f=>f());options.onClose?.();};
+ draw();close.focus({preventScroll:true});
 }
 function prOpenGallery(r,section,key,editing=false){rpViewer({title:r.photoAlbum?'Фото отчет':section==='before'?'Фото до':'Фото после',key,photos:()=>pcItems(r).filter(p=>p.section===section),preview:p=>rpPhotoCached(r,p),load:(p,full)=>p.previewUrl?Promise.resolve(p.previewUrl):prGetPhoto(r,p,full),canDelete:p=>editing&&rpPhotoChangeAllowed(r)&&!p?.preparing,remove:editing&&r.canEditPhotos?p=>prConfirmPhoto(r,{kind:'remove',section,key:p.key},r._photoBlocks):null});}
 const rpLocalPhotoKeys=new WeakMap();let rpLocalPhotoSequence=0;
