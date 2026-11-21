@@ -3869,6 +3869,9 @@ html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock]>.pu-count-too
 </style>
 <style>
 /* Размеры календаря совпадают с таблицей рабочего графика. */
+/* Городские итоги находятся в том же календаре, поэтому даты всегда совпадают. */
+#screen-admin-board .staff-board-calendar .board-city-heading th{background:var(--ui-bg-212919,#212919);color:var(--accent-ink);font-weight:700}
+#screen-admin-board .staff-board-calendar .board-city-heading>:first-child{background:var(--ui-bg-212919,#212919)}
 #screen-admin-board{width:100%;max-width:none!important;min-width:0}
 #screen-admin-board>.card{width:100%;max-width:none!important;box-sizing:border-box;min-width:0}
 #screen-admin-board .staff-board-calendar{width:max-content;min-width:100%;table-layout:fixed;font-size:12px}
@@ -15136,6 +15139,25 @@ function boardOverviewCard(name,values,employee=null,result=null){
  }content.append(rest);card.append(content);return card;
 }
 
+// Часы и городские итоги используют одни столбцы и одну горизонтальную прокрутку.
+function boardDailyCalendar(result,dates,dailyRows){
+ const wrap=boardTable(['ФИО монтажника',...dates.map(date=>date.slice(-2)),'Итого / норма'],dailyRows,'Часы сотрудников по дням',true);
+ const table=wrap.querySelector('table');
+ dates.forEach((date,index)=>table.tHead.rows[0].cells[index+1].dataset.boardDate=date);
+ if(!result.dailyTotals?.length||!dates.length)return wrap;
+ const byDate=new Map(result.dailyTotals.map(day=>[day.date,day])),totals=document.createElement('tbody'),heading=document.createElement('tr');
+ totals.className='board-city-totals';totals.setAttribute('aria-label','Итоги города по дням');heading.className='board-city-heading';
+ const label=adminToolsText('th','Итоги города');label.scope='rowgroup';heading.append(label);
+ for(const date of dates){const cell=adminToolsText('th',date.slice(-2));cell.scope='col';cell.dataset.boardDate=date;heading.append(cell);}
+ const end=adminToolsText('td','');end.setAttribute('aria-hidden','true');heading.append(end);totals.append(heading);
+ for(const [title,key] of [['Отработано часов','hours'],['Техников на линии','technicians'],['Нагрузка','load']]){
+  const row=document.createElement('tr'),name=adminToolsText('th',title);name.scope='row';row.append(name);
+  for(const date of dates){const value=byDate.get(date)?.[key],cell=adminToolsText('td',value==null||value===''?'—':String(value));cell.dataset.boardDate=date;row.append(cell);}
+  const blank=adminToolsText('td','');blank.setAttribute('aria-hidden','true');row.append(blank);totals.append(row);
+ }
+ table.append(totals);return wrap;
+}
+
 // Показывает сотрудники доска.
 function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(boardResizeObserver){boardResizeObserver.disconnect();boardResizeObserver=null;}
@@ -15151,8 +15173,7 @@ function renderStaffBoard(result,activeTab=0,updatedAt=null){
  else{const labels=[...new Set(employees.flatMap(e=>(e.metrics||[]).map(m=>m.label)))];addTab('📊 Показатели',boardTable(['ФИО монтажника',...labels],employees.map(e=>[boardEmployeeCell(e,result,0),...labels.map(label=>(e.metrics||[]).find(m=>m.label===label)?.value??'—')]),'Показатели сотрудников'));}
  const dates=[...new Set(employees.flatMap(e=>(e.days||[]).map(d=>d.date)))].sort();
  const dailyRows=employees.map(e=>[boardEmployeeCell(e,result,1),...dates.map(date=>{const day=(e.days||[]).find(d=>d.date===date);if(!day)return '—';const button=adminToolsText('button',day.value||'—','staff-board-day '+boardHourClass(day.value));button.type='button';button.setAttribute('aria-label',e.name+', отчёты за '+date.split('-').reverse().join('.'));button.onclick=()=>openBoardDay(e,day,button);return button;}),boardMonthTotal(e)]);
- const days=document.createElement('div');days.append(adminToolsText('p','Нажмите на часы за день, чтобы открыть отчёты.','board-city-legend'),boardTable(['ФИО монтажника',...dates.map(d=>d.slice(-2)), 'Итого / норма'],dailyRows,'Часы сотрудников по дням',true));
- if(result.dailyTotals?.length){const byDate=new Map(result.dailyTotals.map(d=>[d.date,d]));days.append(boardTable(['Итоги города',...dates.map(d=>d.slice(-2))],[['Отработано часов',...dates.map(d=>byDate.get(d)?.hours??'—')],['Техников на линии',...dates.map(d=>byDate.get(d)?.technicians??'—')],['Нагрузка',...dates.map(d=>byDate.get(d)?.load??'—')]],'Итоги города по дням',true));}
+ const days=document.createElement('div');days.append(adminToolsText('p','Нажмите на часы за день, чтобы открыть отчёты.','board-city-legend'),boardDailyCalendar(result,dates,dailyRows));
  addTab('🕐 Часы по дням',days);
  const materialLabels=boardMaterialLabels(employees);const materials=document.createElement('div');
  if(materialLabels.length)materials.append(boardTable(['ФИО монтажника',...materialLabels],employees.map(e=>[boardEmployeeCell(e,result,2),...materialLabels.map(label=>(e.materials||[]).find(m=>m.label===label)?.value??'0')]),'Оборудование и кабель сотрудников'));
