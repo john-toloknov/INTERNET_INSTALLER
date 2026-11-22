@@ -3914,10 +3914,10 @@ html[data-app-layout=desktop] #cityTableEditor[data-ct-part=stock]>.pu-count-too
 #screen-admin-board{width:100%;max-width:none!important;min-width:0}
 #screen-admin-board>.card{width:100%;max-width:none!important;box-sizing:border-box;min-width:0}
 #screen-admin-board .staff-board-calendar{width:max-content;min-width:100%;table-layout:fixed;font-size:12px}
-#screen-admin-board .staff-board-calendar th,#screen-admin-board .staff-board-calendar td{padding:3px;min-width:34px;box-sizing:border-box}
+#screen-admin-board .staff-board-calendar th,#screen-admin-board .staff-board-calendar td{padding:3px;min-width:34px;box-sizing:border-box;vertical-align:middle}
 #screen-admin-board .staff-board-calendar tr>:first-child{width:220px;min-width:220px;max-width:220px}
 #screen-admin-board .staff-board-calendar thead th{max-width:none}
-#screen-admin-board .staff-board-calendar .staff-board-day{display:flex;align-items:center;justify-content:center;width:34px;min-width:34px;height:36px;padding:0;border:1px solid transparent;border-radius:6px;background:var(--ui-bg-222222,#222);font-size:12px}
+#screen-admin-board .staff-board-calendar .staff-board-day{display:flex;align-items:center;justify-content:center;width:34px;min-width:34px;height:36px;padding:0;margin:0 auto;text-align:center;border:1px solid transparent;border-radius:6px;background:var(--ui-bg-222222,#222);font-size:12px}
 html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar{width:100%;min-width:0;table-layout:fixed}
 html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar th,html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar td{min-width:0;padding:2px;font-size:11px}
 html[data-app-layout=desktop] #screen-admin-board .staff-board-calendar tr>:first-child{width:156px;min-width:0;max-width:none}
@@ -15294,7 +15294,7 @@ function renderStaffBoard(result,activeTab=0,updatedAt=null){
  if(columns.length&&employees.every(e=>Array.isArray(e.boardValues))){addTab('📊 Показатели',boardOverviewView(result));}
  else{const labels=[...new Set(employees.flatMap(e=>(e.metrics||[]).map(m=>m.label)))];addTab('📊 Показатели',boardTable(['ФИО монтажника',...labels],employees.map(e=>[boardEmployeeCell(e,result,0),...labels.map(label=>(e.metrics||[]).find(m=>m.label===label)?.value??'—')]),'Показатели сотрудников'));}
  const dates=[...new Set(employees.flatMap(e=>(e.days||[]).map(d=>d.date)))].sort();
- const dailyRows=employees.map(e=>[boardEmployeeCell(e,result,1),...dates.map(date=>{const day=(e.days||[]).find(d=>d.date===date);if(!day)return '—';const button=adminToolsText('button',day.value||'—','staff-board-day '+boardHourClass(day.value));button.type='button';button.setAttribute('aria-label',e.name+', отчёты за '+date.split('-').reverse().join('.'));button.onclick=()=>openBoardDay(e,day,button);return button;}),boardMonthTotal(e)]);
+ const dailyRows=employees.map(e=>[boardEmployeeCell(e,result,1),...dates.map(date=>{const day=(e.days||[]).find(d=>d.date===date);if(!day)return '—';const button=adminToolsText('button',day.value||'—','staff-board-day '+boardHourClass(day.value,e));button.type='button';button.setAttribute('aria-label',e.name+', отчёты за '+date.split('-').reverse().join('.'));button.onclick=()=>openBoardDay(e,day,button);return button;}),boardMonthTotal(e)]);
  const days=document.createElement('div');days.append(adminToolsText('p','Нажмите на часы за день, чтобы открыть отчёты.','board-city-legend'),boardDailyCalendar(result,dates,dailyRows));
  addTab('🕐 Часы по дням',days);
  const materialLabels=boardMaterialLabels(employees);const materials=document.createElement('div');
@@ -15306,7 +15306,11 @@ function renderStaffBoard(result,activeTab=0,updatedAt=null){
 // ФИО показателей доступны только для просмотра; фильтр сотрудников остаётся отдельным.
 function boardEmployeeCell(employee,result,tab){return adminToolsText('span',employee.name,'board-employee-name');}
 // Цвет часов и зелёный выходной; пустые ячейки остаются нейтральными.
-function boardHourClass(value){const text=String(value??'').trim().replace(/\s+/g,'').replace(',','.');if(['В','ВЫХОДНОЙ','ОТДЫХ','ОТДЫХАЕТ'].includes(text.toUpperCase()))return 'board-hours-rest';if(!/^[+-]?\d+(?:\.\d+)?$/.test(text))return '';const hours=Number(text);return hours<8?'board-hours-low':hours<11?'board-hours-medium':'board-hours-high';}
+function boardHourClass(value,employee={}){
+ const text=String(value??'').trim().replace(/\s+/g,'').replace(',','.');if(['В','ВЫХОДНОЙ','ОТДЫХ','ОТДЫХАЕТ'].includes(text.toUpperCase()))return 'board-hours-rest';if(!/^[+-]?\d+(?:\.\d+)?$/.test(text))return '';
+ const role=String(employee.role||'').toLowerCase().replace(/[^а-яё]/g,''),norm=role==='бригадир'||role==='техникбригадир'||!role&&boardEmployeeNorm(employee)===135?9:11,hours=Number(text);
+ return hours<8?'board-hours-low':hours<norm?'board-hours-medium':'board-hours-high';
+}
 // Месячная норма из роли общей базы сотрудников.
 function boardEmployeeNorm(employee){if(employee.monthlyNorm===135||employee.monthlyNorm===165)return employee.monthlyNorm;let role=employee.role;if(!role&&typeof usersDb!=='undefined'){const city=typeof currentUser!=='undefined'?currentUser?.city:'';const matches=usersDb.filter(p=>p.fullName===employee.name&&p.city===city);if(matches.length===1)role=matches[0].role;}const key=String(role||'').toLowerCase().replace(/[^а-яё]/g,'');return key==='бригадир'?135:key==='техникуниверсал'?165:null;}
 // Показывает фактические часы и месячную норму без изменения расчётов листа.
