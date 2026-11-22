@@ -4382,6 +4382,8 @@ html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar>.btn{width:aut
 #screen-register #regDistrictList>.dropdown-item:not(:disabled):focus-visible,
 #screen-register #regDistrictList>.dropdown-item[aria-selected=true]{background:var(--ui-bg-273419,#273419);color:var(--ui-fg-b7ed55,#b7ed55)}
 #screen-register #regDistrictHint{display:block;width:100%;margin:6px 0 12px;font-size:12px;line-height:1.4;color:var(--ui-fg-aaaaaa,#aaa)}
+#screen-register #regTelegramStatus{display:block;margin:8px 0 12px;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+#screen-register #regTelegramConnect[hidden]{display:none!important}
 html[data-app-layout=mobile] .app-screen [data-view-main-menu],html[data-app-layout=mobile] .app-screen [data-view-original-back]{visibility:visible}
 </style>
 <style id="virtualWarehouseStyles">
@@ -6629,16 +6631,10 @@ html[data-app-layout] body #screen-admin-employees>.card>.ac-list-heading{color:
                 <label>Ваш ID в Telegram</label>
                 <input type="text" id="regTgId" required placeholder="1160882045">
 
-                <label>Рабочей группы ID в Telegram</label>
-                <input type="text" id="regTgGroup" required placeholder="-100xxxxxxx">
-
-                <label>ID второй рабочей группы Telegram (ППР)</label>
-                <input type="text" id="regTgGroupPpr" required placeholder="-100xxxxxxx">
-
                 <label>Рабочая почта (для восстановления пароля)</label>
                 <input type="email" id="regEmail" required placeholder="example@gmail.com">
 
-                <button type="submit" class="btn main-btn">📝 Завершить регистрацию</button>
+                <button type="submit" id="regSubmit" class="btn main-btn">📝 Завершить регистрацию</button>
                 <button type="button" class="btn danger-btn" onclick="switchScreen('screen-login')">🔚 Отмена</button>
             </form>
         </div>
@@ -8433,7 +8429,10 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
     window.addEventListener('DOMContentLoaded', async () => {
         initCitiesDropdowns();
 
-        if (!await restoreRememberedAuth()) checkAuthSession();
+        if (new URL(location.href).searchParams.get('telegramRegistration')) {
+            currentUser=null;
+            void acRegistrationFromBot();
+        } else if (!await restoreRememberedAuth()) checkAuthSession();
         handleSearchAccess();
         window.dispatchEvent(new Event('scroll'));
         // Камера теперь инициализируется только при открытии экрана ТМЦ
@@ -10167,13 +10166,11 @@ function engineerSchedulePresentation(){
         const p1 = document.getElementById('regPassword').value;
         const p2 = document.getElementById('regPasswordConfirm').value;
         const tgIdInput = document.getElementById('regTgId');
-        const tgGroupInput = document.getElementById('regTgGroup');
-        const tgGroupPprInput = document.getElementById('regTgGroupPpr');
         const emailInput = document.getElementById('regEmail');
 
         if (!fullNameInput.value.trim() || !roleInput.value || 
             !workPhoneInput.value.trim() || !dwLoginInput.value.trim() || !p1 || !p2 || 
-            !tgIdInput.value.trim() || !tgGroupInput.value.trim() || !tgGroupPprInput.value.trim() || !emailInput.value.trim()) {
+            !tgIdInput.value.trim() || !emailInput.value.trim()) {
             showBeelineModal("Ошибка", "Все поля в форме регистрации должны быть заполнены!", "❌");
             return;
         }
@@ -10215,8 +10212,6 @@ function engineerSchedulePresentation(){
             dwLogin: dwLoginInput.value.trim(),
             password: p1,
             tgId: tgIdInput.value.trim(),
-            tgGroup: tgGroupInput.value.trim(),
-            tgGroupPpr: tgGroupPprInput.value.trim(),
             email: emailVal
         };
 
@@ -10236,9 +10231,15 @@ function engineerSchedulePresentation(){
             return;
         }
 
-        const registeredUser={...newUser};delete registeredUser.password;usersDb.push(registeredUser);
+        const registeredUser={...newUser};delete registeredUser.password;delete registeredUser.telegramToken;usersDb.push(registeredUser);
         staffIndexSource = null;
         localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
+
+        const registrationUrl=new URL(location.href);
+        if(registrationUrl.searchParams.has('telegramRegistration')){
+            registrationUrl.searchParams.delete('telegramRegistration');
+            history.replaceState(history.state,'',registrationUrl.href);
+        }
 
         showBeelineModal(
             "Успешно", 
@@ -10539,7 +10540,7 @@ function acMountObligations(host,user){host.classList.add('ac-obligations');
 }
 function acUiMatchEmployee(u){const f=acEmployeeFilters,n=s=>String(s||'').toLocaleLowerCase('ru'),digits=s=>String(s||'').replace(/\D/g,'');return (!f.city||n(u.city).includes(n(f.city)))&&(!f.district||u.district===f.district)&&(!f.roles.size||f.roles.has(u.role))&&(!f.people.size||f.people.has(u.dwLogin))&&(!f.login||n(u.dwLogin).includes(n(f.login)))&&(!f.phone||digits(u.workPhone).includes(digits(f.phone)));}
 function acUiMulti(host,label,entries,set){const wrap=acNode('details','','v9-multi'),head=acNode('summary'),caption=acNode('span'),menu=acNode('div','','v9-multi-menu'),search=document.createElement('input');search.type='search';search.placeholder='Введите для поиска';search.setAttribute('aria-label','Поиск: '+label);const list=acNode('div');const field=acNode('div','','v11-multi-field');field.append(acNode('span',label,'v11-filter-label'));head.append(caption);wrap.append(head);menu.append(search,list);wrap.append(menu);field.append(wrap);host.append(field);const sync=()=>caption.textContent=set.size?'Выбрано: '+set.size:'Все '+(label==='Роль'?'роли':'сотрудники');function draw(){list.replaceChildren();for(const [key,text]of entries.filter(([,text])=>text.toLocaleLowerCase('ru').includes(search.value.toLocaleLowerCase('ru')))){const item=acCheckbox(text,set.has(key));item.input.onchange=()=>{item.input.checked?set.add(key):set.delete(key);sync();renderUsersList();};list.append(item.row);}if(!list.children.length)list.append(acNode('p','Нет совпадений','ac-note'));}search.oninput=draw;draw();sync();return wrap;}
-function acUiInitFilters(){const host=document.getElementById('acEmployeeFilters');host.replaceChildren();acEmployeeFilters.roles.delete('Владелец');usersDb.filter(u=>u.role==='Владелец').forEach(u=>acEmployeeFilters.people.delete(u.dwLogin));const disclosure=acNode('details','','v9-filter');disclosure.open=true;disclosure.append(acNode('summary','🔎 Фильтр'));const grid=acNode('div','','ac-data-grid v9-filter-grid');disclosure.append(grid);host.append(disclosure);const city=acInput(grid,'Город','search',acEmployeeFilters.city);city.placeholder='Все города';city.setAttribute('list','v9Cities');const cities=acNode('datalist');cities.id='v9Cities';for(const name of [...new Set(acConfiguredConnections().map(c=>c.city))])cities.append(acNode('option',name));grid.append(cities);const districtHolder=acNode('div');grid.append(districtHolder);function districts(){districtHolder.replaceChildren();const options=[['','Все участки'],...acConfiguredConnections().filter(c=>!acEmployeeFilters.city||c.city.toLowerCase()===acEmployeeFilters.city.toLowerCase()).map(c=>[c.district,'Участок '+c.district])];const unique=options.filter((v,i,a)=>a.findIndex(x=>x[0]===v[0])===i);if(!unique.some(x=>x[0]===acEmployeeFilters.district))acEmployeeFilters.district='';const input=acUiDropdown(districtHolder,'Участок',unique,acEmployeeFilters.district);input.onchange=()=>{acEmployeeFilters.district=input.value;renderUsersList();};}districts();city.oninput=()=>{acEmployeeFilters.city=city.value;acEmployeeFilters.district='';districts();renderUsersList();};acUiMulti(grid,'Роль',[...new Set(usersDb.filter(u=>u.role!=='Владелец').map(u=>u.role))].map(r=>[r,r]),acEmployeeFilters.roles);acUiMulti(grid,'ФИО',usersDb.filter(u=>u.role!=='Владелец').map(u=>[u.dwLogin,u.fullName]),acEmployeeFilters.people);for(const [key,title]of [['login','Логин'],['phone','Номер телефона']]){const input=acInput(grid,title,'search',acEmployeeFilters[key]);input.placeholder=key==='phone'?'+7…':'Введите логин';input.oninput=()=>{acEmployeeFilters[key]=input.value;renderUsersList();};}const footer=acNode('div','','v9-filter-footer');footer.append(acNode('span','Условия фильтров применяются совместно.','ac-note'),acButton('↩️ Сбросить фильтр',()=>{Object.assign(acEmployeeFilters,{city:'',district:'',login:'',phone:''});acEmployeeFilters.roles.clear();acEmployeeFilters.people.clear();acUiInitFilters();renderUsersList();},'btn danger-btn v11-reset'));disclosure.append(footer);const fields=[...grid.children].filter(n=>n.tagName!=='DATALIST');const [cityField,districtField,roleField,fioField,loginField,phoneField]=fields;for(const [node,key]of [[cityField,'city'],[districtField,'district'],[roleField,'role'],[loginField,'login'],[fioField,'fio'],[phoneField,'phone']]){node.dataset.filterField=key;grid.append(node);}const reset=footer.querySelector('button');reset.dataset.filterField='reset';grid.append(reset);footer.remove();}
+function acUiInitFilters(open=false){const host=document.getElementById('acEmployeeFilters');host.replaceChildren();acEmployeeFilters.roles.delete('Владелец');usersDb.filter(u=>u.role==='Владелец').forEach(u=>acEmployeeFilters.people.delete(u.dwLogin));const disclosure=acNode('details','','v9-filter');disclosure.open=open;disclosure.append(acNode('summary','🔎 Фильтр'));const grid=acNode('div','','ac-data-grid v9-filter-grid');disclosure.append(grid);host.append(disclosure);const city=acInput(grid,'Город','search',acEmployeeFilters.city);city.placeholder='Все города';city.setAttribute('list','v9Cities');const cities=acNode('datalist');cities.id='v9Cities';for(const name of [...new Set(acConfiguredConnections().map(c=>c.city))])cities.append(acNode('option',name));grid.append(cities);const districtHolder=acNode('div');grid.append(districtHolder);function districts(){districtHolder.replaceChildren();const options=[['','Все участки'],...acConfiguredConnections().filter(c=>!acEmployeeFilters.city||c.city.toLowerCase()===acEmployeeFilters.city.toLowerCase()).map(c=>[c.district,'Участок '+c.district])];const unique=options.filter((v,i,a)=>a.findIndex(x=>x[0]===v[0])===i);if(!unique.some(x=>x[0]===acEmployeeFilters.district))acEmployeeFilters.district='';const input=acUiDropdown(districtHolder,'Участок',unique,acEmployeeFilters.district);input.onchange=()=>{acEmployeeFilters.district=input.value;renderUsersList();};}districts();city.oninput=()=>{acEmployeeFilters.city=city.value;acEmployeeFilters.district='';districts();renderUsersList();};acUiMulti(grid,'Роль',[...new Set(usersDb.filter(u=>u.role!=='Владелец').map(u=>u.role))].map(r=>[r,r]),acEmployeeFilters.roles);acUiMulti(grid,'ФИО',usersDb.filter(u=>u.role!=='Владелец').map(u=>[u.dwLogin,u.fullName]),acEmployeeFilters.people);for(const [key,title]of [['login','Логин'],['phone','Номер телефона']]){const input=acInput(grid,title,key==='phone'?'text':'search',acEmployeeFilters[key]);if(key==='phone'){input.placeholder='+7 (700)-000-00-00';input.inputMode='tel';input.autocomplete='tel';if(input.value)applyPhoneMask(input);const sync=()=>{acEmployeeFilters.phone=input.value.replace(/\D/g,'').length>1?input.value:'';renderUsersList();};input.oninput=()=>{if(input.value)applyPhoneMask(input);sync();};input.onkeydown=event=>{handlePhoneKeydown(event);if(event.defaultPrevented)sync();};input.onpaste=()=>setTimeout(()=>{if(input.value)applyPhoneMask(input);sync();},0);}else{input.placeholder='Введите логин';input.oninput=()=>{acEmployeeFilters.login=input.value;renderUsersList();};}}const footer=acNode('div','','v9-filter-footer');footer.append(acNode('span','Условия фильтров применяются совместно.','ac-note'),acButton('↩️ Сбросить фильтр',()=>{Object.assign(acEmployeeFilters,{city:'',district:'',login:'',phone:''});acEmployeeFilters.roles.clear();acEmployeeFilters.people.clear();acUiInitFilters(true);renderUsersList();},'btn danger-btn v11-reset'));disclosure.append(footer);const fields=[...grid.children].filter(n=>n.tagName!=='DATALIST');const [cityField,districtField,roleField,fioField,loginField,phoneField]=fields;for(const [node,key]of [[cityField,'city'],[districtField,'district'],[roleField,'role'],[loginField,'login'],[fioField,'fio'],[phoneField,'phone']]){node.dataset.filterField=key;grid.append(node);}const reset=footer.querySelector('button');reset.dataset.filterField='reset';grid.append(reset);footer.remove();}
 function acUiHistoryField(value){return ({status:'Статус учётной записи',temporaryBlocked:'Временная блокировка входа',blocked:'Блокировка входа',role:'Роль',city:'Город',district:'Участок',fullName:'ФИО',warehouse:'Номер склада',refarbEnabled:'Назначение на REFURB',workPhone:'Рабочий телефон',email:'Рабочая почта',tgId:'Личный Telegram ID',tgGroup:'Группа «Отчеты по заявкам»',tgGroupPpr:'Группа «Отчеты по ППР»'})[value]||(/^[a-zA-Z_]+$/.test(value||'')?'Данные сотрудника':value||'Данные сотрудника');}
 function acUiHistoryValue(value){if(value===true)return 'Включено';if(value===false)return 'Выключено';return ({active:'Активен',blocked:'Вход заблокирован',scheduled:'Увольнение запланировано',archived:'Уволен, учётная запись в архиве',pending:'Ожидает решения владельца',approved:'Одобрено владельцем',rejected:'Отклонено владельцем',now:'Сейчас',date:'В указанную дату',none:'Автоматическое действие отключено',work:'Отчеты по заявкам',ppr:'Отчеты по ППР'})[value]||value||'Не указано';}
 
@@ -10561,13 +10562,29 @@ async function acDrawRestore(host,panel,user,state){host.classList.add('v9-resto
 
 
 async function acConnectTelegram(){try{const result=await requestAuthJson({action:'accountTelegramLink',operation:'connect',...acAuth()},20000);if(result.status!=='ok')throw Error(result.message);window.open(result.url,'_blank','noopener');}catch(e){showBeelineModal('Telegram',e.message,'⚠️');}}
-async function acRegistrationFromBot(){const token=new URL(location.href).searchParams.get('telegramRegistration');if(!token)return;try{const result=await requestAuthJson({action:'accountTelegramLink',operation:'registrationInfo',token},20000);if(result.status!=='ok')throw Error(result.message);acUi.registrationToken=token;document.getElementById('regTgId').value=result.telegramId;document.getElementById('regTgId').readOnly=true;const city=document.getElementById('regCity'),district=document.getElementById('regDistrict');if(city){city.value=result.city;updateRegistrationDistrictOptions();const label=document.getElementById('regCityLabel');if(label)label.textContent=result.city;}if(district){district.value=result.district;document.getElementById('regDistrictLabel').textContent='Участок '+result.district;}switchScreen('screen-register');}catch(e){showBeelineModal('Регистрация',e.message,'⚠️');}}
+async function acRegistrationFromBot(){
+ const token=new URL(location.href).searchParams.get('telegramRegistration');if(!token)return;
+ const personal=document.getElementById('regTgId'),city=document.getElementById('regCity'),search=document.getElementById('citySearchInput'),district=document.getElementById('regDistrict'),dropdown=document.getElementById('regCityDropdown'),connect=document.getElementById('regTelegramConnect'),status=document.getElementById('regTelegramStatus'),submit=document.getElementById('regSubmit');
+ acUi.registrationToken='';personal.value='';search.disabled=false;dropdown.style.pointerEvents='';dropdown.removeAttribute('aria-disabled');if(connect)connect.hidden=false;
+ switchScreen('screen-register');submit.disabled=true;submit.setAttribute('aria-busy','true');if(status)status.textContent='⏳ Проверяем ссылку Telegram…';
+ try{
+  if(!/^[a-f0-9]{64}$/i.test(token))throw Error('Ссылка регистрации недействительна. Получите новую ссылку через /start в боте своего участка.');
+  const result=await requestAuthJson({action:'accountTelegramLink',operation:'registrationInfo',token},20000);if(result.status!=='ok')throw Error(result.message||'Не удалось проверить ссылку Telegram');
+  if(!/^\d{5,20}$/.test(String(result.telegramId||'')))throw Error('Личный Telegram не подтверждён. Получите новую ссылку через /start в боте.');
+  getFrontendDistrictConfig(result.city,result.district);
+  city.value=result.city;search.value=result.city;updateRegistrationDistrictOptions();district.value=String(result.district);document.getElementById('regDistrictLabel').textContent='Участок '+result.district;
+  document.querySelectorAll('#regDistrictList [role=option]').forEach(item=>item.setAttribute('aria-selected',String(item.dataset.district===String(result.district))));
+  personal.value=String(result.telegramId);personal.readOnly=true;search.disabled=true;dropdown.style.pointerEvents='none';dropdown.setAttribute('aria-disabled','true');district.disabled=true;document.getElementById('regDistrictTrigger').disabled=true;
+  acUi.registrationToken=token;if(connect)connect.hidden=true;if(status)status.textContent='✅ Telegram подтверждён. Город и участок определены по боту.';
+ }catch(error){if(status)status.textContent='⚠️ Telegram не подтверждён. Откройте новую ссылку из бота своего участка.';showBeelineModal('Регистрация',String(error.message||error),'⚠️');}
+ finally{submit.disabled=false;submit.removeAttribute('aria-busy');}
+}
 async function acRegistrationOpenBot(){try{const city=document.getElementById('regCity').value,district=document.getElementById('regDistrict').value,result=await requestAuthJson({action:'accountTelegramLink',operation:'registrationStart',city,district},20000);if(result.status!=='ok')throw Error(result.message);window.open(result.url,'_blank','noopener');}catch(e){showBeelineModal('Регистрация',e.message,'⚠️');}}
 async function acDeleteMistake(user){const body=acNode('p','Удалить ошибочно зарегистрированного стажёра? Сервер сначала проверит отсутствие истории, назначений, данных в рабочих таблицах и участия в группах. Увольнение действующего сотрудника оформляется через архив.'),actions=acNode('div','','ac-toolbar'),cancel=acButton('Отмена',closeBeelineModal,'btn danger-btn'),confirm=acButton('Проверить и удалить',async()=>{confirm.disabled=cancel.disabled=true;try{const result=await requestAuthJson({action:'delete',...acAuth(),dwLogin:user.dwLogin,requestId:'delete_'+crypto.randomUUID()},45000);if(result.status!=='ok')throw Error(result.message);closeBeelineModal();await openAdminEmployees(true);showBeelineModal('Учётная запись','Ошибочная запись удалена.','✅');}catch(e){body.textContent=e.message;confirm.disabled=cancel.disabled=false;}},'btn danger-btn');actions.append(cancel,confirm);showBeelineModalNode('Удаление ошибочной записи',body,'⚠️',actions);}
 function acCaptureEmployeeLink(){const values=new URLSearchParams(location.hash.replace(/^#/,'')),login=values.get('employee');if(!login)return;const link={login,city:values.get('city'),district:values.get('district')};sessionStorage.setItem('ii_employee_link',JSON.stringify(link));}
 async function acFollowEmployeeLink(){let link;try{link=JSON.parse(sessionStorage.getItem('ii_employee_link')||'null');}catch{}if(!link||!currentUser)return;if(!['Владелец','Супервайзер'].includes(currentUser.role)||!acPersonAllowed(link)){sessionStorage.removeItem('ii_employee_link');showBeelineModal('Доступ ограничен','Карточка относится к недоступному участку.','🔒');return;}const config=getFrontendDistrictConfig(link.city,link.district);currentUser={...currentUser,city:link.city,district:link.district};activateDistrict(config);ownerCityChoiceRequired=false;acUi.deepLogin=link.login;sessionStorage.removeItem('ii_employee_link');await openAdminEmployees(true);}
 
-function acInstallAccountUi(){const search=document.getElementById("adminSearch");if(search){const parent=search.parentElement;if(parent&&!parent.contains(document.getElementById("usersListContainer")))parent.hidden=true;else{search.hidden=true;search.previousElementSibling?.matches("label")&&search.previousElementSibling.remove();}}const card=document.getElementById("usersListContainer")?.parentElement;if(card&&!document.getElementById("acEmployeeFilters")){const filters=document.createElement("div");filters.id="acEmployeeFilters";document.getElementById("usersListContainer").before(filters);}const group=document.getElementById("regTgGroup"),ppr=document.getElementById("regTgGroupPpr");for(const input of [group,ppr])if(input){input.required=false;input.value="configured";input.parentElement.hidden=true;}const personal=document.getElementById("regTgId");if(personal){personal.readOnly=true;personal.required=false;personal.placeholder="Подключается через бота";const button=acButton("🔗 Подключить Telegram",acRegistrationOpenBot);personal.after(button);}document.querySelector('#screen-admin-employees>.card>label')?.remove();acCaptureEmployeeLink();void acRegistrationFromBot();}
+function acInstallAccountUi(){const search=document.getElementById("adminSearch");if(search){const parent=search.parentElement;if(parent&&!parent.contains(document.getElementById("usersListContainer")))parent.hidden=true;else{search.hidden=true;search.previousElementSibling?.matches("label")&&search.previousElementSibling.remove();}}const card=document.getElementById("usersListContainer")?.parentElement;if(card&&!document.getElementById("acEmployeeFilters")){const filters=document.createElement("div");filters.id="acEmployeeFilters";document.getElementById("usersListContainer").before(filters);}const personal=document.getElementById("regTgId");if(personal){personal.readOnly=true;personal.required=false;personal.placeholder="Подключается через бота";if(!document.getElementById('regTelegramConnect')){const button=acButton("🔗 Подключить Telegram",acRegistrationOpenBot);button.id='regTelegramConnect';const status=acNode('small','Для регистрации подтвердите Telegram через бота своего участка.','text-muted');status.id='regTelegramStatus';status.setAttribute('role','status');status.setAttribute('aria-live','polite');personal.after(button,status);}}document.querySelector('#screen-admin-employees>.card>label')?.remove();acCaptureEmployeeLink();}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",acInstallAccountUi);else acInstallAccountUi();
 document.addEventListener("pointerdown",e=>{if(!e.target.closest(".acui-picker-popover,.acui-picker-trigger"))acUiClosePickers();if(!e.target.closest(".acui-choice-list,.acui-choice-trigger"))acUiCloseChoices();});document.addEventListener("keydown",e=>{if(e.key==="Escape"){acUiClosePickers(true);acUiCloseChoices(true);}});
 
@@ -15120,7 +15137,7 @@ function openAdminPanel(){
  managementState('');document.getElementById('managementDeliveryReopen').hidden=!managementGroup;
 }
 // Сразу показывает готовый список, обновляет устаревшие данные в фоне.
-async function openAdminEmployees(force=false){if(!managementAllowed())return;acRestoreEditor();if(force)acUi.teamReads?.clear();switchScreen('screen-admin-employees');cancelUsersLoad();const scope=acScopeKey(),sequence=++acUi.loadEpoch;document.getElementById('employeesLoadStatus').textContent='Загружаем сотрудников…';try{const result=await requestAuthJson({action:'getUsers',...acAuth(),allDistricts:true},25000);if(sequence!==acUi.loadEpoch||scope!==acScopeKey())return;if(result.status!=='ok')throw Error(result.message||'Не удалось загрузить сотрудников');usersDb=result.users.map(u=>({...u,role:normalizeEmployeeRole(u.role),refarbEnabled:normalizeRefarbAssignment(u.refarbEnabled)}));usersDirectoryReady=true;usersLoadedAt=Date.now();acUi.states.clear();acUiInitFilters();renderUsersList();document.getElementById('employeesLoadStatus').textContent='';if(acUi.deepLogin){const login=acUi.deepLogin;acUi.deepLogin='';const row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===login.toLowerCase());if(row){acUi.tab='access';row.open=true;row.scrollIntoView({block:'start'});}}}catch(e){if(scope===acScopeKey())document.getElementById('employeesLoadStatus').textContent=e.message;}}
+async function openAdminEmployees(force=false){if(!managementAllowed())return;acRestoreEditor();if(force)acUi.teamReads?.clear();const filter=document.querySelector('#acEmployeeFilters>details');if(filter)filter.open=false;switchScreen('screen-admin-employees');cancelUsersLoad();const scope=acScopeKey(),sequence=++acUi.loadEpoch;document.getElementById('employeesLoadStatus').textContent='Загружаем сотрудников…';try{const result=await requestAuthJson({action:'getUsers',...acAuth(),allDistricts:true},25000);if(sequence!==acUi.loadEpoch||scope!==acScopeKey())return;if(result.status!=='ok')throw Error(result.message||'Не удалось загрузить сотрудников');usersDb=result.users.map(u=>({...u,role:normalizeEmployeeRole(u.role),refarbEnabled:normalizeRefarbAssignment(u.refarbEnabled)}));usersDirectoryReady=true;usersLoadedAt=Date.now();acUi.states.clear();acUiInitFilters();renderUsersList();document.getElementById('employeesLoadStatus').textContent='';if(acUi.deepLogin){const login=acUi.deepLogin;acUi.deepLogin='';const row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===login.toLowerCase());if(row){acUi.tab='access';row.open=true;row.scrollIntoView({block:'start'});}}}catch(e){if(scope===acScopeKey())document.getElementById('employeesLoadStatus').textContent=e.message;}}
 // Выполняет руководство владелец ключ.
 function managementOwnerKey(){return (currentUser?.city||'')+'|'+(currentUser?.district||'')+'|'+(currentUser?.dwLogin||'');}
 // Выполняет руководство модальное окно активный.
