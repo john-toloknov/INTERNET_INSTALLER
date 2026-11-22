@@ -1050,8 +1050,11 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minma
         #beelineModal:not(.rp-viewer-modal) #beelineModalText:empty {display:none;}
         #beelineModal:not(.rp-viewer-modal) #beelineModalText>:first-child {margin-top:0;}
         #beelineModal:not(.rp-viewer-modal) #beelineModalText>:last-child {margin-bottom:0;}
-        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading {min-height:0;padding:0;gap:10px;box-sizing:border-box;}
-        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading-emoji {font-size:30px;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading {min-height:104px;padding:16px 8px;gap:12px;box-sizing:border-box;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalText .live-loading-emoji {font-size:34px;line-height:1.4;min-width:56px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;}
+        #beelineModal[data-modal-loading="true"] .beeline-modal-card{width:460px;min-height:200px;}
+        #beelineModal[data-modal-loading="true"] #beelineModalText{overflow:visible;}
+        #beelineModal:not(.rp-viewer-modal) #beelineModalIcon:empty{display:none;}
         #beelineModal:not(.rp-viewer-modal) #beelineModalButtons {
             display:flex; flex:none; flex-flow:row nowrap; align-items:stretch; justify-content:center;
             gap:12px; width:100%; max-width:380px; margin:0 auto; padding:0; min-width:0;
@@ -6118,6 +6121,371 @@ html[data-app-layout=mobile] body:has(#screen-entertainment.active) #appMobileNa
 html[data-app-layout=desktop] #screen-entertainment>.eg-toolbar>.eg-catalog-return{display:inline-flex!important;width:auto!important;min-height:40px;margin:0!important;padding:9px 16px!important}
 html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;padding:8px}html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher>.eg-switcher-button{min-height:60px;font-size:11px}#screen-entertainment .eg-tabs button[hidden]{display:none!important}
 </style>
+<style id="accountLifecycleStyles">
+/* Existing application layouts retained verbatim. */
+
+
+.uniform-screen,
+#screen-main,
+#screen-installer-menu,
+#screen-salary,
+#screen-schedule,
+#screen-equipment-access,
+#screen-scanner,
+#screen-return-equipment,
+#screen-check-return,
+:is(#screen-admin,#screen-admin-employees,#screen-management-event,#screen-admin-archive,#screen-admin-themes,#screen-admin-board) {
+    box-sizing: border-box;
+}
+.uniform-screen > .card,
+#screen-main > .card,
+#screen-installer-menu > .card,
+#screen-salary > .card,
+#screen-schedule > .card,
+#screen-equipment-access > .card,
+#screen-scanner > .card,
+#screen-return-equipment > .card,
+#screen-check-return > .card,
+:is(#screen-admin,#screen-admin-employees,#screen-management-event,#screen-admin-archive,#screen-admin-themes,#screen-admin-board) > .card,
+#screen-technician-reports .tr-report-container,
+#screen-technician-reports > .container {
+    width: 500px !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+}
+#screen-installer-menu > .card,
+#screen-schedule > .card,
+#screen-salary > .card,
+#screen-return-equipment > .card,
+#screen-check-return > .card,
+:is(#screen-admin,#screen-admin-employees,#screen-management-event,#screen-admin-archive,#screen-admin-themes,#screen-admin-board) > .card,
+#screen-equipment-access > .card,
+#screen-access-search > .card,
+#screen-access-record > .card,
+#screen-form > .card,
+#screen-main > .card {
+    width: 500px;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+}
+#screen-installer-menu .container,
+#screen-schedule .container,
+#screen-salary .container,
+#screen-return-equipment .container,
+#screen-check-return .container,
+:is(#screen-admin,#screen-admin-employees,#screen-management-event,#screen-admin-archive,#screen-admin-themes,#screen-admin-board) .container,
+#screen-equipment-access .container,
+#screen-access-search .container,
+#screen-access-record .container,
+#screen-form .container {
+    width: 500px;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: auto;
+    margin-right: auto;
+}
+html[data-app-layout] :is(#screen-login,#screen-forgot,#screen-reset,#screen-register,#screen-owner-city,#screen-main,#screen-ppr-plans,#screen-technician-reports,#screen-software,#screen-installer-menu,#screen-act-debts,#screen-my-equipment,#screen-my-hours,#screen-salary,#screen-schedule,#screen-equipment-access,#screen-access-search,#screen-access-record,#screen-scanner,#screen-form,#screen-success,#screen-return-equipment,#screen-check-return,#screen-admin,#screen-management-event,#screen-admin-employees,#screen-admin-archive,#screen-admin-themes,#screen-admin-board,#screen-shift-swaps,#screen-management-debts) > .card { width:100% !important; max-width:100% !important; }
+
+/* Account components adapt to their own available width, including the app's mobile preview. */
+html[data-app-layout] body #screen-admin-employees>.card,html[data-app-layout] body #screen-account-obligations>.card{width:100% !important;max-width:none !important;min-width:0 !important;box-sizing:border-box !important;padding:16px !important;container:account-screen/inline-size !important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer{display:flex !important;flex-direction:column !important;gap:6px !important;margin-top:12px !important;min-width:0 !important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer>.ac-list-row{margin:0 !important;width:100% !important;box-sizing:border-box !important;border:1px solid var(--card-border) !important;border-radius:12px !important;padding:12px !important;background:var(--surface-dark) !important;container:account-record/inline-size !important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer>.ac-list-row[open]{border-color:var(--accent) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary{list-style:none !important;display:flex !important;gap:10px !important;align-items:center !important;min-width:0 !important;cursor:pointer !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary::-webkit-details-marker,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v9-filter>summary::-webkit-details-marker,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v9-multi>summary::-webkit-details-marker,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group>summary::-webkit-details-marker{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary:after{content:'▼' !important;color:var(--accent-ink) !important;flex:none !important;transition:transform .18s !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row[open]>summary:after{transform:rotate(180deg) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row .ac-person{display:flex !important;align-items:center !important;flex:1 !important;min-width:0 !important;gap:8px !important;flex-wrap:wrap !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-person>strong{font-size:13px !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-person>small{font-size:11px !important;color:var(--text-secondary) !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-team-placeholder{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-badge{display:inline-flex !important;align-items:center !important;justify-content:center !important;flex:none !important;padding:5px 9px !important;background:var(--accent) !important;color:#142006 !important;font-size:11px !important;border-radius:6px !important;max-width:100% !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-badge[data-status=blocked],html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-badge[data-status=archived],html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-debt-badge{background:var(--danger) !important;color:#fff !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-badge[data-status=scheduled]{background:#e4bc43 !important;color:#191700 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs{display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;margin:12px 0 !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs>.btn{width:100% !important;min-width:0 !important;min-height:44px !important;margin:0 !important;padding:10px 4px !important;display:flex !important;align-items:center !important;justify-content:center !important;font-size:12px !important;line-height:1.3 !important;white-space:normal !important;text-align:center !important;background:var(--surface-dark) !important;color:var(--text-main) !important;border:1px solid var(--card-border) !important;box-shadow:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs>.main-btn{background:var(--accent) !important;color:#142006 !important;border-color:var(--accent) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-panel{min-width:0 !important;display:flex !important;flex-direction:column !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-panel:empty{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-panel>p{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-panel .ac-section,html[data-app-layout] body #screen-account-obligations .ac-section{min-width:0 !important;padding:14px !important;margin:0 !important;border:1px solid var(--card-border) !important;border-radius:12px !important;background:var(--surface-dark) !important;box-sizing:border-box !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-section h3{margin:0 0 12px !important;font-size:16px !important;line-height:1.4 !important;text-align:left !important;overflow-wrap:anywhere !important;color:var(--accent-ink) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-section p,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-section h4{margin:12px 0 0 !important;line-height:1.5 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head{display:flex !important;gap:12px !important;justify-content:space-between !important;align-items:center !important;margin-bottom:12px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head h3{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-profile-grid,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-data-grid{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important;min-width:0 !important;align-items:end !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .acui-primary-grid{grid-template-columns:minmax(0,2.3fr) minmax(0,1.3fr) minmax(0,.8fr) minmax(0,1fr) minmax(0,.6fr) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-data-grid>*,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .ac-profile-field{min-width:0 !important;width:100% !important;margin:0 !important;grid-column:auto !important;box-sizing:border-box !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-data-grid label,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-profile-field{display:flex !important;flex-direction:column !important;align-items:stretch !important;gap:6px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-data-grid label>span:first-child,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-profile-field>label,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-field-label,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v11-filter-label{font-size:11px !important;line-height:1.4 !important;color:var(--text-secondary) !important;text-transform:uppercase !important;letter-spacing:.02em !important;display:block !important;margin:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal.ac-inline-editor{width:100% !important;max-width:100% !important;min-width:0 !important;position:static !important;padding:0 !important;margin:0 !important;background:transparent !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .edit-user-card{width:100% !important;max-width:none !important;min-width:0 !important;padding:0 !important;border:0 !important;background:transparent !important;display:flex !important;flex-direction:column !important;gap:12px !important;margin:0 !important;box-shadow:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal #editUserTitle,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer .acui-refurb-hidden{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,.custom-dropdown,.password-wrapper),html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-data-grid :is(input:not([type=checkbox]):not([type=radio]),select,textarea){width:100% !important;max-width:100% !important;min-width:0 !important;box-sizing:border-box !important;font-size:13px !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .password-wrapper input{padding-right:42px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .dropdown-trigger{width:100% !important;max-width:100% !important;min-width:0 !important;box-sizing:border-box !important;font-size:13px !important;margin:0 !important;min-height:44px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .edit-user-actions,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-toolbar{display:flex !important;gap:12px !important;align-items:center !important;flex-wrap:wrap !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .edit-user-actions>.btn{flex:1 1 0 !important;min-width:0 !important;width:100% !important;margin:0 !important;white-space:normal !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal #editRefarbToggle{width:auto !important;flex:none !important;min-width:90px !important;min-height:36px !important;margin:0 !important;padding:8px 12px !important;font-size:11px !important;border-radius:8px !important;box-shadow:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #editRefarbToggle.is-off{background:#727b83 !important;color:white !important;border:1px solid #879099 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #editRefarbToggle.is-on{background:var(--accent) !important;color:#142006 !important;border:1px solid var(--accent) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-telegram-title{display:flex !important;align-items:center !important;gap:8px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-telegram-icon{width:24px !important;height:24px !important;flex:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-connect-note,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-note,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-status{font-size:12px !important;line-height:1.5 !important;color:var(--text-secondary) !important;overflow-wrap:anywhere !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-status:empty{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-error{color:var(--danger) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-zero{color:var(--accent-ink) !important;font-size:13px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-loading{display:flex !important;align-items:center !important;gap:12px !important;min-height:64px !important;padding:12px 4px !important;margin:0 !important;box-sizing:border-box !important;line-height:1.5 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-loading .pw-hourglass{font-size:28px !important;line-height:1.4 !important;flex:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-access-summary,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-totals{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important;padding:12px !important;border:1px solid var(--card-border) !important;border-radius:10px !important;min-width:0 !important;background:var(--surface-dark) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-access-summary>div,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-totals>div{display:flex !important;flex-direction:column !important;gap:6px !important;min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-access-summary span,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-totals span{font-size:12px !important;line-height:1.4 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-access-summary strong,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-totals strong{font-size:15px !important;line-height:1.4 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact{display:grid !important;grid-template-columns:minmax(0,1fr) minmax(0,2fr) !important;gap:12px !important;align-items:center !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact>h3{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact>.ac-block-row{display:grid !important;grid-template-columns:minmax(0,1fr) auto !important;gap:12px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact>.ac-note{grid-column:1/-1 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact .btn{margin:0 !important;white-space:normal !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact .acui-choice-field>span{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact{display:flex !important;align-items:center !important;flex-wrap:wrap !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>h3{flex:1 !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>.ac-note{flex:1 !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>.ac-facts,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>.v11-restore-heading,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>.ac-data-grid,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact>.v9-request{flex-basis:100% !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-actions{display:flex !important;gap:12px !important;margin:0 !important;flex:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-actions>.btn{min-width:0 !important;margin:0 !important;width:auto !important;font-size:12px !important;white-space:normal !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-facts{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-facts dt,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-facts dd{margin:0 !important;overflow-wrap:anywhere !important;font-size:13px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid{grid-template-columns:repeat(5,minmax(0,1fr)) !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid label>strong{min-width:0 !important;min-height:44px !important;border:1px solid var(--card-border) !important;border-radius:10px !important;padding:10px !important;font-size:13px !important;line-height:1.4 !important;background:var(--surface-dark) !important;box-sizing:border-box !important;display:flex !important;align-items:center !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-open-teams{width:auto !important;flex:0 1 auto !important;max-width:100% !important;margin:0 !important;font-size:12px !important;white-space:normal !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer{display:flex !important;gap:12px !important;align-items:center !important;flex-wrap:wrap !important;margin-top:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer>.ac-note{flex:1 !important;min-width:160px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer>.btn{width:auto !important;margin:0 !important;font-size:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history{list-style:none !important;margin:0 !important;padding:0 !important;border:1px solid var(--card-border) !important;border-radius:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li{display:grid !important;grid-template-columns:120px minmax(0,1fr) minmax(140px,220px) !important;gap:12px !important;padding:14px !important;min-width:0 !important;border-bottom:1px solid var(--card-border) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li:last-child{border-bottom:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li>div{min-width:0 !important;overflow-wrap:anywhere !important;display:flex !important;flex-direction:column !important;gap:6px !important;font-size:13px !important;line-height:1.5 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history-date,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history-actor{border:0 !important;padding:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history-actor>span,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history-actor>small{color:var(--text-secondary) !important;font-size:11px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history .ac-note{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;min-width:0 !important;align-items:start !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout>.ac-section{display:flex !important;flex-direction:column !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout .ac-identity{font-size:16px !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout p,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout h3{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-form{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;align-items:start !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-form>:not(.acui-date-field){grid-column:1/-1 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-date-field{position:relative !important;display:flex !important;flex-direction:column !important;gap:6px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-date-value,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-native,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal input[type=hidden]{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-date-field>.ac-field-label{min-height:30px !important;display:flex !important;align-items:end !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-radio-group{padding:0 !important;margin:0 !important;min-width:0 !important;border:0 !important;display:flex !important;flex-direction:column !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-radio-group legend{margin-bottom:12px !important;font-size:12px !important;color:var(--text-secondary) !important;line-height:1.4 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-radio-group label{display:flex !important;flex-direction:row !important;align-items:start !important;gap:8px !important;font-size:13px !important;line-height:1.5 !important;cursor:pointer !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-radio-group input[type=radio]{appearance:auto !important;flex:none !important;width:18px !important;height:18px !important;min-width:18px !important;margin:1px 0 0 !important;accent-color:var(--accent) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-check-row{display:flex !important;flex-direction:column !important;gap:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-check-row .checkbox-container{display:flex !important;gap:8px !important;align-items:center !important;margin:0 !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-effects ul{margin:0 !important;padding-left:20px !important;line-height:1.6 !important;font-size:13px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-plan-actions{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;align-items:stretch !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-plan-actions>.btn{width:100% !important;min-width:0 !important;min-height:46px !important;white-space:normal !important;line-height:1.4 !important;margin:0 !important;padding:10px 6px !important;font-size:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-telegram-title{min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v12-obligations-title-row{display:flex !important;flex-wrap:wrap !important;align-items:center !important;gap:12px !important;margin:0 0 12px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v12-obligations-title-row>h3{flex:1 !important;min-width:180px !important;margin:0 !important;font-size:16px !important;line-height:1.4 !important;text-align:left !important;color:var(--accent-ink) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-toolbar{display:flex !important;flex-wrap:wrap !important;align-items:center !important;justify-content:flex-end !important;gap:12px !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-toolbar .btn{width:auto !important;margin:0 !important;min-width:0 !important;font-size:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-toolbar>.ac-note{font-size:11px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-head{margin:0 0 12px !important;min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-totals{grid-template-columns:repeat(2,minmax(0,1fr)) !important;margin:0 0 12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligation-tabs{grid-template-columns:repeat(2,minmax(0,1fr)) !important;margin:0 0 12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations-body{display:flex !important;flex-direction:column !important;gap:12px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group{border:1px solid var(--card-border) !important;border-radius:10px !important;padding:12px !important;margin:0 !important;min-width:0 !important;background:var(--surface-dark) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group>summary{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;cursor:pointer !important;list-style:none !important;font-size:13px !important;min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group>summary:after{content:'▼' !important;color:var(--accent-ink) !important;margin-left:auto !important;flex:none !important;transition:transform .18s !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group[open]>summary:after{transform:rotate(180deg) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-body{display:flex !important;flex-direction:column !important;gap:12px !important;margin-top:12px !important;font-size:13px !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-body p{margin:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations-actions{display:grid !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;margin:12px 0 !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations-actions>.btn{width:100% !important;min-width:0 !important;margin:0 !important;white-space:normal !important;font-size:12px !important;min-height:44px !important;padding:10px 6px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters{min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter{border:1px solid var(--card-border) !important;border-radius:12px !important;padding:12px !important;margin:0 !important;background:var(--surface-dark) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter>summary{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;cursor:pointer !important;list-style:none !important;font-size:15px !important;color:var(--accent-ink) !important;font-weight:700 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter>summary:before{display:none !important;content:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter>summary:after{content:'▼' !important;flex:none !important;font-size:11px !important;transition:transform .18s !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter[open]>summary:after{transform:rotate(180deg) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter[open]>summary{margin-bottom:12px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid{display:grid !important;grid-template-columns:repeat(12,minmax(0,1fr)) !important;gap:12px !important;align-items:end !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field]{grid-column:span 3 !important;grid-row:1 !important;width:100% !important;min-width:0 !important;margin:0 !important;padding:0 !important;align-self:end !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=fio],html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=phone]{grid-column:span 5 !important;grid-row:2 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=reset]{grid-column:span 2 !important;grid-row:2 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters :is(label,.v11-multi-field,.acui-choice-field){display:flex !important;flex-direction:column !important;gap:6px !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters :is(label>span,.v11-filter-label){font-size:11px !important;color:var(--text-secondary) !important;line-height:1.4 !important;text-transform:uppercase !important;letter-spacing:0 !important;margin:0 !important;height:auto !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi{position:relative !important;width:100% !important;min-width:0 !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi>summary{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;list-style:none !important;cursor:pointer !important;min-width:0 !important;min-height:42px !important;padding:10px !important;border:1px solid var(--card-border) !important;border-radius:10px !important;font-size:13px !important;background:var(--surface-dark) !important;box-sizing:border-box !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi>summary>span{overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi>summary:after{content:'▼' !important;color:var(--accent-ink) !important;font-size:11px !important;flex:none !important;transition:transform .18s !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi[open]>summary:after{transform:rotate(180deg) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi:not([open])>.v9-multi-menu{display:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi-menu{position:absolute !important;top:100% !important;left:0 !important;right:0 !important;z-index:13000 !important;padding:10px !important;margin-top:6px !important;border:1px solid var(--accent) !important;border-radius:10px !important;background:var(--card-bg) !important;box-sizing:border-box !important;max-height:300px !important;overflow:auto !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi-menu .checkbox-container{display:flex !important;flex-direction:row !important;align-items:center !important;gap:8px !important;position:relative !important;min-width:0 !important;padding:8px 0 !important;line-height:1.4 !important;margin:0 !important;cursor:pointer !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi-menu .checkbox-label{font-size:12px !important;line-height:1.4 !important;text-transform:none !important;letter-spacing:0 !important;min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi-menu input[type=checkbox]{position:absolute !important;opacity:0 !important;width:20px !important;height:20px !important;left:0 !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-multi-menu .custom-checkbox{width:20px !important;height:20px !important;flex:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters input:not([type=checkbox]){width:100% !important;min-width:0 !important;max-width:100% !important;box-sizing:border-box !important;height:42px !important;min-height:42px !important;margin:0 !important;font-size:13px !important;padding:10px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters button.v11-reset{display:flex !important;align-items:center !important;justify-content:center !important;height:42px !important;min-height:42px !important;min-width:0 !important;max-width:100% !important;margin:0 !important;padding:8px !important;font-size:12px !important;line-height:1.3 !important;white-space:nowrap !important;background:var(--danger-bg,rgba(239,68,68,.15)) !important;border:1px solid var(--danger) !important;color:var(--danger) !important;box-shadow:none !important;overflow-wrap:normal !important;word-break:normal !important;border-radius:10px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-field{position:relative !important;min-width:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-trigger,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-trigger{width:100% !important;min-width:0 !important;max-width:100% !important;min-height:44px !important;height:44px !important;box-sizing:border-box !important;padding:10px 12px !important;display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;font:inherit !important;font-size:13px !important;text-align:left !important;border:1px solid var(--card-border) !important;border-radius:10px !important;background:var(--surface-dark) !important;color:var(--text-main) !important;margin:0 !important;cursor:pointer !important;box-shadow:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-value,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-value{flex:1 !important;min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-arrow,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-arrow{color:var(--accent-ink) !important;font-size:11px !important;flex:none !important;display:inline-block !important;transition:transform .18s !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-trigger[aria-expanded=true] .acui-choice-arrow,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-trigger[aria-expanded=true] .acui-picker-arrow{transform:rotate(180deg) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-list,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover{position:absolute !important;top:100% !important;left:0 !important;z-index:14000 !important;max-width:100% !important;background:var(--card-bg) !important;color:var(--text-main) !important;border:1px solid var(--accent) !important;border-radius:10px !important;box-shadow:0 8px 25px #0004 !important;padding:8px !important;margin-top:6px !important;box-sizing:border-box !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-list{right:0 !important;max-height:260px !important;overflow:auto !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-item{display:flex !important;align-items:center !important;gap:8px !important;min-width:0 !important;min-height:38px !important;padding:8px !important;cursor:pointer !important;border-radius:6px !important;font-size:13px !important;line-height:1.4 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-option-checkbox{appearance:auto !important;width:16px !important;height:16px !important;min-width:16px !important;flex:none !important;pointer-events:none !important;accent-color:var(--accent) !important;margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-item[aria-selected=true]{background:var(--accent) !important;color:#142006 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-item[aria-disabled=true]{opacity:.5 !important;cursor:default !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover{width:282px !important;max-width:min(282px,calc(100vw - 60px)) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover[data-kind=month]{left:auto !important;right:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-head,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-footer{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:6px !important;margin-bottom:10px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-footer{margin:10px 0 0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-head strong{font-size:13px !important;text-transform:none !important;letter-spacing:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-calendar-grid{display:grid !important;grid-template-columns:repeat(7,minmax(0,1fr)) !important;gap:3px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-month-grid{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:4px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-calendar-weekday{text-align:center !important;font-size:10px !important;line-height:24px !important;color:var(--text-secondary) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover button{width:auto !important;min-width:0 !important;min-height:30px !important;height:auto !important;margin:0 !important;padding:6px 3px !important;font-size:11px !important;border:1px solid transparent !important;border-radius:6px !important;background:var(--surface-dark) !important;color:var(--text-main) !important;cursor:pointer !important;box-shadow:none !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover button[aria-pressed=true]{background:var(--accent) !important;color:#142006 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover button:disabled{opacity:.35 !important;cursor:default !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover .acui-picker-nav{width:30px !important;flex:none !important;font-size:20px !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-popover .acui-is-today{border-color:var(--accent) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v11-restore-heading{display:flex !important;gap:12px !important;flex-wrap:wrap !important;align-items:center !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v11-restore-heading h3{margin:0 !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v11-request-form{grid-template-columns:minmax(0,1fr) auto !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-restore-owner-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v9-request{border:1px solid var(--card-border) !important;padding:12px !important;border-radius:10px !important;min-width:0 !important;overflow-wrap:anywhere !important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-mobile-bottom{margin-top:12px !important}
+@container account-screen (max-width:700px){
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field]{grid-column:span 1 !important;grid-row:auto !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=fio]{grid-column:1/-1 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=phone],html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .v9-filter-grid>[data-filter-field=reset]{grid-column:span 1 !important;grid-row:auto !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters button.v11-reset{font-size:11px !important;padding:8px 4px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-toolbar>.ac-note{display:none !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations-actions>.btn{font-size:11px !important}
+}
+@container account-record (max-width:760px){
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-person{flex-basis:100% !important;gap:4px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-person>strong{flex-basis:100% !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary{flex-wrap:wrap !important;gap:8px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary>.ac-person{order:0 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary>.ac-badge{order:1 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary>.employee-refurb-badge{order:2 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary:after{order:3 !important;margin-left:auto !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs{gap:6px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs>.btn{font-size:11px !important;padding:8px 2px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .acui-primary-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal [data-profile-key=editFullName]{grid-column:1/-1 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .ac-profile-grid:not(.acui-primary-grid){grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head{gap:8px !important;flex-wrap:wrap !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head h3{font-size:15px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-block-compact>.ac-block-row{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-compact{display:flex !important;flex-direction:column !important;align-items:stretch !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-actions{width:100% !important;display:flex !important;flex-wrap:wrap !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-dismissal-actions>.btn{flex:1 !important;min-width:0 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid>label:last-child:nth-child(odd){grid-column:1/-1 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer{flex-direction:column !important;align-items:stretch !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer>.ac-note{min-width:0 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-footer>.btn{width:100% !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li{grid-template-columns:minmax(0,1fr) !important;gap:12px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li>.ac-history-date{flex-direction:row !important;gap:12px !important;align-items:center !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-history>li>.ac-history-actor{border-top:1px solid var(--card-border) !important;padding-top:12px !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-layout{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-restore-owner-grid,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v11-request-form{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-obligations-toolbar>.ac-note{display:none !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v12-obligations-title-row>h3{min-width:0 !important}
+}
+@container account-record (max-width:360px){
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal .acui-primary-grid,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-dismissal-form{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #usersListContainer #editUserModal [data-profile-key=editFullName],html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-team-grid>label:last-child{grid-column:auto !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-date-field>.ac-field-label{min-height:0 !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-access-summary{grid-template-columns:minmax(0,1fr) !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head{flex-wrap:wrap !important}
+ html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-section-head>.btn{width:100% !important}
+}
+@media(prefers-reduced-motion:reduce){html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-list-row>summary:after,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v9-filter>summary:after,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .v9-multi>summary:after,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-arrow,html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-picker-arrow{transition:none !important}html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-loading .pw-hourglass{animation:none !important}}
+
+
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-readonly-data{display:flex!important;flex-direction:column!important;gap:12px!important;min-width:0!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-readonly-data .acui-primary-grid{grid-template-columns:minmax(0,2.3fr) repeat(4,minmax(0,1fr))!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-readonly-data input{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important;font-size:13px!important;margin:0!important}
+@container account-record (max-width:760px){html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-readonly-data .ac-profile-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) #acEmployeeFilters .acui-choice-trigger{height:42px!important;min-height:42px!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations{display:flex!important;flex-direction:column!important;gap:12px!important;min-width:0!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-obligations>:is(.v12-obligations-title-row,.acui-obligations-head,.ac-obligation-totals,.ac-obligation-tabs,.ac-obligations-actions,.ac-note){margin:0!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-section>[data-account-connect]{margin:12px 0 0!important;width:100%!important}
+
+html[data-app-layout] body #screen-admin-employees>.card{display:block!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-tabs>.btn{flex-direction:row!important;gap:4px!important}
+
+html[data-app-layout] body #screen-management-debts .act-debts-toolbar:has(.ac-debt-return-actions){flex-wrap:wrap!important;gap:12px!important}
+html[data-app-layout] body #screen-management-debts .ac-debt-return-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:12px!important;flex:0 0 auto!important;margin:0 0 0 auto!important;min-width:0!important;max-width:100%!important}
+html[data-app-layout] body #screen-management-debts .ac-debt-return-actions>.btn{height:36px!important;min-height:36px!important;width:auto!important;min-width:0!important;flex:1 1 auto!important;margin:0!important;padding:7px 12px!important;font-size:12px!important;white-space:nowrap!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-radio-group label>span{font-size:13px!important;text-transform:none!important;font-weight:400!important;letter-spacing:normal!important}
+
+/* Compact account controls and explicit saving state. */
+html[data-app-layout] body #screen-ii-teams [data-save-team]:disabled,
+html[data-app-layout] body #usersListContainer [data-team-save]:disabled{background:#70777f!important;border-color:#70777f!important;color:#f5f5f5!important;box-shadow:none!important;cursor:wait!important;pointer-events:none!important;opacity:1!important;transition:none!important}
+html[data-app-layout] body #usersListContainer .ac-tabs>.btn{height:36px!important;min-height:36px!important;padding:7px 4px!important;font-size:11px!important;line-height:1.25!important}
+html[data-app-layout] body #usersListContainer .acui-open-teams{height:32px!important;min-height:32px!important;width:auto!important;min-width:0!important;flex:0 0 auto!important;padding:6px 10px!important;font-size:11px!important;line-height:1.25!important;white-space:nowrap!important;box-shadow:none!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-choice-trigger{height:36px!important;min-height:36px!important;padding:7px 10px!important;font-size:12px!important;line-height:1.3!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-choice-list{padding:4px!important;max-height:200px!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-choice-item{min-height:30px!important;height:auto!important;padding:6px 8px!important;font-size:12px!important;font-weight:400!important;line-height:1.3!important;gap:7px!important;text-transform:none!important;letter-spacing:normal!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-choice-item>span{text-transform:none!important;font-size:12px!important;font-weight:400!important;letter-spacing:normal!important;line-height:1.3!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-option-checkbox{width:14px!important;height:14px!important;min-width:14px!important}
+html[data-app-layout] body #usersListContainer :is(.acui-block-compact,.acui-dismissal-actions,.acui-team-footer) .btn{height:36px!important;min-height:36px!important;margin:0!important;padding:7px 10px!important;font-size:12px!important;line-height:1.3!important;box-shadow:none!important}
+@container account-record (min-width:761px){
+html[data-app-layout] body #usersListContainer .acui-block-compact{grid-template-columns:minmax(180px,1fr) minmax(0,510px)!important;gap:12px!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact>.ac-block-row{grid-template-columns:minmax(210px,280px) auto!important;gap:12px!important;align-items:end!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact .acui-choice-field{max-width:280px!important;gap:5px!important}
+html[data-app-layout] body #usersListContainer .acui-block-compact>.ac-block-row>.btn{width:auto!important;justify-self:end!important;white-space:nowrap!important}
+}
+
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-panel .btn,
+html[data-app-layout] body #screen-account-obligations .ac-obligations .btn{min-height:36px!important;height:auto!important;max-height:none!important;padding:7px 10px!important;font-size:12px!important;line-height:1.2!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-panel .acui-open-teams{height:32px!important;min-height:32px!important;padding:6px 10px!important;font-size:11px!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-panel :is(.acui-choice-trigger,.acui-picker-trigger){height:36px!important;min-height:36px!important;padding:7px 10px!important;font-size:12px!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group{padding:8px 10px!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .ac-stock-group>summary{min-height:18px!important;font-size:12px!important;line-height:18px!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .acui-plan-actions>.btn{height:auto!important;min-height:36px!important;max-height:none!important;padding:7px 8px!important;font-size:11px!important;line-height:1.2!important}
+
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-radio-group{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;gap:12px!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-radio-group legend{width:100%!important;margin:0 0 8px!important;padding:0!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-radio-group label{display:flex!important;flex:0 1 auto!important;flex-direction:row!important;align-items:center!important;gap:6px!important;width:auto!important;min-width:0!important;max-width:100%!important;margin:0!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-radio-group label>span{font-size:12px!important;font-weight:400!important;line-height:1.35!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-check-row{display:flex!important;flex-direction:row!important;align-items:center!important;flex-wrap:wrap!important;gap:12px 18px!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-check-row>.checkbox-container{display:flex!important;flex:0 1 auto!important;align-items:center!important;min-width:0!important;max-width:100%!important;width:auto!important;margin:0!important}
+
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-dropdown{width:100%!important;min-width:0!important;margin:0!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-list{padding:4px!important;margin-top:4px!important;max-height:min(240px,var(--dropdown-space,240px))!important;border-radius:10px!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-dropdown.drop-up>.acui-choice-list{top:auto!important;bottom:100%!important;margin-top:0!important;margin-bottom:4px!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) :is(.acui-choice-list,.ac-panel .dropdown-list) .dropdown-item{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important;min-height:30px!important;height:auto!important;padding:6px 8px!important;box-sizing:border-box!important;font-size:12px!important;line-height:1.3!important;font-weight:400!important;text-transform:none!important;letter-spacing:normal!important;border-radius:6px!important;cursor:pointer!important}
+html[data-app-layout] body :is(#screen-admin-employees,#screen-account-obligations) .acui-choice-item[aria-selected=true]{background:var(--accent)!important;color:#142006!important}
+
+html[data-app-layout] body #screen-admin-employees #usersListContainer .acui-team-grid label>strong{height:36px!important;min-height:36px!important;padding:7px 10px!important;line-height:20px!important;font-size:12px!important;font-weight:500!important;text-transform:none!important;letter-spacing:normal!important}
+@container account-record (min-width:900px){html[data-app-layout] body #screen-admin-employees #usersListContainer .acui-team-grid{grid-template-columns:minmax(140px,170px) minmax(130px,150px) minmax(90px,110px) minmax(180px,220px) minmax(220px,320px)!important;justify-content:start!important}}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-background-action{margin:0!important;padding:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:8px!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-background-action>p{margin:0!important;padding:0!important;min-height:0!important;line-height:1.4!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-telegram-section{display:flex!important;flex-direction:column!important;gap:12px!important;min-width:0!important}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-telegram-section>:is(h3,p,fieldset,.ac-check-row){margin:0!important}
+
+@container account-record (max-width:760px){html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-list-row>summary>.employee-refurb-badge{order:1!important}html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-list-row>summary>.ac-badge{order:2!important}}
+
+html[data-app-layout] body #screen-admin-employees #employeesLoadStatus:empty{display:none!important}
+html[data-app-layout] body #screen-admin-employees>.card>.ac-list-heading{color:var(--accent-ink)!important;font-size:16px!important;font-weight:700!important;line-height:1.4!important;text-transform:none!important;letter-spacing:normal!important;text-align:left!important;margin:0 0 12px!important;padding:0!important}
+</style>
 </head>
 <body>
 
@@ -7551,9 +7919,7 @@ html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;pad
             <p id="employeesLoadStatus" role="status" aria-live="polite"></p>
             <input type="text" id="adminSearch" placeholder="🔍 ФИО, город, логин или REFURB..." oninput="renderUsersList()">
 
-            <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-                <label style="margin:0;">Список пользователей (<span id="usersCount">0</span>)</label>
-            </div>
+            <h3 class="ac-list-heading">Список пользователей <span id="usersCount">0</span></h3>
             
             <div id="usersListContainer" style="margin-top: 10px;"></div>
 <div class="common-nav-row"><button class="btn danger-btn" type="button" onclick="openAdminPanel()">🔙 Назад</button><button class="btn danger-btn" type="button" onclick="switchScreen('screen-main')">🔚 Главное меню</button></div>
@@ -8122,7 +8488,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
                     fullName: u.fullName,
                     warehouse: normalizeEmployeeRole(u.role) === 'Супервайзер' ? '' : (u.warehouse || ''),
                     role: normalizeEmployeeRole(u.role || 'Техник-Универсал'),
-                    refarbEnabled: normalizeRefarbAssignment(u.refarbEnabled),
+                    refarbEnabled: normalizeRefarbAssignment(u.refarbEnabled),account:u.account,refarbPlanned:u.refarbPlanned,
                     workPhone: u.workPhone,
                     dwLogin: u.dwLogin,
                     tgId: u.tgId,
@@ -8261,6 +8627,7 @@ function employeeLoginKey(value){return String(value==null?'':value).trim().toLo
     function showBeelineModal(title, text, icon = '⚙️', buttonsHtml = null) {
         if(typeof rpViewerDispose==='function')rpViewerDispose();
         document.getElementById('beelineModal').classList.remove('district-picker', 'rf-worker-confirm', 'ct-confirm');
+        document.getElementById('beelineModal').dataset.modalLoading='false';
         document.getElementById('beelineModalTitle').textContent = title;
         renderSafeModalText(document.getElementById('beelineModalText'), text);
         beelineModalLayout(document.getElementById('beelineModalText'));
@@ -8466,13 +8833,13 @@ function engineerSchedulePresentation(){
                 || usersDb.find(u => u.id === currentUser.id);
             if (!freshUser) { paResetPayrollCache();currentUser = null; localStorage.removeItem('beeline_current_user'); switchScreen('screen-login'); return; }
             if (!currentUser.password) { paResetPayrollCache();currentUser=null; localStorage.removeItem('beeline_current_user'); switchScreen('screen-login'); return; }
-            currentUser = {...freshUser,password:currentUser.password};paEnsureCacheScope();
+            currentUser = {...freshUser,city:currentUser.city,district:currentUser.district,password:currentUser.password};paEnsureCacheScope();
             localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
 
             document.getElementById('userInfoHeader').innerHTML = `👤 <b>${escapeScheduleHtml(currentUser.fullName)}</b> (${escapeScheduleHtml(currentUser.role)}) | 🏢 ${escapeScheduleHtml(currentUser.city)} · Участок ${escapeScheduleHtml(currentUser.district)}`;
             
             const cityConf = CITIES_CONFIG[currentUser.city] || {};
-            document.getElementById('ownerChangeCityBtn').style.display = currentUser.role === 'Владелец' ? 'flex' : 'none';
+            document.getElementById('ownerChangeCityBtn').style.display = ['Владелец','Супервайзер'].includes(currentUser.role) ? 'flex' : 'none';
             
             
 
@@ -8507,7 +8874,7 @@ function engineerSchedulePresentation(){
 
             engineerApplyMenu();
             if (typeof rfVisibility === 'function') rfVisibility();
-            if (currentUser.role === 'Владелец' && ownerCityChoiceRequired) {
+            if (['Владелец','Супервайзер'].includes(currentUser.role) && ownerCityChoiceRequired) {
                 showOwnerCityPicker();
             } else {
                 switchScreen('screen-main');
@@ -8528,7 +8895,7 @@ function engineerSchedulePresentation(){
 
     // Показывает владелец город выбор.
     function showOwnerCityPicker() {
-        if (currentUser?.role !== 'Владелец') return;
+        if (!['Владелец','Супервайзер'].includes(currentUser?.role)) return;
         const savedCity = localStorage.getItem(ownerCityPreferenceKey());
         ownerCitySelected = CITIES_LIST.includes(savedCity) && ownerCityIsConfigured(savedCity) ? savedCity : '';
         document.getElementById('ownerRememberCity').checked = !!savedCity && !!ownerCitySelected;
@@ -8550,7 +8917,7 @@ function engineerSchedulePresentation(){
         const search = document.getElementById('ownerCitySearch').value.trim().toLocaleLowerCase('ru-RU');
         const list = document.getElementById('ownerCityList');
         list.replaceChildren();
-        const matches = CITIES_LIST.filter(city => city.toLocaleLowerCase('ru-RU').startsWith(search));
+        const matches = [...new Set(appDistricts.map(c=>c.city))].filter(city => city.toLocaleLowerCase('ru-RU').startsWith(search));
         if (!matches.length) {
             const empty = document.createElement('div');
             empty.className = 'owner-city-status';
@@ -8571,7 +8938,7 @@ function engineerSchedulePresentation(){
             label.textContent = city;
             const sub = document.createElement('small');
             const count=appDistricts.filter(c=>c.city===city&&c.configured).length;
-            sub.textContent = configured ? 'Подключено участков: '+count+' из 5' : 'Участки пока не подключены';
+            sub.textContent = configured ? 'Подключено участков: '+count+'' : 'Участки пока не подключены';
             label.appendChild(sub);
             button.append(icon,label);
             button.onclick = () => {
@@ -8989,19 +9356,19 @@ function engineerSchedulePresentation(){
             }
             if(result.routingVersion!==DISTRICT_ROUTING_VERSION)throw new Error('Обновите опубликованную версию скрипта «Список сотрудников»: приложение ожидает справочник во фронтенде.');
             const found = {...result.user,role:normalizeEmployeeRole(result.user.role),refarbEnabled:normalizeRefarbAssignment(result.user.refarbEnabled),password:passInput};
-            const selectedConfig=found.role==='Владелец'?null:getFrontendDistrictConfig(found.city,found.district);
+            const canChoose=['Владелец','Супервайзер'].includes(found.role),available=frontendDistricts().filter(c=>c.configured&&(found.role==='Владелец'||(found.allowedTargets||[{city:found.city,district:found.district}]).some(t=>t.city.toLowerCase()===c.city.toLowerCase()&&String(t.district)===String(c.district))));const selectedConfig=canChoose?(available.length===1?available[0]:null):getFrontendDistrictConfig(found.city,found.district);if(selectedConfig){found.city=selectedConfig.city;found.district=String(selectedConfig.district);}
             // Учётная запись подтверждена общей базой; скрипты разделов проверяются при обращении к ним.
             if(epoch!==authRequestEpoch)return;
-            const safeUser = {...result.user,role:found.role,refarbEnabled:found.refarbEnabled};
+            const safeUser = {...found};
             delete safeUser.password;
             const index = usersDb.findIndex(u => employeeLoginKey(u.dwLogin) === employeeLoginKey(found.dwLogin));
             if (index >= 0) usersDb[index] = safeUser; else usersDb.push(safeUser);
             staffIndexSource = null;
-            appDistricts=frontendDistricts();
+            appDistricts=frontendDistricts().filter(c=>c.configured&&(found.role==='Владелец'||(found.allowedTargets||[{city:found.city,district:found.district}]).some(t=>t.city.toLowerCase()===c.city.toLowerCase()&&String(t.district)===String(c.district))));
             Object.keys(CITIES_CONFIG).forEach(key=>delete CITIES_CONFIG[key]);
             paResetPayrollCache();currentUser = found;
             if(selectedConfig)activateDistrict(selectedConfig);
-            ownerCityChoiceRequired = found.role === 'Владелец';
+            ownerCityChoiceRequired = ['Владелец','Супервайзер'].includes(found.role)&&!selectedConfig;
             localStorage.setItem('beeline_current_user', JSON.stringify(currentUser, (key, value) => key === 'password' ? undefined : value));
             if (rememberMe) {
                 localStorage.setItem('beeline_remembered_login', loginInput);
@@ -9011,6 +9378,7 @@ function engineerSchedulePresentation(){
                 localStorage.removeItem('beeline_remembered_pass');
             }
             checkAuthSession();
+            void acFollowEmployeeLink();
             void loadUsersFromSheet();
             return true;
         } catch (err) {
@@ -9026,6 +9394,7 @@ function engineerSchedulePresentation(){
 
     // Выполняет logout.
     function logout() {
+        acUi.states.clear();acUi.requests?.clear();acUi.teamReads?.clear();acUi.today='';
         paResetPayrollCache();
         authRequestEpoch++;
         if (loginController) loginController.abort();
@@ -9781,7 +10150,7 @@ function engineerSchedulePresentation(){
 
     //регистрация
     async function handleRegister(e) {
-        e.preventDefault();
+        e.preventDefault();if(!acUi.registrationToken){showBeelineModal('Подключите Telegram','Откройте регистрацию по ссылке из бота выбранного участка.','⚠️');return;}
         
         const city = document.getElementById('regCity').value;
         if (!city) {
@@ -9837,7 +10206,7 @@ function engineerSchedulePresentation(){
             .join(' ');
 
         const newUser = {
-            action: 'register',
+            action: 'register',telegramToken:acUi.registrationToken,
             city: city,district:document.getElementById("regDistrict").value.trim(),
             fullName: formattedFullName,
             warehouse: "",
@@ -10054,69 +10423,171 @@ async function runSearchAccess(version) {
     container.innerHTML = html;
 }
 
+
+const acUi={opened:'',tab:'data',epoch:0,busy:false,states:new Map(),editorHome:null,editorStyle:null,editorActive:false,teams:null,teamsScope:'',teamsAt:0,teamsPending:null,loadEpoch:0};
+function openEditModal(userId){acRestoreEditor();acOpenLegacyEditor(userId);}
+const acEmployeeFilters={city:"",district:"",roles:new Set(),people:new Set(),login:"",phone:""};
+function acUiTelegramIcon(){const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('role','img');svg.setAttribute('aria-label','Telegram');svg.classList.add('acui-telegram-icon');const circle=document.createElementNS(ns,'circle');circle.setAttribute('cx','12');circle.setAttribute('cy','12');circle.setAttribute('r','12');circle.setAttribute('fill','#229ED9');const path=document.createElementNS(ns,'path');path.setAttribute('fill','#fff');path.setAttribute('d','M5.1 11.4 18 6.4c.6-.2 1.1.1.9.9l-2.2 10.5c-.2.7-.6.9-1.2.5l-3.4-2.5-1.6 1.5c-.2.2-.3.3-.6.3l.2-3.5 6.4-5.8c.3-.3-.1-.4-.4-.2l-7.9 5-3.4-1.1c-.7-.2-.7-.6.3-.9Z');svg.append(circle,path);return svg;}
+function acUiSyncRefurb(user){const button=document.getElementById('editRefarbToggle');if(!button)return;const enabled=user.refarbPlanned?.enabled??!!user.refarbEnabled;button.className='btn acui-refurb-toggle '+(enabled?'is-on':'is-off');button.textContent='REFURB';button.title=enabled?'Снять с рефарба с нового месяца':'Назначить рефарбщиком с нового месяца';button.setAttribute('aria-label',button.title);button.setAttribute('aria-pressed',String(enabled));}
+function acUiClosePickers(focus=false){document.querySelectorAll('.acui-picker-popover').forEach(p=>{const trigger=p.parentElement.querySelector('.acui-picker-trigger');trigger?.setAttribute('aria-expanded','false');p.remove();if(focus)trigger?.focus();});}
+function acUiRefreshPickers(form){form.querySelectorAll('.acui-date-value').forEach(input=>input.acUiUpdate?.());}
+function acUiDateField(host,label,type,value=''){
+ const field=acNode('label','','acui-date-field'),caption=acNode('span',label,'ac-field-label'),input=document.createElement('input'),button=acButton('',()=>open(),'acui-picker-trigger');input.type=type;input.value=value;input.hidden=true;input.className='acui-date-value';button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',label.replace(' *',''));const icon=acNode('span',type==='month'?'🗓️':'📅','acui-picker-icon'),text=acNode('span','','acui-picker-value'),arrow=acNode('span','▼','acui-picker-arrow');button.append(icon,text,arrow);field.append(caption,input,button);host.append(field);
+ const update=()=>{text.textContent=input.value?(type==='month'?acMonthLabel(input.value):acDayLabel(input.value)):(type==='month'?'Выберите месяц':'Выберите дату');button.title=text.textContent;};input.acUiUpdate=update;input.addEventListener('change',update);update();
+ function choose(v){input.value=v;input.dispatchEvent(new Event('change',{bubbles:true}));acUiClosePickers();button.focus();}
+ function open(){if(field.querySelector('.acui-picker-popover')){acUiClosePickers();return;}acUiClosePickers();const pop=acNode('div','','acui-picker-popover');pop.dataset.kind=type;pop.setAttribute('role','dialog');pop.setAttribute('aria-label',type==='month'?'Выбор месяца':'Выбор даты');button.setAttribute('aria-expanded','true');field.append(pop);const base=(input.value||acLocalToday()).split('-').map(Number);let year=base[0],month=(base[1]||1)-1;
+ function draw(){pop.replaceChildren();const header=acNode('div','','acui-picker-head'),prev=acButton('‹',()=>{if(type==='month')year--;else if(month===0){year--;month=11;}else month--;draw();},'acui-picker-nav'),next=acButton('›',()=>{if(type==='month')year++;else if(month===11){year++;month=0;}else month++;draw();},'acui-picker-nav');prev.setAttribute('aria-label',type==='month'?'Предыдущий год':'Предыдущий месяц');next.setAttribute('aria-label',type==='month'?'Следующий год':'Следующий месяц');header.append(prev,acNode('strong',type==='month'?String(year):acMonthLabel(year+'-'+String(month+1).padStart(2,'0'))),next);pop.append(header);
+ if(type==='month'){const grid=acNode('div','','acui-month-grid');for(let m=0;m<12;m++){const iso=year+'-'+String(m+1).padStart(2,'0'),name=new Intl.DateTimeFormat('ru-RU',{month:'long'}).format(new Date(year,m,1)),item=acButton(name[0].toUpperCase()+name.slice(1),()=>choose(iso),'acui-picker-cell');item.setAttribute('aria-label',acMonthLabel(iso));item.disabled=!!input.min&&iso<input.min;item.setAttribute('aria-pressed',String(input.value===iso));grid.append(item);}pop.append(grid);
+ }else{const grid=acNode('div','','acui-calendar-grid');for(const day of ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'])grid.append(acNode('span',day,'acui-calendar-weekday'));const shift=(new Date(year,month,1).getDay()+6)%7,days=new Date(year,month+1,0).getDate();for(let i=0;i<shift;i++)grid.append(acNode('span'));for(let day=1;day<=days;day++){const iso=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0'),item=acButton(String(day),()=>choose(iso),'acui-picker-cell');item.setAttribute('aria-label',acDayLabel(iso));item.disabled=!!input.min&&iso<input.min;item.setAttribute('aria-pressed',String(input.value===iso));if(iso===acLocalToday())item.classList.add('acui-is-today');grid.append(item);}pop.append(grid);}
+ const footer=acNode('div','','acui-picker-footer');footer.append(acButton(type==='month'?'Текущий месяц':'Сегодня',()=>choose(type==='month'?acLocalToday().slice(0,7):acLocalToday()),'acui-picker-link'),acButton('Очистить',()=>choose(''),'acui-picker-link'));pop.append(footer);}
+ draw();}
+ return input;
+}
+function acUiCloseChoices(focus=false){document.querySelectorAll('.acui-choice-list').forEach(list=>{const dropdown=list.closest('.custom-dropdown'),trigger=dropdown?.querySelector('.acui-choice-trigger');if(dropdown)setDropdownOpen(dropdown,false);list.remove();if(focus)trigger?.focus();});}
+function acUiDropdown(host,label,options,value){
+ const select=acSelect(host,label,options,value),field=select.parentElement;select.hidden=true;select.classList.add('acui-choice-native');field.classList.add('acui-choice-field');const dropdown=acNode('div','','custom-dropdown ct-select acui-choice-dropdown'),trigger=acButton('',event=>{event.preventDefault();event.stopPropagation();toggle();},'dropdown-select-btn dropdown-trigger acui-choice-trigger'),text=acNode('span','','acui-choice-value'),arrow=acNode('span','▼','dropdown-arrow acui-choice-arrow');trigger.append(text,arrow);trigger.setAttribute('aria-label',label);trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');dropdown.append(trigger);field.append(dropdown);
+ const sync=()=>{text.textContent=select.options[select.selectedIndex]?.textContent||'Выберите';trigger.title=label+': '+text.textContent;};select.addEventListener('change',sync);sync();
+ function toggle(){if(dropdown.classList.contains('open')){acUiCloseChoices();return;}acUiCloseChoices();document.querySelectorAll('.custom-dropdown.open').forEach(other=>setDropdownOpen(other,false));acUiClosePickers();const list=acNode('div','','dropdown-list acui-choice-list');list.setAttribute('role','listbox');list.setAttribute('aria-label',label);for(const option of select.options){const item=acNode('div',option.textContent,'dropdown-item acui-choice-item');item.tabIndex=0;item.setAttribute('role','option');item.setAttribute('aria-selected',String(select.value===option.value));item.setAttribute('aria-disabled',String(option.disabled));item.dataset.value=option.value;item.onclick=event=>{event.preventDefault();event.stopPropagation();if(option.disabled)return;select.value=option.value;acUiCloseChoices();select.dispatchEvent(new Event('change',{bubbles:true}));trigger.focus();};item.onkeydown=event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();item.click();}};list.append(item);}list.onkeydown=event=>{const items=[...list.querySelectorAll('[role=option]:not([aria-disabled=true])')],index=items.indexOf(document.activeElement);if(event.key==='ArrowDown'||event.key==='ArrowUp'){event.preventDefault();items[(index+(event.key==='ArrowDown'?1:-1)+items.length)%items.length]?.focus();}else if(event.key==='Escape'){event.preventDefault();acUiCloseChoices(true);}};dropdown.append(list);setDropdownOpen(dropdown,true);}
+ trigger.onkeydown=event=>{if(event.key==='ArrowDown'){event.preventDefault();if(!dropdown.classList.contains('open'))toggle();dropdown.querySelector('[aria-selected=true]')?.focus();}};return select;
+}
+function acCanSwitch(user=currentUser){return !!user&&['Владелец','Супервайзер'].includes(user.role);}
+function acAllowed(config,user=currentUser){return !!config?.configured&&!!user&&(user.allowedTargets||[]).some(t=>String(t.city).toLowerCase()===String(config.city).toLowerCase()&&String(t.district)===String(config.district));}
+function acNode(tag,text='',cls=''){const n=document.createElement(tag);n.className=cls;n.textContent=text;return n;}
+function acButton(text,fn,cls='btn main-btn'){const b=acNode('button',text,cls);b.type='button';b.onclick=fn;return b;}
+function acAuth(){if(!currentUser?.password)throw Error('Войдите заново');return {city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password};}
+function acScopeKey(){return currentUser?[currentUser.dwLogin,currentUser.city,currentUser.district].join('|'):'';}
+function acCanModify(user){return currentUser?.role==='Владелец'||currentUser?.id===user.id||(currentUser?.role==='Супервайзер'&&acPersonAllowed(user)&&!['Владелец','Супервайзер'].includes(user.role))||(currentUser?.role==='Старший Техник'&&acPersonAllowed(user)&&['Стажер','Техник-Универсал','Бригадир'].includes(user.role));}
+function acCanAccess(user){return ['Владелец','Супервайзер'].includes(currentUser?.role)&&user.dwLogin!==currentUser.dwLogin&&user.role!=='Владелец'&&(currentUser.role==='Владелец'||user.role!=='Супервайзер');}
+function acStatusLabel(state){return ({active:'Активен',blocked:'Заблокирован',scheduled:'Увольнение запланировано',archived:'Уволен · архив'})[state?.status]||'Активен';}
+function acRestoreEditor(){if(!acUi.editorActive)return;const modal=document.getElementById('editUserModal');acUi.editorHome.append(modal);modal.style.cssText=acUi.editorStyle;modal.style.display='none';modal.classList.remove('ac-inline-editor');modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');acUi.editorActive=false;}
+
+function acLoading(message){const box=acNode('div','','ac-loading');box.setAttribute('role','status');box.setAttribute('aria-live','polite');const icon=acNode('span','⏳','pw-hourglass');icon.setAttribute('aria-hidden','true');box.append(icon,acNode('span',message));return box;}
+function acConfirmAction(title,text,accept){const content=acNode('p',text),actions=acNode('div','','ct-confirm-actions'),cancel=acButton('❌ Отмена',closeBeelineModal,'btn danger-btn'),confirm=acButton('✅ Подтвердить',()=>{confirm.disabled=true;cancel.disabled=true;closeBeelineModal();void accept();},'btn main-btn');actions.append(cancel,confirm);showBeelineModalNode(title,content,'⚠️',actions);}
+function acDrawReadOnlyData(panel,user){const root=acNode('div','','ac-readonly-data');for(const [title,fields]of [['👤 Данные сотрудника',[['ФИО',user.fullName],['Роль',user.role],['Номер склада',String(user.warehouse||'').replace(/^Бригада\s*№?\s*/i,'')||'Не назначен'],['Город',user.city],['Участок',user.district]]],['📞 Телефон и почта',[['Рабочий телефон',user.workPhone],['Почта восстановления',user.email]]],['Telegram',[['Личный ID',user.tgId],['Группа отчётов',user.tgGroup],['Группа ППР',user.tgGroupPpr]]]]){const section=acSection(title),grid=acNode('div','','ac-profile-grid'+(title.startsWith('👤')?' acui-primary-grid':''));for(const [label,value]of fields){const input=acInput(grid,label,'text',value||'Не указан');input.readOnly=true;input.setAttribute('aria-readonly','true');}section.append(grid);root.append(section);}root.append(acNode('p','Просмотр карточки. Изменение роли и доступа этой учётной записи недоступно.','ac-note'));panel.append(root);}
+async function acUiGoEmployees(login,tab='access'){acRestoreEditor();acUi.tab=tab;await openAdminEmployees();let row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===String(login).toLowerCase());if(!row){Object.assign(acEmployeeFilters,{city:'',district:'',login:'',phone:''});acEmployeeFilters.roles.clear();acEmployeeFilters.people.clear();acUiInitFilters();renderUsersList();row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===String(login).toLowerCase());}if(row){row.open=true;row.scrollIntoView({block:'start',behavior:'smooth'});}}
+function acSyncReturnNavigation(){const toolbar=document.querySelector('#screen-management-debts .act-debts-toolbar'),refresh=document.getElementById('cityDebtPreviewRefresh'),point=acUi.relatedReturn;if(!toolbar||!refresh)return;const old=toolbar.querySelector('.ac-debt-return-actions');if(old){toolbar.insertBefore(refresh,old);old.remove();}if(!point||point.scope!==acScopeKey())return;const actions=acNode('div','','ac-debt-return-actions'),back=acButton('🔙 Назад',acReturnToEmployee,'btn danger-btn');back.dataset.accountReturn='1';back.title='Вернуться к карточке: '+point.name;actions.append(back,refresh);toolbar.append(actions);}
+async function acReturnToEmployee(){const point=acUi.relatedReturn;if(!point||point.scope!==acScopeKey())return;acUi.relatedReturn=null;const config=getFrontendDistrictConfig(point.city,point.district);if(config){activateDistrict(config);currentUser.city=point.city;currentUser.district=point.district;}await acUiGoEmployees(point.login,point.tab);}
+async function acOpenRelated(user,section){acUi.relatedReturn={login:user.dwLogin,name:user.fullName,tab:acUi.tab||'access',city:currentUser.city,district:currentUser.district,scope:acScopeKey()};acRestoreEditor();const config=getFrontendDistrictConfig(user.city,user.district);if(config){activateDistrict(config);currentUser.city=user.city;currentUser.district=user.district;acUi.relatedReturn.scope=acScopeKey();}if(section==='acts'){const pending=openCityDebtPreview();acSyncReturnNavigation();await pending;acSyncReturnNavigation();const cards=[...document.querySelectorAll('#cityDebtPreviewBody .city-debt-person')],target=cards.find(c=>c.querySelector('.city-debt-name')?.textContent.replace(/^👤\s*/,'')===user.fullName);if(target){target.open=true;target.scrollIntoView({block:'center'});}}else await openVirtualWarehouse();}
+async function acSendObligations(user,section,button,status){if(button.disabled)return;const scope=acScopeKey(),key=scope+'|'+user.dwLogin+'|'+section;acUi.noticeRequests??=new Map();let requestId=acUi.noticeRequests.get(key);if(!requestId){requestId='obligation_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));acUi.noticeRequests.set(key,requestId);}button.disabled=true;status.replaceChildren(acLoading(section==='acts'?'Готовим личное уведомление о долгах…':'Готовим личное уведомление об остатках…'));try{const result=await acDailyCall('accountObligations',{targetLogin:user.dwLogin,section,operation:'send',requestId});if(scope!==acScopeKey())return;acUi.noticeRequests.delete(key);status.textContent='✅ '+(result.message||'Уведомление поставлено в очередь сотруднику.');}catch(error){if(scope===acScopeKey())status.textContent='⚠️ '+error.message;}finally{button.disabled=false;}}
+
+async function rfSetWorkerConfirmed(id){const user=usersDb.find(u=>u.id===id);if(!user||acUi.busy)return;const enabled=!(user.refarbPlanned?.enabled??user.refarbEnabled);acUi.busy=true;try{const result=await acApi(user,'refarb',{enabled,version:user.account?.version||0});user.account=result.account;user.refarbPlanned=result.account.refarbPlanned;acUi.states.delete(user.dwLogin);acUiSyncRefurb(user);showBeelineModal('REFURB',(enabled?'Назначение':'Снятие назначения')+' сохранено с '+acMonthLabel(user.refarbPlanned.month)+'. Текущий месяц сохраняется.','✅');}catch(e){showBeelineModal('Назначение не подтверждено',e.message,'⚠️');}finally{acUi.busy=false;}}
+function acDrawTabs(row,user,tab=acUi.tab){row.querySelector('.ac-tabs')?.remove();row.querySelector('.ac-panel')?.remove();acUi.tab=tab;const tabs=acNode('nav','','ac-tabs');tabs.setAttribute('aria-label','Учётная запись сотрудника');for(const [key,label]of [['data','👤 Данные'],['access','🔐 Доступ'],['team','👥 Бригада'],['history','🕒 История']]){const button=acButton(label,()=>{acRestoreEditor();acDrawTabs(row,user,key);},key===tab?'btn main-btn':'btn');button.setAttribute('aria-pressed',String(key===tab));tabs.append(button);}const panel=acNode('div','','ac-panel');row.append(tabs,panel);const epoch=++acUi.epoch;if(tab==='data')acDrawData(panel,user);else if(tab==='access')void acDrawAccess(panel,user,epoch);else if(tab==='team')void acDrawTeam(panel,user,epoch);else void acDrawHistory(panel,user,epoch);}
+function acDrawData(panel,user){
+ if(!acCanModify(user)){acDrawReadOnlyData(panel,user);return;}
+ acOpenLegacyEditor(user.id);const modal=document.getElementById('editUserModal'),card=modal.querySelector('.edit-user-card');if(!acUi.editorHome){acUi.editorHome=modal.parentNode;acUi.editorStyle=modal.style.cssText;}
+ if(!card.dataset.acRegrouped){const groups=[['👤 Данные сотрудника',['editFullName','editRoleDropdown','editWarehouse','editCityDisplay','editDistrict']],['📞 Телефон и почта',['editWorkPhone','editPassword','editEmail']],['Telegram',['editTgId','editTgGroup','editTgGroupPpr']]],saved=[];
+ for(const [title,ids]of groups){const section=acNode('section','','ac-section'),head=acNode('div','','acui-section-head'),heading=acNode('h3',title),grid=acNode('div','','ac-profile-grid');head.append(heading);section.append(head,grid);if(title==='Telegram'){heading.classList.add('acui-telegram-title');heading.prepend(acUiTelegramIcon());}if(title.startsWith('👤')){grid.classList.add('acui-primary-grid');const oldField=document.getElementById('editRefarbField'),button=document.getElementById('editRefarbToggle');head.append(button);oldField.classList.add('acui-refurb-hidden');section.append(oldField);}
+ for(const id of ids){const input=document.getElementById(id),field=input.closest('.password-wrapper')?.parentElement||input.parentElement;field.classList.add('ac-profile-field');field.dataset.profileKey=id;grid.append(field);}saved.push(section);}
+ const actions=card.querySelector('.edit-user-actions'),hidden=document.getElementById('editUserId'),title=document.getElementById('editUserTitle');card.replaceChildren(title,hidden,...saved,actions);card.dataset.acRegrouped='true';const eye=card.querySelector('.toggle-password');if(eye){eye.setAttribute('role','button');eye.setAttribute('tabindex','0');eye.setAttribute('aria-label','Показать или скрыть пароль');eye.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();eye.click();}};}}
+ document.getElementById('editWarehouse').disabled=false;if(user.account?.status==='archived'){for(const id of ['editWarehouse','editCityDisplay','editDistrict'])document.getElementById(id).disabled=true;document.getElementById('editRoleDropdown').style.pointerEvents='none';document.getElementById('editRefarbToggle').hidden=true;}for(const id of ['editTgGroup','editTgGroupPpr']){const input=document.getElementById(id);input.readOnly=true;input.title='Из настроек города и участка';}acUiSyncRefurb(user);const tgSection=[...card.querySelectorAll('.ac-section')].find(section=>section.querySelector('h3')?.textContent==='Telegram');if(tgSection){tgSection.querySelectorAll('[data-account-connect],[data-account-connect-note]').forEach(n=>n.remove());const note=acNode('p',user.dwLogin===currentUser.dwLogin?'Подтвердите свой личный Telegram через бота. Это не меняет рабочие группы участка.':'Личный Telegram сотрудник подключает сам, войдя в свою учётную запись.','ac-note ac-connect-note');note.dataset.accountConnectNote='1';tgSection.append(note);if(user.dwLogin===currentUser.dwLogin){const connect=acButton('🔗 Подключить Telegram',acConnectTelegram,'btn main-btn');connect.dataset.accountConnect='1';tgSection.append(connect);}}modal.style.cssText='display:block;position:static;width:100%;height:auto;background:transparent;padding:0;z-index:auto;';modal.classList.add('ac-inline-editor');modal.removeAttribute('aria-modal');modal.setAttribute('role','region');acUi.editorActive=true;panel.append(modal);
+}
+
+function acInput(grid,label,type,value=''){const field=acNode('label'),input=document.createElement(type==='textarea'?'textarea':type==='select'?'select':'input');if(input.tagName==='INPUT')input.type=type;input.value=value;field.append(acNode('span',label),input);grid.append(field);return input;}
+function acSelect(grid,label,options,value){const input=acInput(grid,label,'select');for(const [key,name]of options){const option=acNode('option',name);option.value=key;input.append(option);}input.value=value;return input;}
+function acCheckbox(label,checked=false){const row=acNode('label','','checkbox-container'),input=document.createElement('input');input.type='checkbox';input.checked=checked;row.append(input,acNode('span','','custom-checkbox'),acNode('span',label,'checkbox-label'));return {row,input};}
+function acFollowingMonth(date){const [year,month]=date.slice(0,7).split('-').map(Number);return month===12?(year+1)+'-01':year+'-'+String(month+1).padStart(2,'0');}
+async function acSaveAction(panel,user,state,operation,fields,message){if(acUi.busy)return;const error=panel.querySelector('.ac-status'),scope=acScopeKey();acUi.busy=true;panel.querySelectorAll('button').forEach(b=>b.disabled=true);try{const requestId=crypto.randomUUID?.()||'account_'+Date.now()+'_'+Math.random().toString(36).slice(2),result=await acApi(user,operation,{...fields,version:state.version,requestId});if(scope!==acScopeKey())return;acUi.states.delete(user.dwLogin);user.account=result.account;const row=panel.closest('details');if(row?.open)acDrawTabs(row,user,'access');showBeelineModal('Учётная запись',message+(result.warning?'\n'+result.warning:''),'✅');}catch(e){if(scope===acScopeKey()&&error){error.textContent=e.message;error.classList.add('ac-error');}}finally{acUi.busy=false;if(panel.isConnected)panel.querySelectorAll('button').forEach(b=>b.disabled=false);}}
+async function acLoadState(user){const result=await acApi(user,'state');acUi.states.set(user.dwLogin,result);return result;}
+async function acDrawAccess(panel,user,epoch){
+ panel.append(acLoading('Загружаем состояние доступа…'));try{const result=await acLoadState(user);if(epoch!==acUi.epoch||!panel.isConnected)return;const state=result.account;user.account=state;const badge=panel.closest('details')?.querySelector('.ac-badge');if(badge){badge.textContent=acStatusLabel(state);badge.dataset.status=state.status;}panel.replaceChildren();const status=acNode('p','','ac-status');status.setAttribute('role','status');panel.append(status);
+ if(currentUser.role==='Владелец'&&user.role==='Стажер'&&Number(state.version||0)===0)panel.append(acButton('Удалить ошибочную запись',()=>acDeleteMistake(user),'btn danger-btn'));
+ const month=acLocalToday().slice(0,7),summary=acNode('div','','ac-access-summary');const excluded=!!state.fire&&month>=state.fire.excludeMonth||(state.employmentBreaks||[]).some(g=>month>=g.excludeMonth&&month<g.includeMonth);for(const [label,value]of [['Статус доступа',acStatusLabel(state)],['Роль',user.role],['В расчётах: '+acMonthLabel(month),excluded?'Не участвует':'Участвует']]){const cell=acNode('div');cell.append(acNode('span',label),acNode('strong',value));summary.append(cell);}panel.append(summary);
+ if(acCanAccess(user)){const block=acSection('🔒 Временная блокировка'),grid=acNode('div','','ac-block-row ac-data-grid');const presets=[['Уточнение данных','Уточнение данных'],['Временное ограничение доступа','Временное ограничение доступа'],['По запросу руководителя','По запросу руководителя']];if(state.reason&&!presets.some(x=>x[0]===state.reason))presets.push([state.reason,state.reason]);const reason=acUiDropdown(grid,'Причина',presets,state.reason||presets[0][0]);grid.append(acButton(state.temporaryBlocked?'🔓 Снять блокировку':'🔒 Заблокировать доступ',()=>acConfirmAction(state.temporaryBlocked?'Снять блокировку входа?':'Заблокировать вход?',user.fullName+'\n\n'+(state.temporaryBlocked?'Будет снята только временная блокировка. План увольнения и его даты сохранятся.':'Сотрудник не сможет войти или выполнить защищённые действия в приложении. Роль, бригада, часы, склад, акты и история сохранятся. Причина: '+reason.value),()=>acSaveAction(panel,user,state,state.temporaryBlocked?'unblock':'block',{reason:reason.value},state.temporaryBlocked?'Временная блокировка снята.':'Вход заблокирован. Часы, склад и история сохранены.')),state.temporaryBlocked?'btn main-btn':'btn danger-btn'));block.classList.add('acui-block-compact');block.append(grid,acNode('p','Роль, бригада и расчёты сохраняются.','ac-note'));if(state.status!=='archived')panel.append(block);
+ const dismissal=acSection(state.status==='archived'?'🗃️ Увольнение и архив':'📅 Увольнение','ac-dismissal-section acui-dismissal-compact');if(state.status==='archived')acDrawRestore(dismissal,panel,user,state);else if(state.fire){const info=acNode('dl','','ac-facts');for(const [label,value]of [['Первый нерабочий день',acDayLabel(state.fire.date)],['Доступ закрыт с',acDayLabel(state.fire.accessAt)],['Не включать в состав',acMonthLabel(state.fire.excludeMonth)],['Причина',state.fire.reason]])info.append(acNode('dt',label),acNode('dd',value));dismissal.append(info,acNode('p',state.fire.accessAt>acLocalToday()?'До указанной даты доступ разрешён.':'Вход закрыт.','ac-note'));const actions=acNode('div','','ac-toolbar');actions.append(acButton('✏️ Изменить',()=>acDrawDismissal(panel,user,state)),acButton('🔙 Отмена',()=>acSaveAction(panel,user,state,'cancel',{},'План отменён. Очищенные смены назначаются заново. Участие в Telegram восстанавливается вручную.')));dismissal.append(actions);}else{dismissal.classList.add('acui-dismissal-idle');dismissal.append(acNode('p','Увольнение не оформлено.','ac-note'),acButton('📅 Уволить',()=>acDrawDismissal(panel,user,state),'btn danger-btn'));}const actionRow=dismissal.querySelector(':scope>.ac-toolbar')||acNode('div','','ac-toolbar');actionRow.classList.add('acui-dismissal-actions');for(const button of [...dismissal.children].filter(n=>n.tagName==='BUTTON'))actionRow.append(button);dismissal.append(actionRow);panel.append(dismissal);
+ }else panel.append(acNode('p','Изменение доступа этой учётной записи недоступно.','ac-note'),acButton('📦 Долги',()=>acOpenObligations(user)));
+ for(const gap of state.employmentBreaks||[])panel.append(acNode('p',acBreakLabel(gap),'ac-note'));
+ for(const task of state.backgroundActions||[]){const note=acNode('div','','ac-note ac-background-action');note.append(acNode('p',task.label+': '+task.state+(task.message?' · '+task.message:'')));if(task.canRetry&&acCanAccess(user))note.append(acButton('Повторить действие',()=>void acSaveAction(panel,user,state,'retryJob',{jobId:task.id},'Повтор поставлен в очередь.')));panel.append(note);}
+ if(state.fire)for(const [kind,r]of Object.entries(state.fire.results||{}))panel.append(acNode('p',(kind==='work'?'✈️ Рабочая группа':'✈️ Группа ППР')+': '+(r.done?'выполнено':r.error||'ожидает обработки'),'ac-note'));
+ if(currentUser.role==='Владелец'&&user.role==='Супервайзер'){const grants=acNode('section','','ac-section');acDrawGrants(grants,user,state,result.connections||[]);panel.append(grants);}
+ }catch(e){if(epoch===acUi.epoch)panel.replaceChildren(acNode('p',e.message,'ac-status ac-error'),acButton('Повторить',()=>acDrawAccess(panel,user,acUi.epoch)));}}
+function acDrawGrants(panel,user,state,connections){panel.append(acNode('h3','Зоны ответственности супервайзера'),acNode('p','Снятая отметка закрывает доступ к участку. При отсутствии отметок рабочие разделы недоступны.','ac-note'));const groups=Map.groupBy?Map.groupBy(connections,c=>c.city):connections.reduce((m,c)=>(m.set(c.city,[...(m.get(c.city)||[]),c]),m),new Map()),boxes=[];for(const [city,items]of groups){const block=acNode('section','','ac-grant-city');if(items.length>1)block.append(acNode('strong',city));for(const itemof of items){const checkbox=acCheckbox(items.length===1?city:'Участок '+itemof.district,(state.grants||[]).some(g=>g.city===city&&String(g.district)===String(itemof.district)));boxes.push({input:checkbox.input,item:itemof});block.append(checkbox.row);}if(state.status!=='archived')panel.append(block);}panel.append(acButton('💾 Сохранить зоны ответственности',()=>acSaveAction(panel,user,state,'grants',{grants:boxes.filter(b=>b.input.checked).map(b=>({city:b.item.city,district:b.item.district}))},'Зоны ответственности обновлены.')));}
+async function acDrawHistory(panel,user,epoch){panel.append(acLoading('Загружаем историю…'));try{const result=await acApi(user,'history');if(epoch!==acUi.epoch||!panel.isConnected)return;panel.replaceChildren();const list=acNode('ol','','ac-history'),names={retryJob:'🔄 Запрошен повтор фонового действия',restoreRequest:'📨 Отправлен запрос на восстановление сотрудника',restoreReject:'❌ Владелец отклонил запрос на восстановление',restoreApprove:'✅ Владелец одобрил восстановление',restore_request:'📨 Отправлен запрос на восстановление сотрудника',restore_rejected:'❌ Владелец отклонил запрос на восстановление',restore_approved:'✅ Владелец одобрил восстановление',restore:'♻️ Сотрудник восстановлен',migration:'🔗 Подключение учётных записей',block:'🔒 Вход заблокирован',unblock:'🔓 Блокировка снята',plan:'📅 План увольнения сохранён',cancel:'↩️ План увольнения отменён',grants:'🌍 Зоны ответственности изменены',refarb:'🛠️ Назначение на рефарб',profile:'👤 Данные учётной записи изменены'};for(const event of [...(result.account.history||[])].reverse()){const row=acNode('li'),date=acNode('div','','ac-history-date'),when=new Date(event.date),action=acNode('div'),actor=acNode('div','','ac-history-actor');date.append(acNode('strong',when.toLocaleDateString('ru-RU')),acNode('span',when.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})));action.append(acNode('strong',names[event.action]||'👤 Изменение учётной записи'),acNode('p',acHistoryDescription(event),'ac-note'));actor.append(acNode('span','Исполнитель'),acNode('strong',event.actorName||event.details?._actorName||event.actor||'Не указан'));const role=event.actorRole||event.details?._actorRole;if(role)actor.append(acNode('small',role));row.append(date,action,actor);list.append(row);}if(!list.children.length){panel.append(acNode('p','🕒 Изменений пока нет. Здесь отображаются записанные действия с этой учётной записью. События до включения журнала не восстанавливаются автоматически.','ac-empty'));}else panel.append(list);panel.append(acNode('p','ℹ️ Записи истории недоступны для редактирования.','ac-note'));}catch(e){if(epoch===acUi.epoch)panel.replaceChildren(acNode('p',e.message,'ac-error'),acButton('Повторить',()=>acDrawHistory(panel,user,acUi.epoch)));}}
+async function acDrawTeam(panel,user,epoch,month=''){
+ const section=acSection('👥 Назначение в бригаду','acui-team-section'),head=acNode('div','','acui-section-head'),title=section.querySelector('h3'),content=acNode('div');head.append(title,acButton('👥 Открыть состав бригад',()=>{acRestoreEditor();window.iiTeamsOpen();},'btn main-btn acui-open-teams'));section.append(head,content);panel.replaceChildren(section);content.append(acLoading('Загружаем состав бригады…'));
+ try{const data=await acGetTeams(month,false,user);if(epoch!==acUi.epoch||!panel.isConnected)return;content.replaceChildren();const people=data.employees||[],person=people.find(p=>acTeamKey(p.id)===acTeamKey(user.dwLogin)),boss=people.find(p=>acTeamKey(p.id)===acTeamKey(person?.brigadierId)),grid=acNode('div','','ac-data-grid acui-team-grid');for(const [label,value]of [['Роль',user.role],['Участок',user.city+' · '+user.district],['Номер склада',String(user.warehouse||'').replace(/^Бригада\s*№?\s*/i,'')||'Не назначен']]){const field=acNode('label');field.append(acNode('span',label),acNode('strong',value));grid.append(field);}const chosen=acUiDropdown(grid,'Месяц назначения',[[data.currentMonth,acMonthLabel(data.currentMonth)+' · текущий'],[data.nextMonth,acMonthLabel(data.nextMonth)+' · следующий']],data.month);chosen.onchange=()=>void acDrawTeam(panel,user,++acUi.epoch,chosen.value);content.append(grid);
+ if(person?.role==='Техник-Универсал'){const bosses=people.filter(p=>p.role==='Бригадир'),select=acUiDropdown(grid,'Бригадир',[['','Не назначен'],...bosses.map(p=>[p.id,p.fullName])],boss?.id||'');const message=acNode('p','','ac-status'),save=acButton('💾 Сохранить назначение',async()=>{if(save.disabled)return;const leader=select.value||boss?.id;if(!leader){message.textContent='Сотрудник уже без бригадира.';return;}save.disabled=true;save.setAttribute('aria-busy','true');const originalLabel=save.textContent;save.replaceChildren(pwHourglass(),document.createTextNode('Сохраняем…'));const scope=acScopeKey();try{const members=people.filter(p=>p.role==='Техник-Универсал'&&acTeamKey(p.brigadierId)===acTeamKey(leader)&&acTeamKey(p.id)!==acTeamKey(person.id)).map(p=>p.id);if(select.value)members.push(person.id);const result=await acDailyCall('brigades',{operation:'save',targetLogin:user.dwLogin,month:data.month,leader,members,version:data.version,requestId:'br_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2))});if(scope!==acScopeKey())return;acUi.teams=result;acUi.teamsScope=scope;acUi.teamsAt=Date.now();acTeamsChanged(result,user);await acDrawTeam(panel,user,++acUi.epoch,data.month);showBeelineModal('Бригада',result.message||'Назначение сохранено.','✅');}catch(e){if(scope===acScopeKey())message.textContent=e.message;}finally{save.disabled=false;save.setAttribute('aria-busy','false');save.textContent=originalLabel;}});save.dataset.teamSave='1';const footer=acNode('div','','acui-team-footer');footer.append(acNode('p','Номер склада и бригадир — разные поля. На участке без бригадира привязка необязательна.','ac-note'),save);content.append(footer,message);
+ }else if(person?.role==='Бригадир'){const members=people.filter(p=>acTeamKey(p.brigadierId)===acTeamKey(person.id));content.append(acNode('h4','Состав бригады · '+members.length));if(!members.length)content.append(acNode('p','Техники пока не назначены.','ac-note'));for(const member of members)content.append(acNode('div','👤 '+member.fullName,'ac-member'));}else content.append(acNode('p','Назначение бригадира применяется к техникам универсалам. Состав участка доступен в управлении бригадами.','ac-note'));
+ }catch(e){if(epoch===acUi.epoch)content.replaceChildren(acNode('p',e.message,'ac-error'),acButton('Повторить',()=>acDrawTeam(panel,user,acUi.epoch,month)));}}
+function acOpenObligations(user){acRestoreEditor();let screen=document.getElementById('screen-account-obligations');if(!screen){screen=acNode('div','','app-screen uniform-screen');screen.id='screen-account-obligations';document.body.append(screen);}screen.replaceChildren(acNode('h2','📋 Обязательства сотрудника'));const card=acNode('div','','card');screen.append(card);switchScreen(screen.id);acMountObligations(card,user);const nav=acNode('div','','common-nav-row acui-mobile-bottom');nav.append(acButton('⬅️ К сотрудникам',()=>acUiGoEmployees(user.dwLogin),'btn danger-btn'));card.append(nav);}
+async function acLoadTeamSummaries(root){const scope=acScopeKey(),groups=new Map();for(const user of usersDb)if(!groups.has(acTeamAreaKey(user)))groups.set(acTeamAreaKey(user),user);for(const user of groups.values()){if(scope!==acScopeKey()||!root.isConnected)return;const area=acTeamAreaKey(user),revision=acUi.teamRevisions?.get(area)||0;try{const data=await acGetTeams('',false,user);if(scope!==acScopeKey()||!root.isConnected)return;if(revision!==(acUi.teamRevisions?.get(area)||0))continue;acPaintTeamSummaries(root,data,user);}catch(error){if(scope!==acScopeKey()||!root.isConnected||revision!==(acUi.teamRevisions?.get(area)||0))continue;for(const label of root.querySelectorAll('[data-team-login]')){const person=usersDb.find(p=>acTeamKey(p.dwLogin)===acTeamKey(label.dataset.teamLogin));if(person&&acTeamAreaKey(person)===area)label.textContent='👥 Бригадир: не удалось проверить';}}}}
+function acBreakLabel(gap){return 'Период увольнения: '+gap.from+' — '+gap.until+' (с '+gap.until+' снова в работе). '+(gap.excludeMonth<gap.includeMonth?'Исключённые расчётные месяцы: с '+gap.excludeMonth+' до '+gap.includeMonth+' без месяца восстановления.':'Полных месяцев исключения из расчётного состава не было.');}
+function acSection(title,cls=''){const section=acNode('section','','ac-section '+cls);section.append(acNode('h3',title));return section;}
+function acMonthLabel(value){if(!value)return '—';const [y,m]=value.split('-').map(Number);const label=new Intl.DateTimeFormat('ru-RU',{month:'long',year:'numeric'}).format(new Date(y,m-1,1));return label[0].toUpperCase()+label.slice(1).replace(' г.','');}
+function acDayLabel(value){return /^\d{4}-\d{2}-\d{2}$/.test(value||'')?value.split('-').reverse().join('.'):value||'—';}
+function acRadioGroup(host,label,options,value){const field=acNode('fieldset','','ac-radio-group');field.append(acNode('legend',label));const name='ac_'+(crypto.randomUUID?.()||Math.random().toString(36).slice(2));const inputs=[];for(const [key,text]of options){const row=acNode('label'),input=document.createElement('input');input.type='radio';input.name=name;input.value=key;input.checked=key===value;row.append(input,acNode('span',text));field.append(row);inputs.push(input);}host.append(field);return {get value(){return inputs.find(i=>i.checked)?.value||'';},field};}
+function acDrawDismissal(panel,user,state){
+ panel.replaceChildren();const layout=acNode('div','','ac-dismissal-layout'),left=acSection('📅 Уволить сотрудника'),right=acSection('📋 Обязательства сотрудника');layout.append(left,right);panel.append(layout);left.append(acNode('strong',user.fullName,'ac-identity'),acNode('p',user.role+' · '+user.city+' · Участок '+user.district,'ac-note'));const status=acNode('p','','ac-status');status.setAttribute('role','status');panel.append(status);
+ const form=acNode('div','','ac-data-grid ac-dismissal-form'),date=acUiDateField(form,'Дата увольнения *','date',state.fire?.date||''),exclude=acUiDateField(form,'Исключить из расчётов с месяца *','month',state.fire?.excludeMonth||''),access=acRadioGroup(form,'Закрыть доступ к сайту *',[['date','С первого нерабочего дня'],['now','Сейчас']],state.fire&&state.fire.accessAt<state.fire.date?'now':'date'),reasons=[['Увольнение','Увольнение'],['По собственному желанию','По собственному желанию'],['По решению работодателя','По решению работодателя']];if(state.fire?.reason&&!reasons.some(x=>x[0]===state.fire.reason))reasons.push([state.fire.reason,state.fire.reason]);const why=acUiDropdown(form,'Причина *',reasons,state.fire?.reason||'Увольнение'),comment=acInput(form,'Комментарий','textarea',state.fire?.comment||'');date.min=acLocalToday();comment.maxLength=1000;left.append(form);
+ const telegram=acSection('Рабочие Telegram-группы','ac-telegram-section');telegram.querySelector('h3').classList.add('acui-telegram-title');telegram.querySelector('h3').prepend(acUiTelegramIcon());const when=acRadioGroup(telegram,'Исключить из выбранных групп',[['date','В первый нерабочий день'],['now','Сейчас'],['none','Не удалять автоматически']],state.fire?.telegramWhen||'date'),checks=acNode('div','','ac-check-row'),work=acCheckbox('Отчеты по заявкам',state.fire?.groups?.includes('work')??true),ppr=acCheckbox('Отчеты по ППР',state.fire?.groups?.includes('ppr')??true);checks.append(work.row,ppr.row);telegram.append(checks,acNode('p','Запланированные действия выполняются сервером, даже если сайт закрыт.','ac-note'));left.append(telegram);
+ const effects=acSection('🗓️ После подтверждения','ac-effects'),list=acNode('ul');effects.append(list);const update=()=>{acUiRefreshPickers(form);list.replaceChildren();for(const text of [date.value?(access.value==='now'?'Доступ к сайту закроется сейчас.':'С '+acDayLabel(date.value)+' вход будет закрыт.'):'Выберите первый нерабочий день.',exclude.value?'С '+acMonthLabel(exclude.value)+' сотрудник не добавляется в расчётный состав.':'Выберите месяц исключения из состава.','С первого нерабочего дня будущие смены очищаются, сотрудник не включается в ежедневную сводку.','Прошлые часы, ТМЦ, акты и история сохраняются.'])list.append(acNode('li',text));};date.onchange=()=>{if(date.value)exclude.value=date.value.endsWith('-01')?date.value.slice(0,7):acFollowingMonth(date.value);update();};exclude.onchange=update;access.field.onchange=update;update();left.append(effects,acNode('p','ℹ️ Долги не мешают закрыть доступ. Увольнение не списывает ТМЦ и не закрывает акты.','ac-note'));
+ const actions=acNode('div','','ac-toolbar acui-plan-actions');actions.append(acButton('🔙 Отмена',()=>void acDrawAccess(panel,user,acUi.epoch),'btn danger-btn'),acButton('➡️ '+(state.fire?'Сохранить условия':'Запланировать увольнение'),()=>acSaveAction(panel,user,state,'plan',{plan:{date:date.value,excludeMonth:exclude.value,access:access.value,reason:why.value,comment:comment.value,telegramWhen:when.value,groups:[...(work.input.checked?['work']:[]),...(ppr.input.checked?['ppr']:[])]}},'План сохранён на сервере. Прошлые часы, ТМЦ и акты сохранены.'),'btn danger-btn'));left.append(actions);acMountObligations(right,user);
+}
+function acTeamKey(value){return employeeLoginKey(value).replace(/ё/g,'е');}
+function acTeamAreaKey(user){return acScopeKey()+'|'+String(user.city||'').trim().toLowerCase()+'|'+String(user.district||'').trim();}
+function acPaintTeamSummaries(root,data,area){if(!root?.isConnected)return;const people=data.employees||[],byLogin=new Map(people.map(p=>[acTeamKey(p.id),p])),directory=new Map(usersDb.map(p=>[acTeamKey(p.dwLogin),p]));for(const label of root.querySelectorAll('[data-team-login]')){const person=directory.get(acTeamKey(label.dataset.teamLogin));if(!person||acTeamAreaKey(person)!==acTeamAreaKey(area))continue;const member=byLogin.get(acTeamKey(person.dwLogin));if(!member){label.textContent='👥 Бригадир: нет в составе текущего месяца';continue;}if(normalizeEmployeeRole(member.role)==='Бригадир'){label.textContent='👥 Бригадир · техников: '+people.filter(p=>normalizeEmployeeRole(p.role)==='Техник-Универсал'&&acTeamKey(p.brigadierId)===acTeamKey(member.id)).length;continue;}const leader=acTeamKey(member.brigadierId),boss=leader?byLogin.get(leader):null;label.textContent=boss?'👥 Бригадир: '+boss.fullName:leader?'👥 Бригадир: не удалось определить':'👥 Бригадир: не назначен';}}
+function acTeamsChanged(data,user=currentUser){if(!user||!data||!Array.isArray(data.employees)||!data.month)return;const area=acTeamAreaKey(user),current=data.month===data.currentMonth;acUi.teamReads??=new Map();acUi.teamRevisions??=new Map();if(current){acUi.teamRevisions.set(area,(acUi.teamRevisions.get(area)||0)+1);for(const key of acUi.teamReads.keys())if(key.startsWith(area+'|'))acUi.teamReads.delete(key);}else acUi.teamReads.delete(area+'|'+data.month);const entry={promise:Promise.resolve(data),at:Date.now()};acUi.teamReads.set(area+'|'+data.month,entry);if(current){acUi.teamReads.set(area+'|',entry);acPaintTeamSummaries(document.getElementById('usersListContainer'),data,user);}}
+async function acGetTeams(month='',refresh=false,user=currentUser){const key=acTeamAreaKey(user)+'|'+month;acUi.teamReads??=new Map();const cached=acUi.teamReads.get(key);if(!refresh&&cached&&Date.now()-cached.at<30000)return cached.promise;const promise=acDailyCall('brigades',{operation:'list',targetLogin:user.dwLogin,...(month?{month}:{})}).catch(error=>{if(acUi.teamReads.get(key)?.promise===promise)acUi.teamReads.delete(key);throw error;});acUi.teamReads.set(key,{promise,at:Date.now()});return promise;}
+function acHistoryDescription(event){const d=event.details||{};if(d.changes?.length)return d.changes.map(c=>acUiHistoryField(c.field)+': '+acUiHistoryValue(c.before)+' → '+acUiHistoryValue(c.after)).join('; ');if(d.plan)return 'Первый нерабочий день: '+acDayLabel(d.plan.date)+'; исключение из расчётов: '+acMonthLabel(d.plan.excludeMonth)+'. '+(d.plan.reason||'');if(d.grants)return d.grants.length?d.grants.map(g=>g.city+' · участок '+g.district).join('; '):'Доступ ко всем участкам снят.';if(event.action==='refarb')return (d.enabled?'Назначен':'Назначение снято')+' с '+acMonthLabel(d.month);if(d.cancelledPlan)return 'Отменён план с '+acDayLabel(d.cancelledPlan.date);return d.description||d.reason||'';}
+function acAccordion(title,entries,render){const group=acNode('details','','ac-stock-group');group.append(acNode('summary',title));const body=acNode('div','','ac-stock-body');if(!entries.length)body.append(acNode('p','На остатке нет.','ac-note'));else entries.forEach(entry=>body.append(render(entry)));group.append(body);return group;}
+function acMountObligations(host,user){host.classList.add('ac-obligations');
+ const heading=acNode('div','','acui-obligations-head'),identity=acNode('strong',user.fullName,'ac-identity');const toolbar=acNode('div','','ac-toolbar acui-obligations-toolbar'),time=acNode('span','Данные ещё не загружены','ac-note'),totals=acNode('div','','ac-obligation-totals'),tabs=acNode('div','','ac-tabs ac-obligation-tabs'),body=acNode('div','','ac-obligations-body'),footer=acNode('div','','ac-obligations-actions');let section='warehouse',sequence=0;const scope=acScopeKey(),cache={},loadedAt={};const stock=acButton('📦 Виртуальный склад',()=>show('warehouse')),acts=acButton('📋 Долги по актам',()=>show('acts'));tabs.append(stock,acts);toolbar.append(time,acButton('🔄 Обновить',()=>show(section,true)));const titleRow=acNode('div','','v12-obligations-title-row'),title=host.querySelector(':scope>h3')||acNode('h3','📋 Обязательства сотрудника');titleRow.append(title,toolbar);heading.append(identity);host.append(titleRow,heading,totals,tabs,body,footer,acNode('p','ℹ️ Сведения из действующих модулей. Исправления выполняются в исходных разделах.','ac-note'));
+ function drawTotals(){totals.replaceChildren();for(const [key,label]of [['warehouse','📦 ТМЦ на остатке'],['acts','📋 Не сдано актов']]){const cell=acNode('div');cell.append(acNode('span',label));if(cache[key]){if(key==='acts')cell.append(acNode('strong',String(cache.acts.items?.length||0)));else{const items=cache.warehouse.warehouse.items||[],units=items.filter(i=>i.type!=='Кабель').length+(cache.warehouse.warehouse.materials||[]).filter(i=>i.unit!=='м').reduce((s,i)=>s+Number(i.quantity||0),0),meters=items.filter(i=>i.type==='Кабель').reduce((s,i)=>s+Number(String(i.meters||0).replace(',','.').replace(/\s/g,'')),0)+(cache.warehouse.warehouse.materials||[]).filter(i=>i.unit==='м').reduce((s,i)=>s+Number(i.quantity||0),0);cell.append(acNode('strong',units+' шт. · '+meters+' м'));}}else cell.append(acNode('strong','—'));totals.append(cell);}}
+ async function show(next,refresh=false){section=next;const seq=++sequence;stock.className=next==='warehouse'?'btn main-btn':'btn';acts.className=next==='acts'?'btn main-btn':'btn';body.replaceChildren(acLoading('Загружаем данные…'));drawTotals();const open=acButton(next==='acts'?'📋 Открыть долги по актам':'📦 Открыть виртуальные склады',()=>acOpenRelated(user,next),'btn main-btn'),send=acButton(next==='acts'?'✉️ Отправить долги':'✉️ Отправить остатки',()=>acSendObligations(user,next,send,sendStatus),'btn main-btn'),sendStatus=acNode('p','','ac-status');sendStatus.setAttribute('role','status');send.disabled=true;footer.replaceChildren(open,send);footer.after(sendStatus);const previous=host.querySelector('[data-obligation-send-status]');if(previous&&previous!==sendStatus)previous.remove();sendStatus.dataset.obligationSendStatus='1';try{const data=!refresh&&cache[next]?cache[next]:await acDailyCall('accountObligations',{targetLogin:user.dwLogin,section:next});if(seq!==sequence||scope!==acScopeKey()||!host.isConnected)return;if(refresh||!cache[next])loadedAt[next]=new Date();cache[next]=data;send.disabled=false;drawTotals();time.textContent='Обновлено: '+loadedAt[next].toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});body.replaceChildren();if(next==='acts'){if(!data.items?.length)body.append(acNode('p','✅ Несданных актов нет.','ac-zero'));for(const item of data.items||[]){const group=acNode('details','','ac-stock-group'),summary=acNode('summary'),badge=acNode('span','Не сдано','ac-badge ac-debt-badge');summary.append(acNode('strong','📋 '+item.type+' · '+item.date),badge);group.append(summary);const inner=acNode('div','','ac-stock-body');inner.append(acNode('p',item.address));for(const detail of item.details||[])inner.append(acNode('p',detail.label+': '+detail.value,'ac-note'));group.append(inner);body.append(group);}}else{const items=data.warehouse.items||[];for(const [type,emoji]of [['Роутеры','🛜'],['Приставки','📺'],['Кабель','🔌']]){const entries=items.filter(i=>i.type===type||type==='Роутеры'&&i.type==='Роутер'||type==='Приставки'&&i.type==='Приставка'),count=type==='Кабель'?entries.reduce((s,i)=>s+Number(String(i.meters||0).replace(',','.').replace(/\s/g,'')),0)+' м':entries.length+' шт.';body.append(acAccordion(emoji+' '+type+' · '+count,entries,item=>acNode('p',item.name+' · S/N '+item.serial+(item.mac?' · MAC '+item.mac:'')+(item.meters?' · '+item.meters+' м':''),'ac-note')));}const materials=(data.warehouse.materials||[]).filter(i=>i.quantity||i.reserved);body.append(acAccordion('🔩 Расходные материалы · '+materials.length+' наименований',materials,item=>acNode('p',item.name+': '+item.quantity+' '+item.unit+(item.reserved?' · Зарезервировано: '+item.reserved:''),'ac-note')));}}catch(e){if(seq===sequence&&scope===acScopeKey())body.replaceChildren(acNode('p','Не удалось проверить обязательства: '+e.message,'ac-error'),acButton('Повторить',()=>show(next,true)));}}
+ void show('warehouse');
+ // Load the second total independently; the inventory view never waits for act debts.
+ void acDailyCall('accountObligations',{targetLogin:user.dwLogin,section:'acts'}).then(data=>{if(scope===acScopeKey()&&host.isConnected&&!cache.acts){cache.acts=data;loadedAt.acts=new Date();drawTotals();}}).catch(()=>{if(scope===acScopeKey()&&host.isConnected){const cell=totals.children[1]?.querySelector('strong');if(cell)cell.textContent='Не удалось проверить';}});
+}
+function acUiMatchEmployee(u){const f=acEmployeeFilters,n=s=>String(s||'').toLocaleLowerCase('ru'),digits=s=>String(s||'').replace(/\D/g,'');return (!f.city||n(u.city).includes(n(f.city)))&&(!f.district||u.district===f.district)&&(!f.roles.size||f.roles.has(u.role))&&(!f.people.size||f.people.has(u.dwLogin))&&(!f.login||n(u.dwLogin).includes(n(f.login)))&&(!f.phone||digits(u.workPhone).includes(digits(f.phone)));}
+function acUiMulti(host,label,entries,set){const wrap=acNode('details','','v9-multi'),head=acNode('summary'),caption=acNode('span'),menu=acNode('div','','v9-multi-menu'),search=document.createElement('input');search.type='search';search.placeholder='Введите для поиска';search.setAttribute('aria-label','Поиск: '+label);const list=acNode('div');const field=acNode('div','','v11-multi-field');field.append(acNode('span',label,'v11-filter-label'));head.append(caption);wrap.append(head);menu.append(search,list);wrap.append(menu);field.append(wrap);host.append(field);const sync=()=>caption.textContent=set.size?'Выбрано: '+set.size:'Все '+(label==='Роль'?'роли':'сотрудники');function draw(){list.replaceChildren();for(const [key,text]of entries.filter(([,text])=>text.toLocaleLowerCase('ru').includes(search.value.toLocaleLowerCase('ru')))){const item=acCheckbox(text,set.has(key));item.input.onchange=()=>{item.input.checked?set.add(key):set.delete(key);sync();renderUsersList();};list.append(item.row);}if(!list.children.length)list.append(acNode('p','Нет совпадений','ac-note'));}search.oninput=draw;draw();sync();return wrap;}
+function acUiInitFilters(){const host=document.getElementById('acEmployeeFilters');host.replaceChildren();acEmployeeFilters.roles.delete('Владелец');usersDb.filter(u=>u.role==='Владелец').forEach(u=>acEmployeeFilters.people.delete(u.dwLogin));const disclosure=acNode('details','','v9-filter');disclosure.open=true;disclosure.append(acNode('summary','🔎 Фильтр'));const grid=acNode('div','','ac-data-grid v9-filter-grid');disclosure.append(grid);host.append(disclosure);const city=acInput(grid,'Город','search',acEmployeeFilters.city);city.placeholder='Все города';city.setAttribute('list','v9Cities');const cities=acNode('datalist');cities.id='v9Cities';for(const name of [...new Set(acConfiguredConnections().map(c=>c.city))])cities.append(acNode('option',name));grid.append(cities);const districtHolder=acNode('div');grid.append(districtHolder);function districts(){districtHolder.replaceChildren();const options=[['','Все участки'],...acConfiguredConnections().filter(c=>!acEmployeeFilters.city||c.city.toLowerCase()===acEmployeeFilters.city.toLowerCase()).map(c=>[c.district,'Участок '+c.district])];const unique=options.filter((v,i,a)=>a.findIndex(x=>x[0]===v[0])===i);if(!unique.some(x=>x[0]===acEmployeeFilters.district))acEmployeeFilters.district='';const input=acUiDropdown(districtHolder,'Участок',unique,acEmployeeFilters.district);input.onchange=()=>{acEmployeeFilters.district=input.value;renderUsersList();};}districts();city.oninput=()=>{acEmployeeFilters.city=city.value;acEmployeeFilters.district='';districts();renderUsersList();};acUiMulti(grid,'Роль',[...new Set(usersDb.filter(u=>u.role!=='Владелец').map(u=>u.role))].map(r=>[r,r]),acEmployeeFilters.roles);acUiMulti(grid,'ФИО',usersDb.filter(u=>u.role!=='Владелец').map(u=>[u.dwLogin,u.fullName]),acEmployeeFilters.people);for(const [key,title]of [['login','Логин'],['phone','Номер телефона']]){const input=acInput(grid,title,'search',acEmployeeFilters[key]);input.placeholder=key==='phone'?'+7…':'Введите логин';input.oninput=()=>{acEmployeeFilters[key]=input.value;renderUsersList();};}const footer=acNode('div','','v9-filter-footer');footer.append(acNode('span','Условия фильтров применяются совместно.','ac-note'),acButton('↩️ Сбросить фильтр',()=>{Object.assign(acEmployeeFilters,{city:'',district:'',login:'',phone:''});acEmployeeFilters.roles.clear();acEmployeeFilters.people.clear();acUiInitFilters();renderUsersList();},'btn danger-btn v11-reset'));disclosure.append(footer);const fields=[...grid.children].filter(n=>n.tagName!=='DATALIST');const [cityField,districtField,roleField,fioField,loginField,phoneField]=fields;for(const [node,key]of [[cityField,'city'],[districtField,'district'],[roleField,'role'],[loginField,'login'],[fioField,'fio'],[phoneField,'phone']]){node.dataset.filterField=key;grid.append(node);}const reset=footer.querySelector('button');reset.dataset.filterField='reset';grid.append(reset);footer.remove();}
+function acUiHistoryField(value){return ({status:'Статус учётной записи',temporaryBlocked:'Временная блокировка входа',blocked:'Блокировка входа',role:'Роль',city:'Город',district:'Участок',fullName:'ФИО',warehouse:'Номер склада',refarbEnabled:'Назначение на REFURB',workPhone:'Рабочий телефон',email:'Рабочая почта',tgId:'Личный Telegram ID',tgGroup:'Группа «Отчеты по заявкам»',tgGroupPpr:'Группа «Отчеты по ППР»'})[value]||(/^[a-zA-Z_]+$/.test(value||'')?'Данные сотрудника':value||'Данные сотрудника');}
+function acUiHistoryValue(value){if(value===true)return 'Включено';if(value===false)return 'Выключено';return ({active:'Активен',blocked:'Вход заблокирован',scheduled:'Увольнение запланировано',archived:'Уволен, учётная запись в архиве',pending:'Ожидает решения владельца',approved:'Одобрено владельцем',rejected:'Отклонено владельцем',now:'Сейчас',date:'В указанную дату',none:'Автоматическое действие отключено',work:'Отчеты по заявкам',ppr:'Отчеты по ППР'})[value]||value||'Не указано';}
+
+async function acApi(user,operation,fields={}){
+ const scope=acScopeKey(),write=!['state','history'].includes(operation),identity={...fields};delete identity.requestId;const key=user.dwLogin+'|'+operation+'|'+JSON.stringify(identity);acUi.requests??=new Map();let requestId=write?acUi.requests.get(key):fields.requestId;
+ if(write&&!requestId){requestId=acUi.requests.get(key);if(!requestId){requestId=fields.requestId||'account_'+(crypto.randomUUID?.()||Date.now()+'_'+Math.random().toString(36).slice(2));acUi.requests.set(key,requestId);}}
+ const result=await requestAuthJson({action:'account',...acAuth(),operation,targetLogin:user.dwLogin,...fields,...(requestId?{requestId}:{})},30000);
+ if(scope!==acScopeKey())throw Error('Сеанс изменился');if(result.status!=='ok')throw Error(result.message||'Изменение не подтверждено');if(write)acUi.requests.delete(key);if(result.today&&(!acUi.opened||acUi.opened===user.dwLogin))acUi.today=result.today;return result;
+}
+async function acDailyCall(action,fields={}){const person=fields.targetLogin?usersDb.find(u=>u.dwLogin===fields.targetLogin):null,config=person?getFrontendDistrictConfig(person.city,person.district):CITIES_CONFIG[currentUser?.city],scope=acScopeKey();if(!config?.reportsScriptUrl)throw Error('Не подключён скрипт участка');const result=await postJsonBounded(config.reportsScriptUrl,{action,...acAuth(),...fields,city:config.city,district:String(config.district)},45000);if(scope!==acScopeKey())throw Error('Сеанс изменился');if(!['ok','success'].includes(result.status))throw Error(result.message||'Данные не получены');return result;}
+function acPersonAllowed(user){return !!currentUser&&(currentUser.role==='Владелец'||(currentUser.allowedTargets||[{city:currentUser.city,district:currentUser.district}]).some(t=>String(t.city).trim().toLowerCase()===String(user.city).trim().toLowerCase()&&String(t.district)===String(user.district)));}
+function acConfiguredConnections(){return frontendDistricts().filter(c=>c.configured&&acPersonAllowed(c));}
+function acLocalToday(){return acUi.today||new Intl.DateTimeFormat('sv-SE',{timeZone:currentUser?.account?.timezone||'Asia/Qyzylorda',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());}
+
+async function acDrawRestore(host,panel,user,state){host.classList.add('v9-restore');const heading=acNode('div','','v11-restore-heading'),original=host.querySelector(':scope>h3');if(original)heading.append(original);heading.append(acNode('h3','♻️ Восстановление учётной записи'));host.prepend(heading);const request=state.restoreRequest,owner=currentUser.role==='Владелец';if(request){const box=acNode('div','','v9-request');box.append(acNode('strong',({pending:'🕒 Запрос ожидает решения',approved:'✅ Восстановление одобрено',rejected:'❌ Запрос отклонён'})[request.status]||'Запрос на восстановление'),acNode('p',request.actor+' · '+new Date(request.time).toLocaleString('ru-RU'),'ac-note'),acNode('p',request.comment));if(request.decision)box.append(acNode('p','Решение владельца: '+request.decision));if(state.restorePlan)box.append(acNode('p','Возвращение: '+acDayLabel(state.restorePlan.date)+' · Расчёты с '+acMonthLabel(state.restorePlan.includeMonth)));host.append(box);}
+ if(!owner){if(request?.status==='pending'||state.restorePlan)return;const form=acNode('div','','ac-data-grid v11-request-form'),comment=acInput(form,'Комментарий к восстановлению *','textarea');comment.rows=1;comment.placeholder='Опишите, зачем требуется вернуть сотрудника';comment.maxLength=1000;form.append(acButton('📨 Отправить запрос',()=>{if(!comment.value.trim()){comment.focus();return;}void acSaveAction(panel,user,state,'restoreRequest',{comment:comment.value.trim()},'Запрос сохранён. Доставка уведомления владельцу выполняется в фоне.');},'btn main-btn v11-send-request'));host.append(form,acNode('p','До одобрения владельца учётная запись остаётся в архиве.','ac-note'));return;}
+ if(request?.status!=='pending'){host.append(acNode('p',state.restorePlan?'Доступ вернётся в назначенную дату. Отдельная временная блокировка сохранится.':'Запроса от супервайзера пока нет.','ac-note'));return;}const form=acNode('div','','ac-data-grid acui-restore-owner-grid'),comment=acInput(form,'Комментарий владельца','textarea'),date=acUiDateField(form,'Дата возвращения','date',acLocalToday()),month=acUiDateField(form,'Включить в расчёты с месяца','month',acLocalToday().slice(0,7));comment.rows=1;date.min=acLocalToday();host.append(form);const actions=acNode('div','','ac-toolbar');actions.append(acButton('✅ Одобрить восстановление',()=>void acSaveAction(panel,user,state,'restoreApprove',{comment:comment.value.trim(),date:date.value,includeMonth:month.value},'Условия возвращения сохранены. Доступ откроется в назначенную дату.')),acButton('❌ Отклонить',()=>{if(!comment.value.trim()){comment.focus();return;}void acSaveAction(panel,user,state,'restoreReject',{comment:comment.value.trim()},'Запрос отклонён.');},'btn danger-btn'));host.append(actions,acNode('p','Бригада и REFURB проверяются заново. Прошлые часы, ТМЦ, акты и история сохраняются.','ac-note'));}
+
+
+
+async function acConnectTelegram(){try{const result=await requestAuthJson({action:'accountTelegramLink',operation:'connect',...acAuth()},20000);if(result.status!=='ok')throw Error(result.message);window.open(result.url,'_blank','noopener');}catch(e){showBeelineModal('Telegram',e.message,'⚠️');}}
+async function acRegistrationFromBot(){const token=new URL(location.href).searchParams.get('telegramRegistration');if(!token)return;try{const result=await requestAuthJson({action:'accountTelegramLink',operation:'registrationInfo',token},20000);if(result.status!=='ok')throw Error(result.message);acUi.registrationToken=token;document.getElementById('regTgId').value=result.telegramId;document.getElementById('regTgId').readOnly=true;const city=document.getElementById('regCity'),district=document.getElementById('regDistrict');if(city){city.value=result.city;updateRegistrationDistrictOptions();const label=document.getElementById('regCityLabel');if(label)label.textContent=result.city;}if(district){district.value=result.district;document.getElementById('regDistrictLabel').textContent='Участок '+result.district;}switchScreen('screen-register');}catch(e){showBeelineModal('Регистрация',e.message,'⚠️');}}
+async function acRegistrationOpenBot(){try{const city=document.getElementById('regCity').value,district=document.getElementById('regDistrict').value,result=await requestAuthJson({action:'accountTelegramLink',operation:'registrationStart',city,district},20000);if(result.status!=='ok')throw Error(result.message);window.open(result.url,'_blank','noopener');}catch(e){showBeelineModal('Регистрация',e.message,'⚠️');}}
+async function acDeleteMistake(user){const body=acNode('p','Удалить ошибочно зарегистрированного стажёра? Сервер сначала проверит отсутствие истории, назначений, данных в рабочих таблицах и участия в группах. Увольнение действующего сотрудника оформляется через архив.'),actions=acNode('div','','ac-toolbar'),cancel=acButton('Отмена',closeBeelineModal,'btn danger-btn'),confirm=acButton('Проверить и удалить',async()=>{confirm.disabled=cancel.disabled=true;try{const result=await requestAuthJson({action:'delete',...acAuth(),dwLogin:user.dwLogin,requestId:'delete_'+crypto.randomUUID()},45000);if(result.status!=='ok')throw Error(result.message);closeBeelineModal();await openAdminEmployees(true);showBeelineModal('Учётная запись','Ошибочная запись удалена.','✅');}catch(e){body.textContent=e.message;confirm.disabled=cancel.disabled=false;}},'btn danger-btn');actions.append(cancel,confirm);showBeelineModalNode('Удаление ошибочной записи',body,'⚠️',actions);}
+function acCaptureEmployeeLink(){const values=new URLSearchParams(location.hash.replace(/^#/,'')),login=values.get('employee');if(!login)return;const link={login,city:values.get('city'),district:values.get('district')};sessionStorage.setItem('ii_employee_link',JSON.stringify(link));}
+async function acFollowEmployeeLink(){let link;try{link=JSON.parse(sessionStorage.getItem('ii_employee_link')||'null');}catch{}if(!link||!currentUser)return;if(!['Владелец','Супервайзер'].includes(currentUser.role)||!acPersonAllowed(link)){sessionStorage.removeItem('ii_employee_link');showBeelineModal('Доступ ограничен','Карточка относится к недоступному участку.','🔒');return;}const config=getFrontendDistrictConfig(link.city,link.district);currentUser={...currentUser,city:link.city,district:link.district};activateDistrict(config);ownerCityChoiceRequired=false;acUi.deepLogin=link.login;sessionStorage.removeItem('ii_employee_link');await openAdminEmployees(true);}
+
+function acInstallAccountUi(){const search=document.getElementById("adminSearch");if(search){const parent=search.parentElement;if(parent&&!parent.contains(document.getElementById("usersListContainer")))parent.hidden=true;else{search.hidden=true;search.previousElementSibling?.matches("label")&&search.previousElementSibling.remove();}}const card=document.getElementById("usersListContainer")?.parentElement;if(card&&!document.getElementById("acEmployeeFilters")){const filters=document.createElement("div");filters.id="acEmployeeFilters";document.getElementById("usersListContainer").before(filters);}const group=document.getElementById("regTgGroup"),ppr=document.getElementById("regTgGroupPpr");for(const input of [group,ppr])if(input){input.required=false;input.value="configured";input.parentElement.hidden=true;}const personal=document.getElementById("regTgId");if(personal){personal.readOnly=true;personal.required=false;personal.placeholder="Подключается через бота";const button=acButton("🔗 Подключить Telegram",acRegistrationOpenBot);personal.after(button);}document.querySelector('#screen-admin-employees>.card>label')?.remove();acCaptureEmployeeLink();void acRegistrationFromBot();}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",acInstallAccountUi);else acInstallAccountUi();
+document.addEventListener("pointerdown",e=>{if(!e.target.closest(".acui-picker-popover,.acui-picker-trigger"))acUiClosePickers();if(!e.target.closest(".acui-choice-list,.acui-choice-trigger"))acUiCloseChoices();});document.addEventListener("keydown",e=>{if(e.key==="Escape"){acUiClosePickers(true);acUiCloseChoices(true);}});
+
     // Показывает доступных сотрудников порциями по 100 записей.
-    function renderUsersList(limit = 100) {
-        if (!currentUser) return;
-        const search = document.getElementById('adminSearch').value.toLowerCase();
-        const container = document.getElementById('usersListContainer');
-        
-        let filtered = usersDb.filter(u => u && [u.fullName, u.city, u.email, u.role, u.dwLogin, u.refarbEnabled === true ? 'REFURB рефарб рефарбщик' : '']
-            .some(value => String(value || '').toLowerCase().includes(search)));
-
-        if (currentUser.role === 'Старший Техник' || currentUser.role === 'Супервайзер') {
-            filtered = filtered.filter(u => districtSameUser(u));
-        }
-
-        document.getElementById('usersCount').textContent = filtered.length;
-
-        let html = '';
-        filtered.slice(0, limit).forEach(u => {
-            const canModify = currentUser.role === 'Владелец' ||
-                (currentUser.role === 'Супервайзер' && districtSameUser(u) && !['Владелец','Супервайзер'].includes(u.role)) ||
-                (currentUser.role === 'Старший Техник' && districtSameUser(u) && ['Стажер','Техник-Универсал','Бригадир'].includes(u.role));
-            const canDelete = canDeleteEmployee(u);
-
-            html += `
-                <div class="user-row">
-                    <div class="employee-card-header">
-                        <div class="user-info"><span>${escapeScheduleHtml(u.fullName)}</span> (${escapeScheduleHtml(u.role)})${u.refarbEnabled === true ? ' <span class="employee-refurb-badge" title="Назначен рефарбщиком">REFURB</span>' : ''}</div>
-                        ${(canModify || currentUser.id === u.id) ? `<button class="btn action-btn employee-card-edit" title="Редактировать" aria-label="Редактировать учётную запись" onclick="openEditModal('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')" ${canModify || currentUser.id === u.id ? '' : 'hidden'}><span aria-hidden="true">✏️</span><span class="employee-edit-label">Редактировать</span></button>` : ''}
-                    </div>
-                    <div class="user-info">Город: ${escapeScheduleHtml(u.city)} | Склад: ${u.warehouse}</div>
-                    <div class="user-info">Рабочий номер: <span>${u.workPhone || 'Не указан'}</span></div>
-                    <div class="user-info">Почта: ${escapeScheduleHtml(u.email)}</div>
-                    <div class="user-info">Логин DW: ${escapeScheduleHtml(u.dwLogin)} | Пароль: ••••••••</div>
-                    <div class="user-info">Telegram ID: ${escapeScheduleHtml(u.tgId)} | Группа ID: ${escapeScheduleHtml(u.tgGroup)} | ППР ID: ${escapeScheduleHtml(u.tgGroupPpr || "—")}</div>
-                    ${canDelete ? `
-                        <div class="user-actions">
-                            
-                            ${canDelete ? `<button class="btn danger-btn" onclick="confirmDeleteUser('${escapeScheduleHtml(String(u.id).replace(/\\/g,'\\\\').replace(/'/g,"\\'"))}')">🗑️ Удалить</button>` : ''}
-                        </div>
-                    ` : ''}
-                </div>
-            `;
-        });
-        container.innerHTML = html;
-        if (filtered.length > limit) {
-            const more = document.createElement('button');
-            more.type = 'button'; more.className = 'btn main-btn';
-            more.textContent = 'Показать ещё · осталось ' + (filtered.length - limit);
-            more.onclick = () => renderUsersList(limit + 100);
-            container.appendChild(more);
-        }
-    }
+    function renderUsersList(limit=100){
+ if(!currentUser)return;acRestoreEditor();const root=document.getElementById('usersListContainer'),filtered=usersDb.filter(u=>u&&(u.role!=='Владелец'||currentUser.role==='Владелец')&&(currentUser.role==='Владелец'||acPersonAllowed(u))&&acUiMatchEmployee(u));root.replaceChildren();document.getElementById('usersCount').textContent=filtered.length;
+ filtered.slice(0,limit).forEach(user=>{const row=acNode('details','','ac-list-row'),summary=acNode('summary'),person=acNode('span','','ac-person');row.dataset.login=user.dwLogin;person.append(acNode('strong',user.fullName),acNode('small',[user.role,user.city,'Участок '+user.district,user.warehouse?'Склад: '+String(user.warehouse).replace(/^Бригада\s*№?\s*/i,''):'Склад не назначен'].join(' · ')));const state=acUi.states.get(user.dwLogin)?.account||user.account||{status:'active'},badge=acNode('span',acStatusLabel(state),'ac-badge');badge.dataset.status=state.status;if(['Техник-Универсал','Бригадир'].includes(user.role)){const team=acNode('small','Бригадир: загружаем…');team.dataset.teamLogin=user.dwLogin;person.append(team);}if(!person.querySelector('[data-team-login]'))person.append(acNode('small','\u00a0','ac-team-placeholder'));summary.append(person);if(user.refarbEnabled)summary.append(acNode('span','REFURB','employee-refurb-badge'));summary.append(badge);row.append(summary);row.ontoggle=()=>{if(!row.open){if(acUi.opened===user.dwLogin){acRestoreEditor();acUi.opened='';acUi.epoch++;}return;}root.querySelectorAll('details[open]').forEach(other=>{if(other!==row)other.open=false;});acRestoreEditor();acUi.opened=user.dwLogin;acDrawTabs(row,user);};root.append(row);});if(filtered.length>limit)root.append(acButton('Показать ещё',()=>renderUsersList(limit+100)));if(!filtered.length)root.append(acNode('p','Сотрудники не найдены.','ac-note'));else void acLoadTeamSummaries(root);
+}
 
     // Сохранение редактирования удаление учетных запесей.
-    function openEditModal(userId) {
+    function acOpenLegacyEditor(userId) {
         const u = usersDb.find(item => item.id === userId);
         if (!u) return;
 
-        if (currentUser.role === 'Супервайзер' && (!districtSameUser(u) || (u.id !== currentUser.id && ['Владелец','Супервайзер'].includes(u.role)))) {
+        if (currentUser.role === 'Супервайзер' && (!acPersonAllowed(u) || (u.id !== currentUser.id && ['Владелец','Супервайзер'].includes(u.role)))) {
             showBeelineModal("Доступ ограничен", "У вас нет прав на редактирование супервайзеров или владельца.", "⚠️");
             return;
         }
-        if (currentUser.role === 'Старший Техник') {
-            if (!districtSameUser(u) || !['Стажер','Техник-Универсал','Бригадир'].includes(u.role)) {
+        if (currentUser.role === 'Старший Техник' && u.id !== currentUser.id) {
+            if (!acPersonAllowed(u) || !['Стажер','Техник-Универсал','Бригадир'].includes(u.role)) {
                 showBeelineModal("Доступ ограничен", "Старший техник может редактировать только Техников-Универсалов и Бригадиров.", "⚠️");
                 return;
             }
@@ -10129,7 +10600,7 @@ async function runSearchAccess(version) {
         document.getElementById('editCityDisplay').value = u.city;
         
         // Убираем лишний пробел в номере склада для красивого отображения в инпуте
-        let cleanWarehouse = u.warehouse ? u.warehouse.replace(/№\s+/, '№') : '';
+        let cleanWarehouse = String(u.warehouse||'').replace(/^Бригада\s*№?\s*/i,'');
         document.getElementById('editWarehouse').value = cleanWarehouse;
 
         document.getElementById('editWorkPhone').value = u.workPhone || '';
@@ -10205,120 +10676,10 @@ async function runSearchAccess(version) {
         if (supervisor) input.value = '';
     }
     // Очищает редактирование модальное окно.
-    function closeEditModal() {
-        document.getElementById('editUserModal').style.display = 'none';
-    }
+    function closeEditModal(){acRestoreEditor();document.getElementById('editUserModal').style.display='none';}
 
     // Сохраняет профиль только после подтверждения общей таблицы.
-    async function saveEditedUser() {
-        const fullNameInput = document.getElementById('editFullName');
-        const warehouseInput = document.getElementById('editWarehouse');
-        const workPhoneInput = document.getElementById('editWorkPhone');
-        const passwordInput = document.getElementById('editPassword');
-        const tgIdInput = document.getElementById('editTgId');
-        const tgGroupInput = document.getElementById('editTgGroup');
-        const tgGroupPprInput = document.getElementById('editTgGroupPpr');
-        const emailInput = document.getElementById('editEmail');
-        const cityInput = document.getElementById('editCity');
-
-        if (!fullNameInput.value.trim() || 
-            !workPhoneInput.value.trim() || 
-            !tgIdInput.value.trim() || !tgGroupInput.value.trim() || !tgGroupPprInput.value.trim() || !emailInput.value.trim()) {
-            showBeelineModal("Ошибка", "Все поля в форме редактирования должны быть заполнены!", "❌");
-            return;
-        }
-
-        const emailVal = emailInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(emailVal)) {
-            showBeelineModal("Ошибка", "Введите корректный адрес электронной почты (например, example@mail.ru)!", "❌");
-            emailInput.classList.add('input-error');
-            return;
-        }
-
-        const phoneInput = workPhoneInput.value.trim();
-        const digitsCount = (phoneInput.match(/\d/g) || []).length;
-        if (digitsCount < 11) {
-            showBeelineModal("Внимание", "Рабочий номер телефона введен не полностью!", "⚠️");
-            return;
-        }
-
-        let formattedFullName = fullNameInput.value.trim()
-            .split(/\s+/)
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ');
-
-        let warehouseVal = warehouseInput.value.trim();
-        const digits = warehouseVal.replace(/[^\d]/g, '');
-        warehouseVal = digits ? `Бригада №${digits}` : warehouseVal;
-
-        const id = document.getElementById('editUserId').value;
-        const index = usersDb.findIndex(item => item.id === id);
-        if (index !== -1) {
-            let newRole = document.getElementById('editRole').value;
-            
-            if (usersDb[index].role === 'Владелец' && currentUser.role !== 'Владелец') {
-                newRole = 'Владелец';
-            }
-            if (currentUser.role === 'Старший Техник') {
-                if (!['Стажер','Техник-Универсал','Бригадир'].includes(newRole)) {
-                    newRole = usersDb[index].role;
-                }
-            }
-
-            const updatedUser = {
-                action: 'update',district:document.getElementById('editDistrict').value.trim(),
-                actorLogin: currentUser.dwLogin, actorPassword: currentUser.password,
-                city: currentUser.role === 'Владелец' ? cityInput.value : usersDb[index].city,
-                fullName: formattedFullName,
-                warehouse: normalizeEmployeeRole(newRole) === 'Супервайзер' ? '' : (warehouseInput.disabled ? usersDb[index].warehouse : warehouseVal),
-                role: normalizeEmployeeRole(newRole),
-                workPhone: phoneInput,
-                dwLogin: usersDb[index].dwLogin,
-                password: passwordInput.value,
-                tgId: currentUser.role === 'Старший Техник' ? usersDb[index].tgId : tgIdInput.value.trim(),
-                tgGroup: currentUser.role === 'Старший Техник' ? usersDb[index].tgGroup : tgGroupInput.value.trim(),
-                tgGroupPpr: currentUser.role === 'Старший Техник' ? usersDb[index].tgGroupPpr : tgGroupPprInput.value.trim(),
-                email: emailVal
-            };
-
-            try {
-                if(currentUser.role==='Владелец')getFrontendDistrictConfig(updatedUser.city,updatedUser.district);
-                const response = await districtFetch(GLOBAL_AUTH_SALARY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(updatedUser)
-                });
-                if (!response.ok) throw new Error('HTTP ' + response.status);
-                const result = await response.json();
-                if (result.status !== 'ok') throw new Error(result.message || 'Изменения не подтверждены');
-            } catch (err) {
-                showBeelineModal("Изменения не сохранены", String(err.message || err), "⚠️");
-                return;
-            }
-
-            usersDb[index].city = updatedUser.city;
-            usersDb[index].fullName = updatedUser.fullName;
-            usersDb[index].warehouse = updatedUser.warehouse;
-            usersDb[index].role = updatedUser.role;
-            usersDb[index].workPhone = updatedUser.workPhone;
-            if(currentUser.dwLogin===updatedUser.dwLogin&&updatedUser.password)currentUser.password=updatedUser.password;
-            delete usersDb[index].password;
-            usersDb[index].tgId = updatedUser.tgId;
-            usersDb[index].tgGroup = updatedUser.tgGroup;
-            usersDb[index].tgGroupPpr = updatedUser.tgGroupPpr;
-            usersDb[index].email = updatedUser.email;
-            staffIndexSource = null;
-
-            localStorage.setItem('beeline_central_user', JSON.stringify(usersDb, (key, value) => key === 'password' ? undefined : value));
-
-            closeEditModal(); // Закрываем модальное окно редактирования
-            renderUsersList();
-            checkAuthSession();
-
-            showBeelineModal("Успешно", "Изменения успешно сохранены!", "✅");
-        }
-    }
+    async function saveEditedUser(){const user=usersDb.find(u=>String(u.id)===document.getElementById('editUserId').value);if(!user||acUi.busy)return;const get=id=>document.getElementById(id).value.trim(),profile={fullName:get('editFullName'),role:get('editRole'),warehouse:get('editWarehouse').replace(/^Бригада\s*№\s*/i,''),city:get('editCityDisplay'),district:get('editDistrict'),workPhone:get('editWorkPhone'),password:get('editPassword'),tgId:get('editTgId'),email:get('editEmail')};if(!profile.fullName||profile.workPhone.replace(/\D/g,'').length<11||profile.tgId&&!/^\d{5,20}$/.test(profile.tgId)||!/^\S+@\S+\.\S+$/.test(profile.email)){showBeelineModal('Проверьте поля','Укажите ФИО, полный телефон и корректную почту. Telegram можно подключить через бота позже.','⚠️');return;}const panel=document.getElementById('editUserModal').closest('.ac-panel');acUi.busy=true;const buttons=[...document.querySelectorAll('#editUserModal button')];buttons.forEach(b=>b.disabled=true);try{const result=await acApi(user,'profile',{profile,version:user.account?.version||0});Object.assign(user,profile,{account:result.account});delete user.password;if(user.dwLogin===currentUser.dwLogin&&profile.password)currentUser.password=profile.password;acUi.states.delete(user.dwLogin);acUi.teamReads?.clear();acRestoreEditor();renderUsersList();showBeelineModal('Учётная запись','Изменения сохранены. Уведомления и обновление состава выполняются в фоне.','✅');}catch(e){showBeelineModal('Изменения не подтверждены',e.message,'⚠️');}finally{acUi.busy=false;buttons.forEach(b=>b.disabled=false);}}
 
     // Проверяет удаление сотрудник.
     function canDeleteEmployee(user) {
@@ -14759,21 +15120,7 @@ function openAdminPanel(){
  managementState('');document.getElementById('managementDeliveryReopen').hidden=!managementGroup;
 }
 // Сразу показывает готовый список, обновляет устаревшие данные в фоне.
-async function openAdminEmployees(force = false){
- if(!managementAllowed())return;
- switchScreen('screen-admin-employees');
- const owner=managementOwnerKey(),epoch=authRequestEpoch;
- const node=document.getElementById('usersListContainer'),status=document.getElementById('employeesLoadStatus');
- if(usersDirectoryReady||usersDb.length)renderUsersList();
- else node.innerHTML=liveLoading('Загружаем сотрудников...');
- const fresh=usersDirectoryReady&&!force&&Date.now()-usersLoadedAt<USERS_CACHE_MS;
- status.textContent=fresh?'':'Обновляем список...';
- if(fresh)return;
- const loaded=await loadUsersFromSheet(force);
- if(epoch!==authRequestEpoch||owner!==managementOwnerKey()||!managementAllowed())return;
- if(loaded){renderUsersList();status.textContent='';}
- else status.textContent=usersDirectoryReady?'Не удалось обновить список. Показаны ранее загруженные данные.':'Не удалось загрузить полный список. Нажмите «Обновить».';
-}
+async function openAdminEmployees(force=false){if(!managementAllowed())return;acRestoreEditor();if(force)acUi.teamReads?.clear();switchScreen('screen-admin-employees');cancelUsersLoad();const scope=acScopeKey(),sequence=++acUi.loadEpoch;document.getElementById('employeesLoadStatus').textContent='Загружаем сотрудников…';try{const result=await requestAuthJson({action:'getUsers',...acAuth(),allDistricts:true},25000);if(sequence!==acUi.loadEpoch||scope!==acScopeKey())return;if(result.status!=='ok')throw Error(result.message||'Не удалось загрузить сотрудников');usersDb=result.users.map(u=>({...u,role:normalizeEmployeeRole(u.role),refarbEnabled:normalizeRefarbAssignment(u.refarbEnabled)}));usersDirectoryReady=true;usersLoadedAt=Date.now();acUi.states.clear();acUiInitFilters();renderUsersList();document.getElementById('employeesLoadStatus').textContent='';if(acUi.deepLogin){const login=acUi.deepLogin;acUi.deepLogin='';const row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===login.toLowerCase());if(row){acUi.tab='access';row.open=true;row.scrollIntoView({block:'start'});}}}catch(e){if(scope===acScopeKey())document.getElementById('employeesLoadStatus').textContent=e.message;}}
 // Выполняет руководство владелец ключ.
 function managementOwnerKey(){return (currentUser?.city||'')+'|'+(currentUser?.district||'')+'|'+(currentUser?.dwLogin||'');}
 // Выполняет руководство модальное окно активный.
@@ -14829,7 +15176,7 @@ function managementWatch(group){
 // Выполняет руководство запрос модальное окно.
 function managementRequestModal(title,text,loading=false){
  showBeelineModal(title,text,loading?'':'⚠️');
- if(loading)document.getElementById('beelineModalText').innerHTML=liveLoading(text);
+ if(loading){const modal=document.getElementById('beelineModal');modal.dataset.modalLoading='true';document.getElementById('beelineModalText').innerHTML=liveLoading(text);}
 }
 // Сохраняем ID ручного действия при сетевой ошибке: повтор с тем же ID не дублирует рассылку.
 let managementDebtRequest='',managementEventRequest='',managementEventFingerprint='';
@@ -14876,7 +15223,7 @@ async function openCityDebtPreview(force = false){
   const home=ctNode('button','btn danger-btn','🔚 Главное меню');home.type='button';home.onclick=()=>switchScreen('screen-main');nav.append(back,home);
   card.append(toolbar,body,send,nav);screen.append(card);document.querySelector('body>.container').append(screen);
  }
- switchScreen(screen.id);
+ switchScreen(screen.id);acSyncReturnNavigation();
  const owner=managementOwnerKey(),epoch=authRequestEpoch;
  const cached=cityDebtPreviewSnapshot?.owner===owner&&cityDebtPreviewSnapshot.epoch===epoch?cityDebtPreviewSnapshot:null;
  if(!force&&cached&&Date.now()-cached.time<ACT_DEBTS_CACHE_MS)return;
@@ -15018,6 +15365,7 @@ function selectAppDate(iso){const input=appCalendarInput;if(!input||input.disabl
 function toggleAppCalendar(input){if(input.disabled)return;if(typeof closeAppTime==='function')closeAppTime();if(appCalendarInput===input){closeAppCalendar();return;}closeAppCalendar();appCalendarInput=input;appCalendarMonth=appDateParse(input.type==='month'?input.value+'-01':input.value)||appDateParse(appDateLimits(input).min)||new Date();input._appDateButton.setAttribute('aria-expanded','true');const box=document.getElementById('appCalendar');box.hidden=false;renderAppCalendar();box.focus();}
 // Выполняет mount приложение календари.
 function mountAppCalendars(){document.querySelectorAll('input[type="date"],input[type="month"]').forEach(input=>{
+ if(input.classList.contains('acui-date-value'))return;
  if(input._appDateButton){syncAppDate(input);return;}
  const wrapper=document.createElement('div');wrapper.className='app-date-control';input.before(wrapper);wrapper.append(input);input.classList.add('app-date-input');input.tabIndex=-1;
  const b=document.createElement('button');b.type='button';b.className='app-date-trigger';b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');b.setAttribute('aria-controls','appCalendar');b.setAttribute('aria-label',document.querySelector('label[for="'+input.id+'"]')?.textContent||'Выбрать дату');
@@ -15400,7 +15748,7 @@ function districtFetch(input,options={}){
  const scoped=currentUser&&[config.scriptUrl,config.reportsScriptUrl,config.refarbScriptUrl].some(endpoint=>endpoint&&target.origin+target.pathname===new URL(endpoint).origin+new URL(endpoint).pathname);
  if(!scoped)return nativeDistrictFetch(input,options);
  const context={city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password};
- if(!/^[1-5]$/.test(String(context.district)))throw new Error('Участок не определён');
+ if(!/^[1-9]\d{0,5}$/.test(String(context.district)))throw new Error('Участок не определён');
  const next={...options};if(next.body){
   if(typeof next.body==='string'){try{next.body=JSON.stringify({...JSON.parse(next.body),...context});}catch(error){const form=new URLSearchParams(next.body);Object.entries(context).forEach(([k,v])=>form.set(k,v));next.body=form.toString();}}
   else if(next.body instanceof URLSearchParams){next.body=new URLSearchParams(next.body);Object.entries(context).forEach(([k,v])=>next.body.set(k,v));}
@@ -15418,31 +15766,13 @@ function renderOwnerDistrictPicker(city,message='',busy=false){
  document.getElementById('beelineModal').classList.add('district-picker');
 }
 async function confirmOwnerCity(){
- if(ownerCityBusy||currentUser?.role!=='Владелец')return;
+ if(ownerCityBusy||!['Владелец','Супервайзер'].includes(currentUser?.role))return;
  const city=ownerCitySelected,choices=appDistricts.filter(c=>c.city===city);if(!choices.length)return;
  if(choices.length===1){if(choices[0].configured)return confirmOwnerDistrict(city,choices[0].district);return;}
  renderOwnerDistrictPicker(city);
 }
 // Сервер сохраняет город и участок владельца одним подтверждённым действием.
-async function confirmOwnerDistrict(city,district){
- if(ownerCityBusy||currentUser?.role!=='Владелец')return;
- const owner=currentUser,controller=new AbortController();ownerCityController=controller;ownerCityBusy=true;renderOwnerCityOptions();
- try{
-  const config=getFrontendDistrictConfig(city,district);
-  // Повторный выбор участка из уже подтверждённой учётной записи не требует записи в таблицу.
-  if(owner.city!==city||String(owner.district)!==String(district)){
-   renderOwnerDistrictPicker(city,'⏳ Сохраняем выбранный участок…',true);
-   const result=await requestAuthJson({action:'ownerSwitchCity',city,district:String(district),dwLogin:owner.dwLogin,password:owner.password},20000,controller.signal);
-   if(currentUser!==owner||controller.signal.aborted)return;
-   if(result.routingVersion!==DISTRICT_ROUTING_VERSION||result.status!=='ok'||result.city!==city||String(result.district)!==String(district)||String(result.dwLogin).toLowerCase()!==String(owner.dwLogin).toLowerCase())throw new Error(result.message||'Участок не подтверждён');
-  }
-  if(currentUser!==owner||controller.signal.aborted)return;
-  paResetPayrollCache();currentUser={...owner,city,district:String(district)};usersDb=[{...currentUser}];activateDistrict(config);
-  if(document.getElementById('ownerRememberCity').checked)localStorage.setItem(ownerCityPreferenceKey(),city);else localStorage.removeItem(ownerCityPreferenceKey());
-  ownerCityChoiceRequired=false;closeBeelineModal();localStorage.setItem('beeline_current_user',JSON.stringify(currentUser,(k,v)=>k==='password'?undefined:v));checkAuthSession();void loadUsersFromSheet(true);
- }catch(error){if(currentUser===owner)renderOwnerDistrictPicker(city,'⚠️ '+String(error.message||error));}
- finally{ownerCityController=null;ownerCityBusy=false;renderOwnerCityOptions();}
-}
+async function confirmOwnerDistrict(city,district){if(ownerCityBusy||!['Владелец','Супервайзер'].includes(currentUser?.role))return;const config=getFrontendDistrictConfig(city,district);if(!appDistricts.some(c=>c.city===city&&String(c.district)===String(district)&&c.configured)||!acPersonAllowed(config)){showBeelineModal('Доступ ограничен','Этот участок недоступен.','🔒');return;}paResetPayrollCache();currentUser={...currentUser,city,district:String(district)};usersDb=[{...currentUser}];activateDistrict(config);ownerCityChoiceRequired=false;closeBeelineModal();checkAuthSession();void loadUsersFromSheet(true);}
 
 </script>
 
@@ -17327,36 +17657,8 @@ async function rfDownloadUi(original){
  if(rfUi.busy)return;const owner=managementOwnerKey();rfUi.busy=true;rfBusyControls();rfNote('Готовим Excel…');
  try{const r=await rfApi('export',{month:rfUi.month,original},120000);if(owner!==managementOwnerKey())return;const bytes=Uint8Array.from(atob(r.file.base64),c=>c.charCodeAt(0)),url=URL.createObjectURL(new Blob([bytes],{type:r.file.mime})),a=document.createElement('a');a.href=url;a.download=r.file.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),5000);rfNote('Excel сформирован');}catch(e){rfNote('⚠️ '+e.message);}finally{if(owner===managementOwnerKey()){rfUi.busy=false;rfBusyControls();}}
 }
-function rfSyncEditWorker(){
- const field=document.getElementById('editRefarbField'),button=document.getElementById('editRefarbToggle'),status=document.getElementById('editRefarbStatus');
- const user=usersDb.find(u=>String(u.id)===document.getElementById('editUserId').value);
- field.hidden=!user||!rfUiManager()||!districtSameUser(user)||!['Техник-Универсал','Бригадир','Старший Техник'].includes(user.role);
- button.onclick=null;if(field.hidden)return;
- const enabled=user.refarbEnabled===true;
- status.textContent=enabled?'Назначен рефарбщиком':'Не назначен';status.dataset.enabled=String(enabled);
- button.textContent=enabled?'Снять назначение':'Назначить';button.className=enabled?'btn danger-btn':'btn main-btn';button.onclick=()=>rfSetWorker(user.id);
-}
-async function rfSetWorker(userId){
- const user=usersDb.find(u=>u.id===userId);if(!user||!rfUiManager()||!districtSameUser(user)||!['Техник-Универсал','Бригадир','Старший Техник'].includes(user.role))return;
- const enabled=user.refarbEnabled!==true,owner=managementOwnerKey();
- const body=rfElement('div','',enabled?'Назначить '+user.fullName+' рефарбщиком своего участка? Предыдущее назначение будет снято.':'Снять назначение с '+user.fullName+'?');
- const actions=rfElement('div','rf-worker-actions'),returnFocus=()=>{if(document.getElementById('editUserModal').style.display!=='none'&&document.getElementById('editUserId').value===String(user.id))document.getElementById('editRefarbToggle').focus();};
- const cancel=rfButton('Отмена',()=>{closeBeelineModal();returnFocus();},'btn danger-btn');
- const save=rfButton('Сохранить',async()=>{
-  if(save.disabled)return;save.disabled=true;cancel.disabled=true;
-  try{
-   const reply=await requestAuthJson({action:'setRefarbWorker',city:currentUser.city,district:currentUser.district,actorLogin:currentUser.dwLogin,actorPassword:currentUser.password,targetLogin:user.dwLogin,enabled},25000);
-   if(owner!==managementOwnerKey())return;
-   if(reply.status!=='ok')throw new Error(reply.message||'Назначение не сохранено');
-   for(const employee of usersDb)if(districtSameUser(employee)&&(enabled||employeeLoginKey(employee.dwLogin)===employeeLoginKey(user.dwLogin)))employee.refarbEnabled=enabled&&employeeLoginKey(employee.dwLogin)===employeeLoginKey(user.dwLogin);
-   const self=usersDb.find(u=>employeeLoginKey(u.dwLogin)===employeeLoginKey(currentUser.dwLogin));if(self)currentUser={...currentUser,refarbEnabled:self.refarbEnabled===true};
-   closeBeelineModal();rfSyncEditWorker();rfVisibility();renderUsersList();returnFocus();
-   await loadUsersFromSheet(true);if(owner!==managementOwnerKey())return;
-   rfSyncEditWorker();rfVisibility();renderUsersList();
-  }catch(e){if(owner!==managementOwnerKey())return;save.disabled=false;cancel.disabled=false;body.textContent=e.message;body.setAttribute('role','alert');}
- },'btn main-btn');
- actions.append(cancel,save);showBeelineModalNode('Назначение рефарбщика',body,'🛠️',actions);document.getElementById('beelineModal').classList.add('rf-worker-confirm');cancel.focus();
-}
+function rfSyncEditWorker(){const user=usersDb.find(u=>String(u.id)===document.getElementById('editUserId').value),field=document.getElementById('editRefarbField'),button=document.getElementById('editRefarbToggle');if(!user||!field||!button)return;field.hidden=!['Владелец','Супервайзер','Старший Техник'].includes(currentUser.role)||!acCanModify(user)||!['Техник-Универсал','Бригадир','Старший Техник'].includes(user.role);button.hidden=field.hidden;acUiSyncRefurb(user);document.getElementById('editTgId').readOnly=!['Владелец','Супервайзер'].includes(currentUser.role);button.onclick=()=>rfSetWorker(user.id);}
+function rfSetWorker(id){const user=usersDb.find(u=>u.id===id);if(!user||acUi.busy)return;const enabled=!(user.refarbPlanned?.enabled??user.refarbEnabled),month=acMonthLabel(acFollowingMonth(acLocalToday()));acConfirmAction(enabled?'Назначить рефарбщиком?':'Снять назначение REFURB?',user.fullName+'\n\n'+(enabled?'Сотрудник будет назначен рефарбщиком участка с первого числа следующего месяца: '+month+'. Если на участке уже назначен рефарбщик, назначение будет заменено с этой даты.':'Назначение рефарбщиком будет снято с первого числа следующего месяца: '+month+'.')+' Текущий месяц и уже выполненные работы сохраняются.',()=>rfSetWorkerConfirmed(id));}
 function rfInit(){const data=document.createElement('datalist');data.id='refarbNomenclature';if(typeof NOMENCLATURE_LIST!=='undefined')for(const name of NOMENCLATURE_LIST){const o=document.createElement('option');o.value=name;data.append(o);}document.body.append(data);rfVisibility();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',rfInit);else rfInit();
 </script>
@@ -17505,6 +17807,7 @@ let state=null, busy=false;
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function monthLabel(month){const months=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];return months[Number(month.slice(5,7))-1]+' '+month.slice(0,4)+' г.';}
+function saveBusy(bossId){const root=$('iiTeamsContent');root.setAttribute('aria-busy','true');root.querySelectorAll('button,input,select').forEach(e=>e.disabled=true);root.querySelectorAll('[data-save-team]').forEach(button=>{button.setAttribute('aria-busy',String(button.dataset.saveTeam===bossId));if(button.dataset.saveTeam===bossId)button.replaceChildren(pwHourglass(),document.createTextNode('Сохраняем состав…'));});}
 function refreshBusy(value){const button=$('iiTeamsRefresh');if(button)button.disabled=value;}
 function status(message,isError){const e=$('iiTeamsStatus');if(e){e.textContent=message;e.style.color=isError?'#b93838':'';}}
 function actor(){const u=window.currentUser ?? (typeof currentUser!=='undefined'?currentUser:null);
@@ -17521,9 +17824,9 @@ async function call(operation,fields={}){
  if(requestId)writeIds.delete(key);return data;
 }
 window.iiTeamsOpen=async function(){try{actor();selectedMonth='';state=null;switchScreen('screen-ii-teams');await window.iiTeamsLoad();}catch(e){status(e.message,true);}};
-window.iiTeamsLoad=async function(){if(busy)return;busy=true;refreshBusy(true);const owner=managementOwnerKey();status('');$('iiTeamsContent').innerHTML=liveLoading('Загружаем сотрудников и состав бригад…');try{
+window.iiTeamsLoad=async function(){if(busy)return;busy=true;refreshBusy(true);$('iiTeamsContent').setAttribute('aria-busy','true');const owner=managementOwnerKey();status('');$('iiTeamsContent').innerHTML=liveLoading('Загружаем сотрудников и состав бригад…');try{
  const data=await call('list',selectedMonth?{month:selectedMonth}:{});if(owner!==managementOwnerKey())return;
- state=data;selectedMonth=data.month;const bosses=data.employees.filter(p=>p.role==='Бригадир'),techs=data.employees.filter(p=>p.role==='Техник-Универсал');
+ acTeamsChanged(data,actor());state=data;selectedMonth=data.month;const bosses=data.employees.filter(p=>p.role==='Бригадир'),techs=data.employees.filter(p=>p.role==='Техник-Универсал');
  let html='<div class="ii-team-month"><label>Месяц назначения</label><div class="custom-dropdown" id="iiTeamsMonthDropdown"><button type="button" class="dropdown-select-btn" id="iiTeamsMonthButton" aria-label="Месяц назначения"><span>'+esc(monthLabel(data.month))+'</span><span class="dropdown-arrow">▼</span></button><div class="dropdown-list">'+[[data.currentMonth,' · текущий'],[data.nextMonth,' · следующий']].map(([month,label])=>'<button type="button" class="dropdown-item" aria-selected="'+(month===data.month?'true':'false')+'" data-team-month="'+esc(month)+'">'+esc(monthLabel(month)+label)+'</button>').join('')+'</div></div></div><div class="ii-team-grid">';
  if(!bosses.length)html+='<p>На участке нет сотрудников с ролью Бригадир.</p>';
  bosses.forEach(boss=>{html+='<section class="ii-team-panel" data-boss="'+esc(boss.id)+'"><h3>'+esc(boss.fullName)+'</h3><p>Выберите техников бригады:</p>';
@@ -17533,12 +17836,12 @@ window.iiTeamsLoad=async function(){if(busy)return;busy=true;refreshBusy(true);c
   html+='<button type="button" class="btn main-btn" data-save-team="'+esc(boss.id)+'">💾 Сохранить состав бригады</button></section>';});
  $('iiTeamsContent').innerHTML=html+'</div>';$('iiTeamsMonthButton').onclick=event=>toggleDropdown(event,'iiTeamsMonthDropdown');$('iiTeamsContent').querySelectorAll('[data-team-month]').forEach(button=>button.onclick=event=>{event.stopPropagation();setDropdownOpen($('iiTeamsMonthDropdown'),false);selectedMonth=button.dataset.teamMonth;void window.iiTeamsLoad();});
  $('iiTeamsContent').querySelectorAll('[data-save-team]').forEach(button=>button.onclick=()=>window.iiTeamsSave(button.dataset.saveTeam));status('Состав загружен из ежедневной таблицы участка.');
- }catch(e){$('iiTeamsContent').replaceChildren();status(e.message,true);}finally{busy=false;refreshBusy(false);}};
+ }catch(e){$('iiTeamsContent').replaceChildren();status(e.message,true);}finally{busy=false;refreshBusy(false);$('iiTeamsContent').setAttribute('aria-busy','false');}};
 window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.from($('iiTeamsContent').querySelectorAll('[data-boss]')).find(e=>e.dataset.boss===bossId);if(!section)return;
  const members=Array.from(section.querySelectorAll('input[data-person]:checked')).map(e=>e.dataset.person),fields={leader:bossId,members,month:selectedMonth,version:state.version};
  ctConfirm('Сохранить состав бригады?',selectedMonth+' · техников: '+members.length+'. Отмеченные техники войдут в состав бригады. Снятые отметки освободят сотрудников для назначения другому бригадиру.',async()=>{
-  if(busy)return;busy=true;refreshBusy(true);const owner=managementOwnerKey();$('iiTeamsContent').querySelectorAll('button,input,select').forEach(e=>e.disabled=true);status('Сохраняем состав и обновляем расчёты…');let message='',failed=false;
-  try{const result=await call('save',fields);if(owner!==managementOwnerKey())return;message=result.message||'Состав сохранён';}catch(e){failed=true;message=e.message+' Перед повторным сохранением нажмите «Обновить».';}
+  if(busy)return;busy=true;refreshBusy(true);const owner=managementOwnerKey();saveBusy(bossId);status('Сохраняем состав и обновляем расчёты…');let message='',failed=false;
+  try{const result=await call('save',fields);if(owner!==managementOwnerKey())return;acTeamsChanged(result,actor());message=result.message||'Состав сохранён';}catch(e){failed=true;message=e.message+' Перед повторным сохранением нажмите «Обновить».';}
   finally{busy=false;refreshBusy(false);}
   if(owner===managementOwnerKey()){await window.iiTeamsLoad();status(message,failed);}
  });
