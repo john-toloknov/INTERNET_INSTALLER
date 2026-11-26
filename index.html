@@ -598,6 +598,11 @@ html[data-app-layout=desktop] #pprPlansList{grid-template-columns:repeat(3,minma
 #screen-ppr-plans .ppr-plans-toolbar>.btn[hidden]{display:none!important}
 .engineer-district-control { width:100%; max-width:360px; margin:0 0 18px; }
 .engineer-district-control .dropdown-select-btn { display:flex; align-items:center; justify-content:space-between; width:100%; }
+#screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control){display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,180px) auto;gap:12px;align-items:center}
+#screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control)>.ppr-plans-search{width:100%;max-width:none;min-width:0}
+#screen-ppr-plans .ppr-plans-controls>.engineer-district-control{width:100%;max-width:none;min-width:0;margin:0}
+#screen-ppr-plans .ppr-plans-controls>.engineer-district-control>.custom-dropdown{width:100%;margin:0}
+#screen-ppr-plans .ppr-plans-controls>.engineer-district-control .dropdown-select-btn{box-sizing:border-box;min-width:0;height:44px;min-height:44px;margin:0;padding:8px 12px;font-size:13px;white-space:nowrap}
 .engineer-district-control .dropdown-item, #pprCreateOverlay .dropdown-item { width:100%; text-align:left; font:inherit; background:transparent; border:0; color:var(--text-main); }
 #screen-admin-work-schedule.engineer-readonly .gs-shift:disabled { opacity:1; cursor:default; }
 #screen-admin-work-schedule.engineer-readonly .gs-name-choice .dropdown-arrow { visibility:hidden; }
@@ -4372,6 +4377,14 @@ html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar{display:flex;f
 html[data-app-layout=mobile] #screen-ppr-plans #pprAddAddressBtn{order:1}
 html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar>.app-refresh-button{order:0}
 html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-toolbar>.btn{width:auto!important;max-width:none!important;min-width:0;min-height:48px!important;height:48px;margin:0!important;padding:10px 10px!important;font-size:12px!important;line-height:18px!important;white-space:nowrap!important;word-break:normal!important;overflow-wrap:normal!important}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control){grid-template-columns:minmax(84px,1fr) minmax(0,2.2fr);gap:12px 8px}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control)>.ppr-plans-search{grid-column:1/-1;grid-row:1}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls>.engineer-district-control{grid-column:1;grid-row:2}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls>.engineer-district-control .dropdown-select-btn{height:48px;min-height:48px;padding:6px 4px;font-size:11px;gap:2px}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls>.engineer-district-control .dropdown-arrow{margin:0;flex:none;font-size:10px}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control)>.ppr-plans-toolbar{grid-column:2;grid-row:2;display:grid!important;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);width:100%;min-width:0;gap:8px;margin:0}
+html[data-app-layout=mobile] #screen-ppr-plans .ppr-plans-controls:has(>.engineer-district-control) .ppr-plans-toolbar>.btn{width:100%!important;min-width:0!important;max-width:100%!important;min-height:48px!important;height:48px!important;padding:6px 4px!important;font-size:11px!important;line-height:14px!important;white-space:normal!important}
+
 
 #screen-tmc-request .tmr-request-header{display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:12px!important;flex-wrap:wrap!important;}
 #screen-tmc-request .tmr-request-header .tmr-form-date{order:0;flex:0 1 160px;margin:0!important;}
@@ -4774,6 +4787,12 @@ html[data-app-layout=desktop] body:not([data-view-auth=true]) .view-header{posit
 html[data-app-layout=desktop] body[data-menu-open=true] .view-header{z-index:100011}
 .app-mobile-navigation[hidden]{display:none!important}
 #managementExamBtn[hidden]{display:none!important}
+#screen-management-exam>.management-exam-card{display:flex;flex-direction:column;gap:12px;padding:12px!important}
+#screen-management-exam .management-exam-host{min-width:0;width:100%}
+#screen-management-exam .management-exam-frame{display:block;width:100%;height:max(560px,calc(100dvh - 250px));min-height:560px;box-sizing:border-box;border:0;border-radius:10px;background:#fff}
+#screen-management-exam .common-nav-row{margin:0}
+html[data-app-layout=mobile] #screen-management-exam .management-exam-frame{height:max(520px,calc(100dvh - 220px));min-height:520px}
+
 .app-mobile-navigation{display:none}
 html[data-app-layout=mobile] .app-mobile-navigation{position:fixed;top:0;left:16px;right:16px;z-index:900;display:flex;align-items:center;gap:10px;width:auto;max-width:var(--view-width);min-height:48px;box-sizing:border-box;margin:0 auto;padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;background:var(--bg-color);border:1px solid var(--card-border);border-top:0;border-radius:0 0 12px 12px;box-shadow:0 6px 14px rgba(0,0,0,.12)}
 .app-mobile-home{display:inline-flex;align-items:center;justify-content:center;width:auto!important;min-height:40px;margin:0!important;padding:8px 13px;font-size:13px;line-height:1.3;flex:none}
@@ -5150,7 +5169,7 @@ function openTmcSection(key){
    const user=document.createElement('div');user.className='view-sidebar-user';user.textContent=document.getElementById('userInfoHeader')?.textContent||'Разделы приложения';sidebar.append(user);
    const exam=document.getElementById('managementExamBtn'),examHidden=normalizeEmployeeRole(currentUser?.role)!=='Старший Техник';if(exam&&exam.hidden!==examHidden)exam.hidden=examHidden;
    const visible=button=>!!button&&!button.hidden&&button.style.display!=='none';
-   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openEntertainment:'screen-entertainment',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openPayrollManagement:'screen-admin-payroll',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
+   const map={openTechnicianReports:'screen-technician-reports',openScannerScreen:'screen-scanner',openSoftwareScreen:'screen-software',openEntertainment:'screen-entertainment',openCityDebtPreview:'screen-management-debts',openCityTable:'screen-admin-table-home',openPayrollManagement:'screen-admin-payroll',openWorkingSchedule:'screen-admin-work-schedule',openAdminPanel:'screen-admin',openManagementExam:'screen-management-exam',openAdminEmployees:'screen-admin-employees',openManagementEvent:'screen-management-event',openStaffBoard:'screen-admin-board',openTmcRequest:'screen-tmc-request',openTmcRequestsManagement:'screen-tmc-requests-management',openMySchedule:'screen-schedule',openPprPlans:'screen-ppr-plans',openActDebts:'screen-act-debts',openMyEquipment:'screen-my-equipment',openMySalary:'screen-salary',openMyHours:'screen-my-hours',openReturnEquipmentForm:'screen-return-equipment',openCheckReturnScreen:'screen-check-return'};
    function matches(original){
     if(original.id==='scannerAppBtn')return ['screen-tmc-requests-management','screen-scanner','screen-form','screen-virtual-warehouse'].includes(active.id);
     if(original.dataset.viewTarget)return original.dataset.viewTarget===active.id;
@@ -5206,7 +5225,7 @@ function openTmcSection(key){
    }
    const brigadierBoard=document.getElementById('brigadierBoardBtn');if(visible(brigadierBoard))addButton(brigadierBoard,sidebar);
    const scanner=document.getElementById('scannerAppBtn');if(visible(scanner))addButton(scanner,sidebar);
-   if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event'||active.id==='screen-tmc-requests-management',{allow:()=>visible(admin)});
+   if(visible(admin))section('admin','⚙️ Админ-панель',[...document.querySelectorAll('#screen-admin > .card > button')],active.id.startsWith('screen-admin')||active.id==='screen-management-event'||active.id==='screen-management-exam'||active.id==='screen-tmc-requests-management',{allow:()=>visible(admin)});
    const tools=document.createElement('div');tools.className='view-sidebar-tools';sidebar.append(tools);
    const logoutButton=document.querySelector('#screen-main > .card > .danger-btn');if(visible(logoutButton)){const button=addButton(logoutButton,tools);button.classList.add('view-sidebar-logout');}
    lastScreen=active.id;
@@ -6520,15 +6539,15 @@ html[data-app-layout] body #usersListContainer .ac-bots-head{display:flex;align-
 html[data-app-layout] body #usersListContainer .ac-bots-head h3{margin:0}
 html[data-app-layout] body #usersListContainer .ac-bots-head>.btn,html[data-app-layout] body #usersListContainer .ac-bot-password-row>.btn{width:auto!important;min-height:32px!important;margin:0!important;padding:6px 10px!important;font-size:12px!important;white-space:nowrap}
 html[data-app-layout] body #usersListContainer .ac-bot-items{display:grid;gap:12px;min-width:0}
-html[data-app-layout] body #usersListContainer .ac-bot-item{margin:0!important;padding:12px!important;min-width:0}
-html[data-app-layout] body #usersListContainer .ac-bot-item h3{margin:0 0 8px;font-size:15px}
-html[data-app-layout] body #usersListContainer .ac-bot-link{display:inline-block;margin:0 0 12px;color:var(--accent-ink);overflow-wrap:anywhere}
+html[data-app-layout] body #screen-admin-employees #usersListContainer .ac-panel .ac-bot-item{display:flex!important;flex-direction:column!important;gap:12px!important;margin:0!important;padding:12px!important;min-width:0}
+html[data-app-layout] body #usersListContainer .ac-bot-item h3{margin:0!important;font-size:15px}
+html[data-app-layout] body #usersListContainer .ac-bot-link{display:inline-block;align-self:flex-start;margin:0!important;color:var(--accent-ink);overflow-wrap:anywhere}
 html[data-app-layout] body #usersListContainer .ac-bot-password-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;min-width:0}
 html[data-app-layout] body #usersListContainer .ac-bot-password-row>.main-btn{grid-column:1/-1;justify-self:start}
 html[data-app-layout] body #usersListContainer .ac-bot-password{min-width:0;white-space:nowrap;overflow-x:auto;user-select:text;font-size:13px;line-height:1.5;scrollbar-width:thin}
-html[data-app-layout] body #usersListContainer .ac-bot-editor{display:grid!important;grid-template-columns:minmax(0,1fr);gap:12px;margin:12px 0 0;min-width:0;align-items:start}
+html[data-app-layout] body #usersListContainer .ac-bot-editor{position:relative;display:grid!important;grid-template-columns:minmax(0,1fr);gap:12px;margin:0!important;min-width:0;align-items:start}
 html[data-app-layout] body #usersListContainer .ac-bot-editor[hidden]{display:none!important}
-html[data-app-layout] body #usersListContainer .ac-bot-editor>label{position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;margin:0;padding-bottom:40px}
+html[data-app-layout] body #usersListContainer .ac-bot-editor>label{position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;margin:0;padding:0!important}
 html[data-app-layout] body #usersListContainer .ac-bot-editor>label>span:first-child{padding-inline-start:1ch;font-size:11px;line-height:1.4;color:var(--text-secondary)}
 html[data-app-layout] body #usersListContainer .ac-bot-input{display:block;position:relative;width:100%;min-width:0;height:36px}
 html[data-app-layout] body #usersListContainer .ac-bot-editor input{width:100%;min-width:0;height:36px!important;min-height:36px!important;margin:0!important;font-size:13px;padding:7px 42px 7px 10px!important;box-sizing:border-box}
@@ -6537,10 +6556,11 @@ html[data-app-layout] body #usersListContainer .ac-bot-reveal svg{pointer-events
 html[data-app-layout] body #usersListContainer .ac-bot-reveal:focus-visible{outline:2px solid var(--accent-ink);outline-offset:1px}
 html[data-app-layout] body #usersListContainer .ac-bot-editor>.ac-bot-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0;min-width:0}
 html[data-app-layout] body #usersListContainer .ac-bot-actions>.btn{width:100%!important;min-width:0!important;min-height:36px!important;height:100%;margin:0!important;font-size:12px;line-height:1.3;padding:7px 10px!important;box-sizing:border-box}
-html[data-app-layout] body #usersListContainer .ac-bot-hint{display:none;position:absolute;left:0;top:calc(100% - 36px);z-index:10;width:max-content;max-width:100%;box-sizing:border-box;padding:4px 6px;border:1px solid var(--card-border);border-radius:8px;background:var(--card-bg);color:var(--text-main);box-shadow:0 3px 10px #0002;font-size:11px;line-height:1.3;text-transform:none!important;letter-spacing:normal!important;font-weight:400!important}
+html[data-app-layout] body #usersListContainer .ac-bot-hint{display:none;position:absolute;left:0;top:calc(100% + 6px);z-index:10;pointer-events:none;width:max-content;max-width:100%;box-sizing:border-box;padding:4px 6px;border:1px solid var(--card-border);border-radius:8px;background:var(--card-bg);color:var(--text-main);box-shadow:0 3px 10px #0002;font-size:11px;line-height:1.3;text-transform:none!important;letter-spacing:normal!important;font-weight:400!important}
 html[data-app-layout] body #usersListContainer .ac-bot-editor>label:has(input:focus)>.ac-bot-hint{display:block}
-html[data-app-layout] body #usersListContainer .ac-bot-item>.ac-status{margin:8px 0 0;overflow-wrap:anywhere}
+html[data-app-layout] body #usersListContainer .ac-bot-item>.ac-status{margin:0!important;overflow-wrap:anywhere}
 html[data-app-layout] body #usersListContainer .ac-bot-item>.ac-status:empty{display:none}
+html[data-app-layout=mobile] body #usersListContainer .ac-bot-editor>label{position:static}
 html[data-app-layout=desktop] body #usersListContainer .ac-bot-password-row{grid-template-columns:minmax(0,1fr) auto auto}
 html[data-app-layout=desktop] body #usersListContainer .ac-bot-password-row>.main-btn{grid-column:auto}
 html[data-app-layout=desktop] body #usersListContainer .ac-bot-editor{grid-template-columns:repeat(2,minmax(220px,280px)) minmax(0,1fr) auto}
@@ -6549,6 +6569,7 @@ html[data-app-layout=desktop] body #usersListContainer .ac-bot-actions>.btn{whit
 @container account-screen (max-width:850px){
  html[data-app-layout=desktop] body #usersListContainer .ac-bot-editor{grid-template-columns:repeat(2,minmax(0,280px))}
  html[data-app-layout=desktop] body #usersListContainer .ac-bot-editor>.ac-bot-actions{grid-column:1/-1;justify-self:end;margin-top:0}
+ html[data-app-layout=desktop] body #usersListContainer .ac-bot-editor>label{position:static}
 }
 </style>
 </head>
@@ -7927,7 +7948,7 @@ html[data-app-layout=desktop] body #usersListContainer .ac-bot-actions>.btn{whit
         <button class="btn main-btn" type="button" onclick="openStaffBoard()">📊 Показатели сотрудников</button>
         <button class="btn main-btn" type="button" onclick="openAdminTools('themes')">📈 Построить график</button>
         <button class="btn main-btn" type="button" onclick="openManagementEvent()">📣 Собрание</button>
-        <button class="btn main-btn" id="managementExamBtn" type="button" hidden onclick="if(normalizeEmployeeRole(currentUser?.role)==='Старший Техник')window.open('https://beelineexam.vercel.app','_blank','noopener,noreferrer')">🧾 Проставить Экзамен</button>
+        <button class="btn main-btn" id="managementExamBtn" type="button" hidden onclick="openManagementExam()">🧾 Проставить Экзамен</button>
         <button class="btn main-btn" type="button" onclick="iiStaffHubOpen()">👥 Сотрудники</button>
         <button class="btn main-btn" id="ufFrontMenuButton" type="button" onclick="ufOpenFrontSetup()">⚙️ Настройка участка · по этапам</button>
         <div id="managementStatus" class="management-status" role="status" aria-live="polite"></div>
@@ -8779,17 +8800,18 @@ function engineerDistrictPicker(section,screenId){
     const config=engineerDistrict(section),wrap=document.createElement('div');wrap.className='engineer-district-control';
     const label=document.createElement('label');label.textContent='Участок города';
     const dropdown=document.createElement('div');dropdown.className='custom-dropdown';dropdown.id='engineerDistrict_'+section+'_'+screenId;
-    const trigger=document.createElement('button');trigger.type='button';trigger.className='dropdown-select-btn';trigger.setAttribute('aria-haspopup','listbox');
+    const trigger=document.createElement('button');trigger.type='button';trigger.className='dropdown-select-btn';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-label','Выбор участка');
     trigger.append(document.createTextNode('Участок '+config.district+' '));const arrow=document.createElement('span');arrow.className='dropdown-arrow';arrow.textContent='▼';trigger.append(arrow);
-    trigger.onclick=()=>{if(!pprPlanBusy&&!managementBusy&&!gsState.busy)toggleDropdown(dropdown.id);};
+    trigger.onclick=event=>{event.stopPropagation();if(!pprPlanBusy&&!managementBusy&&!gsState.busy)toggleDropdown(dropdown.id);};
     const list=document.createElement('div');list.className='dropdown-list';list.setAttribute('role','listbox');
-    engineerDistrictChoices().forEach(c=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item'+(c.district===config.district?' selected':'');option.textContent='Участок '+c.district;option.setAttribute('role','option');option.setAttribute('aria-selected',String(c.district===config.district));option.onclick=()=>engineerSelectDistrict(section,c.district);list.append(option);});
-    dropdown.append(trigger,list);label.append(dropdown);wrap.append(label);return wrap;
+    engineerDistrictChoices().forEach(c=>{const option=document.createElement('button');option.type='button';option.className='dropdown-item'+(c.district===config.district?' selected':'');option.textContent='Участок '+c.district;option.setAttribute('role','option');option.setAttribute('aria-selected',String(c.district===config.district));option.onclick=event=>{event.stopPropagation();engineerSelectDistrict(section,c.district);};list.append(option);});
+    dropdown.append(trigger,list);if(section==='ppr'&&screenId==='screen-ppr-plans')wrap.append(dropdown);else{label.append(dropdown);wrap.append(label);}return wrap;
 }
 function engineerMountDistrict(screenId,section){
-    const screen=document.getElementById(screenId),card=screen?.querySelector('.card');if(!card)return;
-    card.querySelector(':scope > .engineer-district-control')?.remove();
-    if(engineerAllowed())card.prepend(engineerDistrictPicker(section,screenId));
+ const screen=document.getElementById(screenId),card=screen?.querySelector('.card');if(!card)return;
+ card.querySelectorAll('.engineer-district-control').forEach(control=>control.remove());if(!engineerAllowed())return;
+ const picker=engineerDistrictPicker(section,screenId),controls=screenId==='screen-ppr-plans'&&section==='ppr'?card.querySelector('.ppr-plans-controls'):null;
+ if(controls)controls.insertBefore(picker,controls.querySelector('.ppr-plans-toolbar'));else card.prepend(picker);
 }
 function engineerSelectDistrict(section,value){
     if(!engineerAllowed()||pprPlanBusy||managementBusy||gsState.busy)return;
@@ -9458,6 +9480,7 @@ function engineerSchedulePresentation(){
 
     // Выполняет logout.
     function logout() {
+        managementExamReset_();
         acClearBotReads_();acResetReads_();acUi.requests?.clear();acUi.today='';
         paResetPayrollCache();
         authRequestEpoch++;
@@ -13904,7 +13927,7 @@ async function postJsonBounded(url,payload,timeoutMs=45000){
         if (!currentUser || !pprPlanRoles.includes(currentUser.role)) {
             showBeelineModal('Доступ ограничен', 'Ваша роль не может просматривать планы ППР.', '🔒'); return;
         }
-        switchScreen('screen-ppr-plans');prMountEngineerTabs_(document.getElementById('screen-ppr-plans'),'plans');
+        switchScreen('screen-ppr-plans');if(!engineerAllowed())engineerMountDistrict('screen-ppr-plans','ppr');prMountEngineerTabs_(document.getElementById('screen-ppr-plans'),'plans');
         document.getElementById('pprAddAddressBtn').hidden=!pprPlanManagers.includes(currentUser.role);
         document.getElementById('pprPlansSearch').value = '';
         return await loadPprPlans();
@@ -15272,6 +15295,15 @@ function openAdminPanel(){
  if(managementDeliveryOwner!==managementOwnerKey()){managementGroup='';managementLastDelivery=null;managementDeliverySummary='';}
  managementState('');document.getElementById('managementDeliveryReopen').hidden=!managementGroup;
 }
+
+function openManagementExam(){
+ if(normalizeEmployeeRole(currentUser?.role)!=='Старший Техник')return;
+ let screen=document.getElementById('screen-management-exam');if(!screen){screen=ctNode('div','app-screen uniform-screen');screen.id='screen-management-exam';screen.dataset.viewKind='data';screen.append(ctNode('h2','','🧾 Проставить экзамен'));const card=ctNode('div','card management-exam-card'),host=ctNode('div','management-exam-host'),nav=ctNode('div','common-nav-row'),back=ctNode('button','btn danger-btn','🔙 Назад'),home=ctNode('button','btn danger-btn','🔚 Главное меню');back.type=home.type='button';back.onclick=()=>openAdminPanel();home.onclick=()=>switchScreen('screen-main');nav.append(back,home);card.append(host,nav);screen.append(card);document.querySelector('body > .container').append(screen);}
+ const owner=JSON.stringify([String(currentUser.dwLogin||''),String(currentUser.city||''),String(currentUser.district||''),authRequestEpoch]);
+ if(screen.dataset.examOwner!==owner){managementExamReset_();const frame=ctNode('iframe','management-exam-frame');frame.title='Практический экзамен';frame.referrerPolicy='strict-origin-when-cross-origin';frame.setAttribute('allow','camera; clipboard-write; fullscreen');frame.setAttribute('sandbox','allow-scripts allow-forms allow-same-origin allow-downloads allow-popups allow-popups-to-escape-sandbox');frame.src='https://beelineexam.vercel.app/';screen.querySelector('.management-exam-host').append(frame);screen.dataset.examOwner=owner;}
+ switchScreen(screen.id);
+}
+function managementExamReset_(){const screen=document.getElementById('screen-management-exam');if(!screen)return;const frame=screen.querySelector('iframe');if(frame){frame.src='about:blank';frame.remove();}delete screen.dataset.examOwner;}
 // Сразу показывает готовый список, обновляет устаревшие данные в фоне.
 async function openAdminEmployees(force=false){if(!managementAllowed())return;acRestoreEditor();if(force)acResetReads_();const filter=document.querySelector('#acEmployeeFilters>details');if(filter)filter.open=false;switchScreen('screen-admin-employees');cancelUsersLoad();const scope=acScopeKey(),sequence=++acUi.loadEpoch;document.getElementById('employeesLoadStatus').textContent='Загружаем сотрудников…';try{const result=await acCachedRead_('directory',{dwLogin:'*',city:currentUser.city,district:currentUser.district},()=>requestAuthJson({action:'getUsers',...acAuth(),allDistricts:true},25000),{refresh:force});if(sequence!==acUi.loadEpoch||scope!==acScopeKey())return;if(result.status!=='ok')throw Error(result.message||'Не удалось загрузить сотрудников');usersDb=result.users.map(u=>({...u,role:normalizeEmployeeRole(u.role),refarbEnabled:normalizeRefarbAssignment(u.refarbEnabled)}));usersDirectoryReady=true;usersLoadedAt=Date.now();acUiInitFilters();renderUsersList();document.getElementById('employeesLoadStatus').textContent='';if(acUi.deepLogin){const login=acUi.deepLogin;acUi.deepLogin='';const row=[...document.querySelectorAll('.ac-list-row')].find(r=>r.dataset.login.toLowerCase()===login.toLowerCase());if(row){acUi.tab='access';row.open=true;row.scrollIntoView({block:'start'});}}}catch(e){if(scope===acScopeKey())document.getElementById('employeesLoadStatus').textContent=e.message;}}
 // Выполняет руководство владелец ключ.
@@ -17239,11 +17271,12 @@ function prSelectionBar_(){
  bar.append(ctNode('strong','',records.length?'Выбрано: '+records.length:undo.length?'Скрыто: '+undo.length:'Проверка операции'));const add=(label,kind,action,disabled=false)=>{const b=ctNode('button','btn '+kind,label);b.type='button';b.disabled=prState.busy||disabled;b.onclick=action;bar.append(b);};
  if(prState.batchPending)add('🔄 Проверить операцию','main-btn',()=>prRecoverBatch_());
  else{
-  if(records.length)add('Скрыть','main-btn',()=>prSetHiddenMany_(records,true),!records.some(r=>!prIsHidden_(r)));
-  const hidden=records.filter(prIsHidden_);add('Отменить скрытие','main-btn',()=>prSetHiddenMany_(hidden.length?hidden:undo,false),!hidden.length&&!undo.length);
-  if(records.length)add('❌ Удалить отчёты','danger-btn',()=>prDeleteReports_(records));
+  if(records.length)add('✅ Скрыть','main-btn',()=>prSetHiddenMany_(records,true),!records.some(r=>!prIsHidden_(r)));
+  const hidden=records.filter(prIsHidden_);add('♻️ Показать скрытые','main-btn',()=>prSetHiddenMany_(hidden.length?hidden:undo,false),!hidden.length&&!undo.length);
+
  }
- add(records.length?'Снять выбор':'Закрыть','action-btn',()=>{prState.selection.clear();prState.hiddenUndo=null;for(const input of host.querySelectorAll('.pr-act-select input'))input.checked=false;prSelectionBar_();},!!prState.batchPending);
+ add(records.length?'🚫 Снять выбор':'🚫 Закрыть','action-btn',()=>{prState.selection.clear();prState.hiddenUndo=null;for(const input of host.querySelectorAll('.pr-act-select input'))input.checked=false;prSelectionBar_();},!!prState.batchPending);
+ if(!prState.batchPending&&records.length)add('❌ Удалить','danger-btn',()=>prDeleteReports_(records));
 }
 function prSelectAll_(){prState.selection??=new Set();for(const r of prState.records.filter(prMatches))if(r.canEdit)prState.selection.add(ctIdentity(r));for(const card of prPanel().querySelectorAll('.pr-card')){const input=card.querySelector('.pr-act-select input');if(input)input.checked=prState.selection.has(card.dataset.prIdentity);}prSelectionBar_();}
 function prAckSelection_(){if(prState.busy||prState.editing)return prAskLeave();const rows=prState.records.filter(r=>prState.selection.has(ctIdentity(r))&&r.act!==null&&!r.actReadonly&&ctTableActOpenFront_(r.act));if(!rows.length)return;ctConfirm('Сдать выбранные акты ППР?','Будут отмечены как сданные: '+rows.length+'. Только выбранные отчёты ППР.',()=>prRunBatch_('ackBatch',rows));}
