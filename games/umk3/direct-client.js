@@ -10,7 +10,7 @@ class Umk3Relay extends Umk3RelayBase {
   if(m.type==='rtc'){this.signalQueue=(this.signalQueue||Promise.resolve()).then(()=>this.peerSignal(m)).catch(()=>this.peerFallback());return;}
   if(m.type==='welcome')this.rtcSupported=m.features?.includes('rtc-v1')===true;
   super.control(m);
-  if(m.type==='peer-ready')this.beginPeer(m.generation);
+  if(m.type==='peer-ready'&&Date.now()>(this.peerCooldownUntil||0))this.beginPeer(m.generation);
  }
  beginPeer(generation){
   if(this.closed||!this.rtcSupported||!window.RTCPeerConnection||this.generation===generation)return;
@@ -22,8 +22,8 @@ class Umk3Relay extends Umk3RelayBase {
    pc.onconnectionstatechange=()=>{if(current()&&['failed','closed'].includes(pc.connectionState))this.peerFallback();};
    if(this.config.role==='host'){
     if(!this.publishCanvas?.captureStream)throw Error('Canvas streaming unavailable');
-    this.mediaStream=this.publishCanvas.captureStream(50);const track=this.mediaStream.getVideoTracks()[0];if(!track)throw Error('No video track');
-    track.contentHint='motion';const sender=pc.addTrack(track,this.mediaStream),params=sender.getParameters();if(!params.encodings?.length)params.encodings=[{}];params.encodings[0].maxBitrate=900000;params.encodings[0].maxFramerate=50;params.degradationPreference='maintain-framerate';void sender.setParameters(params).catch(()=>{});
+    const profile=this.streamProfile();this.mediaStream=this.publishCanvas.captureStream(profile.fps);const track=this.mediaStream.getVideoTracks()[0];if(!track)throw Error('No video track');
+    track.contentHint='motion';const sender=this.videoSender=pc.addTrack(track,this.mediaStream),params=sender.getParameters();if(!params.encodings?.length)params.encodings=[{}];params.encodings[0].maxBitrate=profile.bitrate;params.encodings[0].maxFramerate=profile.fps;params.degradationPreference='maintain-framerate';void sender.setParameters(params).catch(()=>{});
     this.bindChannel(pc.createDataChannel('game',{ordered:false,maxRetransmits:0}),pc);
     void (async()=>{await pc.setLocalDescription(await pc.createOffer());if(current())this.send({type:'rtc',generation,description:{type:'offer',sdp:pc.localDescription.sdp}});})().catch(()=>{if(current())this.peerFallback();});
    }else{
@@ -42,7 +42,9 @@ class Umk3Relay extends Umk3RelayBase {
    if(typeof e.data!=='string'||e.data.length>200)return;
    let m;try{m=JSON.parse(e.data);}catch{return;}
    if(m.type==='latency-ping'){this.peerSend({type:'latency-pong',at:m.at});return;}if(m.type==='latency-pong'&&Number.isFinite(m.at)){this.inputRtt=Math.max(0,Date.now()-m.at);return;}
-   if(m.type==='media-ready'&&this.config.role==='host'){this.direct=true;clearTimeout(this.peerTimer);this.hooks.transport?.(true);return;}
+   if(m.type==='quality'&&this.config.role==='host'&&Number.isInteger(m.level)&&m.level>=0&&m.level<=2){this.setStreamLevel(m.level);return;}
+   if(m.type==='media-confirmed'&&this.config.role==='guest'){this.peerMediaConfirmed=true;return;}
+   if(m.type==='media-ready'&&this.config.role==='host'){this.peerSend({type:'media-confirmed'});this.direct=true;clearTimeout(this.peerTimer);this.hooks.transport?.(true);return;}
    if(m.type==='input'&&this.config.role==='host'&&Number.isInteger(m.seq)&&m.seq>this.remoteInputSeq&&Number.isInteger(m.mask)&&m.mask>=0&&m.mask<=4095){this.remoteInputSeq=m.seq;this.lastInputAt=Date.now();this.hooks.input(m.mask);}
   };
   channel.onclose=()=>{if(this.pc===pc&&!this.closed)this.peerFallback();};
@@ -62,20 +64,20 @@ class Umk3Relay extends Umk3RelayBase {
   let last=-1;const painted=()=>{
    if(this.closed||this.pc!==pc)return;
    if(video.readyState>=2&&video.currentTime!==last&&this.playing){last=video.currentTime;this.lastDrawAt=Date.now();this.frames++;
-    if(!this.direct){this.direct=true;clearTimeout(this.peerTimer);video.hidden=false;this.hooks.canvas.hidden=true;this.clearAudio();this.hooks.transport?.(true);}
-    this.peerSend({type:'media-ready'});this.hooks.frame?.();
-   }this.peerPaint=requestAnimationFrame(painted);
-  };this.peerPaint=requestAnimationFrame(painted);void video.play().catch(()=>this.peerFallback());
+    if(!this.direct){this.direct=true;clearTimeout(this.peerTimer);video.hidden=false;this.hooks.canvas.hidden=true;this.clearAudio();this.peerSend({type:'media-ready'});this.hooks.transport?.(true);}
+    this.hooks.frame?.();
+   }if(video.requestVideoFrameCallback)this.peerVideoFrame=video.requestVideoFrameCallback(painted);else this.peerPaint=requestAnimationFrame(painted);
+  };let started=false;const start=()=>{if(!started&&video.readyState>=2){started=true;painted();}};video.addEventListener('loadeddata',start,{once:true});void video.play().then(start).catch(()=>this.peerFallback());
  }
- peerFallback(){if(this.closed)return;const generation=this.generation;this.stopPeer();if(this.playing)this.send({type:'rtc',generation,disabled:true});}
+ peerFallback(){if(this.closed)return;const generation=this.generation;this.peerCooldownUntil=Date.now()+30000;this.stopPeer();if(this.playing)this.send({type:'rtc',generation,disabled:true});}
  stopPeer(){
-  this.direct=false;clearTimeout(this.peerTimer);clearInterval(this.metricsTimer);cancelAnimationFrame(this.peerPaint);const pc=this.pc;this.pc=null;this.channel=null;pc?.close();
-  this.mediaStream?.getTracks().forEach(t=>t.stop());this.mediaStream=null;this.peerVideo?.pause();if(this.peerVideo)this.peerVideo.srcObject=null;this.peerVideo?.remove();this.peerVideo=null;
+  this.direct=false;this.peerMediaConfirmed=false;this.videoSender=null;this.videoMetric=null;clearTimeout(this.peerTimer);clearInterval(this.metricsTimer);cancelAnimationFrame(this.peerPaint);const pc=this.pc;this.pc=null;this.channel=null;pc?.close();
+  if(this.peerVideoFrame&&this.peerVideo?.cancelVideoFrameCallback)this.peerVideo.cancelVideoFrameCallback(this.peerVideoFrame);this.peerVideoFrame=null;this.mediaStream?.getTracks().forEach(t=>t.stop());this.mediaStream=null;this.peerVideo?.pause();if(this.peerVideo)this.peerVideo.srcObject=null;this.peerVideo?.remove();this.peerVideo=null;
   if(this.config.role==='guest')this.hooks.canvas.hidden=false;this.hooks.transport?.(false);
  }
  input(mask){
   if(this.config.role!=='guest')return;this.mask=mask&4095;
-  if(this.direct&&this.playing&&this.peerSend({type:'input',seq:++this.inputSeq,mask:this.mask})){this.peerSend({type:'media-ready'});return;}
+  if(this.direct&&this.playing&&this.peerSend({type:'input',seq:++this.inputSeq,mask:this.mask})){return;}
   super.input(this.mask);
  }
  publish(canvas,emulator){this.publishCanvas=canvas;super.publish(canvas,emulator);}
@@ -91,7 +93,7 @@ class Umk3Relay extends Umk3RelayBase {
   if(!this.processor&&!this.tapLoading){
    this.tapLoading=true;
    try{
-    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261105-arcade1');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
+    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261127-games-v3');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
    }catch{}
    if(!this.processor&&!this.closed&&this.audioContext===ctx){this.processor=ctx.createScriptProcessor(1024,2,1);this.processor.onaudioprocess=e=>{e.outputBuffer.getChannelData(0).fill(0);const channels=Array.from({length:e.inputBuffer.numberOfChannels},(_,i)=>e.inputBuffer.getChannelData(i)),mono=new Float32Array(e.inputBuffer.length);for(let i=0;i<mono.length;i++)for(const c of channels)mono[i]+=c[i]/channels.length;this.sendAudioSamples(mono,ctx.sampleRate);};}
    this.tapLoading=false;if(this.closed||!this.processor)return;this.processor.connect(ctx.destination);
@@ -114,13 +116,18 @@ class Umk3Relay extends Umk3RelayBase {
   const source=ctx.createBufferSource();source.buffer=buffer;source.connect(ctx.destination);this.audioSources.add(source);source.onended=()=>{source.disconnect();this.audioSources.delete(source);};source.start(this.audioAt);this.audioAt+=n/rate;
  }
 
+ recoverVideoStall(){if(!this.direct)return false;this.peerFallback();this.hooks.transport?.(false);return true;}
+ async applyStreamProfile(){
+  const sender=this.videoSender;if(!sender)return;const profile=this.streamProfile();
+  try{const params=sender.getParameters();if(!params.encodings?.length)params.encodings=[{}];Object.assign(params.encodings[0],{maxBitrate:profile.bitrate,maxFramerate:profile.fps,scaleResolutionDownBy:profile.scale});await sender.setParameters(params);}catch{}
+ }
  async measureNetwork(){
   if(this.closed||!this.playing)return;const pc=this.pc;
-  if(this.direct)this.peerSend({type:'latency-ping',at:Date.now()});
+  if(this.direct){this.peerSend({type:'latency-ping',at:Date.now()});if(this.config.role==='guest'&&!this.peerMediaConfirmed)this.peerSend({type:'media-ready'});}
   let bufferMs=null;
-  try{if(pc){const stats=await pc.getStats();if(this.pc!==pc)return;stats.forEach(s=>{if(s.type==='inbound-rtp'&&s.kind==='video'&&s.jitterBufferEmittedCount){const old=this.videoMetric;this.videoMetric={delay:s.jitterBufferDelay,count:s.jitterBufferEmittedCount};if(old&&s.jitterBufferEmittedCount>old.count)bufferMs=1000*(s.jitterBufferDelay-old.delay)/(s.jitterBufferEmittedCount-old.count);}});}}catch{}
+  try{if(pc){const stats=await pc.getStats();if(this.pc!==pc)return;stats.forEach(s=>{if(s.type==='inbound-rtp'&&s.kind==='video'&&s.jitterBufferEmittedCount){const old=this.videoMetric;this.videoMetric={delay:s.jitterBufferDelay,count:s.jitterBufferEmittedCount,frames:s.framesDecoded||0,at:Date.now()};if(old&&s.jitterBufferEmittedCount>old.count){bufferMs=1000*(s.jitterBufferDelay-old.delay)/(s.jitterBufferEmittedCount-old.count);const fps=1000*((s.framesDecoded||0)-old.frames)/Math.max(1,Date.now()-old.at),bad=bufferMs>180||(fps>0&&fps<12);this.badSamples=bad?(this.badSamples||0)+1:0;this.goodSamples=bad?0:(this.goodSamples||0)+1;if(this.badSamples>=2&&this.streamLevel<2){this.setStreamLevel(this.streamLevel+1);this.peerSend({type:'quality',level:this.streamLevel});this.badSamples=0;}else if(this.goodSamples>=8&&this.streamLevel>0){this.setStreamLevel(this.streamLevel-1);this.peerSend({type:'quality',level:this.streamLevel});this.goodSamples=0;}}}});}}catch{}
   if(!Number.isFinite(bufferMs))bufferMs=null;
-  this.hooks.diagnostics?.({direct:this.direct,rtt:this.direct?(this.inputRtt||0):this.rtt,bufferMs});
+  this.hooks.diagnostics?.({direct:this.direct,rtt:this.direct?(this.inputRtt||0):this.rtt,bufferMs,profile:this.streamLevel});
  }
  clearAudio(){this.audioAt=0;for(const source of this.audioSources){try{source.stop();source.disconnect();}catch{}}this.audioSources.clear();}
  disposeTap(){for(const gain of this.gains){try{gain.disconnect(this.processor);}catch{}}this.gains.clear();if(this.processor?.port){this.processor.port.onmessage=null;this.processor.port.close();}if(this.processor)this.processor.onaudioprocess=null;this.processor?.disconnect();this.processor=null;}
