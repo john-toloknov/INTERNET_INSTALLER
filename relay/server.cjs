@@ -7,16 +7,22 @@ function verifyToken(token,secret,now=Date.now()){
  if(typeof token!=='string'||token.length>2400)throw Error('Invalid token');const parts=token.split('.');if(parts.length!==2)throw Error('Invalid token');
  const expected=crypto.createHmac('sha256',secret).update(parts[0]).digest(),given=Buffer.from(parts[1],'base64url');if(given.length!==expected.length||!crypto.timingSafeEqual(expected,given))throw Error('Invalid signature');
  const c=JSON.parse(Buffer.from(parts[0],'base64url').toString());
- if(c.v!==PROTOCOL||!['host','guest'].includes(c.role)||!/^mk_[A-Za-z0-9_-]{20,100}$/.test(c.room)||!/^\w{32,100}$/.test(c.sub)||typeof c.jti!=='string'||c.jti.length<16||c.jti.length>100||!["umk3-md-original-v1", "rr3-md-v1", "rock-md-v1", "ga3-md-v1", "sor3-md-v1", "tmnt-md-v1", "btd-md-v1", "wwf-md-v1", "comix-md-v1", "robo3-md-v1"].includes(c.release)||!Number.isFinite(c.iat)||!Number.isFinite(c.exp)||c.iat>now+30000||c.exp<=now||c.exp-c.iat>7200000)throw Error('Expired or invalid claims');
+ if(c.v!==PROTOCOL||!['host','guest'].includes(c.role)||!/^mk_[A-Za-z0-9_-]{20,100}$/.test(c.room)||!/^\w{32,100}$/.test(c.sub)||typeof c.jti!=='string'||c.jti.length<16||c.jti.length>100||!["umk3-md-original-v1", "rr3-md-v1", "rock-md-v1", "ga3-md-v1", "sor3-md-v1", "tmnt-md-v1", "btd-md-v1", "wwf-md-v1", "comix-md-v1", "robo3-md-v1"].includes(c.release)||!Number.isFinite(c.iat)||!Number.isFinite(c.exp)||c.iat>now+30000||c.exp<=now||c.exp-c.iat>7200000||c.session!==undefined&&(!/^[A-Za-z0-9_-]{16,80}$/.test(c.session)||!Number.isSafeInteger(c.sessionVersion)||c.sessionVersion<1))throw Error('Expired or invalid claims');
  return c;
 }
 function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
  if(typeof secret!=='string'||secret.length<32)throw Error('Configure a separate relay secret with at least 32 characters');
  if(!(allowedOrigins instanceof Set))throw Error('Configure allowed frontend origins');
- const rooms=new Map(),attempts=new Map();
+ const rooms=new Map(),attempts=new Map(),startedAt=Date.now();
  const server=http.createServer((req,res)=>{
   const respond=(code,obj)=>{res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
-  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL});return;}
+  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1});return;}
+  if(req.method==='GET'&&req.url==='/umk3-status'){
+   const at=String(req.headers['x-ii-timestamp']||''),nonce=String(req.headers['x-ii-nonce']||''),signature=String(req.headers['x-ii-signature']||'');
+   const expected=crypto.createHmac('sha256',secret).update(at+':'+nonce+':status').digest('hex');
+   if(!/^\d{13}$/.test(at)||Math.abs(Date.now()-Number(at))>60000||!/^[A-Za-z0-9_-]{16,80}$/.test(nonce)||!/^[a-f0-9]{64}$/.test(signature)||!crypto.timingSafeEqual(Buffer.from(signature),Buffer.from(expected))){respond(403,{error:'Forbidden'});return;}
+   respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1,startedAt,now:Date.now(),rooms:[...rooms.values()].map(r=>({id:r.id,session:r.session,sessionVersion:r.sessionVersion,playing:r.playing,everReady:r.everReady,waitingSince:r.waitingSince,lastSeen:r.lastSeen}))});return;
+  }
   if(!webRoot||!['GET','HEAD'].includes(req.method)){respond(404,{error:'Not found'});return;}
   let name;try{name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{respond(400,{error:'Invalid path'});return;}
   const base=path.resolve(webRoot),file=path.resolve(base,'.'+(name==='/'?'/index.html':name));
@@ -29,6 +35,7 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
  function text(ws,value){if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(value));}
  function peerStatus(room){
   const ready=!!(room.host?.ready&&room.guest?.ready&&room.host?.visible&&room.guest?.visible);
+  if(ready){room.everReady=true;room.waitingSince=0;}else if(room.everReady&&!room.waitingSince)room.waitingSince=Date.now();
   room.playing=ready;const msg={type:ready?'peer-ready':'waiting',generation:room.generation,host:!!room.host,guest:!!room.guest,hostVisible:room.host?.visible??false,guestVisible:room.guest?.visible??false};
   text(room.host?.ws,msg);text(room.guest?.ws,msg);
  }
@@ -45,7 +52,12 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
     if(binary||data.length>3000){ws.close(4001,'Invalid authentication');return;}
     try{
      const auth=JSON.parse(data.toString());if(auth.type!=='auth')throw Error();const c=verifyToken(auth.token,secret);room=rooms.get(c.room);
-     if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,generation:0,host:null,guest:null,playing:false,lastSeen:Date.now()};rooms.set(c.room,room);}
+     if(room&&c.session!==undefined&&(room.session!==c.session||room.sessionVersion!==c.sessionVersion)){
+      if((room.sessionVersion||0)>=c.sessionVersion)throw Error('Stale game session');
+      const previous=[room.host,room.guest];room.host=room.guest=null;rooms.delete(c.room);for(const peer of previous)peer?.ws.close(4004,'Game session replaced');room=null;
+     }
+     if(room&&room.session&&c.session===undefined)throw Error('Legacy session replaced');
+     if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,session:c.session||'',sessionVersion:c.sessionVersion||0,generation:0,host:null,guest:null,playing:false,everReady:false,waitingSince:0,lastSeen:Date.now()};rooms.set(c.room,room);}
      if(room.release!==c.release){ws.close(4001,'Game mismatch');return;}const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
      member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;room.generation++;
      clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1']});peerStatus(room);
@@ -82,7 +94,7 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
  });
  const maintenance=setInterval(()=>{
   const now=Date.now();for(const ws of wss.clients){if(!ws.isAlive?.()){ws.terminate();continue;}if(ws.readyState===WebSocket.OPEN)ws.ping();}
-  for(const [id,room] of rooms){for(const role of ['host','guest']){const member=room[role];if(member&&member.claims.exp<=now)member.ws.close(4003,'Session expired');}if(!room.host&&!room.guest&&now-room.lastSeen>30000)rooms.delete(id);}
+  for(const [id,room] of rooms){for(const role of ['host','guest']){const member=room[role];if(member&&member.claims.exp<=now)member.ws.close(4003,'Session expired');}if(!room.host&&!room.guest&&now-room.lastSeen>180000)rooms.delete(id);}
   for(const [ip,a] of attempts)if(now-a.at>120000)attempts.delete(ip);
  },15000);maintenance.unref();
  return {server,wss,rooms,close:async()=>{clearInterval(maintenance);for(const ws of wss.clients)ws.terminate();await new Promise(r=>wss.close(r));await new Promise(r=>server.close(r));}};
