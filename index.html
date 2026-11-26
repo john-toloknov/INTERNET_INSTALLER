@@ -6156,6 +6156,31 @@ html[data-app-layout=mobile] body:has(#screen-entertainment.active) #appMobileNa
 #screen-entertainment .eg-game-switcher>.eg-switcher-button[aria-current=page]{background:var(--accent);color:#111;border-color:var(--accent)}
 html[data-app-layout=desktop] #screen-entertainment>.eg-toolbar>.eg-catalog-return{display:inline-flex!important;width:auto!important;min-height:40px;margin:0!important;padding:9px 16px!important}
 html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher{gap:6px;padding:8px}html[data-app-layout=mobile] #screen-entertainment .eg-game-switcher>.eg-switcher-button{min-height:60px;font-size:11px}#screen-entertainment .eg-tabs button[hidden]{display:none!important}
+/* Месячный рейтинг, компактные карточки и локальный прогресс. */
+html[data-app-layout] #screen-entertainment .eg-rating-tools{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px}
+html[data-app-layout] #screen-entertainment .eg-rating-tools>.eg-field{width:100%!important;max-width:320px;min-width:0!important;margin:0}#screen-entertainment .eg-rating-tools input{min-width:0!important;width:100%;box-sizing:border-box}
+html[data-app-layout] #screen-entertainment .eg-rating-tools>.btn{margin-left:auto!important;width:auto!important;flex:none;align-self:flex-end!important}
+html[data-app-layout] #screen-entertainment .eg-panel.eg-match-panel{padding:12px;margin-bottom:12px;display:flex;flex-direction:column;gap:10px}
+#screen-entertainment .eg-match-players{display:block;font-size:13px;line-height:1.4;overflow-wrap:anywhere;color:var(--accent-ink)}
+#screen-entertainment .eg-match-meta{display:flex;align-items:center;gap:8px;min-width:0;font-size:11px;color:var(--text-secondary);white-space:nowrap}
+#screen-entertainment .eg-match-game{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+#screen-entertainment .eg-match-meta time,#screen-entertainment .eg-match-state{flex:none;white-space:nowrap}
+html[data-app-layout] #screen-entertainment .eg-panel.eg-match-panel>.btn{align-self:flex-end;min-height:32px;padding:6px 12px;width:auto!important;font-size:12px;margin:0;flex:none}
+#screen-entertainment .eg-match-filter{align-items:end;gap:12px;margin-bottom:12px}
+#screen-entertainment .eg-match-filter>.eg-field{flex:1 1 160px;max-width:320px;margin:0}
+html[data-app-layout] #screen-entertainment .eg-match-filter>.btn{width:auto!important;flex:none}
+#screen-entertainment .eg-match-filter>.btn:last-child{margin-left:auto}
+#screen-entertainment .eg-panel.eg-save-panel{padding:16px}
+#screen-entertainment .eg-save-panel h3{font-size:16px;margin-bottom:8px}
+#screen-entertainment .eg-save-panel>.btn{width:auto}
+.eg-result-dialog{width:min(560px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box;border:1px solid var(--primary-color,#b7ed55);border-radius:16px;padding:20px;background:var(--card-bg,#1e1e1e);color:var(--text-main,#f4f4f4);box-shadow:0 16px 60px #0006}
+.eg-result-dialog::backdrop{background:#0009}
+.eg-result-dialog h3{margin:0 0 12px;color:var(--accent-ink,#b7ed55);font-size:18px}
+.eg-result-dialog p{font-size:13px;line-height:1.5;margin:0 0 12px}
+.eg-result-dialog .eg-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.eg-result-dialog .eg-actions .btn{flex:1 1 130px;min-height:44px;width:auto;margin:0}
+.eg-result-dialog>.btn{min-height:40px;width:100%;margin:0}
+
 </style>
 <style id="accountLifecycleStyles">
 /* Existing application layouts retained verbatim. */
@@ -8880,7 +8905,7 @@ function engineerSchedulePresentation(){
     function switchScreen(screenId) {
         if(screenId!=='screen-admin-employees')acClearBotReads_();
         if(typeof egStopPoll==='function')egStopPoll();
-        if(screenId!=='screen-entertainment'&&typeof egCloseGame==='function')egCloseGame(false);
+        if(screenId!=='screen-entertainment'&&typeof egCloseGame==='function'&&egCloseGame(false)===false)return;
         if(currentUser?.role==='Супервайзер'&&['screen-installer-menu','screen-technician-reports'].includes(screenId))screenId='screen-main';
         if(engineerAllowed()&&!engineerScreenAllowed(screenId))screenId="screen-main";
         if(screenId==='screen-main')engineerApplyMenu();if(screenId==='screen-technician-reports')iiRenderReportMeasure_();
@@ -18195,24 +18220,12 @@ window.iiTeamsSave=function(bossId){if(busy||!state)return;const section=Array.f
  <nav class="eg-bottom-navigation" aria-label="Навигация по играм"><button id="egMobileBack" type="button" class="btn danger-btn" onclick="egNavigateBack()">⬅️ Назад</button><button id="egMobileHome" type="button" class="btn danger-btn" onclick="egNavigateHome()">🔚 Главное меню</button></nav>
 </section>
 
+<script src="games/umk3/progress.js?v=20261126-games-v2"></script>
 <script id="entertainmentScript">
-const EG_GAMES={"umk3": {"title": "Mortal Kombat 3 Ultimate", "logo": "assets/games/umk3.png", "description": "Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.", "rules": "Один вызов — один поединок. Победитель определяется по итоговому результату игры.", "kind": "versus", "formats": ["versus"], "shortTitle": "Mortal Kombat"}, "rr3": {"title": "Road Rash 3", "logo": "assets/games/rr3-logo-877bb161.png", "description": "Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.", "rules": "Один вызов — один согласованный заезд на одинаковой трассе. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд.", "kind": "versus", "formats": ["versus"], "shortTitle": "Road Rash"}, "rock": {"title": "Rock n’ Roll Racing", "logo": "assets/games/rock-art-dcee2879.jpg", "description": "Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.", "rules": "Один вызов — один согласованный заезд. Побеждает игрок с лучшим итоговым местом. При равенстве проведите повторный заезд.", "kind": "versus", "formats": ["versus"], "shortTitle": "Rock n’ Roll Racing"}, "ga3": {"title": "Golden Axe III", "logo": "assets/games/ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"], "shortTitle": "Golden Axe", "description": "Фэнтезийное приключение: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "sor3": {"title": "Streets of Rage 3", "logo": "assets/games/sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "Streets of Rage", "description": "Уличные бои: один игрок или совместное прохождение вдвоём. Выберите режим двух игроков в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "tmnt": {"title": "TMNT: The Hyperstone Heist", "logo": "assets/games/tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "TMNT", "description": "Черепашки-ниндзя: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "btd": {"title": "Battletoads & Double Dragon", "logo": "assets/games/btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"], "shortTitle": "Battletoads", "description": "Battletoads и Double Dragon: один игрок или совместное прохождение вдвоём. Версия Sega Mega Drive.", "rules": "Играйте вместе против компьютера. Итог сеанса подтверждают оба участника: «Прошли игру» или «Завершили сеанс». Победы, поражения и рейтинговые очки не начисляются."}, "wwf": {"title": "WWF WrestleMania: The Arcade Game", "logo": "assets/games/wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"], "shortTitle": "WrestleMania", "description": "Рестлинг: один игрок, матч друг против друга или командное прохождение вдвоём против компьютера. Режим выбирается в игре.", "rules": "Друг против друга: согласуйте один поединок, победитель получает 3 очка после подтверждения обоими игроками. Вместе против компьютера: совместное прохождение без рейтинговых очков."}, "comix": {"title": "Comix Zone", "logo": "assets/games/comix-art-257e7ff3.jpg", "kind": "solo", "formats": [], "shortTitle": "Comix Zone", "description": "Одиночное приключение по страницам комикса. Управляйте Скетчем и выбирайтесь из нарисованного мира.", "rules": "Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."}, "robo3": {"title": "RoboCop 3", "logo": "assets/games/robo3-art-89809996.jpg", "kind": "solo", "formats": [], "shortTitle": "RoboCop 3", "description": "Одиночный боевик: защищайте жителей Детройта вместе с Робокопом.", "rules": "Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."}};
-function egSelectGame(game){
- if(egState.busy||!Object.hasOwn(EG_GAMES,game))return;egCloseGame(false);egStopPoll();egState.catalogRequested=false;egState.game=game;egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;egState.drafts={};egMessage('');egRender();egStartPoll();if(!egState.data)void egLoad();
-}
-function egRenderGameSwitcher(){
- const root=document.getElementById('egGameSwitcher');root.replaceChildren();root.hidden=!egState.game;if(root.hidden)return;
- const entries=Object.keys(EG_GAMES),selected=entries.indexOf(egState.game),first=Math.max(0,Math.min(selected-1,entries.length-3));
- entries.slice(first,first+3).forEach(game=>{const i=entries.indexOf(game),label=(i<selected?'◀︎ ':'')+EG_GAMES[game].shortTitle+(i>selected?' ▶︎':''),button=egButton(label,()=>egSelectGame(game),'main-btn eg-switcher-button');button.setAttribute('aria-label','Открыть '+EG_GAMES[game].title);if(i===selected)button.setAttribute('aria-current','page');root.append(button);});
-}
-function egRenderCatalog(root){
- const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>egSelectGame(game),'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span',spec.kind==='solo'?'Один игрок':spec.kind==='coop'?'Один игрок · Вместе':'Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
-}
-function egGameRankings(){return egState.data?.gameRankings?.[egState.game]||(egState.game==='umk3'?egState.data?.rankings:null)||{month:'',monthly:[],all:[]};}
-// UMK3 browser v1: authenticated launch; secrets are never written to links/history.
+const EG_GAMES={"umk3":{"title":"Mortal Kombat 3 Ultimate","logo":"assets/games/umk3.png","description":"Выбирайте бойца: тренировка, двое за одним компьютером или матч с коллегой.","rules":"Один матч на двоих. Каждый участник независимо подтверждает свой результат. Согласованная победа — 3 очка, ничья или несовпадение результатов — 0 очков.","kind":"versus","formats":["versus"],"shortTitle":"Mortal Kombat"},"rr3":{"title":"Road Rash 3","logo":"assets/games/rr3-logo-877bb161.png","description":"Мотогонки Sega Mega Drive. Для двух игроков: Game Options → Set Player Mode → Split Screen.","rules":"Один матч на двоих. Каждый участник независимо подтверждает свой результат. Согласованная победа — 3 очка, ничья или несовпадение результатов — 0 очков.","kind":"versus","formats":["versus"],"shortTitle":"Road Rash"},"rock":{"title":"Rock n’ Roll Racing","logo":"assets/games/rock-art-dcee2879.jpg","description":"Гонки с вооружением. Для совместной игры выберите 2 Players в меню игры.","rules":"Один матч на двоих. Каждый участник независимо подтверждает свой результат. Согласованная победа — 3 очка, ничья или несовпадение результатов — 0 очков.","kind":"versus","formats":["versus"],"shortTitle":"Rock n’ Roll Racing"},"ga3":{"title":"Golden Axe III","logo":"assets/games/ga3-art-1481b64c.png","kind":"coop","formats":["coop"],"shortTitle":"Golden Axe","description":"Фэнтезийное приключение: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.","rules":"Оба участника независимо указывают «Прошли» или «Не прошли». При разных ответах сессия завершается без подтверждённого результата. Рейтинговые очки не начисляются."},"sor3":{"title":"Streets of Rage 3","logo":"assets/games/sor3-art-921147f2.jpg","kind":"coop","formats":["coop"],"shortTitle":"Streets of Rage","description":"Уличные бои: один игрок или совместное прохождение вдвоём. Выберите режим двух игроков в меню игры.","rules":"Оба участника независимо указывают «Прошли» или «Не прошли». При разных ответах сессия завершается без подтверждённого результата. Рейтинговые очки не начисляются."},"tmnt":{"title":"TMNT: The Hyperstone Heist","logo":"assets/games/tmnt-art-62349549.jpg","kind":"coop","formats":["coop"],"shortTitle":"TMNT","description":"Черепашки-ниндзя: один игрок или совместное прохождение вдвоём. Выберите 1 Player или 2 Players в меню игры.","rules":"Оба участника независимо указывают «Прошли» или «Не прошли». При разных ответах сессия завершается без подтверждённого результата. Рейтинговые очки не начисляются."},"btd":{"title":"Battletoads & Double Dragon","logo":"assets/games/btd-art-f116182f.jpg","kind":"coop","formats":["coop"],"shortTitle":"Battletoads","description":"Battletoads и Double Dragon: один игрок или совместное прохождение вдвоём. Версия Sega Mega Drive.","rules":"Оба участника независимо указывают «Прошли» или «Не прошли». При разных ответах сессия завершается без подтверждённого результата. Рейтинговые очки не начисляются."},"wwf":{"title":"WWF WrestleMania: The Arcade Game","logo":"assets/games/wwf-art-03850f15.png","kind":"mixed","formats":["versus","coop"],"shortTitle":"WrestleMania","description":"Рестлинг: один игрок, матч друг против друга или командное прохождение вдвоём против компьютера. Режим выбирается в игре.","rules":"Друг против друга: каждый указывает свой результат; за подтверждённую победу — 3 очка, при разных итогах — ничья. В совместном режиме оба подтверждают «Прошли» или «Не прошли», без рейтинговых очков."},"comix":{"title":"Comix Zone","logo":"assets/games/comix-art-257e7ff3.jpg","kind":"solo","formats":[],"shortTitle":"Comix Zone","description":"Одиночное приключение по страницам комикса. Управляйте Скетчем и выбирайтесь из нарисованного мира.","rules":"Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."},"robo3":{"title":"RoboCop 3","logo":"assets/games/robo3-art-89809996.jpg","kind":"solo","formats":[],"shortTitle":"RoboCop 3","description":"Одиночный боевик: защищайте жителей Детройта вместе с Робокопом.","rules":"Одиночная игра без приглашений, сетевых матчей и рейтинговых очков."}};
 document.getElementById('screen-main')?.parentElement.append(document.getElementById('screen-entertainment'));
-let egState={owner:'',data:null,tab:'games',game:'',room:'',busy:false,loading:false,epoch:0,poll:null,pending:null,controller:null,period:'monthly',deepHandled:'',creating:false,editing:false,drafts:{}};
-const EG_STATES={invited:'📨 Ожидает ответа',accepted:'🤝 Вызов принят',playing:'⚔️ Матч начат',pending_result:'⏳ Подтверждение результата',disputed:'⚠️ Результаты не совпали',confirmed:'🏆 Матч завершён',declined:'🙅 Вызов отклонён',cancelled:'↩️ Вызов отменён',expired:'⌛ Время вызова истекло'};
+let egState={owner:'',data:null,tab:'games',game:'',room:'',busy:false,loading:false,epoch:0,poll:null,pending:null,controller:null,period:'monthly',deepHandled:'',creating:false,editing:false,drafts:{},dateFilter:'',localSaves:[],localError:'',resultDialog:null,preparingTimer:null};
+const EG_STATES={invited:'📨 Ожидает ответа',accepted:'🤝 Вызов принят',playing:'⚔️ Матч начат',pending_result:'⏳ Подтверждение результата',disputed:'⏳ Подтверждение результата',confirmed:'🏆 Матч завершён',draw:'🤝 Ничья',unconfirmed:'Без подтверждённого результата',paused:'⏸ Прохождение приостановлено',declined:'Вызов отклонён',cancelled:'Вызов отменён',expired:'⌛ Время вызова истекло'};
 const EG_BROWSER_EDITION='md-original-v1';
 let egGame=null,egLaunchEpoch=0;
 function egOwner(){return currentUser?[currentUser.city,currentUser.district,String(currentUser.dwLogin).toLowerCase()].join('|'):'';}
@@ -18222,8 +18235,6 @@ function egButton(text,fn,cls='main-btn'){const b=egNode('button',text,'btn '+cl
 function egPanel(title){const p=egNode('div',undefined,'eg-panel');if(title)p.append(egNode('h3',title));return p;}
 function egMessage(text,error=false){const n=document.getElementById('egMessage');n.className='eg-message'+(error?' eg-error':'');n.textContent=text;}
 function egVisible(){return document.getElementById('screen-entertainment').classList.contains('active')&&!document.hidden;}
-function egStopPoll(){clearInterval(egState.poll);egState.poll=null;egState.epoch++;if(egState.controller)egState.controller.abort();egState.controller=null;egState.loading=false;}
-function egStartPoll(){clearInterval(egState.poll);egState.poll=setInterval(()=>{const root=document.getElementById('egContent'),typing=root.contains(document.activeElement)&&document.activeElement.matches('input,textarea,[contenteditable=true]');if(!egGame&&egVisible()&&!egState.busy&&!egState.loading&&!egState.editing&&!egState.creating&&!typing&&!root.querySelector('.custom-dropdown.open'))void egLoad(true);},20000);}
 function egPendingKey(){return 'ii-games-pending:'+egOwner();}
 function egRememberPending(value){egState.pending=value;try{if(value)sessionStorage.setItem(egPendingKey(),JSON.stringify(value));else sessionStorage.removeItem(egPendingKey());}catch(e){}}
 function egRecovery(){
@@ -18231,48 +18242,6 @@ function egRecovery(){
  const box=egPanel('⏳ Проверка последнего действия');box.append(egNode('p','Ответ мог потеряться. Повторная проверка использует тот же номер запроса: второй матч и второе приглашение не создаются.','eg-muted'));
  box.append(egButton('Проверить и повторить',()=>egMutate(egState.pending.op,egState.pending.fields,true)));p.append(box);
 }
-async function egApi(fields,signal){
- const user=currentUser,owner=egOwner();if(!user)throw Error('Войдите в приложение');
- const r=await requestAuthJson({action:'games',...fields,city:user.city,district:String(user.district),actorLogin:user.dwLogin,actorPassword:user.password},20000,signal);
- if(owner!==egOwner())throw Error('Учётная запись или участок изменились');
- if(r.status!=='ok')throw Object.assign(Error(r.message||'Не удалось выполнить действие'),{definite:true});return r;
-}
-async function openEntertainment(matchId=''){
- if(!currentUser)return;egCloseGame(false);egStopPoll();
- if(egState.owner!==egOwner()){
-  egState.data=null;egState.room='';egState.tab='games';egState.game='';egState.pending=null;egState.owner=egOwner();egState.busy=false;egState.creating=false;egState.editing=false;egState.drafts={};
-  try{const saved=JSON.parse(sessionStorage.getItem(egPendingKey())||'null');if(saved&&typeof saved.op==='string'&&saved.fields&&/^[a-zA-Z0-9_-]{16,90}$/.test(saved.fields.requestId||''))egState.pending=saved;}catch(e){}
- }
- egState.catalogRequested=!matchId;egState.game='';egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;
- switchScreen('screen-entertainment');if(matchId){egState.room=matchId;egState.tab='matches';}
- egRecovery();egRender();await egLoad();if(egVisible())egStartPoll();
-}
-function maybeOpenGameDeepLink(){
- const p=new URLSearchParams(location.search),id=p.get('gameMatch');if(!id||!currentUser||egState.deepHandled===egOwner()+'|'+id)return false;
- egState.deepHandled=egOwner()+'|'+id;
- const same=(!p.get('gameCity')||p.get('gameCity')===currentUser.city)&&(!p.get('gameDistrict')||p.get('gameDistrict')===String(currentUser.district));
- void openEntertainment(same?id:'').then(()=>{const m=egState.data?.matches.find(m=>m.id===id);if(same&&m?.edition===EG_BROWSER_EDITION&&['invited','accepted','playing'].includes(m.state))void egLaunch('match',id);if(!same)egMessage('Приглашение относится к другому городу или участку. Войдите в соответствующий профиль.',true);});return true;
-}
-async function egLoad(quiet=false){
- if(egGame||egState.loading||egState.busy)return;
- const epoch=egState.epoch,owner=egOwner(),controller=new AbortController();egState.controller=controller;egState.loading=true;
- if(!quiet)egMessage('⏳ Загружаем матчи и рейтинг…');
- try{const r=await egApi({op:'list'},controller.signal);if(epoch!==egState.epoch||owner!==egOwner())return false;egState.data=r;if(egState.room){const match=r.matches.find(m=>m.id===egState.room);if(match)egState.game=match.game||'umk3';}egRender();if(!quiet)egMessage('');return true;}
- catch(e){if(e.name!=='AbortError'&&epoch===egState.epoch&&owner===egOwner())egMessage(e.message,true);return false;}
- finally{if(epoch===egState.epoch){egState.loading=false;egState.controller=null;}}
-}
-async function egMutate(op,fields={},recover=false){
- if(egState.busy)return;if(egState.pending&&!recover){egMessage('Сначала проверьте последнее действие выше.',true);return;}
- const owner=egOwner(),request={op,fields:recover?fields:{...fields,requestId:'eg_'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'_'+Math.random().toString(36).slice(2)+'_'+Math.random().toString(36).slice(2))}};egStopPoll();
- egRememberPending(request);egState.busy=true;document.querySelectorAll('#egContent button,#egContent input,.eg-bottom-navigation button').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
- try{
-  const r=await egApi({op:request.op,...request.fields});if(owner!==egOwner())return;
-  egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};if(r.match){if(!egState.catalogRequested){egState.room=r.match.id;egState.game=r.match.game||'umk3';egState.tab='matches';}if(egState.data){const index=egState.data.matches.findIndex(m=>m.id===r.match.id);if(index<0)egState.data.matches.unshift(r.match);else egState.data.matches[index]=r.match;}}
-  egState.busy=false;const refreshed=await egLoad();if(owner===egOwner())egMessage(refreshed?'✅ Сохранено':'✅ Действие сохранено. Список и рейтинг пока не обновились — нажмите «Обновить».');return r;
- }catch(e){if(owner!==egOwner())return;if(e.definite)egRememberPending(null);egMessage(e.definite?e.message:e.message+' Действие могло сохраниться — проверьте его выше.',true);}
- finally{if(owner===egOwner()){egState.busy=false;egRecovery();egRender();if(egVisible())egStartPoll();}}
-}
-function egTab(tab){const spec=EG_GAMES[egState.game];if(spec&&(spec.kind==='solo'&&tab!=='games'||!spec.formats.includes('versus')&&['leaders','badges'].includes(tab)))return;egCloseGame(false);egState.tab=tab;egState.room='';egState.creating=false;egState.editing=false;egMessage('');egRender();}
 function egField(label,placeholder='',value='',max=80){const wrap=egNode('label',undefined,'eg-field'),input=egNode('input');input.type='text';input.placeholder=placeholder;input.value=value;input.maxLength=max;input.disabled=egState.busy;wrap.append(egNode('span',label),input);return {wrap,input};}
 function egPick(label,options,initial=''){
  const field=egNode('div',undefined,'eg-field'),box=egNode('div',undefined,'custom-dropdown'),trigger=egNode('button',undefined,'dropdown-trigger'),list=egNode('div',undefined,'dropdown-list');
@@ -18282,144 +18251,222 @@ function egPick(label,options,initial=''){
  box.addEventListener('keydown',e=>{const choices=[...list.querySelectorAll('button')];if(e.key==='Escape'){setDropdownOpen(box,false);trigger.focus();}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();setDropdownOpen(box,true);let i=choices.indexOf(document.activeElement);i=(i+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;choices[i]?.focus();}});
  box.append(trigger,list);field.append(egNode('span',label),box);return {field,value:()=>value,trigger};
 }
-function egRender(){
- document.querySelectorAll('.eg-bottom-navigation button').forEach(b=>b.disabled=egState.busy);
- if(egGame)return;
- const content=document.getElementById('egContent');content.replaceChildren();const selected=EG_GAMES[egState.game];
- document.querySelector('#screen-entertainment h2').textContent=selected?selected.title:'🎮 Развлечения';
- const back=document.querySelector('#screen-entertainment .eg-toolbar button');back.textContent=selected?'🎮 Все игры':'🔚 Главное меню';back.classList.toggle('eg-catalog-return',!!selected);if(selected)delete back.dataset.viewMainMenu;back.onclick=()=>{if(selected)void openEntertainment();else egNavigateHome();};egRenderGameSwitcher();
- document.querySelector('#screen-entertainment .eg-tabs').hidden=!selected||selected.kind==='solo';
- const ranked=!!selected&&selected.formats.includes('versus');
- document.getElementById('egTabMatches').textContent=selected?.kind==='coop'?'🤝 Совместные игры':'🎯 Мои матчи';
- document.getElementById('egTabLeaders').hidden=!ranked;document.getElementById('egTabBadges').hidden=!ranked;
- if(selected&&((selected.kind==='solo'&&egState.tab!=='games')||(!ranked&&['leaders','badges'].includes(egState.tab))))egState.tab='games';
- for(const [id,tab] of [['Games','games'],['Matches','matches'],['Leaders','leaders'],['Badges','badges']])document.getElementById('egTab'+id).setAttribute('aria-selected',String(egState.tab===tab));
- if(!selected){egRenderCatalog(content);return;}
- if(!egState.data){content.append(egNode('p','⏳ Загружаем раздел игры…','eg-muted'),egButton('Обновить',()=>egLoad()));return;}
- if(egState.tab==='games'){if(egState.creating)egRenderCreate(content);else egRenderGames(content);}
- else if(egState.tab==='matches')egRenderMatches(content);
- else if(egState.tab==='leaders')egRenderLeaders(content);
- else egRenderBadges(content);
+function egRenderGameSwitcher(){
+ const root=document.getElementById('egGameSwitcher');root.replaceChildren();root.hidden=!egState.game;if(root.hidden)return;
+ const entries=Object.keys(EG_GAMES),selected=entries.indexOf(egState.game),first=Math.max(0,Math.min(selected-1,entries.length-3));
+ entries.slice(first,first+3).forEach(game=>{const i=entries.indexOf(game),label=(i<selected?'◀︎ ':'')+EG_GAMES[game].shortTitle+(i>selected?' ▶︎':''),button=egButton(label,()=>egSelectGame(game),'main-btn eg-switcher-button');button.setAttribute('aria-label','Открыть '+EG_GAMES[game].title);if(i===selected)button.setAttribute('aria-current','page');root.append(button);});
 }
-
+function egRenderCatalog(root){
+ const grid=egNode('div',undefined,'eg-game-catalog');Object.entries(EG_GAMES).forEach(([game,spec])=>{const tile=egButton('',()=>egSelectGame(game),'main-btn eg-game-tile');tile.append(egGameLogo(game),egNode('strong',spec.title),egNode('span',spec.kind==='solo'?'Один игрок':spec.kind==='coop'?'Один игрок · Вместе':'Играть · Матчи · Рейтинг','eg-muted'));grid.append(tile);});root.append(grid);
+}
 function egGameLogo(game){const box=egNode('div',undefined,'eg-hero-icon'),img=egNode('img');img.src=EG_GAMES[game].logo;img.alt=EG_GAMES[game].title;img.width=240;img.height=112;img.decoding='async';box.append(img);return box;}
-function egRenderGames(root){
- const spec=EG_GAMES[egState.game],p=egPanel('');p.classList.add('eg-play-panel');p.append(egGameLogo(egState.game),egNode('h3',spec.title),egNode('p',spec.description,'eg-muted'));
- const actions=egNode('div',undefined,'eg-actions'),caps=egState.data.capabilities||{},known=caps.games||['umk3','rr3','rock'],browser=caps.browser&&known.includes(egState.game),network=caps.network;
- actions.append(egButton('▶ Один игрок',()=>egLaunch('solo')));
- if(spec.kind!=='solo')actions.append(egButton('🎮 Двое рядом',()=>egLaunch('local')),egButton('🔥 Пригласить коллегу',()=>{egState.creating=true;egRender();}));
- if(!browser){actions.querySelectorAll('button').forEach(b=>b.disabled=true);p.append(egNode('p',known.includes(egState.game)?'Игровые файлы ещё не подключены.':'Для этой игры обновите скрипт «Сотрудники».','eg-muted'));}
- else if(!network&&spec.kind!=='solo'){actions.lastChild.disabled=true;p.append(egNode('p','Сетевой сервер ещё не подключён.','eg-muted'));}p.append(actions);root.append(p);
- const rules=egPanel('🎮 Правила игры');rules.append(egNode('p',spec.rules));if(spec.formats.includes('versus'))rules.append(egNode('p','Тренировка, «Двое рядом» и совместные прохождения в соревновательный рейтинг не входят.','eg-muted'));root.append(rules);
-}
-function egRenderCreate(root){
- const spec=EG_GAMES[egState.game];if(spec.kind==='solo'){egState.creating=false;egRenderGames(root);return;}
- egState.creating=true;const d=egState.drafts.create||(egState.drafts.create={});root.replaceChildren();
- const p=egPanel('🔥 Приглашение · '+spec.title),opponent=egPick('Коллега',egState.data.people.map(u=>[u.login,u.name]),d.opponent||'');opponent.field.addEventListener('egchange',e=>d.opponent=e.detail);p.append(opponent.field);
- let format=d.format||spec.formats[0];if(spec.formats.length>1){const choice=egPick('Режим',[['versus','⚔️ Друг против друга'],['coop','🤝 Вместе против компьютера']],format);choice.field.addEventListener('egchange',e=>{format=d.format=e.detail;});p.append(choice.field);}
- p.append(egNode('p',spec.kind==='coop'?'Совместное прохождение без побед и поражений между напарниками.':'Выбранный режим нужно также включить в меню самой игры.','eg-muted'),egNode('p','Коллега получит приглашение в Telegram.','eg-muted'));
- const a=egNode('div',undefined,'eg-actions');a.append(egButton('📨 Пригласить и открыть игру',async()=>{if(!opponent.value()){opponent.trigger.focus();egMessage('Выберите коллегу.',true);return;}const result=await egMutate('create',{game:egState.game,format,opponent:opponent.value(),platform:'Browser',edition:EG_BROWSER_EDITION});const m=result?.match;if(m?.edition===EG_BROWSER_EDITION)void egLaunch('match',m.id);}),egButton('↩ Назад',()=>{egState.creating=false;egState.editing=false;egRender();},'danger-btn'));p.append(a);root.append(p);
-}
-function egCloseGame(render=true){
- egLaunchEpoch++;const g=egGame;egGame=null;if(g){try{g.frame?.contentWindow.postMessage({type:'umk3-close',nonce:g.nonce},location.origin);}catch{}g.frame?.remove();}
- if(render&&egVisible()){egRender();void egLoad();egStartPoll();}
-}
-async function egLaunch(mode,matchId=''){
- egCloseGame(false);egStopPoll();const epoch=++egLaunchEpoch,owner=egOwner();egGame={owner,epoch,frame:null,matchId};
- const root=document.getElementById('egContent');root.replaceChildren();root.append(egNode('p','⏳ Подготавливаем '+EG_GAMES[egState.game||'umk3'].title+'…','eg-muted'),egButton('↩ Назад',()=>egCloseGame()));
- try{
-  const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
-  if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
-  const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=r.config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';
-  const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261105-arcade9');frame.src=url.href;
-  r.config.mobileNavigation=document.documentElement.dataset.appLayout==='mobile';egGame={owner,epoch,frame,nonce,config:r.config,matchId,started:false};root.replaceChildren();root.append(frame);egMessage('');
-  frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config:r.config},location.origin);egAlignLandscapeGame();}};
- }catch(e){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(e.message,true);egStartPoll();}}
-}
-window.addEventListener('message',async event=>{
- const g=egGame;if(!g||event.origin!==location.origin||event.source!==g.frame?.contentWindow||event.data?.nonce!==g.nonce)return;
- if(g.owner!==egOwner()){egCloseGame(false);return;}
- if(event.data.type==='umk3-navigate'){if(event.data.action==='home')egNavigateHome();else if(event.data.action==='back')egNavigateBack();return;}
- if(event.data.type==='umk3-ready')g.frame.contentWindow.postMessage({type:'umk3-start',nonce:g.nonce,config:g.config},location.origin);
- else if(event.data.type==='umk3-closed')egCloseGame();
- else if(event.data.type==='umk3-error')egMessage(event.data.message||'Ошибка запуска игры',true);
- else if(event.data.type==='umk3-connected'&&g.matchId&&!g.started){g.started=true;try{await egApi({op:'browserReady',matchId:g.matchId,requestId:'eg_'+crypto.randomUUID()});}catch(e){egMessage('Игра подключена, но статус матча не обновлён: '+e.message,true);}}
-});
-const egGameGuard=setInterval(()=>{if(egGame&&(egGame.owner!==egOwner()||!document.getElementById('screen-entertainment').classList.contains('active')))egCloseGame(false);},1000);
-window.addEventListener('pagehide',()=>egCloseGame(false));
+function egDate(value){return new Date(value).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
 function egAlignLandscapeGame(){
  if(!egGame?.frame||document.documentElement.dataset.appLayout!=='mobile'||!window.matchMedia('(orientation:landscape) and (max-height:650px)').matches)return;
  const frame=egGame.frame;requestAnimationFrame(()=>{if(egGame?.frame===frame)frame.scrollIntoView({block:'start',behavior:'auto'});});
 }
-window.addEventListener('resize',()=>egAlignLandscapeGame());
-function egNavigateHome(){
- if(egState.busy)return;egCloseGame(false);egStopPoll();egState.room='';egState.game='';egState.tab='games';egState.creating=false;egState.editing=false;egMessage('');switchScreen('screen-main');
+function egGameRankings(){return egState.data?.gameRankings?.[egState.game]||(egState.game==='umk3'?egState.data?.rankings:null)||{month:'',monthly:[]};}
+function egSelectGame(game){
+ if(egState.busy||!Object.hasOwn(EG_GAMES,game)||egCloseGame(false)===false)return;egStopPoll();egState.catalogRequested=false;egState.game=game;egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;egState.drafts={};egState.dateFilter='';egMessage('');egRender();egStartPoll();if(!egState.data)void egLoad();
 }
+function egStopPoll(){clearInterval(egState.poll);clearTimeout(egState.preparingTimer);egState.preparingTimer=null;egState.poll=null;egState.epoch++;egState.controller?.abort();egState.controller=null;egState.loading=false;}
+function egStartPoll(){clearInterval(egState.poll);egState.poll=setInterval(()=>{const root=document.getElementById('egContent'),typing=root.contains(document.activeElement)&&document.activeElement.matches('input,textarea,[contenteditable=true]');if(!egGame&&egVisible()&&!egState.busy&&!egState.loading&&!egState.editing&&!egState.creating&&!egState.resultDialog?.open&&!typing&&!root.querySelector('.custom-dropdown.open'))void egLoad(true);},20000);}
+async function egApi(fields,signal){
+ const user=currentUser,owner=egOwner();if(!user)throw Error('Войдите в приложение');
+ const r=await requestAuthJson({action:'games',...fields,city:user.city,district:String(user.district),actorLogin:user.dwLogin,actorPassword:user.password},20000,signal);
+ if(owner!==egOwner())throw Error('Учётная запись или участок изменились');
+ if(r.status!=='ok')throw Object.assign(Error(r.message||'Не удалось выполнить действие'),{definite:r.status!=='preparing',code:r.code});return r;
+}
+async function egReadLocalSaves_(){
+ const owner=egOwner();try{if(!window.IIGameProgress)throw Error('Обновите игровые файлы для сохранения прогресса.');const list=await IIGameProgress.list(owner);if(owner!==egOwner())return;egState.localSaves=list;egState.localError='';
+  for(const meta of list){if(!meta.pauseRequest||meta.mode!=='coop')continue;const m=egState.data?.matches.find(m=>m.id===meta.matchId);if(m?.state==='paused'&&m.saved?.id===meta.savedId){void IIGameProgress.settle(owner,meta.key,meta.savedId).catch(()=>{});continue;}
+   if(!egState.pending&&m?.session===meta.pauseRequest.session&&['playing','pending_result'].includes(m.state)&&Date.now()-meta.pauseRequest.requestTime<86400000)egRememberPending({op:'pause',fields:{matchId:m.id,session:m.session,requestId:meta.pauseRequest.requestId,requestTime:meta.pauseRequest.requestTime,saved:{id:meta.savedId,hash:meta.hash,bytes:meta.bytes,release:meta.release}}});
+  }
+ }catch(error){if(owner===egOwner()){egState.localSaves=[];egState.localError=error.message||'Сохранения недоступны в этом браузере.';}}
+}
+async function openEntertainment(matchId=''){
+ if(!currentUser||egCloseGame(false)===false)return;egStopPoll();
+ if(egState.owner!==egOwner()){
+  egState.resultDialog?.close();egState.data=null;egState.room='';egState.tab='games';egState.game='';egState.pending=null;egState.owner=egOwner();egState.busy=false;egState.creating=false;egState.editing=false;egState.drafts={};egState.localSaves=[];egState.localError='';egState.dateFilter='';
+  try{const saved=JSON.parse(sessionStorage.getItem(egPendingKey())||'null');if(saved&&typeof saved.op==='string'&&saved.fields&&/^[a-zA-Z0-9_-]{16,90}$/.test(saved.fields.requestId||''))egState.pending=saved;}catch{}
+ }
+ egState.catalogRequested=!matchId;egState.game='';egState.room='';egState.tab='games';egState.creating=false;egState.editing=false;
+ switchScreen('screen-entertainment');if(matchId){egState.room=matchId;egState.tab='matches';}
+ egRecovery();egRender();await egLoad();if(egVisible())egStartPoll();
+}
+function maybeOpenGameDeepLink(){
+ const p=new URLSearchParams(location.search),id=p.get('gameMatch');if(!id||!currentUser||egState.deepHandled===egOwner()+'|'+id)return false;
+ egState.deepHandled=egOwner()+'|'+id;const same=(!p.get('gameCity')||p.get('gameCity')===currentUser.city)&&(!p.get('gameDistrict')||p.get('gameDistrict')===String(currentUser.district));
+ void openEntertainment(same?id:'').then(()=>{const m=egState.data?.matches.find(m=>m.id===id);if(same&&m?.edition===EG_BROWSER_EDITION&&['invited','accepted','playing'].includes(m.state))void egLaunch('match',id);if(!same)egMessage('Приглашение относится к другому городу или участку. Войдите в соответствующий профиль.',true);});return true;
+}
+async function egLoad(quiet=false){
+ if(egGame||egState.loading||egState.busy)return;const epoch=egState.epoch,owner=egOwner(),controller=new AbortController();egState.controller=controller;egState.loading=true;if(!quiet)egMessage('⏳ Загружаем матчи и рейтинг…');
+ try{const r=await egApi({op:'list'},controller.signal);if(epoch!==egState.epoch||owner!==egOwner())return false;egState.data=r;await egReadLocalSaves_();if(epoch!==egState.epoch||owner!==egOwner())return false;
+  if(egState.room){const match=r.matches.find(m=>m.id===egState.room);if(match)egState.game=match.game||'umk3';}egRecovery();egRender();if(!quiet)egMessage('');return true;
+ }catch(error){if(error.name!=='AbortError'&&epoch===egState.epoch&&owner===egOwner()){egMessage(error.message,true);if(error.code==='GAMES_PREPARING'){clearTimeout(egState.preparingTimer);egState.preparingTimer=setTimeout(()=>{if(owner===egOwner()&&egVisible())void egLoad(true);},3000);}}return false;}
+ finally{if(epoch===egState.epoch){egState.loading=false;egState.controller=null;}}
+}
+function egUpdateMatch_(m){if(!m||!egState.data)return;const index=egState.data.matches.findIndex(x=>x.id===m.id);if(index<0)egState.data.matches.unshift(m);else egState.data.matches[index]=m;}
+async function egMutate(op,fields={},recover=false){
+ if(egState.busy)return;if(egState.pending&&!recover){egMessage('Сначала проверьте последнее действие выше.',true);return;}
+ const owner=egOwner(),request={op,fields:recover?fields:{...fields,requestId:'eg_'+crypto.randomUUID(),requestTime:Date.now()}};egStopPoll();egRememberPending(request);egState.busy=true;document.querySelectorAll('#egContent button,#egContent input,.eg-bottom-navigation button').forEach(n=>n.disabled=true);egRecovery();egMessage('⏳ Сохраняем…');
+ try{const r=await egApi({op:request.op,...request.fields});if(owner!==egOwner())return;egRememberPending(null);egState.creating=false;egState.editing=false;egState.drafts={};
+  if(r.match){if(!egState.catalogRequested){egState.room=r.match.id;egState.game=r.match.game||'umk3';egState.tab='matches';}egUpdateMatch_(r.match);}
+  egState.busy=false;const refreshed=await egLoad();if(owner===egOwner())egMessage(refreshed?'✅ Сохранено':'✅ Действие сохранено. Нажмите «Обновить» для проверки списка.');return r;
+ }catch(error){if(owner!==egOwner())return;if(error.definite)egRememberPending(null);egMessage(error.definite?error.message:error.message+' Действие могло сохраниться — проверьте его выше.',true);}
+ finally{if(owner===egOwner()){egState.busy=false;egRecovery();egRender();if(egVisible())egStartPoll();}}
+}
+function egTab(tab){if(egState.busy)return;const spec=EG_GAMES[egState.game];if(spec&&(spec.kind==='solo'&&tab!=='games'||!spec.formats.includes('versus')&&['leaders','badges'].includes(tab)))return;if(egCloseGame(false)===false)return;egState.tab=tab;egState.room='';egState.creating=false;egState.editing=false;egMessage('');egRender();}
+function egRender(){
+ document.querySelectorAll('.eg-bottom-navigation button').forEach(b=>b.disabled=egState.busy);if(egGame)return;
+ const content=document.getElementById('egContent');content.replaceChildren();const selected=EG_GAMES[egState.game];document.querySelector('#screen-entertainment h2').textContent=selected?selected.title:'🎮 Развлечения';
+ const back=document.querySelector('#screen-entertainment .eg-toolbar button');back.textContent=selected?'🎮 Все игры':'🔚 Главное меню';back.classList.toggle('eg-catalog-return',!!selected);if(selected)delete back.dataset.viewMainMenu;back.onclick=()=>{if(selected)void openEntertainment();else egNavigateHome();};egRenderGameSwitcher();
+ document.querySelector('#screen-entertainment .eg-tabs').hidden=!selected||selected.kind==='solo';const ranked=!!selected&&selected.formats.includes('versus');document.getElementById('egTabMatches').textContent=selected?.kind==='coop'?'🤝 Совместные игры':'🎯 Мои матчи';document.getElementById('egTabLeaders').hidden=!ranked;document.getElementById('egTabBadges').hidden=!ranked;
+ if(selected&&((selected.kind==='solo'&&egState.tab!=='games')||(!ranked&&['leaders','badges'].includes(egState.tab))))egState.tab='games';for(const [id,tab] of [['Games','games'],['Matches','matches'],['Leaders','leaders'],['Badges','badges']])document.getElementById('egTab'+id).setAttribute('aria-selected',String(egState.tab===tab));
+ if(!selected){egRenderCatalog(content);return;}if(!egState.data){content.append(egNode('p','⏳ Загружаем раздел игры…','eg-muted'),egButton('Обновить',()=>egLoad()));return;}
+ if(egState.tab==='games'){if(egState.creating)egRenderCreate(content);else egRenderGames(content);}else if(egState.tab==='matches')egRenderMatches(content);else if(egState.tab==='leaders')egRenderLeaders(content);else egRenderBadges(content);
+}
+function egRenderGames(root){
+ const spec=EG_GAMES[egState.game],p=egPanel('');p.classList.add('eg-play-panel');p.append(egGameLogo(egState.game),egNode('h3',spec.title),egNode('p',spec.description,'eg-muted'));
+ const actions=egNode('div',undefined,'eg-actions'),caps=egState.data.capabilities||{},known=caps.games||['umk3','rr3','rock'],browser=caps.browser&&known.includes(egState.game),network=caps.network;
+ actions.append(egButton('▶ Один игрок',()=>egLaunch('solo')));if(spec.kind!=='solo')actions.append(egButton('🎮 Двое рядом',()=>egLaunch('local')),egButton('🔥 Пригласить коллегу',()=>{egState.creating=true;egRender();}));
+ if(!browser){actions.querySelectorAll('button').forEach(b=>b.disabled=true);p.append(egNode('p',known.includes(egState.game)?'Игровые файлы ещё не подключены.':'Для этой игры обновите скрипт «Сотрудники».','eg-muted'));}else if(!network&&spec.kind!=='solo'){actions.lastChild.disabled=true;p.append(egNode('p','Сетевой сервер ещё не подключён.','eg-muted'));}p.append(actions);root.append(p);
+ for(const meta of egState.localSaves.filter(m=>m.game===egState.game&&m.mode!=='coop')){const card=egPanel('💾 Сохранённое прохождение');card.classList.add('eg-save-panel');card.append(egNode('p',(meta.mode==='solo'?'Один игрок':'Двое рядом')+' · '+egDate(meta.savedAt),'eg-muted'),egButton('▶ Продолжить',()=>egLaunch(meta.mode,'',{resumeKey:meta.key})));root.append(card);}
+ if(egState.localError)root.append(egNode('p',egState.localError,'eg-muted'));
+ const rules=egPanel('🎮 Правила игры');rules.append(egNode('p',spec.rules));if(spec.formats.includes('versus'))rules.append(egNode('p','3 очка за подтверждённую победу. Несовпавшие результаты — ничья. Тренировка, «Двое рядом» и совместные прохождения в рейтинг не входят.','eg-muted'));root.append(rules);
+}
+function egLocalMatchMeta_(m){return egState.localSaves.find(s=>s.mode==='coop'&&s.matchId===m.id&&s.savedId===m.saved?.id&&s.hash===m.saved?.hash);}
+async function egResume_(m){
+ const meta=egLocalMatchMeta_(m);if(!meta){egMessage('На этом устройстве сохранение не найдено. Можно начать заново.',true);return;}
+ try{await IIGameProgress.read(egOwner(),meta.key,{matchId:m.id,savedId:m.saved.id});}catch(error){egMessage(error.message,true);return;}
+ const r=await egMutate('resume',{matchId:m.id,session:m.session,savedId:meta.savedId,savedHash:meta.hash});if(r?.match)void egLaunch('match',r.match.id,{resumeKey:meta.key});
+}
+async function egCreateAndLaunch_(opponent,format,restartMatchId=''){
+ const result=await egMutate('create',{game:egState.game,format,opponent,platform:'Browser',edition:EG_BROWSER_EDITION,...(restartMatchId?{restartMatchId}:{})});if(result?.match?.edition===EG_BROWSER_EDITION)void egLaunch('match',result.match.id);
+}
+function egRenderCreate(root){
+ const spec=EG_GAMES[egState.game];if(spec.kind==='solo'){egState.creating=false;egRenderGames(root);return;}egState.creating=true;const d=egState.drafts.create||(egState.drafts.create={});root.replaceChildren();
+ const p=egPanel('🔥 Приглашение · '+spec.title),opponent=egPick('Коллега',egState.data.people.map(u=>[u.login,u.name]),d.opponent||'');p.append(opponent.field);let format=d.format||spec.formats[0];
+ const actions=egNode('div',undefined,'eg-actions'),notice=egNode('p','','eg-muted');
+ function drawActions(){actions.replaceChildren();const previous=egState.data.matches.find(m=>m.state==='paused'&&m.host.login===egLogin()&&m.guest.login===opponent.value()&&(m.game||'umk3')===egState.game&&m.format===format);
+  if(previous){notice.textContent=egLocalMatchMeta_(previous)?'С этим коллегой есть сохранённое прохождение.':'С этим коллегой есть приостановленное прохождение. На этом устройстве сохранение не найдено.';if(egLocalMatchMeta_(previous))actions.append(egButton('▶ Продолжить сохранённое',()=>egResume_(previous)));actions.append(egButton('🆕 Начать новое',()=>egCreateAndLaunch_(opponent.value(),format,previous.id)));}
+  else{notice.textContent='Коллега получит приглашение в Telegram.';actions.append(egButton('📨 Пригласить и открыть игру',()=>{if(!opponent.value()){opponent.trigger.focus();egMessage('Выберите коллегу.',true);return;}void egCreateAndLaunch_(opponent.value(),format);}));}actions.append(egButton('↩ Назад',()=>{egState.creating=false;egState.editing=false;egRender();},'danger-btn'));
+ }
+ opponent.field.addEventListener('egchange',e=>{d.opponent=e.detail;drawActions();});if(spec.formats.length>1){const choice=egPick('Режим',[['versus','⚔️ Друг против друга'],['coop','🤝 Вместе против компьютера']],format);choice.field.addEventListener('egchange',e=>{format=d.format=e.detail;drawActions();});p.append(choice.field);}
+ p.append(egNode('p',spec.kind==='coop'?'Совместное прохождение без побед и поражений между напарниками.':'Выбранный режим нужно также включить в меню самой игры.','eg-muted'),notice,actions);drawActions();root.append(p);
+}
+function egSetSaveBusy_(g,busy){
+ if(busy&&!g.lockedButtons){g.lockedButtons=[...document.querySelectorAll('#screen-entertainment button')].map(button=>[button,button.disabled]);g.lockedButtons.forEach(([button])=>button.disabled=true);}
+ if(!busy&&g.lockedButtons){g.lockedButtons.forEach(([button,disabled])=>{if(button.isConnected)button.disabled=disabled;});g.lockedButtons=null;}
+ if(g.owner===egOwner())egState.busy=busy;g.saving=busy;
+}
+async function egSaveFromPlayer_(g,data){
+ if(g.owner!==egOwner()||egGame!==g||!g.config.localSaveEnabled||g.config.mode==='net-guest'||g.config.mode==='net-host'&&g.config.format!=='coop')return;
+ if(g.pendingSaveId&&g.pendingSaveId!==data.saveId)return;g.pendingSaveId=data.saveId;egSetSaveBusy_(g,true);
+ const reply=fields=>{if(g.frame?.isConnected)g.frame.contentWindow.postMessage({type:'umk3-save-result',nonce:g.nonce,saveId:data.saveId,...fields},location.origin);};
+ try{
+  if(!g.pendingSaveMeta){const m=egState.data?.matches.find(m=>m.id===g.matchId),mode=g.matchId?'coop':g.config.mode;if(g.matchId&&m?.host.login!==egLogin())throw Error('Сохранение совместного прохождения доступно хосту.');
+   const pauseRequest=g.matchId?{requestId:'eg_'+crypto.randomUUID(),requestTime:Date.now(),session:g.config.session}:null;
+   g.pendingSaveMeta=await IIGameProgress.save({owner:g.owner,game:g.config.game,mode,partner:m?.guest.login||'',partnerName:m?.guest.name||'',matchId:g.matchId||'',savedId:data.saveId,release:g.config.release,romSha256:g.config.romSha256,pauseRequest},data.state);
+  }
+  if(g.owner!==egOwner())throw Error('Учётная запись изменилась.');const meta=g.pendingSaveMeta;
+  if(g.matchId){const fields={matchId:g.matchId,session:g.config.session,requestId:meta.pauseRequest.requestId,requestTime:meta.pauseRequest.requestTime,saved:{id:meta.savedId,hash:meta.hash,bytes:meta.bytes,release:meta.release}};egRememberPending({op:'pause',fields});const r=await egApi({op:'pause',...fields});egUpdateMatch_(r.match);if(egState.pending?.fields.requestId===fields.requestId)egRememberPending(null);void IIGameProgress.settle(g.owner,meta.key,meta.savedId).catch(()=>{});}
+  g.saved=true;egSetSaveBusy_(g,false);reply({ok:true});await egReadLocalSaves_();if(g.owner!==egOwner()||egGame&&egGame!==g)return;egCloseGame(false,{silent:true});egState.creating=false;egState.editing=false;if(g.matchId){egState.room=g.matchId;egState.tab='matches';}else{egState.room='';egState.tab='games';}egRecovery();egRender();egMessage('💾 Сохранено в этом браузере. Можно продолжить позже.');egStartPoll();
+ }catch(error){
+  if(g.owner!==egOwner())return;
+  if(g.pendingSaveMeta&&g.matchId&&!error.definite){reply({pending:true,message:'Не получено подтверждение паузы. Нажмите «Проверить сохранение». Игра остаётся на паузе.'});egRecovery();return;}
+  if(error.definite&&egState.pending?.op==='pause')egRememberPending(null);egSetSaveBusy_(g,false);g.pendingSaveId='';g.pendingSaveMeta=null;reply({ok:false,message:error.message||'Не удалось сохранить игру.'});egMessage(error.message||'Не удалось сохранить игру.',true);
+ }
+}
+function egLeaveFields_(g){return {op:'leave',matchId:g.matchId,session:g.config?.session,requestId:'eg_'+crypto.randomUUID(),requestTime:Date.now()};}
+function egCloseGame(render=true,options={}){
+ const g=egGame;if(g?.saving&&!options.silent){egMessage('Дождитесь подтверждения сохранения игры.',true);return false;}egLaunchEpoch++;egGame=null;if(g){egSetSaveBusy_(g,false);try{g.frame?.contentWindow.postMessage({type:'umk3-close',nonce:g.nonce},location.origin);}catch{}g.frame?.remove();
+  if(g.matchId&&g.started&&!g.saved&&!options.silent&&g.owner===egOwner()){const m=egState.data?.matches.find(m=>m.id===g.matchId);if(m&&m.host.login===egLogin()&&['playing','pending_result','disputed'].includes(m.state)&&!m.claims?.[egLogin()]&&!document.hidden){egShowResultDialog_({...m,state:'pending_result'});g.resultPrompted=true;}void egApi(egLeaveFields_(g)).then(r=>{if(g.owner!==egOwner())return;egUpdateMatch_(r.match);if(!g.resultPrompted&&!egGame&&['pending_result','disputed'].includes(r.match?.state)&&!r.match.claims[egLogin()]&&!document.hidden)egShowResultDialog_(r.match);if(!egGame)egRender();}).catch(error=>{if(g.owner===egOwner())egMessage('Результат можно указать в карточке игры или через Telegram.',true);});}
+ }
+ if(render&&egVisible()){egRender();void egLoad();egStartPoll();}return true;
+}
+async function egLaunch(mode,matchId='',options={}){
+ if(egCloseGame(false)===false)return;egStopPoll();const epoch=++egLaunchEpoch,owner=egOwner();egGame={owner,epoch,frame:null,matchId};const root=document.getElementById('egContent');root.replaceChildren();root.append(egNode('p','⏳ Подготавливаем '+EG_GAMES[egState.game||'umk3'].title+'…','eg-muted'),egButton('↩ Назад',()=>egCloseGame()));
+ try{
+  const r=await egApi({op:'launch',mode,matchId,game:egState.game||'umk3'});if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;if(egState.game&&egState.game!=='umk3'&&r.config.game!==egState.game)throw Error('Для этой игры сначала обновите скрипт «Сотрудники».');
+  const config=r.config;config.localSaveEnabled=config.saveVersion===1&&!!window.IIGameProgress&&!egState.localError;config.mobileNavigation=document.documentElement.dataset.appLayout==='mobile';config.theme=document.documentElement.dataset.appTheme==='light'?'light':'dark';
+  if(config.mode==='net-host'&&config.format==='coop'&&config.saved){const meta=egState.localSaves.find(s=>s.matchId===matchId&&s.savedId===config.saved.id);if(!meta)throw Error('На этом устройстве сохранение не найдено. Вернитесь в карточку и начните заново.');const local=await IIGameProgress.read(owner,meta.key,{game:config.game,matchId,savedId:config.saved.id,release:config.release,romSha256:config.romSha256});if(local.meta.hash!==config.saved.hash)throw Error('Сохранение не совпало с этим прохождением.');config.resumeState=local.state;}
+  else if(options.resumeKey){const local=await IIGameProgress.read(owner,options.resumeKey,{game:config.game,mode:config.mode,release:config.release,romSha256:config.romSha256});config.resumeState=local.state;}
+  if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
+  const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261126-games-v2');frame.src=url.href;
+  egGame={owner,epoch,frame,nonce,config,matchId,started:false,saved:false,saving:false};root.replaceChildren();root.append(frame);egMessage('');frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config},location.origin);egAlignLandscapeGame();}};
+ }catch(error){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(error.message,true);egStartPoll();}}
+}
+window.addEventListener('message',async event=>{
+ const g=egGame;if(!g||event.origin!==location.origin||event.source!==g.frame?.contentWindow||event.data?.nonce!==g.nonce)return;if(g.owner!==egOwner()){egCloseGame(false,{silent:true});return;}
+ if(event.data.type==='umk3-save'){void egSaveFromPlayer_(g,event.data);return;}
+ if(event.data.type==='umk3-restored'){delete g.config.resumeState;return;}
+ if(event.data.type==='umk3-navigate'){if(event.data.action==='home')egNavigateHome();else egNavigateBack();return;}
+ if(event.data.type==='umk3-ready')g.frame.contentWindow.postMessage({type:'umk3-start',nonce:g.nonce,config:g.config},location.origin);
+ else if(event.data.type==='umk3-closed')egCloseGame();
+ else if(event.data.type==='umk3-away-timeout')egCloseGame();
+ else if(event.data.type==='umk3-error')egMessage(event.data.message||'Ошибка запуска игры',true);
+ else if(event.data.type==='umk3-connected'&&g.matchId&&!g.started){g.started=true;try{const r=await egApi({op:'browserReady',matchId:g.matchId,session:g.config.session,requestId:'eg_'+crypto.randomUUID(),requestTime:Date.now()});egUpdateMatch_(r.match);}catch(error){egMessage('Игра подключена, но статус матча не обновлён: '+error.message,true);}}
+});
+const egGameGuard=setInterval(()=>{if(egGame&&(egGame.owner!==egOwner()||!document.getElementById('screen-entertainment').classList.contains('active')))egCloseGame(false,{silent:egGame.owner!==egOwner()});if(egState.resultDialog?.open&&egState.resultDialog.dataset.owner!==egOwner())egState.resultDialog.close();},1000);
+window.addEventListener('pagehide',()=>{const g=egGame;if(!g||g.saving||g.saved||!g.matchId||!g.started||g.owner!==egOwner())return;const user=currentUser,payload={action:'games',...egLeaveFields_(g),city:user.city,district:String(user.district),actorLogin:user.dwLogin,actorPassword:user.password};try{const body=new Blob([JSON.stringify(payload)],{type:'text/plain;charset=utf-8'});if(!navigator.sendBeacon?.(GLOBAL_AUTH_SALARY_URL,body))void fetch(GLOBAL_AUTH_SALARY_URL,{method:'POST',body,keepalive:true,credentials:'omit'}).catch(()=>{});}catch{}});
+window.addEventListener('resize',egAlignLandscapeGame);window.addEventListener('orientationchange',egAlignLandscapeGame);
+function egNavigateHome(){if(egState.busy||egCloseGame(false)===false)return;egStopPoll();egState.room='';egState.game='';egState.tab='games';egState.creating=false;egState.editing=false;egMessage('');switchScreen('screen-main');}
 function egNavigateBack(){
- if(egState.busy)return;
- if(egGame){const matchId=egGame.matchId||'';egCloseGame(false);egState.room=matchId;egState.tab=matchId?'matches':'games';egState.creating=false;egState.editing=false;egRender();egStartPoll();void egLoad(true);return;}
- if(egState.creating){egState.creating=false;egState.editing=false;egState.tab='games';}
- else if(egState.room){egState.room='';egState.tab='matches';egState.editing=false;}
- else if(egState.tab!=='games'){egState.tab='games';egState.editing=false;}
- else if(egState.game){egState.game='';egState.room='';egState.tab='games';}
- else{egNavigateHome();return;}
- egMessage('');egRender();
+ if(egState.busy)return;if(egGame){const matchId=egGame.matchId||'';if(egCloseGame(false)===false)return;egState.room=matchId;egState.tab=matchId?'matches':'games';egState.creating=false;egState.editing=false;egRender();egStartPoll();void egLoad(true);return;}
+ if(egState.room){egState.room='';egState.tab='matches';}else if(egState.creating){egState.creating=false;egState.editing=false;}else if(egState.tab!=='games')egState.tab='games';else if(egState.game){void openEntertainment();return;}else{egNavigateHome();return;}egMessage('');egRender();
 }
-function egDate(value){return new Date(value).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});}
+function egResultOptions_(m){return m.format==='coop'?[['passed','✅ Прошли'],['failed','❌ Не прошли']]:[['win','🏆 Я победил'],['loss','Я проиграл'],['draw','🤝 Ничья']];}
+function egResultControls_(root,m,onDone=()=>{}){
+ const own=m.claims?.[egLogin()],options=egResultOptions_(m);if(own){root.append(egNode('p','Ваш ответ: '+(options.find(o=>o[0]===own)?.[1]||own)+'. Ожидаем второго участника.','eg-muted'));return;}
+ root.append(egNode('p','Укажите свой результат. После подтверждения ответ изменить нельзя.','eg-muted'));const actions=egNode('div',undefined,'eg-actions');
+ for(const [answer,label] of options)actions.append(egButton(label,async()=>{actions.querySelectorAll('button').forEach(b=>b.disabled=true);const r=await egMutate('result',{matchId:m.id,session:m.session,answer});if(r)onDone(r.match);else actions.querySelectorAll('button').forEach(b=>b.disabled=false);}));root.append(actions);
+}
+function egShowResultDialog_(m){
+ if(!currentUser||m.claims?.[egLogin()]||!['pending_result','disputed'].includes(m.state))return;const existing=egState.resultDialog;if(existing?.open&&existing.dataset.match===m.id)return;existing?.close();
+ const dialog=egNode('dialog',undefined,'eg-result-dialog');dialog.dataset.owner=egOwner();dialog.dataset.match=m.id;dialog.append(egNode('h3',m.format==='coop'?'Итог совместного прохождения':'Результат матча'),egNode('p',EG_GAMES[m.game||'umk3'].title,'eg-muted'));egResultControls_(dialog,m,()=>dialog.close());dialog.append(egButton('Ответить позже',()=>dialog.close(),'danger-btn'));dialog.addEventListener('close',()=>{dialog.remove();if(egState.resultDialog===dialog)egState.resultDialog=null;});document.body.append(dialog);egState.resultDialog=dialog;dialog.showModal();
+}
+function egShortState_(m){return ({confirmed:m.format==='coop'?(m.outcome==='completed'?'✅ Прошли':'❌ Не прошли'):'🏆 Завершён',draw:'🤝 Ничья',unconfirmed:'Без результата',paused:'⏸ Пауза',pending_result:'⏳ Итог',disputed:'⏳ Итог',playing:m.format==='coop'?'🤝 В игре':'⚔️ В игре',invited:'📨 Вызов',accepted:'🤝 Принят',expired:'⌛ Истёк'})[m.state]||egSessionState(m);}
 function egRenderMatches(root){
  if(egState.room){const m=egState.data.matches.find(m=>m.id===egState.room);if(m){egRenderRoom(root,m);return;}egState.room='';egMessage('Матч не найден или недоступен этому профилю и участку.',true);}
- const toolbar=egNode('div',undefined,'eg-toolbar');toolbar.append(egNode('p','Сначала активные вызовы, затем история.','eg-muted'),egButton('🔄 Обновить',()=>egLoad()));root.append(toolbar);
- const active=m=>['invited','accepted','playing','pending_result','disputed'].includes(m.state),matches=egState.data.matches.filter(m=>(m.game||'umk3')===egState.game).sort((a,b)=>Number(active(b))-Number(active(a))||b.createdAt-a.createdAt);
- if(!matches.length){const empty=egPanel('🎯 Здесь будут ваши матчи');empty.append(egNode('p','Откройте вкладку «Играть» и пригласите коллегу.','eg-muted'));root.append(empty);}
- matches.slice(0,100).forEach(m=>{const p=egPanel(m.host.name+(m.format==='coop'?' 🤝 ':' ⚔️ ')+m.guest.name);p.append(egNode('span',egSessionState(m),'eg-badge eg-state-'+m.state),egNode('p',EG_GAMES[m.game||'umk3'].title+' · '+egDate(m.createdAt),'eg-muted'),egButton('Открыть матч',()=>{egState.room=m.id;egRender();}));root.append(p);});
- if(matches.length>100)root.append(egNode('p','Показаны последние 100 матчей. Рейтинг учитывает всю историю.','eg-muted'));
+ const toolbar=egNode('div',undefined,'eg-toolbar eg-match-filter'),date=egField('Дата игры'),month=egGameRankings().month||new Date().toISOString().slice(0,7);date.input.type='date';date.input.value=egState.dateFilter;date.input.min=month+'-01';const [year,num]=month.split('-').map(Number);date.input.max=month+'-'+new Date(year,num,0).getDate();date.input.dataset.appDateEmptyLabel='Весь текущий месяц';date.input.onchange=()=>{egState.dateFilter=date.input.value;egState.editing=false;egRender();};toolbar.append(date.wrap);if(egState.dateFilter)toolbar.append(egButton('Сбросить дату',()=>{egState.dateFilter='';egRender();},'action-btn'));toolbar.append(egButton('🔄 Обновить',()=>egLoad()));root.append(toolbar);
+ const active=m=>['invited','accepted','playing','pending_result','disputed','paused'].includes(m.state),matches=egState.data.matches.filter(m=>(m.game||'umk3')===egState.game&&!['cancelled','declined'].includes(m.state)&&(active(m)||!egState.dateFilter||m.dateKey===egState.dateFilter)).sort((a,b)=>Number(active(b))-Number(active(a))||(b.finalizedAt||b.createdAt)-(a.finalizedAt||a.createdAt));
+ if(!matches.length){const empty=egPanel('🎯 Здесь будут ваши игры');empty.append(egNode('p',egState.dateFilter?'На выбранную дату игр нет.':'Откройте вкладку «Играть» и пригласите коллегу.','eg-muted'));root.append(empty);}
+ for(const m of matches.slice(0,100)){const card=egPanel('');card.classList.add('eg-match-panel');card.append(egNode('strong',m.host.name+(m.format==='coop'?' 🤝 ':' ⚔️ ')+m.guest.name,'eg-match-players'));const line=egNode('div',undefined,'eg-match-meta'),title=egNode('span',EG_GAMES[m.game||'umk3'].shortTitle,'eg-match-game'),date=egNode('time',m.dateLabel||egDate(m.finalizedAt||m.createdAt));title.title=EG_GAMES[m.game||'umk3'].title;line.append(title,date,egNode('span',egShortState_(m),'eg-match-state'));card.append(line,egButton(['pending_result','disputed'].includes(m.state)?'Указать результат':m.state==='paused'?'Открыть прохождение':'Открыть матч',()=>{egState.room=m.id;egRender();},'action-btn'));root.append(card);}
+ if(matches.length>100)root.append(egNode('p','Показаны последние 100 игр. Для поиска выберите дату.','eg-muted'));
 }
 function egRenderRoom(root,m){
- const me=egLogin(),host=m.host.login===me,coop=m.format==='coop',p=egPanel(EG_GAMES[m.game||'umk3'].title);
- p.append(egNode('span',egSessionState(m),'eg-badge eg-state-'+m.state),egNode('p',coop?'🤝 Совместное прохождение':'⚔️ Друг против друга','eg-muted'));
- const players=egNode('div',undefined,'eg-grid');[m.host,m.guest].forEach(u=>{const b=egNode('div',undefined,'eg-player');b.append(egNode('strong',u.name+(u.login===me?' · Вы':'')),egNode('small',m.ready[u.login]?'✅ Подключался к матчу':'⏳ Ожидает подключения'));players.append(b);});p.append(players);
- const browser=m.edition===EG_BROWSER_EDITION;
- if(browser&&['invited','accepted','playing'].includes(m.state))p.append(egButton('▶ Играть',()=>egLaunch('match',m.id)));
- if(!browser)p.append(egNode('p','Это матч из предыдущей версии раздела. Для игры в браузере создайте новый вызов.','eg-muted'));
- const a=egNode('div',undefined,'eg-actions');a.append(egButton('🔗 Скопировать ссылку',async()=>{const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('gameMatch',m.id);url.searchParams.set('gameCity',m.city);url.searchParams.set('gameDistrict',m.district);try{await navigator.clipboard.writeText(url.href);egMessage('Ссылка на матч скопирована');}catch(e){egMessage('Ссылка на матч: '+url.href);}}));
- if(host&&m.state==='invited'){
-  const notices={sent:'✅ Приглашение отправлено в Telegram',failed:'⚠️ Telegram недоступен или не настроен. Можно передать ссылку вручную.',sending:'⏳ Отправка была начата. Проверьте Telegram; ссылка доступна вручную.',unknown:'⚠️ Подтверждение доставки не получено. Проверьте Telegram или передайте ссылку вручную.',check:'⏳ Обновите матч для проверки доставки.'};p.append(egNode('p',notices[m.notification.state]||'Проверьте приглашение в Telegram.','eg-muted'));
-  if(m.notification.state==='failed')a.append(egButton('📨 Повторить приглашение',()=>egMutate('retryNotice',{matchId:m.id})));
+ const me=egLogin(),host=m.host.login===me,coop=m.format==='coop',p=egPanel(EG_GAMES[m.game||'umk3'].title);p.append(egNode('span',egSessionState(m),'eg-badge eg-state-'+m.state),egNode('p',m.host.name+(coop?' 🤝 ':' ⚔️ ')+m.guest.name,'eg-muted'));
+ if(m.state==='paused'){
+  p.append(egNode('p','💾 Последнее сохранение: '+egDate(m.saved?.savedAt||m.updatedAt),'eg-muted'));
+  if(host){if(egLocalMatchMeta_(m))p.append(egButton('▶ Продолжить',()=>egResume_(m)));else p.append(egNode('p','На этом устройстве сохранение не найдено.','eg-muted'));p.append(egButton('🆕 Начать заново',()=>egCreateAndLaunch_(m.guest.login,m.format,m.id),'action-btn'));}
+  else p.append(egNode('p','Продолжение запускает хост. Когда он восстановит игру, вы получите приглашение.','eg-muted'));
  }
- if(m.state==='invited'&&!host)a.append(egButton('🤝 Принять вызов',()=>egMutate('accept',{matchId:m.id})),egButton('Отклонить',()=>egMutate('decline',{matchId:m.id}),'danger-btn'));
- if(host&&['invited','accepted'].includes(m.state))a.append(egButton('Отменить вызов',()=>egMutate('cancel',{matchId:m.id}),'danger-btn'));
- if(['playing','pending_result','disputed'].includes(m.state)){
-  const result=egPanel(coop?'Итог совместной игры':'Кто выиграл матч?'),options=coop?[['completed','Прошли игру'],['stopped','Завершили сеанс']]:[[m.host.login,m.host.name],[m.guest.login,m.guest.name]];
-  result.append(egNode('p',coop?'Оба участника подтверждают одинаковый итог. Рейтинговые очки не начисляются.':'Укажите итог только после завершения игры. При ошибке можно изменить свой ответ до совпадения подтверждений.','eg-muted'));
-  if(m.claims[me])result.append(egNode('p','Ваш выбор: '+(options.find(o=>o[0]===m.claims[me])?.[1]||''),'eg-muted'));
-  if(m.state==='disputed')result.append(egNode('p','Вы указали разные итоги. Обсудите результат и исправьте свой ответ.','eg-state-disputed'));
-  const draft=egState.drafts[m.id]||(egState.drafts[m.id]={}),choice=egPick(coop?'Итог':'Победитель',options,draft.answer||m.claims[me]||'');choice.field.addEventListener('egchange',e=>draft.answer=e.detail);result.append(choice.field,egButton('Подтвердить результат',()=>{if(!choice.value()){egMessage('Выберите итог игры.',true);choice.trigger.focus();return;}void egMutate('result',{matchId:m.id,...(coop?{outcome:choice.value()}:{winner:choice.value()})});}));p.append(result);
- }
- if(m.state==='confirmed')p.append(egNode('p',coop?(m.outcome==='completed'?'✅ Прошли игру. Оба участника подтвердили результат.':'✅ Сеанс завершён. Оба участника подтвердили результат.'):'🏆 Победитель: '+[m.host,m.guest].find(u=>u.login===m.winner)?.name+' · +3 очка. Оба игрока подтвердили результат.'));
- if(['invited','accepted','playing'].includes(m.state))p.append(egNode('p','Срок действия: '+egDate(m.expiresAt),'eg-muted'));
- a.append(egButton('🔄 Обновить',()=>egLoad()),egButton('↩ Мои матчи',()=>{egState.room='';egRender();},'danger-btn'));p.append(a);root.append(p);
+ const a=egNode('div',undefined,'eg-actions');if(m.edition===EG_BROWSER_EDITION&&['invited','accepted','playing'].includes(m.state))a.append(egButton(m.resuming?'▶ Продолжить игру':'▶ Играть',()=>egLaunch('match',m.id)));
+ if(host&&m.state==='invited'&&m.notification.state==='failed')a.append(egButton('📨 Повторить приглашение',()=>egMutate('retryNotice',{matchId:m.id,session:m.session})));
+ if(m.state==='invited'&&!host)a.append(egButton('🤝 Принять вызов',()=>egMutate('accept',{matchId:m.id,session:m.session})),egButton('Отклонить',()=>egMutate('decline',{matchId:m.id,session:m.session}),'danger-btn'));
+ if(host&&['invited','accepted'].includes(m.state))a.append(egButton('Отменить вызов',()=>egMutate('cancel',{matchId:m.id,session:m.session}),'danger-btn'));
+ if(['playing','pending_result','disputed'].includes(m.state)){const result=egPanel(coop?'Итог совместной игры':'Кто выиграл матч?');egResultControls_(result,m);p.append(result);}
+ if(m.state==='confirmed')p.append(egNode('p',coop?(m.outcome==='completed'?'✅ Оба участника подтвердили прохождение.':'❌ Оба участника подтвердили: не прошли.'):'🏆 Победитель: '+[m.host,m.guest].find(u=>u.login===m.winner)?.name+' · +3 очка.'));
+ if(m.state==='draw')p.append(egNode('p',m.resultReason==='mismatch'?'🤝 Результаты не совпали. Матч завершён ничьей, 0 очков.':'🤝 Ничья, 0 очков.'));
+ if(m.state==='unconfirmed')p.append(egNode('p',m.resultReason==='timeout'?'Срок ожидания ответов истёк. Сессия завершена без результата.':'Ответы участников не совпали. Сессия завершена без подтверждённого результата.','eg-muted'));
+ a.append(egButton('🔄 Обновить',()=>egLoad()),egButton('↩ Мои игры',()=>{egState.room='';egRender();},'danger-btn'));p.append(a);root.append(p);
 }
+function egMonthLabel_(value){const names=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],parts=value.split('-');return names[Number(parts[1])-1]+' '+parts[0];}
 function egRenderLeaders(root){
- const rankings=egGameRankings(),p=egPanel('🏆 Рейтинг · '+EG_GAMES[egState.game].title),period=egPick('Период',[['monthly','За месяц · '+rankings.month],['all','За всё время']],egState.period),tools=egNode('div',undefined,'eg-rating-tools');
- period.field.addEventListener('egchange',e=>{egState.period=e.detail;egState.editing=false;egRender();});tools.append(period.field,egButton('🔄 Обновить',()=>egLoad()));p.append(tools,egNode('p','3 очка за победу. При равенстве: больше побед, затем меньше поражений.','eg-muted'));
- const values=rankings[egState.period]||[],played=values.filter(r=>r.played>0),waiting=values.filter(r=>!r.played);
- if(!played.length)p.append(egNode('p','В этом периоде ещё нет завершённых матчей.','eg-muted'));
- else{const header=egNode('div',undefined,'eg-score-row eg-score-head');['Место','Игрок','Матчи','Победы','Поражения','Очки'].forEach(t=>header.append(egNode('span',t)));p.append(header);
- played.forEach((r,i)=>{const line=egNode('div',undefined,'eg-score-row'+(r.login===egLogin()?' eg-me':''));line.append(egNode('span',i<3?['🥇','🥈','🥉'][i]:String(i+1),'eg-score-place'),egNode('strong',r.name+(r.login===egLogin()?' · Вы':''),'eg-score-name'));
- [['Матчи',r.played],['Победы',r.wins],['Поражения',r.losses],['Очки',r.points]].forEach(([label,value])=>{const cell=egNode('span',undefined,'eg-score-stat');cell.dataset.label=label;cell.append(egNode('span',label,'eg-score-label'),egNode('strong',String(value)));line.append(cell);});p.append(line);});}
+ const rankings=egGameRankings(),p=egPanel('🏆 Рейтинг · '+EG_GAMES[egState.game].title),period=egField('Период','',rankings.month?egMonthLabel_(rankings.month):'Текущий месяц'),tools=egNode('div',undefined,'eg-rating-tools');period.input.readOnly=true;period.input.setAttribute('aria-label','Текущий месяц рейтинга');tools.append(period.wrap,egButton('🔄 Обновить',()=>egLoad()));p.append(tools,egNode('p','3 очка за победу, 0 за ничью. При равенстве: больше побед, затем меньше поражений.','eg-muted'));
+ const values=rankings.monthly||[],played=values.filter(r=>r.played>0),waiting=values.filter(r=>!r.played);if(!played.length)p.append(egNode('p','В этом месяце ещё нет завершённых матчей.','eg-muted'));
+ else{const header=egNode('div',undefined,'eg-score-row eg-score-head');['Место','Игрок','Матчи','Победы','Поражения','Очки'].forEach(t=>header.append(egNode('span',t)));p.append(header);played.forEach((r,i)=>{const line=egNode('div',undefined,'eg-score-row'+(r.login===egLogin()?' eg-me':''));line.append(egNode('span',i<3?['🥇','🥈','🥉'][i]:String(i+1),'eg-score-place'),egNode('strong',r.name+(r.login===egLogin()?' · Вы':''),'eg-score-name'));for(const [label,value] of [['Матчи',r.played],['Победы',r.wins],['Поражения',r.losses],['Очки',r.points]]){const cell=egNode('span',undefined,'eg-score-stat');cell.dataset.label=label;cell.append(egNode('span',label,'eg-score-label'),egNode('strong',String(value)));line.append(cell);}p.append(line);});}
  if(waiting.length){const fold=egNode('details',undefined,'eg-unplayed');fold.append(egNode('summary','Ещё не участвовали · '+waiting.length));waiting.forEach(r=>fold.append(egNode('p',r.name+(r.login===egLogin()?' · Вы':''))));p.append(fold);}root.append(p);
 }
 function egRenderBadges(root){
- const stats=egGameRankings().all.find(u=>u.login===egLogin())||{wins:0,played:0,bestStreak:0},grid=egNode('div',undefined,'eg-grid');
- [['🏆 Первая победа','Выиграть один подтверждённый матч',stats.wins>=1,Math.min(stats.wins,1)+'/1'],['🔥 На волне','Выиграть три матча подряд',stats.bestStreak>=3,Math.min(stats.bestStreak,3)+'/3'],['🥊 Постоянный участник','Завершить десять подтверждённых матчей',stats.played>=10,Math.min(stats.played,10)+'/10']].forEach(([title,hint,unlocked,progress])=>{const p=egPanel(title);p.classList.add('eg-achievement');if(unlocked)p.classList.add('eg-unlocked');p.append(egNode('p',hint,'eg-muted'),egNode('strong',unlocked?'✅ Получено':progress));grid.append(p);});root.append(grid);
+ const stats=egState.data?.achievements?.[egState.game]||{wins:0,played:0,bestStreak:0},grid=egNode('div',undefined,'eg-grid');
+ for(const [title,hint,unlocked,progress] of [['🏆 Первая победа','Выиграть один подтверждённый матч',stats.wins>=1,Math.min(stats.wins,1)+'/1'],['🔥 На волне','Выиграть три матча подряд',stats.bestStreak>=3,Math.min(stats.bestStreak,3)+'/3'],['🥊 Постоянный участник','Завершить десять матчей',stats.played>=10,Math.min(stats.played,10)+'/10']]){const p=egPanel(title);p.classList.add('eg-achievement');if(unlocked)p.classList.add('eg-unlocked');p.append(egNode('p',hint,'eg-muted'),egNode('strong',unlocked?'✅ Получено':progress));grid.append(p);}root.append(egNode('p','Достижения сохраняются между месяцами.','eg-muted'),grid);
 }
+function egSessionState(m){if(m.format!=='coop')return EG_STATES[m.state]||m.state;return ({invited:m.resuming?'📨 Приглашение продолжить':'📨 Ожидает ответа',accepted:'🤝 Приглашение принято',playing:'🤝 Совместная игра начата',confirmed:m.outcome==='completed'?'✅ Игра пройдена':'❌ Не прошли',paused:'⏸ Прохождение приостановлено'})[m.state]||EG_STATES[m.state]||m.state;}
 document.addEventListener('click',e=>document.querySelectorAll('#screen-entertainment .custom-dropdown.open').forEach(box=>{if(!box.contains(e.target))setDropdownOpen(box,false);}));
 queueMicrotask(()=>{if(currentUser&&document.getElementById('screen-main')?.classList.contains('active'))maybeOpenGameDeepLink();});
 
-function egSessionState(m){
- if(m.format!=='coop')return EG_STATES[m.state]||m.state;
- return ({invited:'📨 Ожидает ответа',accepted:'🤝 Приглашение принято',playing:'🤝 Совместная игра начата',confirmed:m.outcome==='completed'?'✅ Игра пройдена':'✅ Сеанс завершён'})[m.state]||EG_STATES[m.state]||m.state;
-}
 </script>
 
 <script id="iiTableFilterExtensions">
