@@ -33,6 +33,13 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
  });
  const wss=new WebSocketServer({noServer:true,maxPayload:262144,perMessageDeflate:false});
  function text(ws,value){if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(value));}
+ // Keep only the newest video frame while a receiver is congested.
+ // Input/control packets continue immediately; video does not build a stale FIFO.
+ function forwardVideo(room,target,data){
+  target.videoPending=Buffer.from(data);
+  const flush=()=>{target.videoFlush=null;if(room[target.role]!==target||!room.playing||target.ws.readyState!==WebSocket.OPEN){target.videoPending=null;return;}if(target.ws.bufferedAmount>16384){target.videoFlush=setTimeout(flush,12);target.videoFlush.unref?.();return;}const latest=target.videoPending;target.videoPending=null;if(latest)target.ws.send(latest,{binary:true});};
+  if(target.videoFlush)return;flush();
+ }
  function peerStatus(room){
   const ready=!!(room.host?.ready&&room.guest?.ready&&room.host?.visible&&room.guest?.visible);
   if(ready){room.everReady=true;room.waitingSince=0;}else if(room.everReady&&!room.waitingSince)room.waitingSince=Date.now();
@@ -60,7 +67,7 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
      if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,session:c.session||'',sessionVersion:c.sessionVersion||0,generation:0,host:null,guest:null,playing:false,everReady:false,waitingSince:0,lastSeen:Date.now()};rooms.set(c.room,room);}
      if(room.release!==c.release){ws.close(4001,'Game mismatch');return;}const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
      member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;room.generation++;
-     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1']});peerStatus(room);
+     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1','latest-video-v1']});peerStatus(room);
     }catch{ws.close(4001,'Invalid or expired authentication');}return;
    }
    if(room[member.role]!==member)return;
@@ -83,12 +90,12 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
    }
    if(!room.playing)return;
    const type=data[0],other=room[member.role==='host'?'guest':'host']?.ws;if(!other||other.readyState!==WebSocket.OPEN)return;
-   if(type===1){if(member.role!=='host'||data.length<10||++member.counts.frame>65){ws.close(4005,'Invalid video');return;}if(other.bufferedAmount<49152)other.send(data,{binary:true});}
+   if(type===1){if(member.role!=='host'||data.length<10||++member.counts.frame>65){ws.close(4005,'Invalid video');return;}forwardVideo(room,room[member.role==='host'?'guest':'host'],data);}
    else if(type===2){if(member.role!=='guest'||data.length!==3||data.readUInt16LE(1)>4095||++member.counts.input>160){ws.close(4005,'Invalid input');return;}other.send(data,{binary:true});}
    else if(type===3){if(member.role!=='host'||data.length<7||data.length>16389||(data.length-5)%2!==0||data.readUInt32LE(1)<16000||data.readUInt32LE(1)>48000||++member.counts.audio>80){ws.close(4005,'Invalid audio');return;}if(other.bufferedAmount<24576)other.send(data,{binary:true});}
    else ws.close(4005,'Unsupported packet');
   });
-  ws.on('close',()=>{clearTimeout(loginTimer);if(member&&room?.[member.role]===member){room[member.role]=null;room.lastSeen=Date.now();peerStatus(room);}});
+  ws.on('close',()=>{clearTimeout(loginTimer);clearTimeout(member?.videoFlush);if(member)member.videoPending=null;if(member&&room?.[member.role]===member){room[member.role]=null;room.lastSeen=Date.now();peerStatus(room);}});
   ws.on('error',()=>{});
   ws.isAlive=()=>{const value=alive;alive=false;return value;};
  });
@@ -97,7 +104,7 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
   for(const [id,room] of rooms){for(const role of ['host','guest']){const member=room[role];if(member&&member.claims.exp<=now)member.ws.close(4003,'Session expired');}if(!room.host&&!room.guest&&now-room.lastSeen>180000)rooms.delete(id);}
   for(const [ip,a] of attempts)if(now-a.at>120000)attempts.delete(ip);
  },15000);maintenance.unref();
- return {server,wss,rooms,close:async()=>{clearInterval(maintenance);for(const ws of wss.clients)ws.terminate();await new Promise(r=>wss.close(r));await new Promise(r=>server.close(r));}};
+ return {server,wss,rooms,close:async()=>{clearInterval(maintenance);for(const room of rooms.values())for(const role of ['host','guest'])clearTimeout(room[role]?.videoFlush);for(const ws of wss.clients)ws.terminate();await new Promise(r=>wss.close(r));await new Promise(r=>server.close(r));}};
 }
 if(require.main===module){
  const allowedOrigins=new Set(String(process.env.FRONTEND_ORIGINS||'').split(',').map(s=>s.trim()).filter(Boolean));if(!allowedOrigins.size)throw Error('Set FRONTEND_ORIGINS');
