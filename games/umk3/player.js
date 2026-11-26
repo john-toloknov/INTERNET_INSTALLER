@@ -13,7 +13,7 @@ const BASE_KEYMAP={KeyW:4,KeyS:5,KeyA:6,KeyD:7,KeyT:10,KeyG:1,KeyY:9,KeyH:0,KeyU
 const P2_KEYMAP={ArrowUp:4,ArrowDown:5,ArrowLeft:6,ArrowRight:7,Digit1:1,Numpad1:1,Digit4:10,Numpad4:10,Digit2:0,Numpad2:0,Digit5:9,Numpad5:9,Digit3:8,Numpad3:8,Digit6:11,Numpad6:11,NumpadEnter:3};
 function keyBinding(code){if(BASE_KEYMAP[code]!==undefined)return [0,BASE_KEYMAP[code]];if(P2_KEYMAP[code]!==undefined)return [U.mode==='local'?1:0,P2_KEYMAP[code]];return null;}
 function input(player,mask){
- if(!U.ready||U.closed)return;
+ if(!U.ready||U.closed||U.saving)return;
  if(U.netWaiting&&mask!==0)return;
  if(U.mode==='net-guest'){if(U.mask[1]!==mask){U.mask[1]=mask;U.relay?.input(mask);}return;}
  const before=U.mask[player];if(before===mask)return;U.mask[player]=mask;
@@ -22,9 +22,26 @@ function input(player,mask){
 function applyLocal(){const player=U.mode==='net-guest'?1:0;input(player,U.keys[0]|U.touch|U.stick|U.pads[0]|U.pulses[0]);if(U.mode==='local')input(1,U.keys[1]|U.pads[1]|U.pulses[1]);}
 function release(){U.held.clear();U.pulses=[0,0];U.keys=[0,0];U.touch=0;U.touchResets.forEach(reset=>reset());U.stick=0;resetStick();U.pads=[0,0];applyLocal();document.querySelectorAll('.pressed').forEach(b=>b.classList.remove('pressed'));}
 function pulse(player,button){if(!U.ready)return;U.pulses[player]|=1<<button;applyLocal();setTimeout(()=>{U.pulses[player]&=~(1<<button);applyLocal();},100);}
-function closeGame(){if(U.closed)return;release();U.closed=true;U.restoreContext?.();U.controller.abort();cancelAnimationFrame(U.padLoop);U.relay?.close();for(const url of U.objects)URL.revokeObjectURL(url);U.objects=[];if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);notify('umk3-closed');}
+function closeGame(){if(U.closed)return;if(U.saving){status('Дождитесь подтверждения сохранения.',true);return;}release();U.closed=true;clearTimeout(U.waitTimer);U.restoreContext?.();U.controller.abort();cancelAnimationFrame(U.padLoop);U.relay?.close();for(const url of U.objects)URL.revokeObjectURL(url);U.objects=[];if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);notify('umk3-closed');}
+function saveAndExit(){
+ if(U.closed||!U.ready||!U.canSave)return;
+ if(U.mode==='net-host'&&!U.everConnected){status('Дождитесь подключения напарника перед сохранением.',true);return;}
+ if(U.saving){if(U.saveRetry){U.saveRetry=false;$('saveExitBtn').disabled=true;notify('umk3-save',U.savePayload);}return;}
+ try{
+  release();U.wasPaused=U.pause;EJS_emulator.gameManager.toggleMainLoop(0);const state=EJS_emulator.gameManager.getState();
+  if(!state?.byteLength||state.byteLength>8*1024*1024)throw Error('Движок не создал корректное сохранение.');
+  U.saving=true;U.savePayload={saveId:crypto.randomUUID().replace(/-/g,''),state:state.slice().buffer};$('saveExitBtn').disabled=true;$('saveExitBtn').textContent='⏳ Сохраняем…';status('Записываем сохранение в этом браузере…');notify('umk3-save',U.savePayload);
+ }catch(error){U.saving=false;if(!U.wasPaused&&!U.netWaiting)EJS_emulator.gameManager.toggleMainLoop(1);status(error.message||'Не удалось сохранить игру',true);}
+}
+function saveReply(data){
+ if(!U.saving||data.saveId!==U.savePayload?.saveId)return;
+ if(data.pending){U.saveRetry=true;$('saveExitBtn').disabled=false;$('saveExitBtn').textContent='Проверить сохранение';status(data.message||'Подтверждение не получено. Нажмите «Проверить сохранение».',true);return;}
+ if(data.ok){U.saving=false;U.savePayload=null;closeGame();return;}
+ U.saving=false;U.savePayload=null;$('saveExitBtn').disabled=false;$('saveExitBtn').textContent='💾 Сохранить и выйти';if(!U.wasPaused&&!U.netWaiting)EJS_emulator.gameManager.toggleMainLoop(1);status(data.message||'Сохранение не записано. Игра остаётся открытой.',true);
+}
+$('saveExitBtn').onclick=saveAndExit;
 function keyboard(event,down){
- if(!U.ready||U.closed||event.target?.closest?.('.control-layout,.eg-game-switcher,.eg-bottom-navigation,.eg-catalog-return,#gameMobileNavigation')||(/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName||'')||event.target?.isContentEditable))return;
+ if(!U.ready||U.closed||U.saving||event.target?.closest?.('.control-layout,.eg-game-switcher,.eg-bottom-navigation,.eg-catalog-return,#gameMobileNavigation')||(/^(INPUT|TEXTAREA|SELECT)$/.test(event.target?.tagName||'')||event.target?.isContentEditable))return;
  if(!keyBinding(event.code))return;event.preventDefault();event.stopImmediatePropagation();
  if(down)U.held.add(event.code);else U.held.delete(event.code);
  U.keys=[0,0];for(const code of U.held){const binding=keyBinding(code);if(binding)U.keys[binding[0]]|=1<<binding[1];}applyLocal();
@@ -56,7 +73,7 @@ for(const b of document.querySelectorAll('[data-pad]')){
 }
 $('startBtn').onclick=()=>pulse(0,3);$('p2Btn').onclick=()=>pulse(1,3);
 $('fullscreenBtn').onclick=()=>{if(!document.fullscreenElement)$('app').requestFullscreen?.().catch(()=>status('Полный экран недоступен',true));else void document.exitFullscreen();};
-$('pauseBtn').onclick=()=>{if(!U.ready||U.mode.startsWith('net-'))return;release();U.pause=!U.pause;EJS_emulator.gameManager.toggleMainLoop(U.pause?0:1);$('pauseBtn').textContent=U.pause?'▶ Продолжить':'⏸ Пауза';};
+$('pauseBtn').onclick=()=>{if(!U.ready||U.saving||U.mode.startsWith('net-'))return;release();U.pause=!U.pause;EJS_emulator.gameManager.toggleMainLoop(U.pause?0:1);$('pauseBtn').textContent=U.pause?'▶ Продолжить':'⏸ Пауза';};
 $('closeBtn').onclick=closeGame;
 function gamepads(){
  if(U.closed)return;const pads=navigator.getGamepads?.()||[];
@@ -94,13 +111,14 @@ async function boot(config){
  if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';const spec=PLAYER_GAMES[U.game];if(!spec||spec.release!==config.release)throw Error('Неизвестный выпуск игры');if(spec.kind==='solo'&&U.mode!=='solo')throw Error('В этой игре доступен только одиночный режим');U.coop=config.format==='coop';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+spec.logo;document.body.dataset.game=U.game;
  if(config.theme==='light')document.body.classList.add('light');
  $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':(U.coop?'Вместе':'Матч')+' · Игрок 1','net-guest':(U.coop?'Вместе':'Матч')+' · Игрок 2'})[U.mode];
+ U.canSave=config.localSaveEnabled===true&&(U.mode==='solo'||U.mode==='local'||U.mode==='net-host'&&U.coop);$('saveExitBtn').hidden=!U.canSave;U.config=config;
  $('p2Btn').hidden=U.mode!=='local';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем '+U.title+'…');
  if(U.mode.startsWith('net-')){
   if(!config.relay||config.relay.role!==(U.mode==='net-host'?'host':'guest'))throw Error('Некорректная сетевая сессия');U.netWaiting=true;
-  const waiting=text=>{release();U.netWaiting=true;if(U.mode==='net-guest')U.ready=false;else if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);$('curtain').hidden=false;$('curtain').textContent=text;status(text);};
+  const waiting=text=>{release();U.netWaiting=true;if(U.mode==='net-guest')U.ready=false;else if(window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(0);$('curtain').hidden=false;$('curtain').textContent=text;status(text);if(U.everConnected&&!U.waitTimer)U.waitTimer=setTimeout(()=>{U.waitTimer=null;if(U.netWaiting&&!U.closed&&!U.saving)notify('umk3-away-timeout');},120000);};
   U.relay=new Umk3Relay(config.relay,{canvas:$('remote'),input:mask=>{if(U.mode==='net-host')input(1,mask);},
    waiting,failed:text=>{waiting(text);status(text,true);notify('umk3-error',{message:text});},
-   connected:()=>{focusGame();release();U.netWaiting=false;U.ready=true;if(U.mode==='net-host'&&window.EJS_emulator?.gameManager)EJS_emulator.gameManager.toggleMainLoop(1);$('curtain').hidden=true;status('Матч подключён');notify('umk3-connected');},
+   connected:()=>{focusGame();release();clearTimeout(U.waitTimer);U.waitTimer=null;U.everConnected=true;U.netWaiting=false;U.ready=true;if(U.mode==='net-host'&&window.EJS_emulator?.gameManager&&!U.saving)EJS_emulator.gameManager.toggleMainLoop(1);$('curtain').hidden=true;status(U.coop?'Совместная игра подключена':'Матч подключён');notify('umk3-connected');},
    transport:direct=>status(direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер'),diagnostics:d=>{const n=$('networkStats');n.hidden=false;n.textContent=(d.direct?'Напрямую':'Через сервер')+' · Связь: '+Math.round(d.rtt||0)+' мс'+(d.bufferMs==null?'':' · Видеобуфер: '+Math.round(d.bufferMs)+' мс');},
    audio:running=>{$('soundBtn').hidden=running;},
    frame:()=>{if(U.relay.playing){$('curtain').hidden=true;status(U.relay.direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер');}}
@@ -108,11 +126,13 @@ async function boot(config){
   if(U.mode==='net-guest'){$('game').hidden=true;$('remote').hidden=false;U.relay.gameReady();focusGame();gamepads();notify('umk3-started',{mode:U.mode});return;}
  }
  const url=await decodeRom(config);
- const startState=U.game==='umk3'?await decodeStartState(config):null;
+ const resumeState=config.resumeState?new Uint8Array(config.resumeState):null;
+ if(resumeState&&(!U.canSave||!resumeState.byteLength||resumeState.byteLength>8*1024*1024))throw Error('Сохранение не подходит для этого режима игры.');
+ const startState=!resumeState&&U.game==='umk3'?await decodeStartState(config):null;
  Object.assign(window,{EJS_player:'#game',EJS_core:'genesis_plus_gx',EJS_controlScheme:'segaMD',EJS_gameUrl:url,EJS_gameName:config.release||'umk3-md-original-v1',EJS_gameID:config.gameId||31001,
   EJS_pathtodata:new URL('vendor/emulatorjs-4.2.3/data/',location.href).href,EJS_DEBUG_XX:true,EJS_startOnLoaded:true,EJS_threads:false,EJS_disableLocalStorage:true,EJS_disableDatabases:true,EJS_language:'ru-RU',EJS_color:'#b7ed55',EJS_defaultControls:{0:{},1:{},2:{},3:{}},
   EJS_defaultOptions:{'virtual-gamepad':'disabled','shader':'disabled'},EJS_Buttons:{playPause:false,restart:false,mute:false,settings:false,fullscreen:false,saveState:false,loadState:false,screenRecord:false,gamepad:false,cheat:false,volume:false,saveSavFiles:false,loadSavFiles:false,quickSave:false,quickLoad:false,screenshot:false,cacheManager:false,exitEmulation:false},
-  EJS_onGameStart:()=>{U.restoreContext?.();if(U.closed)return;if(startState)EJS_emulator.gameManager.loadState(startState);U.ready=true;focusGame();unlockSound();status(U.game==='umk3'?'Выбирайте бойца · Start / A / B / C':U.mode==='solo'?'Start — меню игры':U.game==='wwf'?(U.mode==='local'?'Выберите Head to Head или Cooperative в меню игры':'Выберите в игре '+(U.coop?'Cooperative':'Head to Head')):U.game==='rr3'?'Game Options → Set Player Mode → Split Screen':'Start — меню игры · Выберите режим двух игроков');if(U.relay){EJS_emulator.gameManager.toggleMainLoop(0);U.relay.publish($('game').querySelector('canvas'),EJS_emulator);U.relay.gameReady();}gamepads();notify('umk3-started',{mode:U.mode});}
+  EJS_onGameStart:()=>{U.restoreContext?.();if(U.closed)return;try{EJS_emulator.gameManager.toggleMainLoop(0);if(resumeState)EJS_emulator.gameManager.loadState(resumeState);else if(startState)EJS_emulator.gameManager.loadState(startState);U.ready=true;focusGame();unlockSound();status(resumeState?'▶ Продолжаем с сохранённого момента':U.game==='umk3'?'Выбирайте бойца · Start / A / B / C':U.mode==='solo'?'Start — меню игры':U.game==='wwf'?(U.mode==='local'?'Выберите Head to Head или Cooperative в меню игры':'Выберите в игре '+(U.coop?'Cooperative':'Head to Head')):U.game==='rr3'?'Game Options → Set Player Mode → Split Screen':'Start — меню игры · Выберите режим двух игроков');if(U.relay){U.relay.publish($('game').querySelector('canvas'),EJS_emulator);U.relay.gameReady();}else EJS_emulator.gameManager.toggleMainLoop(1);gamepads();notify('umk3-started',{mode:U.mode,saveVersion:1});if(resumeState){delete U.config.resumeState;notify('umk3-restored');}}catch(error){U.ready=false;EJS_emulator.gameManager.toggleMainLoop(0);status(error.message||'Не удалось восстановить игру',true);notify('umk3-error',{message:'Не удалось восстановить сохранённую игру.'});}}
 
  });
  // Video capture needs the last completed WebGL frame after presentation.
@@ -122,7 +142,7 @@ async function boot(config){
 }
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.nonce!==U.nonce)return;
- if(event.data.type==='umk3-close'){closeGame();return;}if(event.data.type!=='umk3-start')return;
+ if(event.data.type==='umk3-save-result'){saveReply(event.data);return;}if(event.data.type==='umk3-close'){closeGame();return;}if(event.data.type!=='umk3-start')return;
  void boot(event.data.config).catch(error=>{status(error.message||String(error),true);notify('umk3-error',{message:error.message||String(error)});});
 });
 if(parent!==window){document.body.classList.add('embedded');notify('umk3-ready');}
@@ -151,7 +171,7 @@ $('controlLayout').addEventListener('keydown',event=>{if(!['ArrowLeft','ArrowRig
 let savedControlLayout='joystick';try{savedControlLayout=localStorage.getItem(CONTROL_LAYOUT_KEY)||'joystick';}catch{}setControlLayout(savedControlLayout,false);
 
 async function playerNavigate(action){
- if(U.closed)return;release();if(document.fullscreenElement)try{await document.exitFullscreen();}catch{}notify('umk3-navigate',{action});
+ if(U.closed)return;if(U.saving){status('Дождитесь подтверждения сохранения.',true);return;}release();if(document.fullscreenElement)try{await document.exitFullscreen();}catch{}notify('umk3-navigate',{action});
 }
 $('gameBack').addEventListener('click',()=>void playerNavigate('back'),{signal:U.controller.signal});
 $('gameHome').addEventListener('click',()=>void playerNavigate('home'),{signal:U.controller.signal});
