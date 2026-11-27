@@ -10,13 +10,42 @@ function verifyToken(token,secret,now=Date.now()){
  if(c.v!==PROTOCOL||!['host','guest'].includes(c.role)||!/^mk_[A-Za-z0-9_-]{20,100}$/.test(c.room)||!/^\w{32,100}$/.test(c.sub)||typeof c.jti!=='string'||c.jti.length<16||c.jti.length>100||!["umk3-md-original-v1", "rr3-md-v1", "rock-md-v1", "ga3-md-v1", "sor3-md-v1", "tmnt-md-v1", "btd-md-v1", "wwf-md-v1", "comix-md-v1", "robo3-md-v1"].includes(c.release)||!Number.isFinite(c.iat)||!Number.isFinite(c.exp)||c.iat>now+30000||c.exp<=now||c.exp-c.iat>7200000||c.session!==undefined&&(!/^[A-Za-z0-9_-]{16,80}$/.test(c.session)||!Number.isSafeInteger(c.sessionVersion)||c.sessionVersion<1))throw Error('Expired or invalid claims');
  return c;
 }
-function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
+// coturn REST credentials are minted only after the existing room authentication.
+// The permanent TURN secret never leaves this process; browsers receive expiring grants.
+function iceSettings({stunUrls='stun:stun.l.google.com:19302',turnUrls='',turnSecret='',region=''}={}){
+ const urls=(value,kind)=>{
+  const list=Array.isArray(value)?value:String(value).split(',').map(s=>s.trim()).filter(Boolean);
+  if(list.length>6||list.some(s=>typeof s!=='string'||s.length>300||!new RegExp('^'+kind+':[a-zA-Z0-9.\\[\\]:_-]+(?:\\?transport=(?:udp|tcp))?$').test(s)))throw Error('Invalid ICE URLs');
+  return [...new Set(list)];
+ };
+ const stun=urls(stunUrls,'stun'),turn=urls(turnUrls,'turns?');
+ if(!!turn.length!==!!turnSecret||turnSecret&&String(turnSecret).length<32)throw Error('Set TURN_URLS and a separate TURN_AUTH_SECRET (32+ characters) together');
+ return {stun,turn,turnSecret,region:/^[a-zA-Z0-9 ._-]{1,48}$/.test(region)?region:''};
+}
+function iceGrant(settings,claims,now=Date.now()){
+ const servers=settings.stun.length?[{urls:settings.stun}]:[];
+ const expiresAt=Math.min(claims.exp,now+7200000),expires=Math.ceil(expiresAt/1000);
+ if(settings.turn.length){
+  const user=expires+':'+crypto.createHmac('sha256',settings.turnSecret).update(claims.room+':'+claims.sub+':'+claims.role).digest('hex').slice(0,20);
+  servers.push({urls:settings.turn,username:user,credential:crypto.createHmac('sha1',settings.turnSecret).update(user).digest('base64')});
+ }
+ return {iceServers:servers,turnConfigured:settings.turn.length>0,expiresAt};
+}
+const DIAG_METRICS={relayRtt:30000,peerRtt:30000,rafFps:240,sendFps:120,fps:120,sourceFps:240,encodeMs:10000,decodeMs:10000,bufferMs:30000,lossPct:100,queueBytes:10000000,iceRtt:30000};
+function cleanMetrics(value){
+ if(!value||typeof value!=='object'||Array.isArray(value))return null;
+ const out={};for(const [key,max] of Object.entries(DIAG_METRICS))if(Number.isFinite(value[key])&&value[key]>=0&&value[key]<=max)out[key]=Math.round(value[key]*10)/10;
+ if(['websocket','webrtc','turn'].includes(value.route))out.route=value.route;
+ return out;
+}
+function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={}}={}){
  if(typeof secret!=='string'||secret.length<32)throw Error('Configure a separate relay secret with at least 32 characters');
  if(!(allowedOrigins instanceof Set))throw Error('Configure allowed frontend origins');
+ const settings=iceSettings(ice);if(settings.turnSecret===secret)throw Error('Use a separate TURN_AUTH_SECRET');
  const rooms=new Map(),attempts=new Map(),startedAt=Date.now();
  const server=http.createServer((req,res)=>{
   const respond=(code,obj)=>{res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
-  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1});return;}
+  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1,networkVersion:2,turnConfigured:settings.turn.length>0,region:settings.region});return;}
   if(req.method==='GET'&&req.url==='/umk3-status'){
    const at=String(req.headers['x-ii-timestamp']||''),nonce=String(req.headers['x-ii-nonce']||''),signature=String(req.headers['x-ii-signature']||'');
    const expected=crypto.createHmac('sha256',secret).update(at+':'+nonce+':status').digest('hex');
@@ -66,13 +95,13 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
      if(room&&room.session&&c.session===undefined)throw Error('Legacy session replaced');
      if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,session:c.session||'',sessionVersion:c.sessionVersion||0,generation:0,host:null,guest:null,playing:false,everReady:false,waitingSince:0,lastSeen:Date.now()};rooms.set(c.room,room);}
      if(room.release!==c.release){ws.close(4001,'Game mismatch');return;}const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
-     member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0}};room[c.role]=member;room.generation++;
-     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1','latest-video-v1']});peerStatus(room);
+     member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0,telemetry:0}};room[c.role]=member;room.generation++;
+     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1','latest-video-v1','net-diagnostics-v1','ice-config-v1'],network:{...iceGrant(settings,c),region:settings.region}});peerStatus(room);
     }catch{ws.close(4001,'Invalid or expired authentication');}return;
    }
    if(room[member.role]!==member)return;
    const now=Date.now();if(now>=member.claims.exp){ws.close(4003,'Session expired');return;}room.lastSeen=now;
-   if(now-member.at>=1000){member.at=now;member.counts={frame:0,audio:0,input:0,control:0};}
+   if(now-member.at>=1000){member.at=now;member.counts={frame:0,audio:0,input:0,control:0,telemetry:0};}
    if(!binary){
     if(data.length>65536||++member.counts.control>140){ws.close(4005,'Control limit');return;}
     let event;try{event=JSON.parse(data.toString());}catch{ws.close(4005,'Invalid control');return;}
@@ -85,7 +114,19 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
      if(!valid){ws.close(4005,'Invalid peer signal');return;}
      text(room[member.role==='host'?'guest':'host']?.ws,{type:'rtc',generation:room.generation,...(event.disabled===true?{disabled:true}:d?{description:{type:d.type,sdp:d.sdp}}:{candidate:c})});
     }
-    else if(event.type==='ping')text(ws,{type:'pong',at:event.at});
+    else if(event.type==='net-probe'||event.type==='net-metrics'){
+     if(!room.playing||event.generation!==room.generation||++member.counts.telemetry>6)return;
+     const other=room[member.role==='host'?'guest':'host']?.ws;
+     if(!other||other.bufferedAmount>16384)return;
+     if(event.type==='net-probe'){
+      if(!['ping','pong'].includes(event.kind)||!Number.isSafeInteger(event.id)||event.id<1||event.id>4294967295){ws.close(4005,'Invalid probe');return;}
+      text(other,{type:'net-probe',generation:room.generation,kind:event.kind,id:event.id});
+     }else{
+      const metrics=cleanMetrics(event.metrics);if(!metrics){ws.close(4005,'Invalid metrics');return;}
+      text(other,{type:'net-metrics',generation:room.generation,metrics});
+     }
+    }
+    else if(event.type==='ping')text(ws,{type:'pong',at:Number.isFinite(event.at)?event.at:0});
     else ws.close(4005,'Unsupported control');return;
    }
    if(!room.playing)return;
@@ -108,8 +149,8 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16}={}){
 }
 if(require.main===module){
  const allowedOrigins=new Set(String(process.env.FRONTEND_ORIGINS||'').split(',').map(s=>s.trim()).filter(Boolean));if(!allowedOrigins.size)throw Error('Set FRONTEND_ORIGINS');
- const app=createRelayServer({secret:process.env.GAMES_RELAY_SECRET,allowedOrigins,webRoot:process.env.WEB_ROOT||null,maxRooms:Number(process.env.MAX_ROOMS)||16});
+ const app=createRelayServer({secret:process.env.GAMES_RELAY_SECRET,allowedOrigins,webRoot:process.env.WEB_ROOT||null,maxRooms:Number(process.env.MAX_ROOMS)||16,ice:{stunUrls:process.env.STUN_URLS,turnUrls:process.env.TURN_URLS,turnSecret:process.env.TURN_AUTH_SECRET,region:process.env.RELAY_REGION}});
  app.server.listen(Number(process.env.PORT)||8080,'0.0.0.0',()=>console.log('UMK3 authenticated relay listening; protocol '+PROTOCOL));
  process.on('SIGTERM',()=>{void app.close().then(()=>process.exit(0));});
 }
-module.exports={createRelayServer,verifyToken,signToken,PROTOCOL};
+module.exports={createRelayServer,verifyToken,signToken,PROTOCOL,iceSettings,iceGrant,cleanMetrics};
