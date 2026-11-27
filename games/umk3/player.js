@@ -1,5 +1,5 @@
 'use strict';
-const PLAYER_BUILD='20261127-games-v6';
+const PLAYER_BUILD='20261127-games-v7';
 const PLAYER_GAMES={"umk3": {"release": "umk3-md-original-v1", "logo": "umk3.png", "kind": "versus", "formats": ["versus"]}, "rr3": {"release": "rr3-md-v1", "logo": "rr3-logo-877bb161.png", "kind": "versus", "formats": ["versus"]}, "rock": {"release": "rock-md-v1", "logo": "rock-art-dcee2879.jpg", "kind": "versus", "formats": ["versus"]}, "ga3": {"release": "ga3-md-v1", "logo": "ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"]}, "sor3": {"release": "sor3-md-v1", "logo": "sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"]}, "tmnt": {"release": "tmnt-md-v1", "logo": "tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"]}, "btd": {"release": "btd-md-v1", "logo": "btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"]}, "wwf": {"release": "wwf-md-v1", "logo": "wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"]}, "comix": {"release": "comix-md-v1", "logo": "comix-art-257e7ff3.jpg", "kind": "solo", "formats": []}, "robo3": {"release": "robo3-md-v1", "logo": "robo3-art-89809996.jpg", "kind": "solo", "formats": []}};
 const U={started:false,ready:false,closed:false,mode:'solo',mask:[0,0],keys:[0,0],held:new Set(),pulses:[0,0],touch:0,touchResets:[],stick:0,pads:[0,0],objects:[],pause:false,controller:new AbortController(),nonce:new URLSearchParams(location.search).get('embed')||'',romKey:null,relay:null};
 // RetroArch requests an optional screen wake lock. Iframes/background tabs can
@@ -13,7 +13,7 @@ const notify=(type,fields={})=>{if(parent!==window)parent.postMessage({type,nonc
 const BASE_KEYMAP={KeyW:4,KeyS:5,KeyA:6,KeyD:7,KeyT:10,KeyG:1,KeyY:9,KeyH:0,KeyU:11,KeyJ:8,Enter:3};
 const P2_KEYMAP={ArrowUp:4,ArrowDown:5,ArrowLeft:6,ArrowRight:7,Digit1:1,Numpad1:1,Digit4:10,Numpad4:10,Digit2:0,Numpad2:0,Digit5:9,Numpad5:9,Digit3:8,Numpad3:8,Digit6:11,Numpad6:11,NumpadEnter:3};
 function keyBinding(code){if(BASE_KEYMAP[code]!==undefined)return [0,BASE_KEYMAP[code]];if(P2_KEYMAP[code]!==undefined)return [U.mode==='local'?1:0,P2_KEYMAP[code]];return null;}
-function applyGameTheme(theme){U.theme=theme==='light'?'light':'dark';document.body.classList.toggle('light',U.theme==='light');if(U.config)U.config.theme=U.theme;}
+function applyGameTheme(theme){U.theme=theme==='light'?'light':'dark';document.documentElement.classList.toggle('light',U.theme==='light');document.body.classList.toggle('light',U.theme==='light');if(U.config)U.config.theme=U.theme;}
 function input(player,mask){
  if(!U.ready||U.closed||U.saving)return;
  if(U.netWaiting&&mask!==0)return;
