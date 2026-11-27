@@ -4960,6 +4960,7 @@ html[data-app-layout=desktop] #screen-scanner .scanner-navigation-actions{grid-t
 #screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model>span{padding:0!important;margin:0!important}
 #screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-model>.custom-dropdown{margin:0!important;padding:0!important;width:100%;box-sizing:border-box}
 #screen-scanner :is(#manual-box,#camera-scanned-box) .manual-scan-cable-meters{display:block;margin:0;color:var(--accent-ink)}
+#screen-scanner .manual-scan-cable-meters>input{display:block;width:100%;box-sizing:border-box;margin-top:5px;min-height:44px}
 #screen-scanner #cable-name-card{display:none!important}
 html[data-app-layout=mobile] #screen-scanner .scanner-navigation-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch;gap:10px;width:100%}
 html[data-app-layout=mobile] #screen-scanner .scanner-navigation-actions>.btn{grid-column:auto!important;grid-row:1!important;flex-basis:auto!important;min-width:0!important;width:100%!important;max-width:none!important;margin:0!important}
@@ -11207,22 +11208,21 @@ document.addEventListener("pointerdown",e=>{if(!e.target.closest(".acui-picker-p
 function iiScannerModelField(item,index){
  const cable=item.type==='cable';
  const detected=item.type==='router'?ctDetectRouterModel(item.code):item.type==='stb'?ctDetectStbModel(item.code):'';
- item.model=cable?(item.cableName||item.model||''):sxDisplayModel_(item.model||detected||'');
- if(cable)item.cableName=item.model;
+ item.model=cable?(item.cableName||item.model||''):sxDisplayModel_(item.model||detected||'');if(cable)item.cableName=item.model;
  const field=iiTmrModelChoice(item.type,item.model,false,value=>{
-  item.model=value;if(cable){item.cableName=value;const option=ctIssueCableOptions().find(option=>option.name===value);if(option)item.meters=Number(option.meters);selectCableOption(value,value,item.meters);item.fullText=value+' ('+item.meters+'м) — № '+item.code;}
-  scannerIssueId='';
-  document.querySelectorAll('[data-scanner-model-index="'+index+'"] .dropdown-select-btn').forEach(trigger=>trigger.modelSync?.(value));
-  document.querySelectorAll('[data-scanner-model-index="'+index+'"] .manual-scan-cable-meters').forEach(node=>node.textContent='Метраж: '+item.meters+' м');
+  item.model=value;if(cable){item.cableName=value;const option=ctIssueCableOptions().find(option=>option.name===value);if(option&&!item.metersEdited)item.meters=Number(option.meters);selectCableOption(value,value,item.meters);item.fullText=value+' ('+item.meters+'м) — № '+item.code;}
+  scannerIssueId='';document.querySelectorAll('[data-scanner-model-index="'+index+'"] .dropdown-select-btn').forEach(trigger=>trigger.modelSync?.(value));
+  document.querySelectorAll('[data-scanner-model-index="'+index+'"] [data-scanner-meters]').forEach(node=>{node.value=item.meters??'';const max=ctIssueCableOptions().find(o=>o.name===item.cableName)?.meters;if(max)node.max=max;else node.removeAttribute('max');});
   const last=document.getElementById('last-scanned-text');if(last&&index===scannedBatch.length-1)last.textContent=iiScannerItemTitle(item);
  });
  field.wrap.classList.add('manual-scan-model');field.wrap.dataset.scannerModelIndex=String(index);
  const caption=cable?'Марка кабеля':item.type==='router'?'Модель роутера':'Модель приставки';field.input.setAttribute('aria-label',caption+' · '+item.code);field.wrap.querySelector('span').textContent=caption;
- if(cable){const meters=document.createElement('small');meters.className='manual-scan-cable-meters';meters.textContent='Метраж: '+item.meters+' м';field.wrap.append(meters);}
- return field.wrap;
+ if(cable){const label=document.createElement('label'),input=document.createElement('input');label.className='manual-scan-cable-meters';label.textContent='Метраж кабеля, м';input.type='number';input.min='0';input.step='any';input.inputMode='decimal';input.required=true;input.dataset.scannerMeters=String(index);input.value=item.meters??'';input.setAttribute('aria-label','Метраж кабеля · '+item.code);const max=ctIssueCableOptions().find(o=>o.name===item.cableName)?.meters;if(max)input.max=max;
+  input.oninput=()=>{item.meters=input.value===''?'':Number(input.value);item.metersEdited=true;scannerIssueId='';document.querySelectorAll('[data-scanner-meters="'+index+'"]').forEach(other=>{if(other!==input)other.value=input.value;});const last=document.getElementById('last-scanned-text');if(last&&index===scannedBatch.length-1)last.textContent=iiScannerItemTitle(item);};label.append(input);field.wrap.append(label);
+ }return field.wrap;
 }
 function iiScannerModelsReady(){
- for(const item of scannedBatch){if(!['router','stb'].includes(item.type))continue;
+ for(const item of scannedBatch){if(item.type==='cable'){const n=Number(item.meters),max=Number(ctIssueCableOptions().find(o=>o.name===(item.cableName||item.model))?.meters);if(!String(item.cableName||item.model||'').trim()||!Number.isFinite(n)||n<=0||max>0&&n>max){showBeelineModal('Метраж кабеля','Бухта '+item.code+': укажите фактический метраж больше нуля'+(max>0?' и не больше '+max+' м':'')+'.','⚠️');return false;}continue;}if(!['router','stb'].includes(item.type))continue;
   item.model=sxDisplayModel_(item.model||(item.type==='router'?ctDetectRouterModel(item.code):ctDetectStbModel(item.code))||'');
   const names=(item.type==='router'?standardRouterModels:standardTvBoxes).filter(value=>!['Роутер абонента','Без приставки'].includes(value));
   if(!names.includes(item.model)){showBeelineModal('Выберите модель',(item.type==='router'?'Роутер':'Приставка')+' S/N: '+item.code+' — выберите модель в списке над серийным номером.','⚠️');return false;}
@@ -11741,7 +11741,7 @@ function showFormStep() {
             const result=await ctIssueRequest({installer,batchData:scannedBatch.map(item=>({mode:item.type,serial:item.code,model:item.model||'',cableName:item.cableName||'',meters:item.meters||0}))},scannerIssueId);
             if(owner!==managementOwnerKey())return;if(result.status!=='success')throw new Error(result.message||'Таблица не подтвердила выдачу');
             const affected=[...new Set(scannedBatch.map(item=>({router:'stockRouters',stb:'stockStbs',cable:'stockCable'}[item.type])).filter(Boolean))];ctInvalidateGroups(affected);const completedRequestId=scannerIssueId;scannerIssueId='';scannedBatch=[];switchScreen('screen-success');
-            if(!result.notification?.sent&&!result.notification?.queued)ctShowIssueNotificationError(result,completedRequestId);
+            if(result.notification?.warning||!result.notification?.sent&&!result.notification?.queued)ctShowIssueNotificationError(result,completedRequestId);
         }catch(error){showBeelineModal('Выдача ТМЦ',error.message,'⚠️');}
         finally{if(button)button.disabled=false;if(loader)loader.style.display='none';}
     }
@@ -14683,7 +14683,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const allowedScrollScreens = [
     'screen-channel-catalog','screen-tmc-request','screen-tmc-requests-management',
     'screen-admin-table','screen-admin-ppr-reports','screen-admin-returns','screen-admin-stock-routers','screen-admin-stock-stbs','screen-admin-stock-cable','screen-admin-employees',
-    'screen-admin-refarb',   // Рефарб оборудования · руководство
+    'screen-refarb','screen-admin-refarb',   // Рефарб: сотрудник и руководство
     'screen-check-return',   // Проверить возврат
     'screen-access-search',  // Поиск доступа (замените на ваш реальный ID)
     'screen-act-debts',
@@ -16440,12 +16440,12 @@ async function ctSubmitNewIssue(){
  const seen=new Set();for(const record of rows){const values=ctDraft(record).values,serial=String(values[serialCol]).trim().toUpperCase().replace(/\s+/g,'');if(seen.has(serial)){showBeelineModal('Выдача ТМЦ','Повтор серийного номера: '+serial,'⚠️');return;}seen.add(serial);if(!values[issue.isCable?'C':'A']||issue.isCable&&!(Number(String(values.D||'').replace(',','.'))>0)){record.node.querySelector('[data-ct-serial]').focus();showBeelineModal('Выдача ТМЦ','Выберите модель для всех позиций. Для кабеля укажите метраж больше нуля.','⚠️');return;}}
  ctSetBusy(true);ctSetMessage('Записываем выдачу: '+rows.length+'…',true);
  try{const result=await ctIssueRequest({installer,batchData:rows.map(r=>({mode:{stockRouters:'router',stockStbs:'stb',stockCable:'cable'}[group],values:{...ctDraft(r).values}}))},issue.requestId);if(owner!==managementOwnerKey()||group!==ctState.group)return;if(result.status!=='success')throw new Error(result.message||'Выдача не подтверждена');
- const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});retHubState.loadedAt=0;invalidateEquipmentSnapshots();ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':result.notification?.queued?result.notification.message:'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(!result.notification?.sent&&!result.notification?.queued)ctShowIssueNotificationError(result,issue.requestId);
+ const sheet=ctState.sheets[0];result.records.filter(r=>r.sheet===sheet.name).forEach(r=>{if(!sheet.rows.some(old=>old.row===r.row))sheet.rows.push(r);});retHubState.loadedAt=0;invalidateEquipmentSnapshots();ctClearNewIssue();ctCacheCurrent();ctFilters={};ctKindFilter='';document.getElementById('cityTableSearch').value='';ctState.limit=Math.max(ctState.limit,sheet.rows.length);ctBuildFilters();ctSetBusy(false);ctRender();ctSetMessage('✅ Записано позиций: '+result.count+'. '+(result.notification?.sent?'Уведомление отправлено в Telegram.':result.notification?.queued?result.notification.message:'⚠️ Telegram: '+(result.notification?.message||'Уведомление не отправлено')));if(result.notification?.warning||!result.notification?.sent&&!result.notification?.queued)ctShowIssueNotificationError(result,issue.requestId);
  }catch(error){ctSetMessage('⚠️ '+error.message);showBeelineModal('Выдача ТМЦ',error.message,'⚠️');}finally{if(owner===managementOwnerKey())ctSetBusy(false);}
 }
 
 // Показывает выдача уведомление ошибка — модуль городской таблицы.
-function ctShowIssueNotificationError(result,requestId){const owner=managementOwnerKey(),text=ctNode('p','','Оборудование записано. Уведомление не доставлено: '+(result.notification?.message||'Причина не указана')+'. Повторять выдачу не нужно.'),actions=ctNode('div','common-nav-row'),close=ctNode('button','btn danger-btn','Закрыть'),retry=ctNode('button','btn main-btn','📨 Повторить уведомление');close.type=retry.type='button';close.onclick=closeBeelineModal;retry.onclick=async()=>{retry.disabled=true;try{const response=await ctRequest('retryNotify',{requestId});if(owner!==managementOwnerKey())return;if(response.notification?.sent||response.notification?.queued){closeBeelineModal();showBeelineModal('Выдача ТМЦ',response.notification?.queued?'Уведомления поставлены в очередь.':'Уведомление отправлено.','✅');}else text.textContent='Оборудование уже записано. Telegram: '+(response.notification?.message||'Уведомление не доставлено');}catch(error){text.textContent=error.message;}finally{retry.disabled=false;}};actions.append(close,retry);showBeelineModalNode('Выдача записана — Telegram',text,'⚠️',actions);}
+function ctShowIssueNotificationError(result,requestId){if(result.notification?.warning&&result.notification?.queued){showBeelineModal('Выдача записана — Telegram',result.notification.message+'\n\nОборудование уже записано. Повторять выдачу не нужно.','⚠️');return;}const owner=managementOwnerKey(),text=ctNode('p','','Оборудование записано. Уведомление не доставлено: '+(result.notification?.message||'Причина не указана')+'. Повторять выдачу не нужно.'),actions=ctNode('div','common-nav-row'),close=ctNode('button','btn danger-btn','Закрыть'),retry=ctNode('button','btn main-btn','📨 Повторить уведомление');close.type=retry.type='button';close.onclick=closeBeelineModal;retry.onclick=async()=>{retry.disabled=true;try{const response=await ctRequest('retryNotify',{requestId});if(owner!==managementOwnerKey())return;if(response.notification?.sent||response.notification?.queued){closeBeelineModal();showBeelineModal('Выдача ТМЦ',response.notification?.queued?'Уведомления поставлены в очередь.':'Уведомление отправлено.','✅');}else text.textContent='Оборудование уже записано. Telegram: '+(response.notification?.message||'Уведомление не доставлено');}catch(error){text.textContent=error.message;}finally{retry.disabled=false;}};actions.append(close,retry);showBeelineModalNode('Выдача записана — Telegram',text,'⚠️',actions);}
 
 </script>
 <script id="screenPolishScript">
@@ -17584,7 +17584,7 @@ async function prDownload(r,button){button.disabled=true;try{const esc=escapeSch
 </script>
 
 <script id="refarbScript">
-const RF_UI_VERSION='2026-10-15.8';
+const RF_UI_VERSION='2026-11-27.1';
 let rfFieldSequence=0;
 let rfUi={owner:'',manager:false,data:null,drafts:new Map(),busy:false,version:0,month:'',pending:null,limit:100,scanTarget:null,selected:new Map()};
 function rfUiSerial(value){return deviceInputSerial(value);}
@@ -17610,34 +17610,34 @@ async function rfReadApiResponse(response){
  if(!result||typeof result!=='object'||Array.isArray(result)||!['success','error'].includes(result.status))throw new Error('Скрипт вернул неверный формат данных Рефарба. Проверьте адрес и версию публикации.');
  return result;
 }
-async function rfApi(operation,fields={},timeout=operation==='list'?90000:35000){
+async function rfApi(operation,fields={},timeout=operation==='list'?45000:60000){
  const user=currentUser,owner=managementOwnerKey(),url=CITIES_CONFIG[user?.city]?.refarbScriptUrl;
  if(!user||!isConfiguredCityUrl(url))throw new Error('Для этого участка не заполнен refarbScriptUrl в карте городов');
  if(frontendDistricts().filter(c=>c.refarbScriptUrl===url).length!==1)throw new Error('Адрес рефарба повторяется у нескольких участков. У каждого участка должен быть свой адрес');
- const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout),attempts=operation==='list'?6:1;let readRetries=0;
- try{
-  for(let attempt=0;attempt<attempts;attempt++){
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),timeout),attempts=3;let readRetries=0;
+ try{for(let attempt=0;attempt<attempts;attempt++){
+  if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
+  try{
+   const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal}),result=await rfReadApiResponse(response);
    if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
-   try{
-    const response=await districtFetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'refarb',operation,...fields}),credentials:'omit',mode:'cors',redirect:'follow',cache:'no-store',signal:controller.signal}),result=await rfReadApiResponse(response);
-    if(owner!==managementOwnerKey())throw new Error('Сеанс изменился');
-    if(result.status!=='success'){const error=new Error(result.message||'Операция не выполнена');error.code=result.code;error.confirmed=result.code!=='REJECT_PENDING';throw error;}return result;
-   }catch(error){
-    const busy=operation==='list'&&error.code==='BUSY',retryRead=operation==='list'&&error.retryRead&&readRetries++<1;
-    if(attempt+1<attempts&&(busy||retryRead)&&!controller.signal.aborted&&owner===managementOwnerKey()){
-     if(busy)rfNote('Данные рефарба обновляются в фоне. Ожидаем завершения…',true);
-     await new Promise((resolve,reject)=>{const abort=()=>{clearTimeout(delay);controller.signal.removeEventListener('abort',abort);reject(new DOMException('Ожидание прервано','AbortError'));},delay=setTimeout(()=>{controller.signal.removeEventListener('abort',abort);resolve();},Math.min(2000,500*(attempt+1)));controller.signal.addEventListener('abort',abort,{once:true});});
-     continue;
-    }
-    throw error;
-   }
+   if(result.status!=='success'){const error=new Error(result.message||'Операция не выполнена');error.code=result.code;error.confirmed=!['REJECT_PENDING','BUSY','RECOVERY'].includes(result.code);throw error;}return result;
+  }catch(error){
+   const busy=error.code==='BUSY'&&(operation==='list'||typeof fields.requestId==='string'),retryRead=operation==='list'&&error.retryRead&&readRetries++<1;
+   if(attempt+1<attempts&&(busy||retryRead)&&!controller.signal.aborted&&owner===managementOwnerKey()){
+    if(busy)rfNote(operation==='list'?'Ожидаем завершения сохранения склада…':'Сохраняем… Склад занят, повторяем тот же запрос.',true);
+    await new Promise((resolve,reject)=>{const abort=()=>{clearTimeout(delay);controller.signal.removeEventListener('abort',abort);reject(new DOMException('Ожидание прервано','AbortError'));},delay=setTimeout(()=>{controller.signal.removeEventListener('abort',abort);resolve();},Math.min(3000,1000*(attempt+1)));controller.signal.addEventListener('abort',abort,{once:true});});continue;
+   }throw error;
   }
- }catch(error){if(error.name==='AbortError')throw new Error(operation==='list'?'Обновление рефарба занимает больше обычного. Попробуйте позже.':'Ответ не получен вовремя. Повторите сохранение для проверки того же запроса');throw error;}finally{clearTimeout(timer);}
+ }}catch(error){if(error.name==='AbortError')throw new Error(operation==='list'?'Обновление рефарба занимает больше обычного. Можно повторить обновление; введённые данные сохранены.':'Ответ не получен вовремя. Проверьте сохранение по прежнему номеру запроса');throw error;}finally{clearTimeout(timer);}
 }
 async function openRefarb(manager=false){
  if(manager?!rfUiManager():!rfUiAssigned())return;
  const owner=managementOwnerKey();if(rfUi.owner!==owner){let pending=null;try{pending=JSON.parse(sessionStorage.getItem('refarb_pending_'+owner)||'null');}catch(e){}rfUi={owner,manager,data:null,drafts:rfRestoreDrafts(),busy:false,version:rfUi.version+1,month:'',pending,limit:100,scanTarget:null,selected:new Map()};}
- rfUi.manager=manager;switchScreen(manager?'screen-admin-refarb':'screen-refarb');rfBuild();await rfLoad(false);
+ rfUi.manager=manager;switchScreen(manager?'screen-admin-refarb':'screen-refarb');
+ const root=rfRoot();if(!root?.querySelector('.rf-toolbar'))rfBuild();else if(!rfUi.busy)rfRender();
+ if(rfUi.busy){rfNote(rfUi.pending?'Сохраняем…':'Загружаем рефарб…',true);rfBusyControls();return rfUi.loadingTask;}
+ rfBusyControls();if(rfUi.data&&Date.now()-(rfUi.loadedAt||0)<15000)return;
+ return rfLoad(false);
 }
 function rfButton(text,fn,cls='btn action-btn'){const b=rfElement('button',cls,text);b.type='button';b.onclick=fn;return b;}
 function rfSyncDropdowns(root){
@@ -17710,9 +17710,15 @@ function rfBuild(){
  if(rfUi.manager)root.append(toolbar,state,counters,info,scan,payment,filters,bulk,lists,save,nav);else root.append(toolbar,state,counters,info,scan,filters,lists,save,payment,nav);rfRefreshFilterModels();rfRender();
 }
 async function rfLoad(force=true){
- if(rfUi.busy)return;const owner=managementOwnerKey(),version=++rfUi.version;rfUi.busy=true;rfNote('Загружаем рефарб…',true);rfBusyControls();
- try{const data=await rfApi('list',{month:rfUi.month,force});if(version!==rfUi.version||owner!==managementOwnerKey())return;if(rfUi.data&&rfUi.data.month!==data.month)rfUi.selected?.clear();rfUi.data=data;rfPruneSelection();rfUi.month=data.month;rfRoot().querySelector('input[type=month]').value=data.month;rfUi.limit=100;rfRender();rfNote('');}
- catch(e){if(owner===managementOwnerKey())rfNote('⚠️ '+e.message);}finally{if(owner===managementOwnerKey()&&version===rfUi.version){rfUi.busy=false;rfBusyControls();}}
+ if(rfUi.busy)return rfUi.loadingTask;
+ const state=rfUi,owner=managementOwnerKey(),version=++state.version;state.busy=true;rfNote('Загружаем рефарб…',true);rfBusyControls();
+ const task=(async()=>{try{
+  const data=await rfApi('list',{month:state.month,force});if(rfUi!==state||version!==state.version||owner!==managementOwnerKey())return;
+  if(state.data&&state.data.month!==data.month)state.selected?.clear();state.data=data;rfPruneSelection();state.month=data.month;state.loadedAt=data.refreshPending?0:Date.now();
+  const month=rfRoot()?.querySelector('input[type=month]');if(month)month.value=data.month;state.limit=100;rfRender();rfNote(data.refreshPending?'⚠️ '+data.refreshMessage:'');
+ }catch(e){if(rfUi===state&&owner===managementOwnerKey())rfNote('⚠️ '+e.message);}
+ finally{if(rfUi===state&&owner===managementOwnerKey()&&version===state.version){state.busy=false;state.loadingTask=null;rfBusyControls();}}})();
+ state.loadingTask=task;return task;
 }
 function rfBusyControls(){
  const root=rfRoot();if(!root)return;const locked=rfUi.busy||!!rfUi.pending;
@@ -17954,7 +17960,7 @@ async function rfSave(){
 }
 async function rfMutate(operation,fields){
  if(rfUi.busy)return;const owner=managementOwnerKey();if(rfUi.pending&&(rfUi.pending.operation!==operation||rfUi.pending.fields!==fields)){rfNote('Сначала проверьте предыдущее сохранение');return;}
- if(!rfUi.pending)rfUi.pending={operation,fields:structuredClone({...fields,viewMonth:rfUi.data?.month||rfUi.month}),requestId:'req_'+rfId()};const p=rfUi.pending;rfRemember();rfUi.busy=true;rfBusyControls();rfNote('Сохраняем…');
+ if(!rfUi.pending)rfUi.pending={operation,fields:structuredClone({...fields,viewMonth:rfUi.data?.month||rfUi.month}),requestId:'req_'+rfId()};const p=rfUi.pending;rfRemember();rfUi.busy=true;rfBusyControls();rfNote('Сохраняем…',true);
  try{const reply=await rfApi(operation,{...p.fields,requestId:p.requestId});if(owner!==managementOwnerKey())return;rfUi.pending=null;if(operation==='save')p.fields.rows.forEach(r=>rfUi.drafts.delete(r.id));if(operation==='delete')rfUi.drafts.delete(p.fields.id);if(operation==='reject'||operation==='rejectMany'){for(const id of operation==='rejectMany'?p.fields.rows.map(r=>r.id):[p.fields.id]){rfUi.drafts.delete(id);rfUi.incomingSelected?.delete(id);rfUi.batchSelected?.delete(id);}ctInvalidateGroups(['returns']);}rfUi.busy=false;const patched=rfApplyMutationPatch(reply)||(['delete','deleteMany'].includes(operation)&&rfApplyDeletePatch(reply));rfRemember();if(!patched)await rfLoad(false);rfNote('✅ '+reply.message);}
  catch(e){if(owner===managementOwnerKey()){if(e.confirmed){rfUi.pending=null;rfRemember();}if(e.code==='CONFLICT'||e.code==='CLOSED'){rfUi.busy=false;await rfLoad(true);if(operation==='payment'){const count=rfRoot().querySelector('.rf-payment input[type=number]'),comment=rfRoot().querySelector('.rf-payment textarea');if(count)count.value=p.fields.count;if(comment)comment.value=p.fields.comment;}}rfNote('⚠️ '+e.message);}}
  finally{if(owner===managementOwnerKey()){rfUi.busy=false;rfRenderRows();rfBusyControls();}}
@@ -18567,13 +18573,13 @@ function iiTmrMaterialFields(){return II_TMR_MATERIAL_KEYS.map(key=>VS_UI_FIELDS
 function iiTmrDraft(item){const key=tmrOwner()+'|'+item.id+'|'+item.version;if(!iiTmrDrafts.has(key)){const actual=item.actual||{},source=actual.cancelled&&actual.cancelVersion===item.version?actual:null;iiTmrDrafts.set(key,{version:item.version,batchData:source?.batchData?.map(i=>({...i}))||[],quantities:{...(source?.quantities||item.quantities)}});}return iiTmrDrafts.get(key);}
 function iiBeginTmrScan(item,draft){
  iiTmrScanContext={owner:tmrOwner(),id:item.id,version:item.version,draft};scannerIssueId='';
- scannedBatch=draft.batchData.map(i=>({type:i.mode,code:i.serial,model:sxDisplayModel_(i.model||''),fullText:i.serial,cableName:i.cableName||i.model||'',meters:i.meters||0}));
+ scannedBatch=draft.batchData.map(i=>({type:i.mode,code:i.serial,model:sxDisplayModel_(i.model||''),fullText:i.serial,cableName:i.cableName||i.model||'',meters:i.meters||0,metersEdited:i.metersEdited===true}));
  document.getElementById('iiTmrScannerActions')?.remove();openScannerScreen(true);updateBatchUI();
 }
 function iiFinishTmrScan(){
  const context=iiTmrScanContext;if(!context||context.owner!==tmrOwner())return;
  if(!iiScannerModelsReady())return;
- context.draft.batchData=scannedBatch.map(i=>({mode:i.type,serial:i.code,model:i.model||(i.type==='router'?ctDetectRouterModel(i.code):i.type==='stb'?ctDetectStbModel(i.code):i.cableName||''),cableName:i.cableName||'',meters:i.meters||0}));
+ context.draft.batchData=scannedBatch.map(i=>({mode:i.type,serial:i.code,model:i.model||(i.type==='router'?ctDetectRouterModel(i.code):i.type==='stb'?ctDetectStbModel(i.code):i.cableName||''),cableName:i.cableName||'',meters:i.meters||0,metersEdited:i.metersEdited===true}));
  stopScanner();iiTmrScanContext=null;document.getElementById('iiTmrScannerActions')?.remove();document.getElementById('scan-request-back')?.setAttribute('hidden','');scannedBatch=[];switchScreen('screen-tmc-requests-management');tmrRender();const card=[...document.querySelectorAll('#screen-tmc-requests-management .tmr-record')].find(c=>c.dataset.tmrId===context.id);if(card){card.open=true;card.scrollIntoView({block:'nearest'});}
 }
 let iiTmrChoiceSequence=0;
