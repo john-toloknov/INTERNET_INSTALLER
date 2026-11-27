@@ -6181,6 +6181,9 @@ html[data-app-layout] #screen-entertainment .eg-match-filter>.btn{width:auto!imp
 #screen-entertainment .eg-room-footer{margin-top:0}
 @media(max-width:600px){#screen-entertainment .eg-room-primary{display:flex;flex-wrap:wrap}#screen-entertainment .eg-room-primary>.btn:first-child{flex:1 0 100%;width:100%}#screen-entertainment .eg-room-primary>.btn:not(:first-child){flex:1;min-width:0}}
 #beelineModal .ct-confirm-actions>.eg-modal-wide{grid-column:1/-1}
+#beelineModal.ct-confirm #beelineModalButtons>.ct-confirm-actions.eg-invite-actions,#beelineModal.ct-confirm #beelineModalButtons>.ct-confirm-actions.eg-result-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;width:100%!important;max-width:none!important;gap:12px}
+#beelineModal.ct-confirm #beelineModalButtons>.ct-confirm-actions.eg-result-versus{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#beelineModal.ct-confirm #beelineModalButtons>.eg-invite-actions>.btn,#beelineModal.ct-confirm #beelineModalButtons>.eg-result-actions>.btn{width:100%!important;min-width:0!important;max-width:none!important;justify-self:stretch}
 /* Align date and refresh by the controls themselves, including the calendar wrapper. */
 #screen-entertainment .eg-match-filter{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:end!important;gap:12px}
 #screen-entertainment .eg-match-filter>.eg-field{grid-column:1;grid-row:1;width:100%;max-width:320px;min-width:0;margin:0!important}
@@ -18234,7 +18237,7 @@ const EG_GAMES={"umk3":{"title":"Mortal Kombat 3 Ultimate","logo":"assets/games/
 document.getElementById('screen-main')?.parentElement.append(document.getElementById('screen-entertainment'));
 let egState={owner:'',data:null,tab:'games',game:'',room:'',busy:false,loading:false,epoch:0,poll:null,pending:null,controller:null,period:'monthly',deepHandled:'',creating:false,editing:false,drafts:{},dateFilter:'',localSaves:[],localError:'',resultDialog:null,preparingTimer:null};
 const EG_STATES={invited:'📨 Ожидает ответа',accepted:'🤝 Вызов принят',playing:'⚔️ Матч начат',pending_result:'⏳ Подтверждение результата',disputed:'⏳ Подтверждение результата',confirmed:'🏆 Матч завершён',draw:'🤝 Ничья',unconfirmed:'Без подтверждённого результата',paused:'⏸ Прохождение приостановлено',declined:'Вызов отклонён',cancelled:'Вызов отменён',expired:'⌛ Время вызова истекло'};
-const EG_BROWSER_EDITION='md-original-v1',EG_UI_BUILD='20261127-games-v5';
+const EG_BROWSER_EDITION='md-original-v1',EG_UI_BUILD='20261127-games-v7';
 document.getElementById('screen-entertainment').dataset.gameBuild=EG_UI_BUILD;
 let egGame=null,egLaunchEpoch=0;
 function egOwner(){return currentUser?[currentUser.city,currentUser.district,String(currentUser.dwLogin).toLowerCase()].join('|'):'';}
@@ -18409,7 +18412,7 @@ async function egLaunch(mode,matchId='',options={}){
   if(config.mode==='net-host'&&config.format==='coop'&&config.saved){const meta=egState.localSaves.find(s=>s.matchId===matchId&&s.savedId===config.saved.id);if(!meta)throw Error('На этом устройстве сохранение не найдено. Вернитесь в карточку и начните заново.');const local=await IIGameProgress.read(owner,meta.key,{game:config.game,matchId,savedId:config.saved.id,release:config.release,romSha256:config.romSha256});if(local.meta.hash!==config.saved.hash)throw Error('Сохранение не совпало с этим прохождением.');config.resumeState=local.state;}
   else if(options.resumeKey){const local=await IIGameProgress.read(owner,options.resumeKey,{game:config.game,mode:config.mode,release:config.release,romSha256:config.romSha256});config.resumeState=local.state;}
   if(epoch!==egLaunchEpoch||owner!==egOwner()||!egGame)return;
-  const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261127-games-v5');frame.src=url.href;
+  const nonce=crypto.randomUUID(),frame=egNode('iframe');frame.title=config.title||EG_GAMES[egState.game||'umk3'].title;frame.allow='autoplay; fullscreen; gamepad';frame.className='eg-game-frame';const url=new URL('./games/umk3/player.html',location.href);url.searchParams.set('embed',nonce);url.searchParams.set('v','20261127-games-v7');frame.src=url.href;
   egGame={owner,epoch,frame,nonce,config,matchId,started:false,saved:false,saving:false};root.replaceChildren();root.append(frame);egMessage('');frame.onload=()=>{if(egGame?.frame===frame){frame.contentWindow.postMessage({type:'umk3-start',nonce,config},location.origin);egAlignLandscapeGame();}};
  }catch(error){if(epoch===egLaunchEpoch){egGame=null;egRender();egMessage(error.message,true);egStartPoll();}}
 }
@@ -18433,7 +18436,7 @@ function egNavigateBack(){
  if(egState.busy)return;if(egGame){const matchId=egGame.matchId||'';if(egCloseGame(false)===false)return;egState.room=matchId;egState.tab=matchId?'matches':'games';egState.creating=false;egState.editing=false;egRender();egStartPoll();void egLoad(true);return;}
  if(egState.room){egState.room='';egState.tab='matches';}else if(egState.creating){egState.creating=false;egState.editing=false;}else if(egState.tab!=='games')egState.tab='games';else if(egState.game){void openEntertainment();return;}else{egNavigateHome();return;}egMessage('');egRender();
 }
-function egResultOptions_(m){return m.format==='coop'?[['passed','✅ Прошли'],['failed','❌ Не прошли']]:[['win','🏆 Я победил'],['loss','Я проиграл'],['draw','🤝 Ничья']];}
+function egResultOptions_(m){return m.format==='coop'?[['passed','✅ Прошли'],['failed','❌ Не прошли']]:[['win','🏆 Я Победил'],['loss','❌ Я проиграл'],['draw','🤝 Ничья']];}
 function egResultControls_(root,m,onDone=()=>{}){
  const own=m.claims?.[egLogin()],options=egResultOptions_(m);if(own){root.append(egNode('p','Ваш ответ: '+(options.find(o=>o[0]===own)?.[1]||own)+'. Ожидаем второго участника.','eg-muted'));return;}
  root.append(egNode('p','Укажите свой результат. После подтверждения ответ изменить нельзя.','eg-muted'));const actions=egNode('div',undefined,'eg-actions');
@@ -18441,9 +18444,9 @@ function egResultControls_(root,m,onDone=()=>{}){
 }
 function egShowResultDialog_(m){
  if(!currentUser||!egGameModalContext_()||m.claims?.[egLogin()]||!['pending_result','disputed'].includes(m.state))return;const existing=egState.resultDialog;if(existing?.open&&existing.dataset.match===m.id)return;existing?.close();egInviteState.dialog?.close();
- const body=egNode('div'),actions=egNode('div',undefined,'ct-confirm-actions');body.append(egNode('p',EG_GAMES[m.game||'umk3'].title),egNode('p','Укажите свой результат. После подтверждения ответ изменить нельзя.'));let dialog;
- for(const [answer,label]of egResultOptions_(m)){const b=egButton(label,async()=>{actions.querySelectorAll('button').forEach(n=>n.disabled=true);const r=await egMutate('result',{matchId:m.id,session:m.session,answer});if(r)dialog.close();else actions.querySelectorAll('button').forEach(n=>n.disabled=false);});if(answer==='draw')b.classList.add('eg-modal-wide');actions.append(b);}
- const later=egButton('Ответить позже',()=>dialog.close(),'danger-btn');later.classList.add('eg-modal-wide');actions.append(later);
+ const body=egNode('div'),actions=egNode('div',undefined,'ct-confirm-actions eg-result-actions'+(m.format==='coop'?'':' eg-result-versus'));body.append(egNode('p',EG_GAMES[m.game||'umk3'].title),egNode('p','Укажите свой результат. После подтверждения ответ изменить нельзя.'));let dialog;
+ for(const [answer,label]of egResultOptions_(m)){const b=egButton(label,async()=>{actions.querySelectorAll('button').forEach(n=>n.disabled=true);const r=await egMutate('result',{matchId:m.id,session:m.session,answer});if(r)dialog.close();else actions.querySelectorAll('button').forEach(n=>n.disabled=false);});actions.append(b);}
+ const later=egButton('🔚 Ответить позже',()=>dialog.close(),'danger-btn');later.classList.add('eg-modal-wide');actions.append(later);
  dialog=egCommonModal_(m.format==='coop'?'Итог совместного прохождения':'Результат матча',body,actions,'🎮',()=>{if(egState.resultDialog===dialog)egState.resultDialog=null;});dialog.dataset.match=m.id;egState.resultDialog=dialog;
 }
 function egShortState_(m){return ({confirmed:m.format==='coop'?(m.outcome==='completed'?'✅ Прошли':'❌ Не прошли'):'🏆 Завершён',draw:'🤝 Ничья',unconfirmed:'Без результата',paused:'⏸ Пауза',pending_result:'⏳ Итог',disputed:'⏳ Итог',playing:m.format==='coop'?'🤝 В игре':'⚔️ В игре',invited:'📨 Вызов',accepted:'🤝 Принят',expired:'⌛ Истёк'})[m.state]||egSessionState(m);}
@@ -18503,7 +18506,7 @@ function egInviteDismiss_(m){egInviteState.dismissed.add(egInviteKey_(m));try{se
 function egInviteMayShow_(){return currentUser&&egGameModalContext_()&&!document.hidden&&!egGame&&!egInviteState.transition&&!egState.busy&&!egState.pending&&!egCommonModalOpen_()&&!document.querySelector('#screen-login.active,#screen-registration.active');}
 function egInviteShow_(m,errorMessage=''){
  if(!egInviteMayShow_())return;
- const owner=egOwner(),key=egInviteKey_(m),title=EG_GAMES[m.game]?.title||'Игра',body=egNode('div'),text=egNode('p',m.host.name+(m.resuming?' предлагает продолжить ':' приглашает вас в ')+title+'.'),message=egNode('p',errorMessage),actions=egNode('div',undefined,'ct-confirm-actions');body.append(text);if(errorMessage)body.append(message);let dialog;
+ const owner=egOwner(),key=egInviteKey_(m),title=EG_GAMES[m.game]?.title||'Игра',body=egNode('div'),text=egNode('p',m.host.name+(m.resuming?' предлагает продолжить ':' приглашает вас в ')+title+'.'),message=egNode('p',errorMessage),actions=egNode('div',undefined,'ct-confirm-actions eg-invite-actions');body.append(text);if(errorMessage)body.append(message);let dialog;
  async function act(op){
   if(owner!==egOwner()||egGame||egInviteState.transition)return;
   const transition={owner,key,op,matchId:m.id};egInviteState.transition=transition;actions.querySelectorAll('button').forEach(b=>b.disabled=true);
@@ -18516,7 +18519,7 @@ function egInviteShow_(m,errorMessage=''){
   }catch(error){if(owner!==egOwner()||egInviteState.transition!==transition)return;egInviteState.transition=null;egInviteState.nextAt=Date.now()+15000;egInviteShow_(m,error.message||'Не получено подтверждение. Повторите действие.');}
   finally{if(egInviteState.transition===transition)egInviteState.transition=null;}
  }
- const decline=egButton('❌ Отклонить',()=>act('decline'),'danger-btn'),accept=egButton('▶ Принять',()=>act('accept')),later=egButton('Позже',()=>{egInviteDismiss_(m);dialog.close();},'danger-btn');later.classList.add('eg-modal-wide');actions.append(decline,accept,later);
+ const decline=egButton('❌ Отклонить',()=>act('decline'),'danger-btn'),later=egButton('🔙 Позже',()=>{egInviteDismiss_(m);dialog.close();},'danger-btn'),accept=egButton('✅ Принять',()=>act('accept'));accept.classList.add('eg-modal-wide');actions.append(decline,later,accept);
  dialog=egCommonModal_(m.resuming?'Продолжить прохождение?':'Приглашение в игру',body,actions,'🎮',reason=>{if(reason!=='defer'&&owner===egOwner())egInviteDismiss_(m);if(egInviteState.dialog===dialog)egInviteState.dialog=null;});dialog.dataset.invite=key;egInviteState.dialog=dialog;
 }
 function egInviteShowNext_(){if(!egInviteMayShow_())return;const m=egInviteState.items.find(m=>m.expiresAt>Date.now()&&!egInviteState.dismissed.has(egInviteKey_(m)));if(m)egInviteShow_(m);}
