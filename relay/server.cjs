@@ -31,21 +31,45 @@ function iceGrant(settings,claims,now=Date.now()){
  }
  return {iceServers:servers,turnConfigured:settings.turn.length>0,expiresAt};
 }
-const DIAG_METRICS={relayRtt:30000,peerRtt:30000,rafFps:240,sendFps:120,fps:120,sourceFps:240,encodeMs:10000,decodeMs:10000,bufferMs:30000,lossPct:100,queueBytes:10000000,iceRtt:30000};
+// Optional managed TURN. The permanent Cloudflare API token stays on this server.
+// The endpoint is fixed; no arbitrary remote URL is accepted from clients/env.
+function cloudflareTurnSettings({keyId='',apiToken=''}={}){
+ if(!keyId&&!apiToken)return null;
+ if(typeof keyId!=='string'||!/^[A-Za-z0-9_-]{16,128}$/.test(keyId)||typeof apiToken!=='string'||apiToken.length<20||apiToken.length>1024||/[\r\n]/.test(apiToken))throw Error('Set CF_TURN_KEY_ID and CF_TURN_API_TOKEN together');
+ return {keyId,apiToken};
+}
+async function cloudflareTurnGrant(settings,claims,fetcher=fetch){
+ const now=Date.now(),ttl=Math.max(1,Math.min(7200,Math.floor((claims.exp-now)/1000)));
+ const response=await fetcher('https://rtc.live.cloudflare.com/v1/turn/keys/'+settings.keyId+'/credentials/generate-ice-servers',{method:'POST',headers:{'Authorization':'Bearer '+settings.apiToken,'Content-Type':'application/json'},body:JSON.stringify({ttl}),signal:AbortSignal.timeout(3000)});
+ if(!response.ok)throw Error('TURN provider unavailable');
+ const bodyText=await response.text();if(bodyText.length>20000)throw Error('Invalid TURN response');const data=JSON.parse(bodyText),servers=[];
+ for(const item of Array.isArray(data.iceServers)?data.iceServers:[]){
+  const urls=(Array.isArray(item.urls)?item.urls:[item.urls]).filter(u=>typeof u==='string'&&/^(stun:stun|turns?:turn)\.cloudflare\.com:(3478|5349|443|80)(\?transport=(udp|tcp))?$/.test(u));
+  if(!urls.length||urls.length>6)continue;
+  if(urls.some(u=>u.startsWith('turn:')||u.startsWith('turns:'))){
+   if(typeof item.username!=='string'||!item.username.length||item.username.length>1024||typeof item.credential!=='string'||!item.credential.length||item.credential.length>1024)continue;
+   servers.push({urls,username:item.username,credential:item.credential});
+  }else servers.push({urls});
+ }
+ if(!servers.some(s=>s.credential))throw Error('TURN provider returned no credentials');
+ return {iceServers:servers,turnConfigured:true,turnProvider:'cloudflare',expiresAt:now+ttl*1000};
+}
+const DIAG_METRICS={relayRtt:30000,peerRtt:30000,rafFps:240,sendFps:120,fps:120,sourceFps:240,encodeMs:10000,decodeMs:10000,bufferMs:30000,lossPct:100,queueBytes:10000000,iceRtt:30000,maxFrameGapMs:30000,frameStalls:10000,rafGapMs:30000};
 function cleanMetrics(value){
  if(!value||typeof value!=='object'||Array.isArray(value))return null;
  const out={};for(const [key,max] of Object.entries(DIAG_METRICS))if(Number.isFinite(value[key])&&value[key]>=0&&value[key]<=max)out[key]=Math.round(value[key]*10)/10;
  if(['websocket','webrtc','turn'].includes(value.route))out.route=value.route;
  return out;
 }
-function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={}}={}){
+function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={},cloudflareTurn={},turnFetch=fetch}={}){
  if(typeof secret!=='string'||secret.length<32)throw Error('Configure a separate relay secret with at least 32 characters');
  if(!(allowedOrigins instanceof Set))throw Error('Configure allowed frontend origins');
+ const cf=cloudflareTurnSettings(cloudflareTurn);
  const settings=iceSettings(ice);if(settings.turnSecret===secret)throw Error('Use a separate TURN_AUTH_SECRET');
  const rooms=new Map(),attempts=new Map(),startedAt=Date.now();
  const server=http.createServer((req,res)=>{
   const respond=(code,obj)=>{res.writeHead(code,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(obj));};
-  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1,networkVersion:2,turnConfigured:settings.turn.length>0,region:settings.region});return;}
+  if(req.method==='GET'&&req.url==='/health'){respond(200,{ok:true,protocol:PROTOCOL,presenceVersion:1,networkVersion:3,turnConfigured:!!cf||settings.turn.length>0,turnProvider:cf?'cloudflare':settings.turn.length?'coturn':'none',region:settings.region});return;}
   if(req.method==='GET'&&req.url==='/umk3-status'){
    const at=String(req.headers['x-ii-timestamp']||''),nonce=String(req.headers['x-ii-nonce']||''),signature=String(req.headers['x-ii-signature']||'');
    const expected=crypto.createHmac('sha256',secret).update(at+':'+nonce+':status').digest('hex');
@@ -83,7 +107,7 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={
  wss.on('connection',ws=>{
   let member=null,room=null,alive=true;const loginTimer=setTimeout(()=>ws.close(4000,'Authentication required'),5000);
   ws.on('pong',()=>alive=true);
-  ws.on('message',(data,binary)=>{
+  ws.on('message',async(data,binary)=>{
    if(!member){
     if(binary||data.length>3000){ws.close(4001,'Invalid authentication');return;}
     try{
@@ -95,11 +119,15 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={
      if(room&&room.session&&c.session===undefined)throw Error('Legacy session replaced');
      if(!room){if(rooms.size>=maxRooms){ws.close(4002,'Server is busy');return;}room={id:c.room,release:c.release,session:c.session||'',sessionVersion:c.sessionVersion||0,generation:0,host:null,guest:null,playing:false,everReady:false,waitingSince:0,lastSeen:Date.now()};rooms.set(c.room,room);}
      if(room.release!==c.release){ws.close(4001,'Game mismatch');return;}const old=room[c.role];if(old){if(old.claims.sub!==c.sub||c.iat<old.claims.iat){ws.close(4001,'Role already occupied');return;}old.ws.close(4004,'Session replaced');}
-     member={ws,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0,telemetry:0}};room[c.role]=member;room.generation++;
-     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1','latest-video-v1','net-diagnostics-v1','ice-config-v1'],network:{...iceGrant(settings,c),region:settings.region}});peerStatus(room);
+     member={ws,authPending:true,claims:c,role:c.role,ready:false,visible:true,at:Date.now(),counts:{frame:0,audio:0,input:0,control:0,telemetry:0}};room[c.role]=member;room.generation++;
+     let network=iceGrant(settings,c);
+     if(cf){try{network=await cloudflareTurnGrant(cf,c,turnFetch);}catch{network={...network,turnConfigured:true,turnProvider:'cloudflare',turnError:'turn-provider-unavailable'};}}
+     if(ws.readyState!==WebSocket.OPEN||room[c.role]!==member)return;
+     if(c.exp<=Date.now()){ws.close(4003,'Session expired');return;}member.authPending=false;
+     clearTimeout(loginTimer);text(ws,{type:'welcome',role:c.role,protocol:PROTOCOL,features:['rtc-v1','latest-video-v1','net-diagnostics-v1','ice-config-v1'],network:{...network,region:settings.region}});peerStatus(room);
     }catch{ws.close(4001,'Invalid or expired authentication');}return;
    }
-   if(room[member.role]!==member)return;
+   if(room[member.role]!==member||member.authPending)return;
    const now=Date.now();if(now>=member.claims.exp){ws.close(4003,'Session expired');return;}room.lastSeen=now;
    if(now-member.at>=1000){member.at=now;member.counts={frame:0,audio:0,input:0,control:0,telemetry:0};}
    if(!binary){
@@ -149,8 +177,8 @@ function createRelayServer({secret,allowedOrigins,webRoot=null,maxRooms=16,ice={
 }
 if(require.main===module){
  const allowedOrigins=new Set(String(process.env.FRONTEND_ORIGINS||'').split(',').map(s=>s.trim()).filter(Boolean));if(!allowedOrigins.size)throw Error('Set FRONTEND_ORIGINS');
- const app=createRelayServer({secret:process.env.GAMES_RELAY_SECRET,allowedOrigins,webRoot:process.env.WEB_ROOT||null,maxRooms:Number(process.env.MAX_ROOMS)||16,ice:{stunUrls:process.env.STUN_URLS,turnUrls:process.env.TURN_URLS,turnSecret:process.env.TURN_AUTH_SECRET,region:process.env.RELAY_REGION}});
+ const app=createRelayServer({secret:process.env.GAMES_RELAY_SECRET,allowedOrigins,webRoot:process.env.WEB_ROOT||null,maxRooms:Number(process.env.MAX_ROOMS)||16,ice:{stunUrls:process.env.STUN_URLS,turnUrls:process.env.TURN_URLS,turnSecret:process.env.TURN_AUTH_SECRET,region:process.env.RELAY_REGION},cloudflareTurn:{keyId:process.env.CF_TURN_KEY_ID,apiToken:process.env.CF_TURN_API_TOKEN}});
  app.server.listen(Number(process.env.PORT)||8080,'0.0.0.0',()=>console.log('UMK3 authenticated relay listening; protocol '+PROTOCOL));
  process.on('SIGTERM',()=>{void app.close().then(()=>process.exit(0));});
 }
-module.exports={createRelayServer,verifyToken,signToken,PROTOCOL,iceSettings,iceGrant,cleanMetrics};
+module.exports={createRelayServer,verifyToken,signToken,PROTOCOL,iceSettings,iceGrant,cleanMetrics,cloudflareTurnSettings,cloudflareTurnGrant};
