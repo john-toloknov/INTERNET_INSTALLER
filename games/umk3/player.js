@@ -1,5 +1,5 @@
 'use strict';
-const PLAYER_BUILD='20261127-games-v3';
+const PLAYER_BUILD='20261127-games-v5';
 const PLAYER_GAMES={"umk3": {"release": "umk3-md-original-v1", "logo": "umk3.png", "kind": "versus", "formats": ["versus"]}, "rr3": {"release": "rr3-md-v1", "logo": "rr3-logo-877bb161.png", "kind": "versus", "formats": ["versus"]}, "rock": {"release": "rock-md-v1", "logo": "rock-art-dcee2879.jpg", "kind": "versus", "formats": ["versus"]}, "ga3": {"release": "ga3-md-v1", "logo": "ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"]}, "sor3": {"release": "sor3-md-v1", "logo": "sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"]}, "tmnt": {"release": "tmnt-md-v1", "logo": "tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"]}, "btd": {"release": "btd-md-v1", "logo": "btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"]}, "wwf": {"release": "wwf-md-v1", "logo": "wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"]}, "comix": {"release": "comix-md-v1", "logo": "comix-art-257e7ff3.jpg", "kind": "solo", "formats": []}, "robo3": {"release": "robo3-md-v1", "logo": "robo3-art-89809996.jpg", "kind": "solo", "formats": []}};
 const U={started:false,ready:false,closed:false,mode:'solo',mask:[0,0],keys:[0,0],held:new Set(),pulses:[0,0],touch:0,touchResets:[],stick:0,pads:[0,0],objects:[],pause:false,controller:new AbortController(),nonce:new URLSearchParams(location.search).get('embed')||'',romKey:null,relay:null};
 // RetroArch requests an optional screen wake lock. Iframes/background tabs can
@@ -13,6 +13,7 @@ const notify=(type,fields={})=>{if(parent!==window)parent.postMessage({type,nonc
 const BASE_KEYMAP={KeyW:4,KeyS:5,KeyA:6,KeyD:7,KeyT:10,KeyG:1,KeyY:9,KeyH:0,KeyU:11,KeyJ:8,Enter:3};
 const P2_KEYMAP={ArrowUp:4,ArrowDown:5,ArrowLeft:6,ArrowRight:7,Digit1:1,Numpad1:1,Digit4:10,Numpad4:10,Digit2:0,Numpad2:0,Digit5:9,Numpad5:9,Digit3:8,Numpad3:8,Digit6:11,Numpad6:11,NumpadEnter:3};
 function keyBinding(code){if(BASE_KEYMAP[code]!==undefined)return [0,BASE_KEYMAP[code]];if(P2_KEYMAP[code]!==undefined)return [U.mode==='local'?1:0,P2_KEYMAP[code]];return null;}
+function applyGameTheme(theme){U.theme=theme==='light'?'light':'dark';document.body.classList.toggle('light',U.theme==='light');if(U.config)U.config.theme=U.theme;}
 function input(player,mask){
  if(!U.ready||U.closed||U.saving)return;
  if(U.netWaiting&&mask!==0)return;
@@ -110,10 +111,37 @@ async function decodeStartState(config){
 async function loadNetwork(){
  await new Promise((resolve,reject)=>{const script=document.createElement('script'),timer=setTimeout(()=>{script.remove();reject(Error('Не загрузились файлы сетевой игры. Обновите страницу и повторите запуск.'));},8000);script.src='network.js?v='+PLAYER_BUILD+'&retry='+Date.now();script.onload=()=>{clearTimeout(timer);typeof window.Umk3Relay==='function'?resolve():reject(Error('Файлы сетевой игры несовместимы. Установите комплект обновления целиком.'));};script.onerror=()=>{clearTimeout(timer);script.remove();reject(Error('Не удалось загрузить сетевую игру. Проверьте файл games/umk3/network.js.'));};document.head.append(script);});
 }
+function networkRoute(d){return d.route==='turn'?'WebRTC через TURN':d.direct?'WebRTC':'Через сервер';}
+const NETWORK_REASONS={
+ 'webrtc-unavailable':'WebRTC недоступен в браузере','ice-start':'Подключаем WebRTC','ice-no-candidates':'Браузер не нашёл сетевых адресов для WebRTC',
+ 'ice-timeout':'Не удалось установить WebRTC за отведённое время','ice-failed':'Сетевой маршрут WebRTC недоступен','ice-server-unreachable':'STUN/TURN не ответил',
+ 'turn-auth-error':'Сервер TURN отклонил временный ключ','ice-server-error':'Ошибка STUN/TURN','connection-failed':'Соединение WebRTC прервалось',
+ 'peer-setup-failed':'Браузер не смог подготовить передачу видео','offer-failed':'Не удалось подготовить предложение WebRTC','description-failed':'Не удалось согласовать WebRTC',
+ 'candidate-failed':'Не удалось добавить маршрут WebRTC','signal-queue':'Ошибка обмена параметрами WebRTC','channel-closed':'Канал управления WebRTC закрылся',
+ 'video-timeout':'WebRTC подключён, но видео не появилось','video-play-failed':'Браузер не начал воспроизведение видео','video-stalled':'Передача видео WebRTC остановилась',
+ 'peer-fallback':'Другой игрок перешёл на передачу через сервер','media-connected':'Видео WebRTC подключено','stats-unavailable':'Браузер не предоставил статистику WebRTC'
+};
+function showNetworkDiagnostics(d){
+ U.networkSnapshot={build:PLAYER_BUILD,game:U.game,mode:U.mode,sampledAt:new Date().toISOString(),...d};
+ const ms=v=>Number.isFinite(v)?Math.round(v)+' мс':'—',fps=v=>Number.isFinite(v)?Math.round(v)+' кадр/с':'—';
+ const n=$('networkStats');n.hidden=false;n.textContent=networkRoute(d)+' · Между игроками: '+ms(d.peerRtt)+(d.role==='guest'?' · Видео: '+fps(d.fps):'');
+ $('networkDetails').hidden=false;const host=d.role==='host'?d:d.remote,guest=d.role==='guest'?d:d.remote;
+ const entries=[['До сервера · хост',ms(host?.relayRtt)],['До сервера · приглашённый',ms(guest?.relayRtt)],['Между игроками · туда и обратно',ms(d.peerRtt)],
+  ['Видео отправлено хостом',fps(host?.sendFps)],['Видео показано приглашённому',fps(guest?.fps)],['Подготовка кадра · хост',ms(host?.encodeMs)],['Декодирование · приглашённый',ms(guest?.decodeMs)],
+  ['Видеобуфер WebRTC',ms(guest?.bufferMs)],['Потеря пакетов WebRTC',Number.isFinite(guest?.lossPct)?guest.lossPct.toFixed(1)+' %':'—'],
+  ['TURN',d.turnConfigured?'Настроен':'Не настроен'],['Причина / состояние',NETWORK_REASONS[d.reason]||'Измеряем'],['ICE',d.iceState+' · '+d.gathering]];
+ if(d.candidatePair)entries.push(['Маршрут WebRTC',d.candidatePair.local+' → '+d.candidatePair.remote+' · '+d.candidatePair.protocol]);
+ if(d.region)entries.push(['Регион relay',d.region]);
+ const list=$('networkValues');list.replaceChildren();for(const [label,value] of entries){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;list.append(dt,dd);}
+}
+$('copyNetwork').onclick=async()=>{
+ if(!U.networkSnapshot)return;const text=JSON.stringify(U.networkSnapshot,null,2),b=$('copyNetwork');
+ try{await navigator.clipboard.writeText(text);b.textContent='✅ Скопировано';}catch{const t=$('networkCopyText');t.hidden=false;t.value=text;t.focus();t.select();b.textContent='Выделено — скопируйте текст';}
+};
 async function boot(config){
  if(U.started||U.closed)return;U.started=true;
  if(!['solo','local','net-host','net-guest'].includes(config.mode))throw Error('Неизвестный режим игры');U.mode=config.mode;U.game=config.game||'umk3';const spec=PLAYER_GAMES[U.game];if(!spec||spec.release!==config.release)throw Error('Неизвестный выпуск игры');if(spec.kind==='solo'&&U.mode!=='solo')throw Error('В этой игре доступен только одиночный режим');U.coop=config.format==='coop';U.title=config.title||'Mortal Kombat 3 Ultimate';document.body.classList.toggle('app-mobile-nav',config.mobileNavigation===true);document.title=U.title;$('gameTitle').textContent=U.title;$('gameLogo').src='../../assets/games/'+spec.logo;document.body.dataset.game=U.game;
- if(config.theme==='light')document.body.classList.add('light');
+ applyGameTheme(config.theme);
  $('modeLabel').textContent=({solo:'Один игрок',local:'Двое рядом','net-host':(U.coop?'Вместе':'Матч')+' · Игрок 1','net-guest':(U.coop?'Вместе':'Матч')+' · Игрок 2'})[U.mode];
  const saveMode=U.mode==='solo'||U.mode==='local'||U.mode==='net-host'&&U.coop;U.canSave=config.localSaveEnabled===true&&saveMode;$('saveExitBtn').hidden=!saveMode;$('saveExitBtn').disabled=saveMode&&!U.canSave;$('saveHint').hidden=!saveMode||U.canSave;$('saveHint').textContent=config.localSaveError||'Для сохранения обновите страницу сайта и скрипт «Сотрудники». Текущая игра остаётся открытой.';U.config=config;
  $('p2Btn').hidden=U.mode!=='local';$('pauseBtn').disabled=U.mode.startsWith('net-');status('⏳ Загружаем '+U.title+'…');
@@ -125,9 +153,9 @@ async function boot(config){
   U.relay=new window.Umk3Relay(config.relay,{canvas:$('remote'),input:mask=>{if(U.mode==='net-host')input(1,mask);},
    waiting,failed:text=>{waiting(text);status(text,true);notify('umk3-error',{message:text});},
    connected:()=>{focusGame();release();clearTimeout(U.waitTimer);U.waitTimer=null;U.everConnected=true;U.netWaiting=false;U.ready=true;if(U.mode==='net-host'&&window.EJS_emulator?.gameManager&&!U.saving)EJS_emulator.gameManager.toggleMainLoop(1);$('curtain').hidden=true;status(U.coop?'Совместная игра подключена':'Матч подключён');notify('umk3-connected');},
-   transport:direct=>status(direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер'),diagnostics:d=>{const n=$('networkStats');n.hidden=false;n.textContent=(d.direct?'Напрямую':'Через сервер')+' · Связь: '+Math.round(d.rtt||0)+' мс'+(d.bufferMs==null?'':' · Видеобуфер: '+Math.round(d.bufferMs)+' мс');},
+   transport:direct=>status('Матч подключён · '+networkRoute({direct,route:U.relay?.diag.route})),diagnostics:showNetworkDiagnostics,
    audio:running=>{$('soundBtn').hidden=running;},
-   frame:()=>{if(U.relay.playing&&!U.netWaiting){$('curtain').hidden=true;status(U.relay.direct?'Матч подключён · Прямое соединение':'Матч подключён · Через сервер');}}
+   frame:()=>{if(U.relay.playing&&!U.netWaiting){$('curtain').hidden=true;status('Матч подключён · '+networkRoute({direct:U.relay.direct,route:U.relay.diag.route}));}}
   });U.relay.connect();waiting('Ждём подключения '+(U.coop?'напарника':'соперника')+'…');
   if(U.mode==='net-guest'){$('game').hidden=true;$('remote').hidden=false;U.relay.gameReady();focusGame();gamepads();notify('umk3-started',{mode:U.mode,build:PLAYER_BUILD});return;}
  }
@@ -148,6 +176,7 @@ async function boot(config){
 }
 window.addEventListener('message',event=>{
  if(event.origin!==location.origin||event.source!==parent||event.data?.nonce!==U.nonce)return;
+ if(event.data.type==='umk3-theme'){applyGameTheme(event.data.theme);return;}
  if(event.data.type==='umk3-save-result'){saveReply(event.data);return;}if(event.data.type==='umk3-close'){closeGame();return;}if(event.data.type!=='umk3-start')return;
  void boot(event.data.config).catch(error=>{status(error.message||String(error),true);notify('umk3-error',{message:error.message||String(error)});});
 });
