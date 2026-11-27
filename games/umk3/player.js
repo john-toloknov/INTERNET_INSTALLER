@@ -1,5 +1,5 @@
 'use strict';
-const PLAYER_BUILD='20261127-games-v5';
+const PLAYER_BUILD='20261127-games-v6';
 const PLAYER_GAMES={"umk3": {"release": "umk3-md-original-v1", "logo": "umk3.png", "kind": "versus", "formats": ["versus"]}, "rr3": {"release": "rr3-md-v1", "logo": "rr3-logo-877bb161.png", "kind": "versus", "formats": ["versus"]}, "rock": {"release": "rock-md-v1", "logo": "rock-art-dcee2879.jpg", "kind": "versus", "formats": ["versus"]}, "ga3": {"release": "ga3-md-v1", "logo": "ga3-art-1481b64c.png", "kind": "coop", "formats": ["coop"]}, "sor3": {"release": "sor3-md-v1", "logo": "sor3-art-921147f2.jpg", "kind": "coop", "formats": ["coop"]}, "tmnt": {"release": "tmnt-md-v1", "logo": "tmnt-art-62349549.jpg", "kind": "coop", "formats": ["coop"]}, "btd": {"release": "btd-md-v1", "logo": "btd-art-f116182f.jpg", "kind": "coop", "formats": ["coop"]}, "wwf": {"release": "wwf-md-v1", "logo": "wwf-art-03850f15.png", "kind": "mixed", "formats": ["versus", "coop"]}, "comix": {"release": "comix-md-v1", "logo": "comix-art-257e7ff3.jpg", "kind": "solo", "formats": []}, "robo3": {"release": "robo3-md-v1", "logo": "robo3-art-89809996.jpg", "kind": "solo", "formats": []}};
 const U={started:false,ready:false,closed:false,mode:'solo',mask:[0,0],keys:[0,0],held:new Set(),pulses:[0,0],touch:0,touchResets:[],stick:0,pads:[0,0],objects:[],pause:false,controller:new AbortController(),nonce:new URLSearchParams(location.search).get('embed')||'',romKey:null,relay:null};
 // RetroArch requests an optional screen wake lock. Iframes/background tabs can
@@ -115,8 +115,8 @@ function networkRoute(d){return d.route==='turn'?'WebRTC через TURN':d.dire
 const NETWORK_REASONS={
  'webrtc-unavailable':'WebRTC недоступен в браузере','ice-start':'Подключаем WebRTC','ice-no-candidates':'Браузер не нашёл сетевых адресов для WebRTC',
  'ice-timeout':'Не удалось установить WebRTC за отведённое время','ice-failed':'Сетевой маршрут WebRTC недоступен','ice-server-unreachable':'STUN/TURN не ответил',
- 'turn-auth-error':'Сервер TURN отклонил временный ключ','ice-server-error':'Ошибка STUN/TURN','connection-failed':'Соединение WebRTC прервалось',
- 'peer-setup-failed':'Браузер не смог подготовить передачу видео','offer-failed':'Не удалось подготовить предложение WebRTC','description-failed':'Не удалось согласовать WebRTC',
+ 'turn-provider-unavailable':'Сервис TURN не выдал временный ключ','turn-auth-error':'Сервер TURN отклонил временный ключ','ice-server-error':'Ошибка STUN/TURN','connection-failed':'Соединение WebRTC прервалось',
+ 'capture-start-failed':'Не удалось начать захват видео WebRTC','peer-setup-failed':'Браузер не смог подготовить передачу видео','offer-failed':'Не удалось подготовить предложение WebRTC','description-failed':'Не удалось согласовать WebRTC',
  'candidate-failed':'Не удалось добавить маршрут WebRTC','signal-queue':'Ошибка обмена параметрами WebRTC','channel-closed':'Канал управления WebRTC закрылся',
  'video-timeout':'WebRTC подключён, но видео не появилось','video-play-failed':'Браузер не начал воспроизведение видео','video-stalled':'Передача видео WebRTC остановилась',
  'peer-fallback':'Другой игрок перешёл на передачу через сервер','media-connected':'Видео WebRTC подключено','stats-unavailable':'Браузер не предоставил статистику WebRTC'
@@ -126,10 +126,11 @@ function showNetworkDiagnostics(d){
  const ms=v=>Number.isFinite(v)?Math.round(v)+' мс':'—',fps=v=>Number.isFinite(v)?Math.round(v)+' кадр/с':'—';
  const n=$('networkStats');n.hidden=false;n.textContent=networkRoute(d)+' · Между игроками: '+ms(d.peerRtt)+(d.role==='guest'?' · Видео: '+fps(d.fps):'');
  $('networkDetails').hidden=false;const host=d.role==='host'?d:d.remote,guest=d.role==='guest'?d:d.remote;
- const entries=[['До сервера · хост',ms(host?.relayRtt)],['До сервера · приглашённый',ms(guest?.relayRtt)],['Между игроками · туда и обратно',ms(d.peerRtt)],
+ const waiting={'host-offline':'Хост отключён','guest-offline':'Приглашённый отключён','host-hidden':'Хост свернул игру','guest-hidden':'Приглашённый свернул игру','not-ready':'Ожидание готовности'};
+ const entries=[['Состояние игры',d.playing?'Игра идёт':waiting[d.waitingReason]||'Ожидание подключения'],['До сервера · хост',ms(host?.relayRtt)],['До сервера · приглашённый',ms(guest?.relayRtt)],['Между игроками · туда и обратно',ms(d.peerRtt)],
   ['Видео отправлено хостом',fps(host?.sendFps)],['Видео показано приглашённому',fps(guest?.fps)],['Подготовка кадра · хост',ms(host?.encodeMs)],['Декодирование · приглашённый',ms(guest?.decodeMs)],
   ['Видеобуфер WebRTC',ms(guest?.bufferMs)],['Потеря пакетов WebRTC',Number.isFinite(guest?.lossPct)?guest.lossPct.toFixed(1)+' %':'—'],
-  ['TURN',d.turnConfigured?'Настроен':'Не настроен'],['Причина / состояние',NETWORK_REASONS[d.reason]||'Измеряем'],['ICE',d.iceState+' · '+d.gathering]];
+  ['Макс. перерыв видео · последние 2 с',ms(guest?.maxFrameGapMs)],['Перерывы видео >150 мс · последние 2 с',Number.isFinite(guest?.frameStalls)?String(guest.frameStalls):'—'],['Звуковой буфер',ms(d.audio?.queueMs)],['Прерывания звука',Number.isFinite(d.audio?.underruns)?String(d.audio.underruns):'—'],['TURN',d.turnError?'Не удалось получить временный ключ':d.turnConfigured?'Настроен':'Не настроен'],['Причина / состояние',NETWORK_REASONS[d.reason]||'Измеряем'],['ICE',d.iceState+' · '+d.gathering]];
  if(d.candidatePair)entries.push(['Маршрут WebRTC',d.candidatePair.local+' → '+d.candidatePair.remote+' · '+d.candidatePair.protocol]);
  if(d.region)entries.push(['Регион relay',d.region]);
  const list=$('networkValues');list.replaceChildren();for(const [label,value] of entries){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=value;list.append(dt,dd);}

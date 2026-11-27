@@ -23,12 +23,12 @@ class Umk3RelayBase {
   if(message.type==='net-metrics'&&message.generation===this.roomGeneration&&this.playing){this.remoteMetrics={at:Date.now(),...this.safeMetrics(message.metrics)};return;}
   if(message.type==='pong'){this.lastPongAt=Date.now();this.rtt=Math.max(0,Date.now()-Number(message.at||Date.now()));this.rttAt=Date.now();return;}
   if(message.type==='welcome'){this.rttAt=0;this.diagSupported=message.features?.includes('net-diagnostics-v1')===true;this.probes.clear();this.wsPeerRtt=null;this.remoteMetrics=null;this.lastPongAt=Date.now();this.lastFrame=0;this.pending=null;this.attempt=0;if(this.ready)this.send({type:'ready'});this.send({type:'visibility',visible:!document.hidden});}
-  else if(message.type==='peer-ready'){if(this.roomGeneration!==message.generation){this.probes.clear();this.wsPeerRtt=null;this.remoteMetrics=null;}this.roomGeneration=message.generation;this.playing=true;this.lastFrame=0;this.audioAt=0;this.lastDrawAt=Date.now();this.hooks.connected();}
-  else if(message.type==='waiting'){this.playing=false;this.probes.clear();this.wsPeerRtt=null;this.remoteMetrics=null;this.hooks.input?.(0);this.audioAt=0;this.hooks.waiting(!message.host?'Ждём первого игрока…':!message.guest?'Ждём соперника…':message.hostVisible===false?'Первый игрок свернул игру. Ждём его возвращения.':message.guestVisible===false?'Соперник свернул игру. Ждём его возвращения.':'Ждём готовности обоих игроков.');}
+  else if(message.type==='peer-ready'){this.waitingReason=null;if(this.roomGeneration!==message.generation){this.probes.clear();this.wsPeerRtt=null;this.remoteMetrics=null;}this.roomGeneration=message.generation;this.playing=true;this.lastFrame=0;this.audioAt=0;this.lastDrawAt=Date.now();this.hooks.connected();}
+  else if(message.type==='waiting'){this.waitingReason=!message.host?'host-offline':!message.guest?'guest-offline':message.hostVisible===false?'host-hidden':message.guestVisible===false?'guest-hidden':'not-ready';this.playing=false;this.probes.clear();this.wsPeerRtt=null;this.remoteMetrics=null;this.hooks.input?.(0);this.audioAt=0;this.hooks.waiting(!message.host?'Ждём первого игрока…':!message.guest?'Ждём соперника…':message.hostVisible===false?'Первый игрок свернул игру. Ждём его возвращения.':message.guestVisible===false?'Соперник свернул игру. Ждём его возвращения.':'Ждём готовности обоих игроков.');}
  }
  safeMetrics(value){
   const out={};if(!value||typeof value!=='object')return out;
-  const limits={relayRtt:30000,peerRtt:30000,rafFps:240,sendFps:120,fps:120,sourceFps:240,encodeMs:10000,decodeMs:10000,bufferMs:30000,lossPct:100,queueBytes:10000000,iceRtt:30000};
+  const limits={relayRtt:30000,peerRtt:30000,rafFps:240,sendFps:120,fps:120,sourceFps:240,encodeMs:10000,decodeMs:10000,bufferMs:30000,lossPct:100,queueBytes:10000000,iceRtt:30000,maxFrameGapMs:30000,frameStalls:10000,rafGapMs:30000};
   for(const [key,max] of Object.entries(limits))if(Number.isFinite(value[key])&&value[key]>=0&&value[key]<=max)out[key]=Math.round(value[key]*10)/10;
   if(['websocket','webrtc','turn'].includes(value.route))out.route=value.route;return out;
  }
@@ -57,24 +57,25 @@ class Umk3RelayBase {
   const fps=(key)=>seconds?Math.max(0,(this[key]-(prev?.[key]||0))/seconds):null;
   const recent=(at)=>Number.isFinite(at)&&now-at<6500;
   const peerRtt=this.direct?(recent(this.inputRttAt)?this.inputRtt:null):(recent(this.wsPeerRttAt)?this.wsPeerRtt:null);
-  const local={...this.safeMetrics(this.diag),route:this.direct?(this.diag.route==='turn'?'turn':'webrtc'):'websocket',relayRtt:recent(this.rttAt)?this.rtt:null,peerRtt,
+  const local={maxFrameGapMs:this.frameGapMax||0,frameStalls:this.frameStalls||0,rafGapMs:this.rafGapMax||0,...this.safeMetrics(this.diag),route:this.direct?(this.diag.route==='turn'?'turn':'webrtc'):'websocket',relayRtt:recent(this.rttAt)?this.rtt:null,peerRtt,
    rafFps:this.config.role==='host'?fps('rafFrames'):null,sendFps:this.config.role==='host'&&!this.direct?fps('sentFrames'):this.diag.sendFps??null,
    fps:this.config.role==='guest'?fps('frames'):null,encodeMs:!this.direct&&this.encodeCount?this.encodeSum/this.encodeCount:this.diag.encodeMs??null,
    decodeMs:!this.direct&&this.decodeCount?this.decodeSum/this.decodeCount:this.diag.decodeMs??null,queueBytes:this.socket?.bufferedAmount||0};
-  this.metricSample={at:now,frames:this.frames,sentFrames:this.sentFrames,rafFrames:this.rafFrames};this.encodeSum=this.encodeCount=this.decodeSum=this.decodeCount=0;
+  this.frameGapMax=this.frameStalls=this.rafGapMax=0;this.metricSample={at:now,frames:this.frames,sentFrames:this.sentFrames,rafFrames:this.rafFrames};this.encodeSum=this.encodeCount=this.decodeSum=this.decodeCount=0;
   if(this.playing){this.probe('websocket');if(this.direct)this.probe('webrtc');if(this.diagSupported&&this.socket?.bufferedAmount<16384)this.send({type:'net-metrics',generation:this.roomGeneration,metrics:this.safeMetrics(local)});}
   this.hooks.diagnostics?.({...local,direct:!!this.direct,profile:this.streamLevel,playing:this.playing,role:this.config.role,turnConfigured:!!this.turnConfigured,region:this.relayRegion||'',
-   iceState:this.diag.iceState||'new',gathering:this.diag.gathering||'new',candidateTypes:this.diag.candidateTypes||[],candidatePair:this.diag.candidatePair||null,
+   turnError:this.turnError||null,waitingReason:this.waitingReason||null,audio:this.audioStats?{queueMs:this.audioStats.queueMs,jitterMs:this.audioStats.jitterMs,underruns:this.audioStats.underruns,droppedMs:this.audioStats.droppedMs}:null,audioMode:this.audioSink?'buffered':this.sinkFallback?'compatibility':'starting',iceState:this.diag.iceState||'new',gathering:this.diag.gathering||'new',candidateTypes:this.diag.candidateTypes||[],candidatePair:this.diag.candidatePair||null,
    reason:this.diag.reason||null,events:this.diagEvents.slice(),remote:this.remoteMetrics&&now-this.remoteMetrics.at<6500?this.remoteMetrics:null});
  }
  send(data){if(!this.closed&&this.socket?.readyState===WebSocket.OPEN)this.socket.send(JSON.stringify(data));}
  gameReady(){this.ready=true;this.send({type:'ready'});}
- visibility(visible){this.input(0);this.send({type:'visibility',visible});}
+ markFrame(){const now=Date.now();if(this.lastDrawAt&&this.playing){const gap=Math.max(0,now-this.lastDrawAt);this.frameGapMax=Math.max(this.frameGapMax||0,gap);if(gap>150)this.frameStalls=(this.frameStalls||0)+1;}this.lastDrawAt=now;this.frames++;}
+ visibility(visible){this.lastRafAt=0;this.rafGapMax=0;this.input(0);this.send({type:'visibility',visible});}
  input(mask){if(this.config.role!=='guest')return;this.mask=mask&4095;this.unlockAudio();if(!this.playing||this.socket?.readyState!==WebSocket.OPEN||this.socket.bufferedAmount>16384)return;const p=new Uint8Array(3);p[0]=2;new DataView(p.buffer).setUint16(1,this.mask,true);this.socket.send(p);}
  publish(canvas,emulator){
   const capture=document.createElement('canvas'),ctx=capture.getContext('2d',{alpha:false,desynchronized:true});let nextAt=0,busy=false,lastBacklog=0,lastQualityChange=0;
   const tick=now=>{
-   if(this.closed)return;this.animation=requestAnimationFrame(tick);if(this.playing)this.rafFrames++;if(!this.playing||this.direct||this.socket?.readyState!==WebSocket.OPEN)return;
+   if(this.closed)return;this.animation=requestAnimationFrame(tick);if(this.playing){this.rafFrames++;if(this.lastRafAt)this.rafGapMax=Math.max(this.rafGapMax||0,Date.now()-this.lastRafAt);this.lastRafAt=Date.now();}else this.lastRafAt=0;if(!this.playing||this.direct||this.socket?.readyState!==WebSocket.OPEN)return;
    const queued=this.socket.bufferedAmount,clock=Date.now();if(queued>24576){lastBacklog=clock;if(clock-lastQualityChange>1500){this.setStreamLevel(this.streamLevel+1);lastQualityChange=clock;}}
    else if(this.streamLevel>0&&clock-Math.max(lastBacklog,lastQualityChange,this.profileChangedAt||0)>6000){this.setStreamLevel(this.streamLevel-1);lastQualityChange=clock;}
    if(busy||queued>24576)return;const profile=this.streamProfile(),interval=1000/profile.relayFps;if(now<nextAt)return;
@@ -91,7 +92,7 @@ class Umk3RelayBase {
   if(packet.length<6)return;const seq=new DataView(packet.buffer).getUint32(1,true);if(seq<=this.lastFrame)return;this.lastFrame=seq;this.pending=packet.slice(5);if(!this.decodeBusy)void this.decode();
  }
  async decode(){
-  this.decodeBusy=true;try{while(this.pending&&!this.closed){const bytes=this.pending;this.pending=null;const decodeAt=Date.now();const bitmap=await createImageBitmap(new Blob([bytes],{type:'image/jpeg'}));if(this.closed){bitmap.close();break;}const canvas=this.hooks.canvas;if(canvas.width!==bitmap.width)canvas.width=bitmap.width;if(canvas.height!==bitmap.height)canvas.height=bitmap.height;canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0);bitmap.close();this.decodeSum+=Math.max(0,Date.now()-decodeAt);this.decodeCount++;this.frames++;this.decodeErrors=0;this.lastDrawAt=Date.now();this.bytes+=bytes.length;this.hooks.frame?.();}}catch{this.decodeErrors=(this.decodeErrors||0)+1;}finally{this.decodeBusy=false;if(this.pending&&!this.closed)void this.decode();}
+  this.decodeBusy=true;try{while(this.pending&&!this.closed){const bytes=this.pending;this.pending=null;const decodeAt=Date.now();const bitmap=await createImageBitmap(new Blob([bytes],{type:'image/jpeg'}));if(this.closed){bitmap.close();break;}const canvas=this.hooks.canvas;if(canvas.width!==bitmap.width)canvas.width=bitmap.width;if(canvas.height!==bitmap.height)canvas.height=bitmap.height;canvas.getContext('2d',{alpha:false}).drawImage(bitmap,0,0);bitmap.close();this.decodeSum+=Math.max(0,Date.now()-decodeAt);this.decodeCount++;this.markFrame();this.decodeErrors=0;this.bytes+=bytes.length;this.hooks.frame?.();}}catch{this.decodeErrors=(this.decodeErrors||0)+1;}finally{this.decodeBusy=false;if(this.pending&&!this.closed)void this.decode();}
  }
  captureAudio(emulator){
   if(this.closed||this.config.role!=='host')return;const al=emulator.gameManager?.Module?.AL?.currentCtx;if(!al?.audioCtx)return;const ctx=al.audioCtx;

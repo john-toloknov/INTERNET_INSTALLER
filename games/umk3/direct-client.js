@@ -10,7 +10,7 @@ class Umk3Relay extends Umk3RelayBase {
   if(m.type==='rtc'){this.signalQueue=(this.signalQueue||Promise.resolve()).then(()=>this.peerSignal(m)).catch(()=>this.peerFallback('signal-queue'));return;}
   if(m.type==='welcome'){
    this.rtcSupported=m.features?.includes('rtc-v1')===true;this.iceServers=m.network?.iceServers||[{urls:'stun:stun.l.google.com:19302'}];
-   this.turnConfigured=m.network?.turnConfigured===true;this.relayRegion=typeof m.network?.region==='string'&&/^[a-zA-Z0-9 ._-]{1,48}$/.test(m.network.region)?m.network.region:'';
+   this.turnError=m.network?.turnError||null;this.turnConfigured=m.network?.turnConfigured===true;if(m.network?.turnError==='turn-provider-unavailable')this.trace('turn-provider-unavailable');this.relayRegion=typeof m.network?.region==='string'&&/^[a-zA-Z0-9 ._-]{1,48}$/.test(m.network.region)?m.network.region:'';
   }
   super.control(m);
   if(m.type==='peer-ready'&&Date.now()>(this.peerCooldownUntil||0))this.beginPeer(m.generation);
@@ -25,12 +25,11 @@ class Umk3Relay extends Umk3RelayBase {
    pc.onicecandidate=e=>{if(current()&&e.candidate){const type=e.candidate.type;if(['host','srflx','prflx','relay'].includes(type)&&!this.diag.candidateTypes.includes(type))this.diag.candidateTypes.push(type);this.send({type:'rtc',generation,candidate:e.candidate.toJSON()});}};
    pc.onicegatheringstatechange=()=>{if(current())this.diag.gathering=pc.iceGatheringState;};
    pc.onicecandidateerror=e=>{if(current()&&Number.isInteger(e.errorCode))this.trace(e.errorCode===701?'ice-server-unreachable':e.errorCode===401||e.errorCode===438?'turn-auth-error':'ice-server-error');};
-   pc.oniceconnectionstatechange=()=>{if(!current())return;this.diag.iceState=pc.iceConnectionState;if(pc.iceConnectionState==='failed')this.peerFallback('ice-failed');};
+   pc.oniceconnectionstatechange=()=>{if(!current())return;this.diag.iceState=pc.iceConnectionState;if(pc.iceConnectionState==='failed')this.peerFallback('ice-failed');else if(['connected','completed'].includes(pc.iceConnectionState))void this.startPeerCapture(pc);};
    pc.onconnectionstatechange=()=>{if(current()&&['failed','closed'].includes(pc.connectionState))this.peerFallback('connection-failed');};
    if(this.config.role==='host'){
     if(!this.publishCanvas?.captureStream)throw Error('Canvas streaming unavailable');
-    const profile=this.streamProfile();this.mediaStream=this.publishCanvas.captureStream(profile.fps);const track=this.mediaStream.getVideoTracks()[0];if(!track)throw Error('No video track');
-    track.contentHint='motion';const sender=this.videoSender=pc.addTrack(track,this.mediaStream),params=sender.getParameters();if(!params.encodings?.length)params.encodings=[{}];params.encodings[0].maxBitrate=profile.bitrate;params.encodings[0].maxFramerate=profile.fps;params.degradationPreference='maintain-framerate';void sender.setParameters(params).catch(()=>{});
+    if(pc.addTransceiver)this.videoSender=pc.addTransceiver('video',{direction:'sendonly'}).sender;else this.startPeerCapture(pc);
     this.bindChannel(pc.createDataChannel('game',{ordered:false,maxRetransmits:0}),pc);
     void (async()=>{await pc.setLocalDescription(await pc.createOffer());if(current())this.send({type:'rtc',generation,description:{type:'offer',sdp:pc.localDescription.sdp}});})().catch(()=>{if(current())this.peerFallback('offer-failed');});
    }else{
@@ -40,6 +39,14 @@ class Umk3Relay extends Umk3RelayBase {
    this.metricsTimer=setInterval(()=>void this.measureNetwork(),2000);
    this.peerTimer=setTimeout(()=>{if(current()&&!this.direct)this.peerFallback(this.diag.iceState==='connected'||this.diag.iceState==='completed'?'video-timeout':this.diag.candidateTypes.length?'ice-timeout':'ice-no-candidates');},this.turnConfigured?20000:12000);
   }catch{this.peerFallback('peer-setup-failed');}
+ }
+ async startPeerCapture(pc){
+  if(this.config.role!=='host'||this.pc!==pc||this.mediaStream||this.closed)return;
+  try{
+   const profile=this.streamProfile();this.mediaStream=this.publishCanvas.captureStream(profile.fps);const track=this.mediaStream.getVideoTracks()[0];if(!track)throw Error();track.contentHint='motion';
+   if(this.videoSender)await this.videoSender.replaceTrack(track);else this.videoSender=pc.addTrack(track,this.mediaStream);
+   if(this.pc===pc)await this.applyStreamProfile();
+  }catch{if(this.pc===pc)this.peerFallback('capture-start-failed');}
  }
  bindChannel(channel,pc){
   if(channel.label!=='game'){channel.close();return;}this.channel=channel;channel.binaryType='arraybuffer';
@@ -70,7 +77,7 @@ class Umk3Relay extends Umk3RelayBase {
   const video=this.peerVideo=document.createElement('video');video.id='rtcVideo';video.autoplay=true;video.playsInline=true;video.muted=true;video.hidden=true;video.srcObject=new MediaStream([track]);this.hooks.canvas.after(video);
   let last=-1;const painted=()=>{
    if(this.closed||this.pc!==pc)return;
-   if(video.readyState>=2&&video.currentTime!==last&&this.playing){last=video.currentTime;this.lastDrawAt=Date.now();this.frames++;
+   if(video.readyState>=2&&video.currentTime!==last&&this.playing){last=video.currentTime;this.markFrame();
     if(!this.direct){this.direct=true;clearTimeout(this.peerTimer);video.hidden=false;this.hooks.canvas.hidden=true;this.clearAudio();this.peerSend({type:'media-ready'});this.trace('media-connected');void this.measureNetwork();this.hooks.transport?.(true);}
     this.hooks.frame?.();
    }if(video.requestVideoFrameCallback)this.peerVideoFrame=video.requestVideoFrameCallback(painted);else this.peerPaint=requestAnimationFrame(painted);
@@ -91,7 +98,7 @@ class Umk3Relay extends Umk3RelayBase {
  frame(packet){if(!this.direct)super.frame(packet);}
  unlockAudio(interaction=false){
   if(this.config.role!=='guest')return;
-  if(!this.audioContext){const Context=window.AudioContext||window.webkitAudioContext;if(!Context)return;this.audioContext=new Context({latencyHint:'interactive'});this.audioContext.onstatechange=()=>this.hooks.audio?.(this.audioContext.state==='running');}
+  if(!this.audioContext){const Context=window.AudioContext||window.webkitAudioContext;if(!Context)return;this.audioContext=new Context({latencyHint:'interactive'});this.audioContext.onstatechange=()=>this.hooks.audio?.(this.audioContext.state==='running');this.startAudioSink();}
   this.hooks.audio?.(this.audioContext.state==='running');if(interaction&&this.audioContext.state==='suspended')void this.audioContext.resume().then(()=>this.hooks.audio?.(this.audioContext.state==='running')).catch(()=>{});
  }
  async captureAudio(emulator){
@@ -100,7 +107,7 @@ class Umk3Relay extends Umk3RelayBase {
   if(!this.processor&&!this.tapLoading){
    this.tapLoading=true;
    try{
-    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261127-games-v5');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
+    if(ctx.audioWorklet){await ctx.audioWorklet.addModule('audio-tap.js?v=20261127-games-v6');if(this.closed||this.audioContext!==ctx)return;this.processor=new AudioWorkletNode(ctx,'umk3-audio-tap',{numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]});this.processor.port.onmessage=e=>this.sendAudioSamples(e.data,ctx.sampleRate);}
    }catch{}
    if(!this.processor&&!this.closed&&this.audioContext===ctx){this.processor=ctx.createScriptProcessor(1024,2,1);this.processor.onaudioprocess=e=>{e.outputBuffer.getChannelData(0).fill(0);const channels=Array.from({length:e.inputBuffer.numberOfChannels},(_,i)=>e.inputBuffer.getChannelData(i)),mono=new Float32Array(e.inputBuffer.length);for(let i=0;i<mono.length;i++)for(const c of channels)mono[i]+=c[i]/channels.length;this.sendAudioSamples(mono,ctx.sampleRate);};}
    this.tapLoading=false;if(this.closed||!this.processor)return;this.processor.connect(ctx.destination);
@@ -111,16 +118,33 @@ class Umk3Relay extends Umk3RelayBase {
   const live=new Set(al.gain?[al.gain]:Object.values(al.sources||{}).map(s=>s?.gain).filter(Boolean));for(const gain of this.gains)if(!live.has(gain)){try{gain.disconnect(this.processor);}catch{}this.gains.delete(gain);}for(const gain of live){gain.connect(this.processor);this.gains.add(gain);}
  }
  sendAudioSamples(samples,sampleRate){
-  if(this.closed||!this.playing)return;const rate=16000,ratio=sampleRate/rate,n=Math.floor(samples.length/ratio);if(!n)return;const packet=new Uint8Array(5+n*2),view=new DataView(packet.buffer);packet[0]=3;view.setUint32(1,rate,true);
-  for(let i=0;i<n;i++){const f=Math.max(-1,Math.min(1,samples[Math.floor(i*ratio)]));const value=f<0?f*32768:f*32767;view.setInt16(5+i*2,value,true);this.audioPeak=Math.max(this.audioPeak,Math.abs(value));}
+  if(this.closed||!this.playing||!samples?.length)return;
+  const rate=32000,ratio=sampleRate/rate,state=this.resampleState?.rate===sampleRate?this.resampleState:{rate:sampleRate,phase:0,last:0};this.resampleState=state;
+  const converted=[];let at=state.phase;for(;at<samples.length-1;at+=ratio){const i=Math.floor(at),a=i<0?state.last:samples[i],b=samples[i+1];converted.push(Math.max(-1,Math.min(1,a+(b-a)*(at-i))));}state.phase=at-samples.length;state.last=samples.at(-1);
+  const n=converted.length;if(!n)return;const packet=new Uint8Array(5+n*2),view=new DataView(packet.buffer);packet[0]=3;view.setUint32(1,rate,true);
+  for(let i=0;i<n;i++){const f=converted[i],value=f<0?f*32768:f*32767;view.setInt16(5+i*2,value,true);this.audioPeak=Math.max(this.audioPeak,Math.abs(value));}
   if(this.direct){const tagged=new Uint8Array(packet.length+4);tagged[0]=4;new DataView(tagged.buffer).setUint32(1,++this.audioSeq,true);tagged.set(packet.subarray(1),5);if(this.peerSend(tagged))this.audioPackets++;return;}
   if(this.socket?.readyState===WebSocket.OPEN&&this.socket.bufferedAmount<24576){this.socket.send(packet);this.audioPackets++;}
  }
+ async startAudioSink(){
+  const ctx=this.audioContext;if(this.sinkLoading||this.audioSink||this.sinkFallback||!ctx)return;
+  if(!ctx.audioWorklet){this.sinkFallback=true;return;}this.sinkLoading=true;
+  try{
+   await ctx.audioWorklet.addModule('audio-tap.js?v=20261127-games-v6');if(this.closed||ctx!==this.audioContext)return;
+   const node=this.audioSink=new AudioWorkletNode(ctx,'umk3-audio-playback',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[1]});
+   node.port.onmessage=e=>{if(e.data?.type==='stats')this.audioStats=e.data;};node.connect(ctx.destination);
+   for(const m of this.audioStartupPending||[])node.port.postMessage(m,[m.samples.buffer]);this.audioStartupPending=[];
+  }catch{this.sinkFallback=true;this.audioStartupPending=[];}finally{this.sinkLoading=false;}
+ }
  audio(packet){
   if(!this.playing||packet.length<7||packet.length%2!==1)return;const view=new DataView(packet.buffer,packet.byteOffset,packet.byteLength),rate=view.getUint32(1,true),n=(packet.length-5)/2;if(n>8192||rate<16000||rate>48000)return;
-  this.receivedAudio++;this.unlockAudio();const ctx=this.audioContext;if(!ctx||ctx.state!=='running')return;const now=ctx.currentTime;if(this.audioAt>now+.10){this.clearAudio();}this.audioAt=Math.max(this.audioAt,now+.025);
-  const buffer=ctx.createBuffer(1,n,rate),target=buffer.getChannelData(0);for(let i=0;i<n;i++)target[i]=view.getInt16(5+i*2,true)/32768;
-  const source=ctx.createBufferSource();source.buffer=buffer;source.connect(ctx.destination);this.audioSources.add(source);source.onended=()=>{source.disconnect();this.audioSources.delete(source);};source.start(this.audioAt);this.audioAt+=n/rate;
+  this.receivedAudio++;this.unlockAudio();const ctx=this.audioContext;if(!ctx||ctx.state!=='running')return;
+  const samples=new Float32Array(n);for(let i=0;i<n;i++)samples[i]=view.getInt16(5+i*2,true)/32768;
+  if(this.audioSink){this.audioSink.port.postMessage({type:'samples',samples,rate,at:performance.now()},[samples.buffer]);return;}
+  if(!this.sinkFallback){const queue=this.audioStartupPending||(this.audioStartupPending=[]);queue.push({type:'samples',samples,rate,at:performance.now()});if(queue.length>8)queue.shift();return;}
+  // Compatibility path: never cancel already-playing audio on a normal burst.
+  const now=ctx.currentTime;if(this.audioAt>now+.35)return;this.audioAt=Math.max(this.audioAt,now+.06);
+  const buffer=ctx.createBuffer(1,n,rate);buffer.getChannelData(0).set(samples);const source=ctx.createBufferSource();source.buffer=buffer;source.connect(ctx.destination);this.audioSources.add(source);source.onended=()=>{source.disconnect();this.audioSources.delete(source);};source.start(this.audioAt);this.audioAt+=n/rate;
  }
 
  recoverVideoStall(){if(!this.direct)return false;this.peerFallback('video-stalled');this.hooks.transport?.(false);return true;}
@@ -164,8 +188,8 @@ class Umk3Relay extends Umk3RelayBase {
    });
   }catch{this.trace('stats-unavailable');}finally{this.measuring=false;}
  }
- clearAudio(){this.audioAt=0;for(const source of this.audioSources){try{source.stop();source.disconnect();}catch{}}this.audioSources.clear();}
+ clearAudio(){this.audioAt=0;this.audioStartupPending=[];this.audioSink?.port.postMessage({type:'reset'});this.resampleState=null;for(const source of this.audioSources){try{source.stop();source.disconnect();}catch{}}this.audioSources.clear();}
  disposeTap(){for(const gain of this.gains){try{gain.disconnect(this.processor);}catch{}}this.gains.clear();if(this.processor?.port){this.processor.port.onmessage=null;this.processor.port.close();}if(this.processor)this.processor.onaudioprocess=null;this.processor?.disconnect();this.processor=null;}
- close(){this.stopPeer();this.clearAudio();this.disposeTap();super.close();}
+ close(){this.stopPeer();this.clearAudio();this.disposeTap();if(this.audioSink){this.audioSink.port.onmessage=null;this.audioSink.port.close();this.audioSink.disconnect();this.audioSink=null;}super.close();}
 }
 window.Umk3Relay=Umk3Relay;
